@@ -11,6 +11,8 @@ from config import ParPlanetoid
 from ProG.prompt import Pipeline
 from ProG.meta import MAML
 from data_preprocess import load_tasks
+from torch_geometric.loader import DataLoader
+import torchmetrics
 
 seed_everything(seed)
 
@@ -40,37 +42,36 @@ def meta_test_adam(meta_test_task_id_list,
 
         test_model.train()
 
+        support_loader = DataLoader(support.to_data_list(), batch_size=10, shuffle=True)
+        query_loader = DataLoader(query.to_data_list(), batch_size=10, shuffle=True)
+
         for _ in range(adapt_steps_meta_test):
-            # TODO: need to support batch compute
-            support_preds = test_model(support)
-            support_loss = lossfn(support_preds, support.y)
-            if _ % 5 == 0:
-                print('{}/{} training loss: {:.8f}'.format(_,
-                                                           adapt_steps_meta_test,
-                                                           support_loss.item()))
-            test_opi.zero_grad()
-            support_loss.backward()
-            test_opi.step()
+            running_loss = 0.
+            for batch_id, support_batch in enumerate(support_loader):
+                support_preds = test_model(support_batch)
+                support_loss = lossfn(support_preds, support_batch.y)
+                test_opi.zero_grad()
+                support_loss.backward()
+                test_opi.step()
+                running_loss += support_loss.item()
+                # print("{}/{} batch loss: {:.8f}".format(batch_id+1,len(support_loader),support_loss.item()))
+
+                if batch_id == len(support_loader) - 1:
+                    last_loss = running_loss / len(support_loader)  # loss per batch
+                    print('{}/{} training loss: {:.8f}'.format(_, adapt_steps_meta_test, last_loss))
+                    running_loss = 0.
 
         test_model.eval()
-        # TODO: need to support batch compute
-        query_preds = test_model(query)
+        metric = torchmetrics.classification.Accuracy(task="binary")  # , num_labels=2)
+        for batch_id, query_batch in enumerate(query_loader):
+            query_preds = test_model(query_batch)
+            pre_class = torch.argmax(query_preds, dim=1)
+            acc = metric(pre_class, query_batch.y)
+            # print(f"Accuracy on batch {batch_id}: {acc}")
 
-        pre_class = torch.argmax(query_preds, dim=1)
-        acc = accuracy_score(query.y, pre_class)
+        acc = metric.compute()
         print("""\ttask pair ({}, {}) | Acc: {:.4} """.format(task_1, task_2, acc))
-        # f1 = f1_score(query.y, pre_class, average='binary')
-        # auc = roc_auc_score(query.y, query_preds[:, 1].detach().numpy())
-        # print("""\ttask pair ({}, {}) | Acc: {:.4} | F1: {:.4} | ACU: {:.4}""".format(task_1, task_2, acc, f1, auc))
-        # task_results.append([task_1, task_2, acc, f1, auc])
-        #
-        # if save_project_head:
-        #     torch.save(test_model.project_head.state_dict(),
-        #                "./project_head/{}.{}.{}.{}.pth".format(dataname, pre_train_method, gnn_type, meta_test_type))
-        #     print("project head saved! @./project_head/{}.{}.{}.{}.pth".format(dataname, pre_train_method, gnn_type,
-        #                                                                        meta_test_type))
-
-    # return task_results
+        metric.reset()
 
 
 def meta_train_maml(epoch, maml, lossfn, opt, meta_train_task_id_list, dataname, adapt_steps, K_shot=100):
@@ -144,18 +145,15 @@ if __name__ == '__main__':
     meta_test_task_id_list = [4, 5]
 
     pre_train_method = 'GraphCL'
-    with_prompt = [True]
-    meta_learning = [True]
     gnn_type = ['TransformerConv']
-    pre_train_path = ""
 
     maml, opt, lossfn = model_components()
     epoch = 20  # 200
     adapt_steps = 20
-    meta_train_maml(epoch, maml, lossfn, opt, meta_train_task_id_list,
-                    dataname, adapt_steps, K_shot=100)
+    # meta_train_maml(epoch, maml, lossfn, opt, meta_train_task_id_list,
+    #                 dataname, adapt_steps, K_shot=100)
 
-    adapt_steps_meta_test = 200  # 50
+    adapt_steps_meta_test = 2  # 00  # 50
 
     meta_test_adam(meta_test_task_id_list, dataname, 100, seed, maml,
                    adapt_steps_meta_test, lossfn)

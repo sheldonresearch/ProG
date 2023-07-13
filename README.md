@@ -7,7 +7,7 @@ compared with the raw code, this 0.1 version has EXTREAMLY HUGE CHANGES, includi
   remove sklearn.metrics in the original version
 - more clear prompt module. in the previous version, there are at least two different implementations for prompt,which
   is very messy. Here we remove all these trash and unify them with a LightPrompt and a HeavyPrompt.
--
+- support batch training and testing in function: meta_test_adam
 
 
 An example to see how much degree we have reduced for the code simplification:
