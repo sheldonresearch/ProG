@@ -1,17 +1,16 @@
 # ProG
 
 
-- Click to see [Historical Update Logs](https://github.com/sheldonresearch/ProG/blob/main/History.md)
-- Click to see [Historical Releases](https://github.com/sheldonresearch/ProG/releases) 
+- [Historical Update Logs](https://github.com/sheldonresearch/ProG/blob/main/History.md)
+- [Historical Releases](https://github.com/sheldonresearch/ProG/releases) 
 
 
-This is a graph prompt framework inspired by the paper: 
+This is a polished project inspired by the work of the paper: _Xiangguo Sun, Hong Cheng, JIa Li, etc. All in One: Multi-task Prompting for Graph Neural Networks. KDD2023._
 
-``Xiangguo Sun, Hong Cheng, JIa Li, etc. All in One: Multi-task Prompting for Graph Neural Networks. KDD2023.``
+The raw codes released by this paper can be found at [https://anonymous.4open.science/r/mpg/README.md](https://anonymous.4open.science/r/mpg/README.md)
 
-
-The raw codes released in this paper can be found [Here](https://anonymous.4open.science/r/mpg/README.md)
-
+This repository is a polished version of them with extremely huge changes and updates. Please see this link for the detailed update:
+[https://github.com/sheldonresearch/ProG/releases](https://github.com/sheldonresearch/ProG/releases)
 
 
 Detailed usage examples can be found in 
@@ -19,9 +18,7 @@ Detailed usage examples can be found in
 - and ``meta_demo.py``
 
 
-
-
-citation
+citation bibtex
 
 ```
 @inproceedings{sun2023all,
