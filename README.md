@@ -1,23 +1,21 @@
 # ProG
 
+ProG (Prompt Graph) is a library built upon PyTorch to easily conduct single or multiple task prompting for a pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, JIa Li,
+etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023, in which they released the raw
+codes at [Click](https://anonymous.4open.science/r/mpg/README.md). This repository is a **polished version** of the raw codes
+with **[Extremely Huge Changes and Updates](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)**.
 
 - [Historical Update Logs](https://github.com/sheldonresearch/ProG/blob/main/History.md)
 - [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
+- [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
 
-This is a **polished project** inspired by the work of the paper: Xiangguo Sun, Hong Cheng, JIa Li,
-etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023. The Raw Codes are released [Here](https://anonymous.4open.science/r/mpg/README.md)
-
-
-This repository is a **polished version** of the raw codes with **[Extremely Huge Changes and Updates](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)**. See the differences [Here](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023).
 
 **Usage examples can be found in:**
 
 - ``no_meta_demo.py``
 - ``meta_demo.py``
 
-
-
-For More Information, see the [Website](https://graphprompt.github.io/) of this paper
+For More Information, see the homepage of this paper: [Website](https://graphprompt.github.io/)
 
 citation bibtex
 
@@ -30,7 +28,6 @@ citation bibtex
 }
 
 ```
-
 
 **Compare this new implementation with the raw codes:**
 
@@ -54,5 +51,6 @@ this version code     | 79.78 ｜  80.01   ｜
 ==========================================|
 --: hasn't implemented batch F1 in this version
 ```
+
 The above table is copied from this blog: https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023
 
