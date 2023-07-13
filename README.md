@@ -16,6 +16,7 @@ This repository is a **polished version** of the raw codes with **[Extremely Hug
 - ``meta_demo.py``
 
 
+
 For More Information, see the [Website](https://graphprompt.github.io/) of this paper
 
 citation bibtex
@@ -29,3 +30,28 @@ citation bibtex
 }
 
 ```
+
+
+**Compare this new implementation with the raw codes:**
+
+```
+Multi-class node classification (100-shots)
+
+                      |      CiteSeer     |
+                      |  ACC  | Macro-F1  |
+==========================================|
+reported in the paper | 80.50 |   80.05   |
+(Prompt)              |                   |
+------------------------------------------|
+this version code     | 81.00 |   --      |
+(Prompt)              |   (run one time)  | 
+==========================================|
+reported in the paper | 80.00 ｜  80.05   ｜
+(Prompt w/o h)        |                   ｜
+------------------------------------------|
+this version code     | 79.78 ｜  80.01   ｜
+(Prompt w/o h)        |   (run one time)  ｜
+==========================================|
+--: hasn't implemented batch F1 in this version
+```
+The above table is copied from this blog: https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023
