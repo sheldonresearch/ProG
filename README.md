@@ -2,21 +2,23 @@
 
 
 - [Historical Update Logs](https://github.com/sheldonresearch/ProG/blob/main/History.md)
-- [Historical Releases](https://github.com/sheldonresearch/ProG/releases) 
+- [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
+
+This is a **polished project** inspired by the work of the paper: _Xiangguo Sun, Hong Cheng, JIa Li,
+etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023. The Raw Codes released by this paper can be found
+at [https://anonymous.4open.science/r/mpg/README.md](https://anonymous.4open.science/r/mpg/README.md)
 
 
-This is a polished project inspired by the work of the paper: _Xiangguo Sun, Hong Cheng, JIa Li, etc. All in One: Multi-task Prompting for Graph Neural Networks. KDD2023._
+This repository is a polished version of them with **Extremely Huge Changes and Updates**. Please check this link for the
+detailed update: [https://github.com/sheldonresearch/ProG/releases](https://github.com/sheldonresearch/ProG/releases)
 
-The raw codes released by this paper can be found at [https://anonymous.4open.science/r/mpg/README.md](https://anonymous.4open.science/r/mpg/README.md)
+Usage examples can be found in
 
-This repository is a polished version of them with extremely huge changes and updates. Please see this link for the detailed update:
-[https://github.com/sheldonresearch/ProG/releases](https://github.com/sheldonresearch/ProG/releases)
+- ``no_meta_demo.py``
+- ``meta_demo.py``
 
 
-Detailed usage examples can be found in 
-- ``no_meta_demo.py`` 
-- and ``meta_demo.py``
-
+For More Information, please check the [Website](https://graphprompt.github.io/) of this paper
 
 citation bibtex
 
