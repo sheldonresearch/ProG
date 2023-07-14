@@ -20,11 +20,13 @@ etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.
 they released the raw
 codes at [Click](https://anonymous.4open.science/r/mpg/README.md). This repository is a **polished version** of the raw
 codes
-with **[Extremely Huge Changes and Updates](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)**.
+with **[Extremely Huge Changes and Updates:](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)**
 
 - [Historical Update Logs](https://github.com/sheldonresearch/ProG/blob/main/History.md)
 - [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
 - [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
+
+---
 
 ## Quick Start
 
@@ -116,7 +118,7 @@ For more detailed usage examples w.r.t ``prompt with answer tuning``, ``prompt w
 - ``no_meta_demo.py``
 - ``meta_demo.py``
 
-## Compare this new implementation
+### Compare this new implementation with the raw code
 
 ```
 Multi-class node classification (100-shots)
@@ -158,6 +160,5 @@ bibtex
 ```
 
 
-## Homepage
 
 For More Information, Further discussion, Contact, etc, see the homepage of this paper: [Website](https://graphprompt.github.io/)
