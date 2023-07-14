@@ -161,5 +161,7 @@ bibtex
 ```
 
 
+## Contact
 
-For More Information, Further discussion, Contact, etc, see the homepage of this paper: [Website](https://graphprompt.github.io/)
+- For More Information, Further discussion, Contact: [Website](https://graphprompt.github.io/)
+- Email: xiangguosun at cuhk dot edu dot hk
