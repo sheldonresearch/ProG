@@ -1,5 +1,5 @@
 
-<p align="left">
+<p align="center">
   <img height="150" src="https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?sanitize=true" />
 </p>
 
@@ -27,6 +27,13 @@ with **[Extremely Huge Changes and Updates](https://github.com/sheldonresearch/P
 - [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
 
 ## Quick Start
+
+
+### Package Dependencies
+
+- PyTorch 1.13.1
+- torchmetrics 0.11.4
+- torch_geometric 2.2.0
 
 ### Pre-train your GNN model
 
@@ -102,26 +109,13 @@ for j in range(prompt_epoch):
     train_loss.backward()
     opi.step()
 ```
-
+### More Detailed Tutorial
 For more detailed usage examples w.r.t ``prompt with answer tuning``, ``prompt with meta-learning`` etc. Please check the demo in:
 
 - ``no_meta_demo.py``
 - ``meta_demo.py``
 
-
-
-## Package Dependencies
-
-- PyTorch 1.13.1
-- torchmetrics 0.11.4
-- torch_geometric 2.2.0
-
-## Homepage
-
-For More Information, see the homepage of this paper: [Website](https://graphprompt.github.io/)
-
 ## Compare this new implementation
-
 
 ```
 Multi-class node classification (100-shots)
@@ -150,7 +144,7 @@ pre-training states
 - The above table is copied from this blog: https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023
 
 
-## citation 
+## Citation 
 bibtex
 ```
 @inproceedings{sun2023all,
@@ -162,3 +156,7 @@ bibtex
 
 ```
 
+
+## Homepage
+
+For More Information, Further discussion, Contact, etc, see the homepage of this paper: [Website](https://graphprompt.github.io/)
