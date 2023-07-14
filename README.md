@@ -29,14 +29,9 @@ with **[Extremely Huge Changes and Updates](https://github.com/sheldonresearch/P
 
 ## Quick Start
 
-Usage examples can be found in:
-
-- ``no_meta_demo.py``
-- ``meta_demo.py``
-
-
 ### Pre-train your GNN model
 
+The following codes present a simple example on how to pre-train a GNN model via GraphCL. You can also find a integrated function ``pretrain()`` in ``no_meta_demo.py``.
 ```python
 from ProG.utils import mkdir, load_data4pretrain
 from ProG import PreTrain
@@ -60,6 +55,61 @@ pt.train(dataname, graph_list, batch_size=batch_size,
 
 
 ```
+
+### Create Relative Models
+
+```python
+from ProG.prompt import GNN, LightPrompt
+from torch import nn, optim
+import torch
+
+# load pre-trained GNN
+gnn = GNN(100, hid_dim=100, out_dim=100, gcn_layer_num=2, gnn_type="TransformerConv")
+pre_train_path = './pre_trained_gnn/{}.GraphCL.{}.pth'.format("CiteSeer", "TransformerConv")
+gnn.load_state_dict(torch.load(pre_train_path))
+print("successfully load pre-trained weights for gnn! @ {}".format(pre_train_path))
+for p in gnn.parameters():
+    p.requires_grad = False
+
+# prompt with hand-crafted answering template (no answering head tuning)
+PG = LightPrompt(token_dim=100, token_num_per_group=100, group_num=6, inner_prune=0.01)
+
+opi = optim.Adam(filter(lambda p: p.requires_grad, PG.parameters()),
+                 lr=0.001, weight_decay=0.00001)
+
+lossfn = nn.CrossEntropyLoss(reduction='mean')
+
+```
+The above codes are also integrated as a function ``model_create(dataname, gnn_type, num_class, task_type)`` in this project. 
+
+```python
+from ProG.data import multi_class_NIG
+import torch
+
+train, test,_,_ = multi_class_NIG(dataname, num_class)
+gnn, PG, opi, lossfn, _, _ = model_create(dataname, gnn_type, num_class, task_type)
+prompt_epoch = 200  # 200
+# training stage
+PG.train()
+emb0 = gnn(train.x, train.edge_index, train.batch)
+for j in range(prompt_epoch):
+    pg_batch = PG.inner_structure_update()
+    pg_emb = gnn(pg_batch.x, pg_batch.edge_index, pg_batch.batch)
+    dot = torch.mm(emb0, torch.transpose(pg_emb, 0, 1))
+    sim = torch.softmax(dot, dim=1)
+    train_loss = lossfn(sim, train.y)
+    print('{}/{} training loss: {:.8f}'.format(j, prompt_epoch, train_loss.item()))
+    opi.zero_grad()
+    train_loss.backward()
+    opi.step()
+```
+
+For more detailed usage examples w.r.t ``prompt with answer tuning``, ``prompt with meta-learning`` etc. Please check the demo in:
+
+- ``no_meta_demo.py``
+- ``meta_demo.py``
+
+
 
 ## Package Dependencies
 
