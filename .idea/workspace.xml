@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="072199a1-d45b-453a-a87d-99010969506d" name="Changes" comment="update readme.md" />
+    <list default="true" id="072199a1-d45b-453a-a87d-99010969506d" name="Changes" comment="update readme.md">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -138,7 +140,7 @@
       <workItem from="1689213955894" duration="11169000" />
       <workItem from="1689230093753" duration="129000" />
       <workItem from="1689230278177" duration="11984000" />
-      <workItem from="1689318219593" duration="3507000" />
+      <workItem from="1689318219593" duration="3919000" />
     </task>
     <task id="LOCAL-00001" summary="add MIT license">
       <created>1689235811326</created>
@@ -273,7 +275,14 @@
       <option name="project" value="LOCAL" />
       <updated>1689325839314</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="update readme.md">
+      <created>1689325924337</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1689325924337</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

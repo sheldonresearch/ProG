@@ -5,11 +5,11 @@
 
 
 --------------------------------------------------------------------------------
-![](https://img.shields.io/badge/Latest_version-v0.1.1-green)
+![](https://img.shields.io/badge/Latest_version-v0.1.1-red)
 ![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
-![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-green)
-![Testing Status](https://img.shields.io/badge/license-MIT-green)
+![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-red)
+![Testing Status](https://img.shields.io/badge/license-MIT-blue)
 
 
 **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)** | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)** | **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)**
@@ -33,6 +33,33 @@ Usage examples can be found in:
 
 - ``no_meta_demo.py``
 - ``meta_demo.py``
+
+
+### Pre-train your GNN model
+
+```python
+from ProG.utils import mkdir, load_data4pretrain
+from ProG import PreTrain
+
+mkdir('./pre_trained_gnn/')
+
+pretext = 'GraphCL'  # 'GraphCL', 'SimGRACE'
+gnn_type = 'TransformerConv'  # 'GAT', 'GCN'
+dataname, num_parts, batch_size = 'CiteSeer', 200, 10
+
+print("load data...")
+graph_list, input_dim, hid_dim = load_data4pretrain(dataname, num_parts)
+
+print("create PreTrain instance...")
+pt = PreTrain(pretext, gnn_type, input_dim, hid_dim, gln=2)
+
+print("pre-training...")
+pt.train(dataname, graph_list, batch_size=batch_size,
+         aug1='dropN', aug2="permE", aug_ratio=None,
+         lr=0.01, decay=0.0001, epochs=100)
+
+
+```
 
 ## Package Dependencies
 
