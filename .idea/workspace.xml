@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="072199a1-d45b-453a-a87d-99010969506d" name="Changes" comment="update readme.md" />
+    <list default="true" id="072199a1-d45b-453a-a87d-99010969506d" name="Changes" comment="update readme.md">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -138,7 +140,7 @@
       <workItem from="1689213955894" duration="11169000" />
       <workItem from="1689230093753" duration="129000" />
       <workItem from="1689230278177" duration="11984000" />
-      <workItem from="1689318219593" duration="4856000" />
+      <workItem from="1689318219593" duration="5199000" />
     </task>
     <task id="LOCAL-00001" summary="add MIT license">
       <created>1689235811326</created>
@@ -294,7 +296,28 @@
       <option name="project" value="LOCAL" />
       <updated>1689327194151</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="update readme.md">
+      <created>1689327218681</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1689327218681</updated>
+    </task>
+    <task id="LOCAL-00024" summary="update readme.md">
+      <created>1689327274498</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1689327274498</updated>
+    </task>
+    <task id="LOCAL-00025" summary="update readme.md">
+      <created>1689327445424</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1689327445424</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

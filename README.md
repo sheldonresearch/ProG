@@ -88,6 +88,7 @@ lossfn = nn.CrossEntropyLoss(reduction='mean')
 ```
 The above codes are also integrated as a function ``model_create(dataname, gnn_type, num_class, task_type)`` in this project. 
 
+### Prompt learning with hand-crafted answering template
 ```python
 from ProG.data import multi_class_NIG
 import torch
