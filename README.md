@@ -5,9 +5,17 @@
 
 
 --------------------------------------------------------------------------------
-**[Documentation](https://pytorch-geometric.readthedocs.io)** | **[Paper](https://arxiv.org/abs/1903.02428)** | **[Colab Notebooks and Video Tutorials](https://pytorch-geometric.readthedocs.io/en/latest/get_started/colabs.html)** | **[External Resources](https://pytorch-geometric.readthedocs.io/en/latest/external/resources.html)** | **[OGB Examples](https://github.com/snap-stanford/ogb/tree/master/examples)**
+![](https://img.shields.io/badge/Latest_version-v0.1.1-blue)
+![Testing Status](https://img.shields.io/badge/docs-in_progress-blue)
+![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-blue)
+![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-blue)
+![Testing Status](https://img.shields.io/badge/license-MIT-blue)
 
-ProG (Prompt Graph) is a library built upon PyTorch to easily conduct single or multiple task prompting for a
+
+**[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)** | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)** | **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)**
+
+
+**ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multiple task prompting for a
 pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, JIa Li,
 etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023, in which
 they released the raw
@@ -19,24 +27,24 @@ with **[Extremely Huge Changes and Updates](https://github.com/sheldonresearch/P
 - [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
 - [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
 
-### Quick Start
+## Quick Start
 
-**Usage examples can be found in:**
+Usage examples can be found in:
 
 - ``no_meta_demo.py``
 - ``meta_demo.py``
 
-### Package Dependencies
+## Package Dependencies
 
 - PyTorch 1.13.1
 - torchmetrics 0.11.4
 - torch_geometric 2.2.0
 
-### Homepage
+## Homepage
 
 For More Information, see the homepage of this paper: [Website](https://graphprompt.github.io/)
 
-### Compare this new implementation
+## Compare this new implementation
 
 
 ```
@@ -66,7 +74,7 @@ pre-training states
 - The above table is copied from this blog: https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023
 
 
-### citation 
+## citation 
 bibtex
 ```
 @inproceedings{sun2023all,
