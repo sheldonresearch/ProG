@@ -5,11 +5,11 @@
 
 
 --------------------------------------------------------------------------------
-![](https://img.shields.io/badge/Latest_version-v0.1.1-blue)
-![Testing Status](https://img.shields.io/badge/docs-in_progress-blue)
-![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-blue)
-![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-blue)
-![Testing Status](https://img.shields.io/badge/license-MIT-blue)
+![](https://img.shields.io/badge/Latest_version-v0.1.1-green)
+![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
+![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
+![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-green)
+![Testing Status](https://img.shields.io/badge/license-MIT-green)
 
 
 **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)** | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)** | **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)**
