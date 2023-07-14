@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img  src="https://github.com/sheldonresearch/ProG/blob/main/logo.png?sanitize=true" />
+  <img  src="https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?sanitize=true" />
 </p>
 
 
