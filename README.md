@@ -1,4 +1,11 @@
-# ProG
+
+<p align="center">
+  <img height="150" src="https://github.com/sheldonresearch/ProG/blob/main/logo.png?sanitize=true" />
+</p>
+
+
+--------------------------------------------------------------------------------
+**[Documentation](https://pytorch-geometric.readthedocs.io)** | **[Paper](https://arxiv.org/abs/1903.02428)** | **[Colab Notebooks and Video Tutorials](https://pytorch-geometric.readthedocs.io/en/latest/get_started/colabs.html)** | **[External Resources](https://pytorch-geometric.readthedocs.io/en/latest/external/resources.html)** | **[OGB Examples](https://github.com/snap-stanford/ogb/tree/master/examples)**
 
 ProG (Prompt Graph) is a library built upon PyTorch to easily conduct single or multiple task prompting for a
 pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, JIa Li,
