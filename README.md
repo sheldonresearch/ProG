@@ -1,5 +1,5 @@
 
-<p align="center">
+<p align="left">
   <img height="150" src="https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?sanitize=true" />
 </p>
 
@@ -11,7 +11,7 @@
 ![Testing Status](https://img.shields.io/badge/license-MIT-blue)
 
 
-**[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)** | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)** | **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)**
+| **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)** | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)** | **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)** |
 
 
 **ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multiple task prompting for a
