@@ -140,7 +140,7 @@
       <workItem from="1689213955894" duration="11169000" />
       <workItem from="1689230093753" duration="129000" />
       <workItem from="1689230278177" duration="11984000" />
-      <workItem from="1689318219593" duration="5199000" />
+      <workItem from="1689318219593" duration="5504000" />
     </task>
     <task id="LOCAL-00001" summary="add MIT license">
       <created>1689235811326</created>
@@ -317,7 +317,21 @@
       <option name="project" value="LOCAL" />
       <updated>1689327445424</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="update readme.md">
+      <created>1689327562688</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1689327562688</updated>
+    </task>
+    <task id="LOCAL-00027" summary="update readme.md">
+      <created>1689327721313</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1689327721313</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

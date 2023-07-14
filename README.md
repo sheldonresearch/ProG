@@ -3,6 +3,7 @@
   <img height="150" src="https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?sanitize=true" />
 </p>
 
+---
 
 ![](https://img.shields.io/badge/Latest_version-v0.1.1-red)
 ![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
@@ -26,7 +27,7 @@ with **[Extremely Huge Changes and Updates:](https://github.com/sheldonresearch/
 - [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
 - [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
 
----
+
 
 ## Quick Start
 
