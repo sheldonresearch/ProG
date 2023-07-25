@@ -10,6 +10,7 @@
 ![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-red)
 ![Testing Status](https://img.shields.io/badge/license-MIT-blue)
+![Testing Status](https://img.shields.io/badge/python->=3.9-red)
 
 
 | **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)** | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)** | **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)** |
