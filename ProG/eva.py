@@ -5,7 +5,6 @@ import numpy as np
 import torchmetrics
 
 
-
 class Evaluator:
     def __init__(self, eval_metric='hits@50'):
 
@@ -98,14 +97,11 @@ class Evaluator:
         else:
             raise ValueError('Undefined eval metric %s' % (self.eval_metric))
 
-
-
-
     def _eval_hits(self, y_pred_pos, y_pred_neg, type_info):
 
         if type_info == 'torch':
-            res=torch.topk(y_pred_neg, self.K)
-            kth_score_in_negative_edges=res[0][:,-1]
+            res = torch.topk(y_pred_neg, self.K)
+            kth_score_in_negative_edges = res[0][:, -1]
             hitsK = float(torch.sum(y_pred_pos > kth_score_in_negative_edges).cpu()) / len(y_pred_pos)
 
         else:
@@ -176,6 +172,7 @@ def mrr_hit(normal_label: np.ndarray, pos_out: np.ndarray, metric: list = None):
         results['mrr'] = mrr
     return results
 
+
 def eva(pre, label, task_type='multi_class_classification'):
     if task_type == 'regression':
         mae = mean_absolute_error(label, pre)
@@ -197,27 +194,25 @@ def eva(pre, label, task_type='multi_class_classification'):
             "eva() function is currently only used for multi-class classification  and link_prediction tasks!")
 
 
-def testing_tune_answer(test_batch, PG, gnn, answering,lossfn, task_type='multi_class_classification'):
-        print("testing tune answer...")
-        prompted_graph = PG(test_batch)
+def testing_tune_answer(test_batch, PG, gnn, answering, lossfn, task_type='multi_class_classification'):
+    print("testing tune answer...")
+    prompted_graph = PG(test_batch)
 
-        graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
-        # print(graph_emb)
-        pre = answering(graph_emb)
-        # print(pre)
-        v_loss = lossfn(pre, test_batch.y)
-        # print('\t\t==> answer_epoch {}/{} | batch {} | loss: {:.8f}'.format(j, answer_epoch, batch_id,
-        #                                                                     train_loss.item()))
+    graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
+    # print(graph_emb)
+    pre = answering(graph_emb)
+    # print(pre)
+    v_loss = lossfn(pre, test_batch.y)
+    # print('\t\t==> answer_epoch {}/{} | batch {} | loss: {:.8f}'.format(j, answer_epoch, batch_id,
+    #                                                                     train_loss.item()))
 
-        pre = pre.detach()
-        print("calculate results...")
-        res = eva(pre, test_batch.y, task_type=task_type)
-        return res,v_loss
-
-
+    pre = pre.detach()
+    print("calculate results...")
+    res = eva(pre, test_batch.y, task_type=task_type)
+    return res, v_loss
 
 
-def testing(test, PG, gnn,task_type='multi_class_classification'):
+def testing(test, PG, gnn, task_type='multi_class_classification'):
     """
     You should first use PG.eval() before you call this function
     :param test:
@@ -226,7 +221,6 @@ def testing(test, PG, gnn,task_type='multi_class_classification'):
     :param task_type:
     :return:
     """
-
 
     emb0 = gnn(test.x, test.edge_index, test.batch)
     pg_batch = PG.token_view()
@@ -243,16 +237,14 @@ def testing(test, PG, gnn,task_type='multi_class_classification'):
     return res
 
 
-def calculate_accuracy_over_batches(test_loader,PG,gnn,answering,num_class, task_type):
-    correct = 0
-    test_num = 0
-    if task_type=="multi_class_classification":
-        metric = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class)
+def acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type):
+    if task_type == "multi_class_classification":
+        accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class)
+        macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro")
     else:
         raise NotImplementedError
 
-
-    for batch_id, test_batch in enumerate(test_loader):  # bar2
+    for batch_id, test_batch in enumerate(test_loader):
 
         prompted_graph = PG(test_batch)
 
@@ -267,16 +259,14 @@ def calculate_accuracy_over_batches(test_loader,PG,gnn,answering,num_class, task
         # print(pre_cla)
         # print(y)
 
-        acc = metric(pre_cla, y)
-        print(f"Accuracy on batch {batch_id}: {acc}")
+        acc = accuracy(pre_cla, y)
+        ma_f1 = macro_f1(pre_cla, y)
+        print("Batch {} Acc: {:.4f} | Macro-F1: {:.4f}".format(batch_id, acc.item(), ma_f1.item()))
 
-    #
-    #     correct += torch.count_nonzero(pre_cla == y)
-    #     test_num += pre.shape[0]
-    #     if batch_id%10==0:
-    #         print("accumulated ACC @ batch {}/{} acc: {}".format(batch_id, len(test_loader), correct * 1.0 / test_num))
-    #
-    # acc = correct * 1.0 / test_num
-    acc = metric.compute()
-    print("Final True ACC: ", acc.item())
-    metric.reset()
+    acc = accuracy.compute()
+    ma_f1 = macro_f1.compute()
+    print("Final True Acc: {:.4f} | Macro-F1: {:.4f}".format(acc.item(), ma_f1.item()))
+    accuracy.reset()
+    macro_f1.reset()
+
+

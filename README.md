@@ -131,7 +131,7 @@ Multi-class node classification (100-shots)
 reported in the paper | 80.50 |   80.05   |
 (Prompt)              |                   |
 ------------------------------------------|
-this version code     | 81.00 |   --      |
+this version code     | 81.00 |   81.23   |
 (Prompt)              |   (run one time)  | 
 ==========================================|
 reported in the paper | 80.00 ｜  80.05   ｜
@@ -143,7 +143,6 @@ this version code     | 79.78 ｜  80.01   ｜
 
 ```
 **Note:**
-- --: hasn't implemented batch F1 in this version
 - Kindly note that the comparison takes the same pre-trained pth. The final results may vary depending on different
 pre-training states 
 - The above table is copied from this blog: https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023

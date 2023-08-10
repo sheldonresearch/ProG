@@ -11,8 +11,7 @@ import torch
 from ProG.eva import testing, testing_tune_answer
 from torch_geometric.loader import DataLoader
 from tqdm import tqdm, trange
-from ProG.eva import calculate_accuracy_over_batches
-
+from ProG.eva import acc_f1_over_batches
 
 
 # this file can not move in ProG.utils.py because it will cause self-loop import
@@ -84,7 +83,7 @@ def pretrain():
 
 
 def prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification'):
-    train, test,_,_ = multi_class_NIG(dataname, num_class)
+    train, test, _, _ = multi_class_NIG(dataname, num_class)
 
     gnn, PG, opi, lossfn, _, _ = model_create(dataname, gnn_type, num_class, task_type)
     prompt_epoch = 200  # 200
@@ -170,13 +169,11 @@ def prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, tas
     # ignore the outer_epoch if you do not wish to tune any use any answering function
     # (such as a hand-crafted answering template as prompt_w_o_h)
     outer_epoch = 10
-    answer_epoch = 1#50
-    prompt_epoch = 1#50
+    answer_epoch = 1  # 50
+    prompt_epoch = 1  # 50
 
     # training stage
-    # bar1 = tqdm(range(1, outer_epoch + 1))
-    for i in range(1, outer_epoch + 1):  # bar1:
-        # bar1.set_description(("{}/{} frozen gnn | frozen prompt | *tune answering function...".format(i, outer_epoch)))
+    for i in range(1, outer_epoch + 1):
         print(("{}/{} frozen gnn | frozen prompt | *tune answering function...".format(i, outer_epoch)))
         # tune task head
         answering.train()
@@ -192,14 +189,10 @@ def prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, tas
         # testing stage
         answering.eval()
         PG.eval()
-        calculate_accuracy_over_batches(test_loader, PG, gnn, answering,num_class, task_type)
-        """
-        use this instead the above https://torchmetrics.readthedocs.io/en/latest/pages/overview.html
-        """
+        acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type)
 
 
 if __name__ == '__main__':
     # pretrain()
     # prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
     prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
-    #pass
