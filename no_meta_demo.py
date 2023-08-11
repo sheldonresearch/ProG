@@ -193,6 +193,19 @@ def prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, tas
 
 
 if __name__ == '__main__':
+    print("PyTorch version:", torch.__version__)
+
+   
+    if torch.cuda.is_available():
+        print("CUDA is available")
+    else:
+        print("CUDA is not available")
+
+    print("CUDA version:", torch.version.cuda)
+    device = torch.device("cuda" )
+    # device = torch.device("cpu")
+    print(device)
+    
     # pretrain()
     # prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
     prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
