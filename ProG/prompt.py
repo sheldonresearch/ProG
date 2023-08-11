@@ -116,6 +116,8 @@ class HeavyPrompt(LightPrompt):
         :param graph_batch:
         :return:
         """
+        device = torch.device("cuda")
+        # device = torch.device("cpu")
 
         pg = self.inner_structure_update()  # batch of prompt graph (currently only 1 prompt graph in the batch)
 
@@ -125,11 +127,16 @@ class HeavyPrompt(LightPrompt):
         re_graph_list = []
         for g in Batch.to_data_list(graph_batch):
             g_edge_index = g.edge_index + token_num
+            pg_x = pg.x.to(device)
+            g_x = g.x.to(device)
+            
             cross_dot = torch.mm(pg.x, torch.transpose(g.x, 0, 1))
             cross_sim = torch.sigmoid(cross_dot)  # 0-1 from prompt to input graph
             cross_adj = torch.where(cross_sim < self.cross_prune, 0, cross_sim)
+            
             cross_edge_index = cross_adj.nonzero().t().contiguous()
             cross_edge_index[1] = cross_edge_index[1] + token_num
+            
             x = torch.cat([pg.x, g.x], dim=0)
             y = g.y
 

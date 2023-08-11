@@ -57,7 +57,8 @@ def model_create(dataname, gnn_type, num_class, task_type='multi_class_classific
                                     weight_decay=0.00001)
         else:
             answering, opi_answer = None, None
-
+        gnn.to(device)
+        PG.to(device)
         return gnn, PG, opi, lossfn, answering, opi_answer
     else:
         raise ValueError("model_create function hasn't supported {} task".format(task_type))
@@ -130,6 +131,7 @@ def train_one_outer_epoch(epoch, train_loader, opi, lossfn, gnn, PG, answering):
         # bar2=tqdm(enumerate(train_loader))
         for batch_id, train_batch in enumerate(train_loader):  # bar2
             # print(train_batch)
+            train_batch = train_batch.to(device)
             prompted_graph = PG(train_batch)
             # print(prompted_graph)
 
@@ -205,7 +207,7 @@ if __name__ == '__main__':
     device = torch.device("cuda" )
     # device = torch.device("cpu")
     print(device)
-    
+
     # pretrain()
     # prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
     prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
