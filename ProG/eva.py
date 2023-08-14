@@ -1,8 +1,7 @@
 import torch
-from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, mean_absolute_error
-import warnings
 import numpy as np
 import torchmetrics
+import warnings
 
 
 class Evaluator:
@@ -173,70 +172,6 @@ def mrr_hit(normal_label: np.ndarray, pos_out: np.ndarray, metric: list = None):
     return results
 
 
-def eva(pre, label, task_type='multi_class_classification'):
-    if task_type == 'regression':
-        mae = mean_absolute_error(label, pre)
-        mse = mean_squared_error(label, pre)
-        return {"mae": mae, "mse": mse}
-    elif task_type == 'multi_class_classification':
-        pre_cla = torch.argmax(pre, dim=1)
-        acc = accuracy_score(label, pre_cla)
-        mac_f1 = f1_score(label, pre_cla, average='macro')
-        mic_f1 = f1_score(label, pre_cla, average='micro')
-        return {"acc": acc, "mac_f1": mac_f1, "mic_f1": mic_f1}
-    elif task_type == 'link_prediction':
-        normal_label = label
-        pos_out = pre[:, 1]
-        results = mrr_hit(normal_label, pos_out)
-        return results
-    else:
-        raise NotImplemented(
-            "eva() function is currently only used for multi-class classification  and link_prediction tasks!")
-
-
-def testing_tune_answer(test_batch, PG, gnn, answering, lossfn, task_type='multi_class_classification'):
-    print("testing tune answer...")
-    prompted_graph = PG(test_batch)
-
-    graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
-    # print(graph_emb)
-    pre = answering(graph_emb)
-    # print(pre)
-    v_loss = lossfn(pre, test_batch.y)
-    # print('\t\t==> answer_epoch {}/{} | batch {} | loss: {:.8f}'.format(j, answer_epoch, batch_id,
-    #                                                                     train_loss.item()))
-
-    pre = pre.detach()
-    print("calculate results...")
-    res = eva(pre, test_batch.y, task_type=task_type)
-    return res, v_loss
-
-
-def testing(test, PG, gnn, task_type='multi_class_classification'):
-    """
-    You should first use PG.eval() before you call this function
-    :param test:
-    :param PG:
-    :param gnn:
-    :param task_type:
-    :return:
-    """
-
-    emb0 = gnn(test.x, test.edge_index, test.batch)
-    pg_batch = PG.token_view()
-    pg_emb = gnn(pg_batch.x, pg_batch.edge_index, pg_batch.batch)
-    dot = torch.mm(emb0, torch.transpose(pg_emb, 0, 1))
-
-    if task_type == 'multi_class_classification':
-        pre = torch.softmax(dot, dim=1)
-    elif task_type == 'regression':
-        pre = torch.sigmoid(dot)
-        pre = pre.detach()
-
-    res = eva(pre, test.y, task_type=task_type)
-    return res
-
-
 def acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type):
     if task_type == "multi_class_classification":
         accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class)
@@ -246,11 +181,24 @@ def acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type):
 
     for batch_id, test_batch in enumerate(test_loader):
 
-        prompted_graph = PG(test_batch)
+        if answering:  # if answering is not None
 
-        graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
-        # print(graph_emb)
-        pre = answering(graph_emb)
+            prompted_graph = PG(test_batch)
+
+            graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
+            # print(graph_emb)
+            pre = answering(graph_emb)
+        else:  # if answering is None
+            emb0 = gnn(test_batch.x, test_batch.edge_index, test_batch.batch)
+            pg_batch = PG.token_view()
+            pg_emb = gnn(pg_batch.x, pg_batch.edge_index, pg_batch.batch)
+            dot = torch.mm(emb0, torch.transpose(pg_emb, 0, 1))
+
+            # if task_type == 'multi_class_classification':
+            pre = torch.softmax(dot, dim=1)
+            # elif task_type == 'regression':
+            #     pre = torch.sigmoid(dot)
+            #     pre = pre.detach()
 
         pre = pre.detach()
         y = test_batch.y
@@ -268,5 +216,3 @@ def acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type):
     print("Final True Acc: {:.4f} | Macro-F1: {:.4f}".format(acc.item(), ma_f1.item()))
     accuracy.reset()
     macro_f1.reset()
-
-

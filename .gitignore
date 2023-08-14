@@ -2,3 +2,8 @@
 /old/
 .idea/*
 .idea/workspace.xml
+.idea/workspace.xml
+.idea/workspace.xml
+__pycache__/data_preprocess.cpython-39.pyc
+*.pyc
+*.pyc
