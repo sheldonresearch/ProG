@@ -7,7 +7,6 @@ from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 from ProG.utils import seed, seed_everything
 from random import shuffle
 # import pandas as pd
-from config import ParPlanetoid
 from ProG.prompt import Pipeline
 from ProG.meta import MAML
 from data_preprocess import load_tasks
