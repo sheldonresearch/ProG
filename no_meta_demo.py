@@ -83,7 +83,8 @@ def pretrain():
              lr=0.01, decay=0.0001, epochs=100)
 
 
-def prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification'):
+def prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification',
+                 device=torch.device("cpu")):
     train, test, _, _ = multi_class_NIG(dataname, num_class)
 
     gnn, PG, opi, lossfn, _, _ = model_create(dataname, gnn_type, num_class, task_type)
@@ -125,7 +126,7 @@ def prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, t
             PG.train()
 
 
-def train_one_outer_epoch(epoch, train_loader, opi, lossfn, gnn, PG, answering):
+def train_one_outer_epoch(epoch, train_loader, opi, lossfn, gnn, PG, answering,device=torch.device('cpu')):
     for j in range(1, epoch + 1):
         running_loss = 0.
         # bar2=tqdm(enumerate(train_loader))
@@ -158,13 +159,15 @@ def train_one_outer_epoch(epoch, train_loader, opi, lossfn, gnn, PG, answering):
                 running_loss = 0.
 
 
-def prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification'):
+def prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification',device=torch.device("cpu")):
     _, test_batch, train_list, test_list = multi_class_NIG(dataname, num_class, shots=100)
 
     train_loader = DataLoader(train_list, batch_size=10, shuffle=True)
     test_loader = DataLoader(test_list, batch_size=10, shuffle=True)
 
     gnn, PG, opi_pg, lossfn, answering, opi_answer = model_create(dataname, gnn_type, num_class, task_type, True)
+    gnn=gnn.to(device)
+    PG = PG.to(device)
 
     # inspired by: Hou Y et al. MetaPrompting: Learning to Learn Better Prompts. COLING 2022
     # if we tune the answering function, we update answering and prompt alternately.
@@ -180,13 +183,13 @@ def prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, tas
         # tune task head
         answering.train()
         PG.eval()
-        train_one_outer_epoch(answer_epoch, train_loader, opi_answer, lossfn, gnn, PG, answering)
+        train_one_outer_epoch(answer_epoch, train_loader, opi_answer, lossfn, gnn, PG, answering,device)
 
         print("{}/{}  frozen gnn | *tune prompt |frozen answering function...".format(i, outer_epoch))
         # tune prompt
         answering.eval()
         PG.train()
-        train_one_outer_epoch(prompt_epoch, train_loader, opi_pg, lossfn, gnn, PG, answering)
+        train_one_outer_epoch(prompt_epoch, train_loader, opi_pg, lossfn, gnn, PG, answering,device)
 
         # testing stage
         answering.eval()
@@ -197,17 +200,17 @@ def prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, tas
 if __name__ == '__main__':
     print("PyTorch version:", torch.__version__)
 
-   
     if torch.cuda.is_available():
         print("CUDA is available")
+        print("CUDA version:", torch.version.cuda)
+        device = torch.device("cuda")
     else:
         print("CUDA is not available")
+        device = torch.device("cpu")
 
-    print("CUDA version:", torch.version.cuda)
-    device = torch.device("cuda" )
-    # device = torch.device("cpu")
     print(device)
+    device=torch.device('cpu')
 
     # pretrain()
-    # prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
-    prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
+    # prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification',device=device)
+    prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification',device=device)
