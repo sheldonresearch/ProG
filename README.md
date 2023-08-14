@@ -5,7 +5,7 @@
 
 ---
 
-![](https://img.shields.io/badge/Latest_version-v0.1.1-red)
+![](https://img.shields.io/badge/Latest_version-v0.1.3-red)
 ![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-red)
