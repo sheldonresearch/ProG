@@ -1,3 +1,4 @@
 # Project exclude paths
 /old/
 .idea/*
+.idea/workspace.xml
