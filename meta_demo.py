@@ -137,6 +137,18 @@ def model_components():
 
 
 if __name__ == '__main__':
+    
+    if torch.cuda.is_available():
+        print("CUDA is available")
+    else:
+        print("CUDA is not available")
+
+    print("CUDA version:", torch.version.cuda)
+    device = torch.device("cuda" )
+    # device = torch.device("cpu")
+    print(device)
+
+    
     dataname = 'CiteSeer'
     # node-level: 0 1 2 3 4 5
     # edge-level: 6 7 8 9 10 11
