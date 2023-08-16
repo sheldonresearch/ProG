@@ -87,6 +87,9 @@ def prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, t
     train, test, _, _ = multi_class_NIG(dataname, num_class)
 
     gnn, PG, opi, lossfn, _, _ = model_create(dataname, gnn_type, num_class, task_type)
+    lossfn.to(device)
+    train = train.to(device)
+
     prompt_epoch = 200  # 200
     # training stage
     PG.train()
@@ -114,6 +117,8 @@ def prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, t
 
         if j % 5 == 0:
             PG.eval()
+            PG = PG.to("cpu")
+            gnn = gnn.to("cpu")
             res = testing(test, PG, gnn, task_type=task_type)
             if task_type == 'regression':
                 print("""MAE: {:.4} | MSE: {:.4} """.format(res["mae"], res["mse"]))
@@ -122,6 +127,8 @@ def prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, t
                 print("""Acc: {:.4} | Macro F1: {:.4} | Micro F1: {:.4}""".format(res["acc"],
                                                                                   res["mac_f1"],
                                                                                   res["mic_f1"]))
+            PG = PG.to(device)
+            gnn = gnn.to(device)                                                                             
             PG.train()
 
 
@@ -210,4 +217,4 @@ if __name__ == '__main__':
 
     # pretrain()
     # prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
-    prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
+    prompt_w_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification', device = device)
