@@ -236,7 +236,7 @@ def induced_graphs_edges(data, dataname: str = None, num_classes=3, smallest_siz
         # same_label_edge_index, _ = subgraph(torch.squeeze(torch.argwhere(node_labels == n_label)),
         #                                     edge_index,
         #                                     relabel_nodes=False)  # attention! relabel_nodes=False!!!!!!
-        # # I previouly use the following to construct graph but most of the baselines ouput 1.0 acc.
+        # # I previously use the following to construct graph but most of the baselines ouput 1.0 acc.
 
 
         a = pk.load(open(fname, 'br'))
