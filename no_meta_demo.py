@@ -130,7 +130,7 @@ def prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, t
             PG.eval()
             PG = PG.to("cpu")
             gnn = gnn.to("cpu")
-            acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type)
+            acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type, device)
 
             PG.train()
             PG = PG.to(device)

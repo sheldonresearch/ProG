@@ -173,10 +173,10 @@ def mrr_hit(normal_label: np.ndarray, pos_out: np.ndarray, metric: list = None):
 
 
 def acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type, device):
-    PG = PG.to(device)
+    PG = PG.to("cpu")
     if answering is not None:
-        answering = answering.to(device)
-    gnn = gnn.to(device)
+        answering = answering.to("cpu")
+    gnn = gnn.to("cpu")
     if task_type == "multi_class_classification":
         accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class)
         macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro")
