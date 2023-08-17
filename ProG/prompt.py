@@ -2,8 +2,9 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.nn import GCNConv, global_mean_pool, GATConv, TransformerConv
 from torch_geometric.data import Batch, Data
-from torch_geometric.utils import sort_edge_index, add_self_loops, to_undirected
 from .utils import act
+import warnings
+from deprecated.sphinx import deprecated
 
 
 class GNN(torch.nn.Module):
@@ -147,11 +148,37 @@ class HeavyPrompt(LightPrompt):
         graphp_batch = Batch.from_data_list(re_graph_list)
         return graphp_batch
 
+class FrontAndHead(torch.nn.Module):
+    def __init__(self, input_dim, hid_dim=16, num_classes=2,
+                 task_type="multi_label_classification",
+                 token_num=10, cross_prune=0.1, inner_prune=0.3):
 
+        super().__init__()
+
+        self.PG = HeavyPrompt(token_dim=input_dim, token_num=token_num, cross_prune=cross_prune,
+                              inner_prune=inner_prune)
+
+        if task_type == 'multi_label_classification':
+            self.answering = torch.nn.Sequential(
+                torch.nn.Linear(hid_dim, num_classes),
+                torch.nn.Softmax(dim=1))
+        else:
+            raise NotImplementedError
+
+    def forward(self, graph_batch, gnn):
+        prompted_graph = self.PG(graph_batch)
+        graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
+        pre = self.answering(graph_emb)
+
+        return pre
+
+
+@deprecated(version='1.0', reason="Pipeline is deprecated, use FrontAndHead instead")
 class Pipeline(torch.nn.Module):
     def __init__(self, input_dim, dataname, gcn_layer_num=2, hid_dim=16, num_classes=2,
                  task_type="multi_label_classification",
                  token_num=10, cross_prune=0.1, inner_prune=0.3, gnn_type='TransformerConv'):
+        warnings.warn("deprecated", DeprecationWarning)
 
         super().__init__()
         # load pre-trained GNN
@@ -178,6 +205,7 @@ class Pipeline(torch.nn.Module):
         pre = self.answering(graph_emb)
 
         return pre
+
 
 
 if __name__ == '__main__':

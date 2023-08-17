@@ -176,6 +176,9 @@ def acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type):
     if task_type == "multi_class_classification":
         accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class)
         macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro")
+    elif task_type == "binary_classification":
+        accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class)
+        macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro")
     else:
         raise NotImplementedError
 
