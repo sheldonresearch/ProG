@@ -4,7 +4,6 @@
 </p>
 
 ---
-22222
 
 ![](https://img.shields.io/badge/Latest_version-v0.1.3-red)
 ![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
@@ -29,6 +28,23 @@ with **[Extremely Huge Changes and Updates:](https://github.com/sheldonresearch/
 - [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
 - [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
 
+
+## Call for Contributors!
+
+Once you are invited as the contributor, you would be asked to follow the following steps:
+
+- step 1. create a temp branch (e.g. ``xgTemp``) from the latest ``xgsun``. (``xgsun`` branch is a beta branch and only ``xgsun`` can be merged to the ``main`` branch.)
+- step 2. fetch ``origin/xgTemp`` to your local ``xgTemp``, and make your own changes via PyCharm etc.
+- step 3. push your changes from local ``xgTemp`` to your github cloud branch: ``origin/xgTemp``.
+- step 4. open a full request to merge from your branch to ``xgsun``.
+
+When you finished all these jobs. I will get a notification and I will approve to merge your branch to ``xgsun``. 
+Once I finished, I will delete your branch, and next time you will repeat the above jobs.
+
+It would be greatly appreciated if you could finish all these jobs during week days (Monday-Friday, Beijing Timezone). 
+I will handle with the conflict issues during weekends and update the latest ``xgsun`` branch before Sunday (Beijing Timezone)
+
+A widely tested ``xgsun`` branch will then be merged to the ``main`` branch and new version will be released one or two times per month.
 
 
 ## Quick Start
