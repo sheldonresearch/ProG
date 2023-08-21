@@ -220,7 +220,7 @@ if __name__ == '__main__':
         device = torch.device("cpu")
 
     print(device)
-    device = torch.device('cpu')
+    # device = torch.device('cpu')
 
     # pretrain()
     prompt_w_o_h(dataname="CiteSeer", gnn_type="TransformerConv", num_class=6, task_type='multi_class_classification')
