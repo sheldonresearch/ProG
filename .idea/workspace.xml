@@ -2,7 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="072199a1-d45b-453a-a87d-99010969506d" name="Changes" comment="update readme.md">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ProG/pre_trained_gnn/CiteSeer.GraphCL.TransformerConv.pth" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProG/pre_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/ProG/pre_train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pre_trained_gnn/CiteSeer.GraphCL.GAT.pth" beforeDir="false" afterPath="$PROJECT_DIR$/ProG/pre_trained_gnn/CiteSeer.GraphCL.GAT.pth" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pre_trained_gnn/CiteSeer.GraphCL.GCN.pth" beforeDir="false" afterPath="$PROJECT_DIR$/ProG/pre_trained_gnn/CiteSeer.GraphCL.GCN.pth" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pre_trained_gnn/CiteSeer.SimGRACE.GAT.pth" beforeDir="false" afterPath="$PROJECT_DIR$/ProG/pre_trained_gnn/CiteSeer.SimGRACE.GAT.pth" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pre_trained_gnn/CiteSeer.SimGRACE.GCN.pth" beforeDir="false" afterPath="$PROJECT_DIR$/ProG/pre_trained_gnn/CiteSeer.SimGRACE.GCN.pth" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pre_trained_gnn/CiteSeer.SimGRACE.TransformerConv.pth" beforeDir="false" afterPath="$PROJECT_DIR$/ProG/pre_trained_gnn/CiteSeer.SimGRACE.TransformerConv.pth" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,16 +60,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/xiangguosun/Library/CloudStorage/OneDrive-TheChineseUniversityofHongKong/My Project/KDD_BEST_PAPER&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/Users/xiangguosun/Library/CloudStorage/OneDrive-TheChineseUniversityofHongKong/Code Project/ProG/pre_trained_gnn",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -149,6 +156,7 @@
       <workItem from="1692242289456" duration="54000" />
       <workItem from="1692244714911" duration="927000" />
       <workItem from="1692253295668" duration="687000" />
+      <workItem from="1693205728900" duration="301000" />
     </task>
     <task id="LOCAL-00001" summary="add MIT license">
       <created>1689235811326</created>

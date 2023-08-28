@@ -150,8 +150,11 @@ class PreTrain(torch.nn.Module):
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
                 torch.save(self.model.gnn.state_dict(),
-                           "../pre_trained_gnn/{}.{}.{}.pth".format(dataname, self.pretext, self.gnn_type))
+                           "./pre_trained_gnn/{}.{}.{}.pth".format(dataname, self.pretext, self.gnn_type))
+                # do not use '../pre_trained_gnn/' because hope there should be two folders: (1) '../pre_trained_gnn/'  and (2) './pre_trained_gnn/'
+                # only selected pre-trained models will be moved into (1) so that we can keep reproduction
                 print("+++model saved ! {}.{}.{}.pth".format(dataname, self.pretext, self.gnn_type))
+
 
 
 if __name__ == '__main__':
@@ -168,7 +171,9 @@ if __name__ == '__main__':
     print(device)
     # device = torch.device('cpu')
 
-    mkdir('../pre_trained_gnn/')
+    mkdir('./pre_trained_gnn/')
+    # do not use '../pre_trained_gnn/' because hope there should be two folders: (1) '../pre_trained_gnn/'  and (2) './pre_trained_gnn/'
+    # only selected pre-trained models will be moved into (1) so that we can keep reproduction
 
     # pretext = 'GraphCL' 
     pretext = 'SimGRACE' 
