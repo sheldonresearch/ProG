@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.nn import GCNConv, global_mean_pool, GATConv, TransformerConv
 from torch_geometric.data import Batch, Data
-from .utils import act
+from utils import act
 import warnings
 from deprecated.sphinx import deprecated
 
