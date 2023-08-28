@@ -52,7 +52,7 @@ def gen_ran_output(data, model):
 
 # used in pre_train.py
 def load_data4pretrain(dataname='CiteSeer', num_parts=200):
-    data = pk.load(open('./Dataset/{}/feature_reduced.data'.format(dataname), 'br'))
+    data = pk.load(open('../Dataset/{}/feature_reduced.data'.format(dataname), 'br'))
     print(data)
 
     x = data.x.detach()
@@ -61,7 +61,7 @@ def load_data4pretrain(dataname='CiteSeer', num_parts=200):
     data = Data(x=x, edge_index=edge_index)
     input_dim = data.x.shape[1]
     hid_dim = input_dim
-    graph_list = list(ClusterData(data=data, num_parts=num_parts, save_dir='./Dataset/{}/'.format(dataname)))
+    graph_list = list(ClusterData(data=data, num_parts=num_parts, save_dir='../Dataset/{}/'.format(dataname)))
 
     return graph_list, input_dim, hid_dim
 

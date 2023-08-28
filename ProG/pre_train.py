@@ -6,8 +6,8 @@ from torch_geometric.data import Data
 from random import shuffle
 import random
 
-from .prompt import GNN
-from .utils import gen_ran_output,load_data4pretrain,mkdir, graph_views
+from prompt import GNN
+from utils import gen_ran_output,load_data4pretrain,mkdir, graph_views
 
 class GraphCL(torch.nn.Module):
 
@@ -97,9 +97,10 @@ class PreTrain(torch.nn.Module):
         total_step = 0
         for step, data in enumerate(loader):
             optimizer.zero_grad()
-            x2 = gen_ran_output(data, model)
+            data = data.to(device)
+            x2 = gen_ran_output(data, model) 
             x1 = model.forward_cl(data.x, data.edge_index, data.batch)
-            x2 = Variable(x2.detach().data, requires_grad=False)
+            x2 = Variable(x2.detach().data.to(device), requires_grad=False)
             loss = model.loss_cl(x1, x2)
             loss.backward()
             optimizer.step()
@@ -115,8 +116,8 @@ class PreTrain(torch.nn.Module):
         for step, batch in enumerate(zip(loader1, loader2)):
             batch1, batch2 = batch
             optimizer.zero_grad()
-            x1 = model.forward_cl(batch1.x, batch1.edge_index, batch1.batch)
-            x2 = model.forward_cl(batch2.x, batch2.edge_index, batch2.batch)
+            x1 = model.forward_cl(batch1.x.to(device), batch1.edge_index.to(device), batch1.batch.to(device))
+            x2 = model.forward_cl(batch2.x.to(device), batch2.edge_index.to(device), batch2.batch.to(device))
             loss = model.loss_cl(x1, x2)
 
             loss.backward()
@@ -150,19 +151,38 @@ class PreTrain(torch.nn.Module):
                 train_loss_min = train_loss
                 torch.save(self.model.gnn.state_dict(),
                            "./pre_trained_gnn/{}.{}.{}.pth".format(dataname, self.pretext, self.gnn_type))
+                # do not use '../pre_trained_gnn/' because hope there should be two folders: (1) '../pre_trained_gnn/'  and (2) './pre_trained_gnn/'
+                # only selected pre-trained models will be moved into (1) so that we can keep reproduction
                 print("+++model saved ! {}.{}.{}.pth".format(dataname, self.pretext, self.gnn_type))
 
 
+
 if __name__ == '__main__':
+    print("PyTorch version:", torch.__version__)
+
+    if torch.cuda.is_available():
+        print("CUDA is available")
+        print("CUDA version:", torch.version.cuda)
+        device = torch.device("cuda")
+    else:
+        print("CUDA is not available")
+        device = torch.device("cpu")
+
+    print(device)
+    # device = torch.device('cpu')
 
     mkdir('./pre_trained_gnn/')
+    # do not use '../pre_trained_gnn/' because hope there should be two folders: (1) '../pre_trained_gnn/'  and (2) './pre_trained_gnn/'
+    # only selected pre-trained models will be moved into (1) so that we can keep reproduction
 
-    pretext = 'GraphCL'  # 'GraphCL', 'SimGRACE'
-    gnn_type = 'TransformerConv'  # 'GAT', 'GCN'
-
+    # pretext = 'GraphCL' 
+    pretext = 'SimGRACE' 
+    gnn_type = 'TransformerConv'  
+    # gnn_type = 'GAT'
+    # gnn_type = 'GCN'
     dataname, num_parts = 'CiteSeer', 200
     graph_list, input_dim, hid_dim = load_data4pretrain(dataname, num_parts)
 
     pt = PreTrain(pretext, gnn_type, input_dim, hid_dim, gln=2)
-
+    pt.model.to(device) 
     pt.train(dataname, graph_list, batch_size=10, aug1='dropN', aug2="permE", aug_ratio=None,lr=0.01, decay=0.0001,epochs=100)
