@@ -14,7 +14,7 @@
 | **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)**
 | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)**
 | **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)**
-| **[Media Coverage](/website/media.md)** |
+| **[Media Coverage](#media-coverage)** |
 
 **ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multiple task prompting for a
 pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, JIa Li,
