@@ -173,10 +173,17 @@ bibtex
   title={All in One: Multi-Task Prompting for Graph Neural Networks},
   author={Sun, Xiangguo and Cheng, Hong and Li, Jia and Liu, Bo and Guan, Jihong},
   booktitle={Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery \& data mining (KDD'23)},
-  year={2023}
+  year={2023},
+  pages = {2120–2131},
+  location = {Long Beach, CA, USA},
+  isbn = {9798400701030},
+  url = {https://doi.org/10.1145/3580305.3599256},
+  doi = {10.1145/3580305.3599256}
 }
 
 ```
+
+
 
 ## Contact
 
