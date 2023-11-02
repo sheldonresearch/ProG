@@ -21,14 +21,10 @@ etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.
 they released the raw
 codes at [Click](https://anonymous.4open.science/r/mpg/README.md). This repository is a **polished version** of the raw
 codes
-with **[Extremely Huge Changes and Updates:](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)**
-
-- [Historical Update Logs](https://github.com/sheldonresearch/ProG/blob/main/History.md)
-- [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
-- [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
+with **[Extremely Huge Changes and Updates](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)**
 
 
-**Content Table**
+## Content Table
 
 - [quick start](#quick-start)
   - [package dependencies](#package-dependencies)
