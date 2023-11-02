@@ -1,8 +1,10 @@
-
 <p align="center">
   <img height="150" src="https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?sanitize=true" />
 </p>
 
+<p align="center">
+  <img height="150" src="/Logo.jpg?sanitize=true" />
+</p>
 ---
 
 ![](https://img.shields.io/badge/Latest_version-v0.1.4-red)
@@ -12,9 +14,10 @@
 ![Testing Status](https://img.shields.io/badge/license-MIT-blue)
 ![Testing Status](https://img.shields.io/badge/python->=3.9-red)
 
-
-| **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)** | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)** | **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)** |
-
+| **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)**
+| **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)**
+| **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)** |
+| **[Media Coverage](/website/media.md)** |
 
 **ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multiple task prompting for a
 pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, JIa Li,
@@ -28,27 +31,27 @@ with **[Extremely Huge Changes and Updates:](https://github.com/sheldonresearch/
 - [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
 - [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
 
-
 ## Call for Contributors!
 
 Once you are invited as the contributor, you would be asked to follow the following steps:
 
-- step 1. create a temp branch (e.g. ``xgTemp``) from the latest ``xgsun``. (``xgsun`` branch is a beta branch and only ``xgsun`` can be merged to the ``main`` branch.)
+- step 1. create a temp branch (e.g. ``xgTemp``) from the latest ``xgsun``. (``xgsun`` branch is a beta branch and
+  only ``xgsun`` can be merged to the ``main`` branch.)
 - step 2. fetch ``origin/xgTemp`` to your local ``xgTemp``, and make your own changes via PyCharm etc.
 - step 3. push your changes from local ``xgTemp`` to your github cloud branch: ``origin/xgTemp``.
 - step 4. open a full request to merge from your branch to ``xgsun``.
 
-When you finished all these jobs. I will get a notification and I will approve to merge your branch to ``xgsun``. 
+When you finished all these jobs. I will get a notification and I will approve to merge your branch to ``xgsun``.
 Once I finished, I will delete your branch, and next time you will repeat the above jobs.
 
-It would be greatly appreciated if you could finish all these jobs during week days (Monday-Friday, Beijing Timezone). 
-I will handle with the conflict issues during weekends and update the latest ``xgsun`` branch before Sunday (Beijing Timezone)
+It would be greatly appreciated if you could finish all these jobs during week days (Monday-Friday, Beijing Timezone).
+I will handle with the conflict issues during weekends and update the latest ``xgsun`` branch before Sunday (Beijing
+Timezone)
 
-A widely tested ``xgsun`` branch will then be merged to the ``main`` branch and new version will be released one or two times per month.
-
+A widely tested ``xgsun`` branch will then be merged to the ``main`` branch and new version will be released one or two
+times per month.
 
 ## Quick Start
-
 
 ### Package Dependencies
 
@@ -58,7 +61,9 @@ A widely tested ``xgsun`` branch will then be merged to the ``main`` branch and 
 
 ### Pre-train your GNN model
 
-The following codes present a simple example on how to pre-train a GNN model via GraphCL. You can also find a integrated function ``pretrain()`` in ``no_meta_demo.py``.
+The following codes present a simple example on how to pre-train a GNN model via GraphCL. You can also find a integrated
+function ``pretrain()`` in ``no_meta_demo.py``.
+
 ```python
 from ProG.utils import mkdir, load_data4pretrain
 from ProG import PreTrain
@@ -107,14 +112,17 @@ opi = optim.Adam(filter(lambda p: p.requires_grad, PG.parameters()),
 lossfn = nn.CrossEntropyLoss(reduction='mean')
 
 ```
-The above codes are also integrated as a function ``model_create(dataname, gnn_type, num_class, task_type)`` in this project. 
+
+The above codes are also integrated as a function ``model_create(dataname, gnn_type, num_class, task_type)`` in this
+project.
 
 ### Prompt learning with hand-crafted answering template
+
 ```python
 from ProG.data import multi_class_NIG
 import torch
 
-train, test,_,_ = multi_class_NIG(dataname, num_class)
+train, test, _, _ = multi_class_NIG(dataname, num_class)
 gnn, PG, opi, lossfn, _, _ = model_create(dataname, gnn_type, num_class, task_type)
 prompt_epoch = 200  # 200
 # training stage
@@ -131,8 +139,11 @@ for j in range(prompt_epoch):
     train_loss.backward()
     opi.step()
 ```
+
 ### More Detailed Tutorial
-For more detailed usage examples w.r.t ``prompt with answer tuning``, ``prompt with meta-learning`` etc. Please check the demo in:
+
+For more detailed usage examples w.r.t ``prompt with answer tuning``, ``prompt with meta-learning`` etc. Please check
+the demo in:
 
 - ``no_meta_demo.py``
 - ``meta_demo.py``
@@ -159,14 +170,17 @@ this version code     | 79.78 ｜  80.01   ｜
 ==========================================|
 
 ```
+
 **Note:**
+
 - Kindly note that the comparison takes the same pre-trained pth. The final results may vary depending on different
-pre-training states 
+  pre-training states
 - The above table is copied from this blog: https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023
 
+## Citation
 
-## Citation 
 bibtex
+
 ```
 @inproceedings{sun2023all,
   title={All in One: Multi-Task Prompting for Graph Neural Networks},
@@ -176,7 +190,6 @@ bibtex
 }
 
 ```
-
 
 ## Contact
 
