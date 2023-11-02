@@ -1,10 +1,7 @@
 <p align="center">
-  <img height="150" src="https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?sanitize=true" />
-</p>
-
-<p align="center">
   <img height="150" src="/Logo.jpg?sanitize=true" />
 </p>
+
 ---
 
 ![](https://img.shields.io/badge/Latest_version-v0.1.4-red)
@@ -16,7 +13,7 @@
 
 | **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)**
 | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)**
-| **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)** |
+| **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)**
 | **[Media Coverage](/website/media.md)** |
 
 **ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multiple task prompting for a
@@ -30,26 +27,6 @@ with **[Extremely Huge Changes and Updates:](https://github.com/sheldonresearch/
 - [Historical Update Logs](https://github.com/sheldonresearch/ProG/blob/main/History.md)
 - [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
 - [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
-
-## Call for Contributors!
-
-Once you are invited as the contributor, you would be asked to follow the following steps:
-
-- step 1. create a temp branch (e.g. ``xgTemp``) from the latest ``xgsun``. (``xgsun`` branch is a beta branch and
-  only ``xgsun`` can be merged to the ``main`` branch.)
-- step 2. fetch ``origin/xgTemp`` to your local ``xgTemp``, and make your own changes via PyCharm etc.
-- step 3. push your changes from local ``xgTemp`` to your github cloud branch: ``origin/xgTemp``.
-- step 4. open a full request to merge from your branch to ``xgsun``.
-
-When you finished all these jobs. I will get a notification and I will approve to merge your branch to ``xgsun``.
-Once I finished, I will delete your branch, and next time you will repeat the above jobs.
-
-It would be greatly appreciated if you could finish all these jobs during week days (Monday-Friday, Beijing Timezone).
-I will handle with the conflict issues during weekends and update the latest ``xgsun`` branch before Sunday (Beijing
-Timezone)
-
-A widely tested ``xgsun`` branch will then be merged to the ``main`` branch and new version will be released one or two
-times per month.
 
 ## Quick Start
 
@@ -195,3 +172,53 @@ bibtex
 
 - For More Information, Further discussion, Contact: [Website](https://graphprompt.github.io/)
 - Email: xiangguosun at cuhk dot edu dot hk
+
+## Media Coverage
+
+**Media Reports**
+
+- [香港首位學者獲ACM頒最佳研究論文獎, 香港新聞網, 2023-09-20 15:21](http://www.hkcna.hk/docDetail.jsp?id=100474675&channel=4372)
+- [内地及香港首次！港中大的他们获得这项国际大奖！,香港中文大学官方公众号， 2023-09-11 21:30](https://mp.weixin.qq.com/s/0AYazi8HD9CGRs0kxqUinw)**
+- [Two CUHK scholars receive Best Paper Award from ACM SIGKDD Conference 2023, CUHK Focus](https://www.focus.cuhk.edu.hk/20230906/two-cuhk-scholars-receive-best-paper-award-from-acm-sigkdd-conference-2023/)
+- [Prof. Cheng Hong and her postdoc fellow Dr. Sun Xiangguo won the best paper award at KDD2023, CUHK SEEM](https://www.se.cuhk.edu.hk/prof-cheng-hong-and-her-postdoc-fellow-dr-sun-xiangguo-won-the-best-paper-award-at-kdd2023/)
+- [港科夜闻｜香港科大(广州)熊辉教授、李佳教授分别荣获 ACM SIGKDD2023 服务奖与最佳论文奖(研究)](https://mp.weixin.qq.com/s/QCm-QtwNjh6rXrzJ3K2njQ)
+- [数据科学与分析学域李佳教授荣获SIGKDD2023最佳论文奖（研究）！](https://mp.weixin.qq.com/s/3Efakieo9Y9Tj6DTwZoonA)
+- [实时追踪科研动态丨姚期智、Quoc Viet Le等人8.9精选新论文，附ChatPaper综述](https://mp.weixin.qq.com/s/nfKiBcLIMcuvNqZT0XgSGA)
+- KDD 2023奖项出炉：港中文、港科大等获最佳论文奖，GNN大牛Leskovec获创新奖
+  - [机器之心](https://mp.weixin.qq.com/s/_JwfqlvFLOyauJgWxw-iWw)
+  - [专知](https://mp.weixin.qq.com/s/2XLudB9BFCp8yZgLgbF3sQ)
+  - [PaperWeekly](https://mp.weixin.qq.com/s/eZpMdWAG4Lg0r0EZ0O6nVA)
+  - [深度学习技术前沿](https://mp.weixin.qq.com/s/PhjszSX3RGv3_Nml3dfwsQ)
+  - [智源社区](https://hub.baai.ac.cn/view/28475)
+- [多篇GNN论文获KDD 2023大奖, 图神经网络与推荐系统  2023-08-09 16:03](https://mp.weixin.qq.com/s/7DQC-565F8VoqLluU3WwLw)
+- [港科广数据科学与分析学域李佳教授荣获SIGKDD2023最佳论文奖（研究）！](https://mp.weixin.qq.com/s/6eUT7SE6ew2N7tRCaFE6gQ)
+
+**Onlie Discussion**
+
+- [LOGS第2023/08/12期||KDD 2023 Best Paper Winner 孙相国 ：提示学习在图神经网络中的探索](https://mp.weixin.qq.com/s/vdFCNhgi2wuXscSauGbSgA)
+- [Talk预告 | KDD'23 Best Paper 港中文孙相国：All in One - 提示学习在图神经网络中的探索](https://mp.weixin.qq.com/s/z8AiCwTUn2TvY8tzB4NjVg)
+- [All in One Multi-Task Prompting for Graph Neural Networks 论文解读](https://www.bilibili.com/video/BV1Rk4y1V7wA/?share_source=copy_web&vd_source=dc2c6946b0127024c2225b0e695d9a83)
+- [kdd2023最佳论文](https://www.bilibili.com/video/BV1Uu4y1B7zp/?share_source=copy_web&vd_source=dc2c6946b0127024c2225b0e695d9a83)
+- [All in One: Multi-task Prompting for Graph Neural Networks（KDD 2023 Best Paper](https://zhuanlan.zhihu.com/p/650958869)
+- [怎么评价KDD23的best paper？ - 知乎](https://www.zhihu.com/question/617300883)
+
+
+## Call for Contributors!
+
+Once you are invited as the contributor, you would be asked to follow the following steps:
+
+- step 1. create a temp branch (e.g. ``xgTemp``) from the latest ``xgsun``. (``xgsun`` branch is a beta branch and
+  only ``xgsun`` can be merged to the ``main`` branch.)
+- step 2. fetch ``origin/xgTemp`` to your local ``xgTemp``, and make your own changes via PyCharm etc.
+- step 3. push your changes from local ``xgTemp`` to your github cloud branch: ``origin/xgTemp``.
+- step 4. open a full request to merge from your branch to ``xgsun``.
+
+When you finished all these jobs. I will get a notification and I will approve to merge your branch to ``xgsun``.
+Once I finished, I will delete your branch, and next time you will repeat the above jobs.
+
+It would be greatly appreciated if you could finish all these jobs during week days (Monday-Friday, Beijing Timezone).
+I will handle with the conflict issues during weekends and update the latest ``xgsun`` branch before Sunday (Beijing
+Timezone)
+
+A widely tested ``xgsun`` branch will then be merged to the ``main`` branch and new version will be released one or two
+times per month.

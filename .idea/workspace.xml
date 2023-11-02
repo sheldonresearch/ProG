@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="072199a1-d45b-453a-a87d-99010969506d" name="Changes" comment="update readme.md">
-      <change afterPath="$PROJECT_DIR$/website/media.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/History.md" beforeDir="false" afterPath="$PROJECT_DIR$/website/History.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/History.md" beforeDir="false" afterPath="$PROJECT_DIR$/History.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/media.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -155,7 +155,7 @@
       <workItem from="1692244714911" duration="927000" />
       <workItem from="1692253295668" duration="687000" />
       <workItem from="1693205728900" duration="301000" />
-      <workItem from="1698892135874" duration="359000" />
+      <workItem from="1698892135874" duration="2850000" />
     </task>
     <task id="LOCAL-00001" summary="add MIT license">
       <created>1689235811326</created>
