@@ -4,7 +4,7 @@
 
 ---
 
-![](https://img.shields.io/badge/Latest_version-v0.1.4-red)
+![](https://img.shields.io/badge/Latest_version-v0.1.5-red)
 ![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-red)
@@ -13,7 +13,6 @@
 
 | **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)**
 | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)**
-| **[Raw Code](https://anonymous.4open.science/r/mpg/README.md)**
 | **[Media Coverage](#media-coverage)** |
 
 **ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multiple task prompting for a
@@ -27,6 +26,21 @@ with **[Extremely Huge Changes and Updates:](https://github.com/sheldonresearch/
 - [Historical Update Logs](https://github.com/sheldonresearch/ProG/blob/main/History.md)
 - [Historical Releases](https://github.com/sheldonresearch/ProG/releases)
 - [Differences](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
+
+
+**Content Table**
+
+- [quick start](#quick-start)
+  - [package dependencies](#package-dependencies)
+  - [pretrain your gnn model](#pre-train-your-gnn-model)
+  - [create relative models](#create-relative-models)
+  - [prompt learning with hand crafted answering template](#prompt-learning-with-hand-crafted-answering-template)
+  - [more detailed tutorial](#more-detailed-tutorial)
+- [citation](#citation)
+- [contact](#contact)
+- [media coverage](#media-coverage)
+- [call for contributors](#call-for-contributors)
+
 
 ## Quick Start
 
