@@ -42,8 +42,6 @@ codes with [extremely huge changes and updates](https://github.com/sheldonresear
 <br>
 
 
-[![Stargazers repo roster for @sheldonresearch/ProG](https://reporoster.com/stars/sheldonresearch/ProG)](https://github.com/sheldonresearch/ProG/stargazers) [![Forkers repo roster for @sheldonresearch/ProG](https://reporoster.com/forks/sheldonresearch/ProG)](https://github.com/sheldonresearch/ProG/network/members)
-
 
 
 <h3>🌟ProG++🌟: A Unified Python Library for Graph Prompting</h3> 
