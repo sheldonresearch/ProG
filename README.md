@@ -49,7 +49,7 @@ codes with [extremely huge changes and updates](https://github.com/sheldonresear
 ![](https://img.shields.io/badge/News-red)
 We released a comprehensive survey on graph prompt in arXiv (under review in TKDE):
 
->Charting the Future of AGI with Graph Prompts: A Comprehensive Survey
+>Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. Graph Prompt Learning: A Comprehensive Survey and Beyond
 
 In this survey, we present more details of ProG++ and also release a [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, benchmark datasets, and readily accessible code implementations. 
 
