@@ -2,7 +2,9 @@
   <img height="150" src="/Logo.jpg?sanitize=true" />
 </p>
 
----
+
+
+<h5 align="center">
 
 ![](https://img.shields.io/badge/Latest_version-v0.1.5-red)
 ![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
@@ -11,31 +13,67 @@
 ![Testing Status](https://img.shields.io/badge/license-MIT-blue)
 ![Testing Status](https://img.shields.io/badge/python->=3.9-red)
 
+</h5>
+
+<h5 align="center">
+  
+| **[Quick Start](#quick-start)** 
 | **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)**
 | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)**
 | **[Media Coverage](#media-coverage)** |
 
-**ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multiple task prompting for a
+</h5>
+
+---
+
+**ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
 pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, Jia Li,
 etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023, in which
-they released the raw
-codes at [Click](https://anonymous.4open.science/r/mpg/README.md). This repository is a **polished version** of the raw
+they released their [raw codes](https://anonymous.4open.science/r/mpg/README.md). This repository is a _polished version_ of the raw
 codes
-with **[Extremely Huge Changes and Updates](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)**
+but with [Extremely Huge Changes and Updates](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
+
+<br>
 
 
-## Content Table
+<p align="center">
+  <img height="150" src="/Logo.jpg?sanitize=true" />
+</p>
 
-- [quick start](#quick-start)
-  - [package dependencies](#package-dependencies)
-  - [pretrain your gnn model](#pre-train-your-gnn-model)
-  - [create relative models](#create-relative-models)
-  - [prompt learning with hand crafted answering template](#prompt-learning-with-hand-crafted-answering-template)
-  - [more detailed tutorial](#more-detailed-tutorial)
-- [citation](#citation)
-- [contact](#contact)
-- [media coverage](#media-coverage)
-- [call for contributors](#call-for-contributors)
+
+🌟**ProG++** is an extended library with **ProG**, which supports more graph prompt models. Currently, **ProG++** is now in its beta version (a little baby: _ProG Plus_ [here](https://github.com/Barristen/Prog_plus)), and we will merge _ProG Plus_ to **ProG** in the near future. Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
+>- X. Sun, H. Cheng, J. Li, B. Liu, and J. Guan, “All in One: Multi-Task Prompting for Graph Neural Networks,” in KDD, 2023
+>- M. Sun, K. Zhou, X. He, Y. Wang, and X. Wang, “GPPT: Graph Pre-Training and Prompt Tuning to Generalize Graph Neural Networks,” in KDD, 2022
+>- T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
+>- T. Fang, Y. Zhang, Y. Yang, C. Wang, and L. Chen, “Universal Prompt Tuning for Graph Neural Networks,” in NeurIPS, 2023.
+
+
+
+![](https://img.shields.io/badge/News-red)
+We released a comprehensive survey on graph prompt in arXiv (under review in TKDE):
+
+>Charting the Future of AGI with Graph Prompts: A Comprehensive Survey
+
+In this survey, we present more details of ProG++ and also release a [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, benchmark datasets, and readily accessible code implementations. 
+
+Please cite our work if you find help for you:
+
+
+```
+@inproceedings{sun2023all,
+  title={All in One: Multi-Task Prompting for Graph Neural Networks},
+  author={Sun, Xiangguo and Cheng, Hong and Li, Jia and Liu, Bo and Guan, Jihong},
+  booktitle={Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery \& data mining (KDD'23)},
+  year={2023},
+  pages = {2120–2131},
+  location = {Long Beach, CA, USA},
+  isbn = {9798400701030},
+  url = {https://doi.org/10.1145/3580305.3599256},
+  doi = {10.1145/3580305.3599256}
+}
+
+```
+
 
 
 ## Quick Start
