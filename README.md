@@ -36,9 +36,7 @@ but with [Extremely Huge Changes and Updates](https://github.com/sheldonresearch
 <br>
 
 
-<p align="center">
-  <img height="150" src="/Logo.jpg?sanitize=true" />
-</p>
+
 
 
 🌟**ProG++** is an extended library with **ProG**, which supports more graph prompt models. Currently, **ProG++** is now in its beta version (a little baby: _ProG Plus_ [here](https://github.com/Barristen/Prog_plus)), and we will merge _ProG Plus_ to **ProG** in the near future. Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
@@ -55,6 +53,13 @@ We released a comprehensive survey on graph prompt in arXiv (under review in TKD
 >Charting the Future of AGI with Graph Prompts: A Comprehensive Survey
 
 In this survey, we present more details of ProG++ and also release a [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, benchmark datasets, and readily accessible code implementations. 
+
+<p align="center">
+  <img height="300" src="/ProG_pipeline.jpg?sanitize=true" />
+  <br>
+  The Architecture of ProG++
+</p>
+
 
 Please cite our work if you find help for you:
 
