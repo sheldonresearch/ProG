@@ -1,10 +1,10 @@
-<p align="center">
+<h1 align="center">
   <img height="150" src="/Logo.jpg?sanitize=true" />
-</p>
+</h1>
 
 
 
-<h5 align="center">
+<p align="left">
 
 ![](https://img.shields.io/badge/Latest_version-v0.1.5-red)
 ![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
@@ -13,22 +13,27 @@
 ![Testing Status](https://img.shields.io/badge/license-MIT-blue)
 ![Testing Status](https://img.shields.io/badge/python->=3.9-red)
 
-</h5>
+</p>
 
-<h5 align="center">
+
+<p align="left">
   
 | **[Quick Start](#quick-start)** 
 | **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)**
 | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)**
 | **[Media Coverage](#media-coverage)** |
 
-</h5>
+</p>
 
----
+
+
+
+
+<h3>ProG: A Python Library for Multi-task Graph Prompting</h3> 
 
 **ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
 pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, Jia Li,
-etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (🌟  _**Best Research Paper Award**, which is the first time for Hong Kong and Mainland China_), in which
+etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (🔥  _**Best Research Paper Award**, which is the first time for Hong Kong and Mainland China_), in which
 they released their [raw codes](https://anonymous.4open.science/r/mpg/README.md). This repository is a redesigned and enhanced version of the raw
 codes with [extremely huge changes and updates](https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023)
 
@@ -36,31 +41,44 @@ codes with [extremely huge changes and updates](https://github.com/sheldonresear
 
 
 
+<h3>🌟ProG++🌟: A Unified Python Library for Graph Prompting</h3> 
 
-
-🌟**ProG++** is an extended library with **ProG**, which supports more graph prompt models. Currently, **ProG++** is now in its beta version (a little baby: _ProG Plus_ [here](https://github.com/Barristen/Prog_plus)), and we will merge _ProG Plus_ to **ProG** in the near future. Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
+**ProG++** is an extended library with **ProG**, which supports more graph prompt models. Currently, **ProG++** is now in its beta version (a little baby: [ProG Plus](https://github.com/Barristen/Prog_plus)), and we will merge ``ProG Plus`` to ``ProG`` in the near future. Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
 >- X. Sun, H. Cheng, J. Li, B. Liu, and J. Guan, “All in One: Multi-Task Prompting for Graph Neural Networks,” in KDD, 2023
 >- M. Sun, K. Zhou, X. He, Y. Wang, and X. Wang, “GPPT: Graph Pre-Training and Prompt Tuning to Generalize Graph Neural Networks,” in KDD, 2022
 >- T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
 >- T. Fang, Y. Zhang, Y. Yang, C. Wang, and L. Chen, “Universal Prompt Tuning for Graph Neural Networks,” in NeurIPS, 2023.
 
 
+<br>
 
+<h3 align="center">
+  
 ![](https://img.shields.io/badge/News-red)
-We released a comprehensive survey on graph prompt in arXiv (under review in TKDE):
+🐶We released a comprehensive survey on graph prompt!
 
->Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. Graph Prompt Learning: A Comprehensive Survey and Beyond
+</h3>
 
-In this survey, we present more details of ProG++ and also release a [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, benchmark datasets, and readily accessible code implementations. 
+>Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li.
+>
+>Graph Prompt Learning: A Comprehensive Survey and Beyond
+>
+>in arXiv
+>
+>(under review in TKDE)
 
-<p align="center">
-  <img height="300" src="/ProG_pipeline.jpg?sanitize=true" />
+In this survey, we present more details of **ProG++** and also release a [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt)🦀 for a comprehensive collection of research papers, benchmark datasets, and readily accessible code implementations. 
+
+
+  
+  **The Architecture of ProG++**
+
+  <img height="350" src="/ProG_pipeline.jpg?sanitize=true" />
   <br>
-  The Architecture of ProG++
-</p>
+  
 
 
-Please cite our work if you find help for you:
+**🌹Please cite our work if you find help for you:**
 
 
 ```
@@ -78,7 +96,7 @@ Please cite our work if you find help for you:
 
 ```
 
-
+---
 
 ## Quick Start
 
