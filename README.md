@@ -68,7 +68,7 @@ codes with [extremely huge changes and updates](https://github.com/sheldonresear
 >
 >Graph Prompt Learning: A Comprehensive Survey and Beyond
 >
->in arXiv
+>in arXiv [https://arxiv.org/abs/2311.16534](https://arxiv.org/abs/2311.16534)
 >
 >(under review in TKDE)
 
@@ -98,6 +98,16 @@ In this survey, we present more details of **ProG++** and also release a [reposi
   url = {https://doi.org/10.1145/3580305.3599256},
   doi = {10.1145/3580305.3599256}
 }
+
+@article{sun2023graph,
+  title = {Graph Prompt Learning: A Comprehensive Survey and Beyond},
+  author = {Sun, Xiangguo and Zhang, Jiawen and Wu, Xixi and Cheng, Hong and Xiong, Yun and Li, Jia},
+  year = {2023},
+  journal = {arXiv:2311.16534},
+  eprint = {2311.16534},
+  archiveprefix = {arxiv}
+}
+
 
 ```
 
@@ -245,9 +255,18 @@ bibtex
   url = {https://doi.org/10.1145/3580305.3599256},
   doi = {10.1145/3580305.3599256}
 }
+```
+```
+@article{sun2023graph,
+  title = {Graph Prompt Learning: {{A}} Comprehensive Survey and Beyond},
+  author = {Sun, Xiangguo and Zhang, Jiawen and Wu, Xixi and Cheng, Hong and Xiong, Yun and Li, Jia},
+  year = {2023},
+  journal = {arXiv:2311.16534},
+  eprint = {2311.16534},
+  archiveprefix = {arxiv}
+}
 
 ```
-
 
 
 ## Contact
