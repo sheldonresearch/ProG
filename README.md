@@ -303,6 +303,9 @@ bibtex
 - [All in One: Multi-task Prompting for Graph Neural Networks（KDD 2023 Best Paper](https://zhuanlan.zhihu.com/p/650958869)
 - [怎么评价KDD23的best paper？ - 知乎](https://www.zhihu.com/question/617300883)
 
+**Other research papers released by us**
+- [最新图大模型综述：由港科广、港中文、清华联合发布，详述使用大模型处理图任务的进展与挑战](https://mp.weixin.qq.com/s/hohAfy04rApaaqz6_3EdsQ)
+- [大模型和图如何结合？最新《图遇见大型语言模型》综述，详述最新进展](https://mp.weixin.qq.com/s/maqKuu9lVqEDpSptBqwoWg)
 
 ## Call for Contributors!
 
