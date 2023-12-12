@@ -306,23 +306,21 @@ bibtex
 **Other research papers released by us**
 - [最新图大模型综述：由港科广、港中文、清华联合发布，详述使用大模型处理图任务的进展与挑战](https://mp.weixin.qq.com/s/hohAfy04rApaaqz6_3EdsQ)
 - [大模型和图如何结合？最新《图遇见大型语言模型》综述，详述最新进展](https://mp.weixin.qq.com/s/maqKuu9lVqEDpSptBqwoWg)
+- [香港中文领衔港科广、复旦重磅发布：迈向通用图智能的新方法，图提示学习进展与挑战](https://mp.weixin.qq.com/s/NvfgtXLUX2MWu0U2p7RKEQ)
+- [香港中文领衔港科广、复旦重磅发布：迈向通用图智能的新方法，图提示学习进展与挑战](https://mp.weixin.qq.com/s/zSTFTgKGaOXbOC0kKT8raQ)
+- [图上如何提示？港中文等最新《图提示学习》全面综述，详述图提示分类体系](https://mp.weixin.qq.com/s/6k7ZTVM0Hj8bO4iAjOERAQ)
 
 ## Call for Contributors!
 
-Once you are invited as the contributor, you would be asked to follow the following steps:
+Once you are invited as a contributor, you would be asked to follow the following steps:
 
-- step 1. create a temp branch (e.g. ``xgTemp``) from the latest ``xgsun``. (``xgsun`` branch is a beta branch and
-  only ``xgsun`` can be merged to the ``main`` branch.)
+- step 1. create a temp branch (e.g. ``xgTemp``) from the ``main`` branch (latest branch). 
 - step 2. fetch ``origin/xgTemp`` to your local ``xgTemp``, and make your own changes via PyCharm etc.
 - step 3. push your changes from local ``xgTemp`` to your github cloud branch: ``origin/xgTemp``.
-- step 4. open a full request to merge from your branch to ``xgsun``.
+- step 4. open a pull request to merge from your branch to ``main``.
 
-When you finished all these jobs. I will get a notification and I will approve to merge your branch to ``xgsun``.
-Once I finished, I will delete your branch, and next time you will repeat the above jobs.
+When you finish all these jobs. I will get a notification and approve merging your branch to ``main``.
+Once I finish, I will delete your branch, and next time you will repeat the above jobs.
 
-It would be greatly appreciated if you could finish all these jobs during week days (Monday-Friday, Beijing Timezone).
-I will handle with the conflict issues during weekends and update the latest ``xgsun`` branch before Sunday (Beijing
-Timezone)
 
-A widely tested ``xgsun`` branch will then be merged to the ``main`` branch and new version will be released one or two
-times per month.
+A widely tested ``main`` branch will then be merged to the ``stable`` branch and a new version will be released based on ``stable`` branch.
