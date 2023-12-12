@@ -23,7 +23,9 @@
 | **[Quick Start](#quick-start)** 
 | **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)**
 | **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)**
-| **[Media Coverage](#media-coverage)** |
+| **[Media Coverage](#media-coverage)**
+| **[Call For Contribution](#call-for-contributors)** |
+
 
 </p>
 
