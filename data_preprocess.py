@@ -165,14 +165,6 @@ def induced_graphs_nodes(data, dataname: str = None, num_classes=3, smallest_siz
                 current_hop = current_hop + 1
                 subset, _, _, _ = k_hop_subgraph(node_idx=node.item(), num_hops=current_hop,
                                                  edge_index=edge_index)
-            if len(subset) < smallest_size:
-                need_node_num = smallest_size - len(subset)
-                pos_nodes = torch.argwhere(data.y == int(i))
-                candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
-
-                candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][0:need_node_num]
-
-                subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
 
             if len(subset) > largest_size:
                 subset = subset[torch.randperm(subset.shape[0])][0:largest_size - 1]
@@ -260,14 +252,6 @@ def induced_graphs_edges(data, dataname: str = None, num_classes=3, smallest_siz
                 subset, _, _, _ = k_hop_subgraph(node_idx=[src_n, tar_n], num_hops=temp_hop,
                                                  edge_index=edge_index)
 
-            if len(subset) < smallest_size:
-                need_node_num = smallest_size - len(subset)
-                pos_nodes = torch.argwhere(data.y == n_label)
-                candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
-
-                candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][0:need_node_num]
-
-                subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
 
             if len(subset) > largest_size:
                 subset = subset[torch.randperm(subset.shape[0])][0:largest_size]
@@ -368,14 +352,6 @@ def induced_graphs_graphs(data, dataname: str = None, num_classes=3, smallest_si
                     subset, _, _, _ = k_hop_subgraph(node_idx=seeds, num_hops=temp_hop, num_nodes=num_nodes,
                                                      edge_index=same_label_edge_index, relabel_nodes=True)
 
-                if len(subset) < smallest_size:
-                    need_node_num = smallest_size - len(subset)
-                    pos_nodes = torch.argwhere(data.y == n_label)
-                    candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
-
-                    candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][0:need_node_num]
-
-                    subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
 
                 if len(subset) > largest_size:
                     # directly downmsample
