@@ -235,13 +235,10 @@ this version code     | 79.78 ｜  80.01   ｜
 
 ```
 
-
-<h3 align="center">
   
-Kindly note that the comparison takes the same pre-trained pth. The absolute value of performance won't mean much because the final results may vary depending on different
-  pre-training states. It would be more interesting to see the relative performance with other training paradigms. 
+**Kindly note that the comparison takes the same pre-trained pth. The absolute value of performance won't mean much because the final results may vary depending on different
+  pre-training states. It would be more interesting to see the relative performance with other training paradigms. **
 
-</h3>
 
 
 **Note:**
