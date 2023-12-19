@@ -6,8 +6,8 @@ from torch_geometric.data import Data
 from random import shuffle
 import random
 
-from prompt import GNN
-from utils import gen_ran_output,load_data4pretrain,mkdir, graph_views
+from .prompt import GNN
+from .utils import gen_ran_output,load_data4pretrain,mkdir, graph_views
 
 class GraphCL(torch.nn.Module):
 
