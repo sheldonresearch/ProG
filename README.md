@@ -110,6 +110,43 @@ In this survey, we present more details of **ProG++** and also release a [reposi
   archiveprefix = {arxiv}
 }
 
+@article{chen2024prompt,
+      title={All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining}, 
+      author={Haihong Zhao and Aochuan Chen and Xiangguo Sun and Hong Cheng and Jia Li},
+      year={2024},
+      eprint={??},
+      archivePrefix={arXiv},
+      journal = {??}
+}
+
+
+@inproceedings{
+gao2024protein,
+title={Protein Multimer Structure Prediction via {PPI}-guided Prompt Learning},
+author={Ziqi Gao and Xiangguo Sun and Zijing Liu and Yu Li and Hong Cheng and Jia Li},
+booktitle={The Twelfth International Conference on Learning Representations (ICLR)},
+year={2024},
+url={https://openreview.net/forum?id=OHpvivXrQr}
+}
+
+
+@article{chen2024prompt,
+      title={Prompt Learning on Temporal Interaction Graphs}, 
+      author={Xi Chen and Siwei Zhang and Yun Xiong and Xixi Wu and Jiawei Zhang and Xiangguo Sun and Yao Zhang and Yinglong Zhao and Yulin Kang},
+      year={2024},
+      eprint={2402.06326},
+      archivePrefix={arXiv},
+      journal = {arXiv:2402.06326}
+}
+
+@article{li2024survey,
+      title={A Survey of Graph Meets Large Language Model: Progress and Future Directions}, 
+      author={Yuhan Li and Zhixun Li and Peisong Wang and Jia Li and Xiangguo Sun and Hong Cheng and Jeffrey Xu Yu},
+      year={2024},
+      eprint={2311.12399},
+      archivePrefix={arXiv},
+      journal = {arXiv:2311.12399}
+}
 
 ```
 
