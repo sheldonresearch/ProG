@@ -110,23 +110,22 @@ In this survey, we present more details of **ProG++** and also release a [reposi
   archiveprefix = {arxiv}
 }
 
-@article{chen2024prompt,
+
+@article{zhao2024all,
       title={All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining}, 
       author={Haihong Zhao and Aochuan Chen and Xiangguo Sun and Hong Cheng and Jia Li},
       year={2024},
-      eprint={??},
-      archivePrefix={arXiv},
-      journal = {??}
+      eprint={2402.09834},
+      archivePrefix={arXiv}
 }
 
 
-@inproceedings{
-gao2024protein,
-title={Protein Multimer Structure Prediction via {PPI}-guided Prompt Learning},
-author={Ziqi Gao and Xiangguo Sun and Zijing Liu and Yu Li and Hong Cheng and Jia Li},
-booktitle={The Twelfth International Conference on Learning Representations (ICLR)},
-year={2024},
-url={https://openreview.net/forum?id=OHpvivXrQr}
+@inproceedings{gao2024protein,
+  title={Protein Multimer Structure Prediction via {PPI}-guided Prompt Learning},
+  author={Ziqi Gao and Xiangguo Sun and Zijing Liu and Yu Li and Hong Cheng and Jia Li},
+  booktitle={The Twelfth International Conference on Learning Representations (ICLR)},
+  year={2024},
+  url={https://openreview.net/forum?id=OHpvivXrQr}
 }
 
 
