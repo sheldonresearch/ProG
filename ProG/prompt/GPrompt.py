@@ -1,0 +1,14 @@
+import torch
+
+class Gprompt(torch.nn.Module):
+    def __init__(self,input_dim):
+        super(Gprompt, self).__init__()
+        self.weight= torch.nn.Parameter(torch.Tensor(1,input_dim))
+        self.max_n_num=input_dim
+        self.reset_parameters()
+    def reset_parameters(self):
+        torch.nn.init.xavier_uniform_(self.weight)
+    def forward(self, graph_embedding):
+        graph_embedding=graph_embedding*self.weight
+        # graph_embedding=graph_embedding.sum(dim=1) 有一点点抽象
+        return graph_embedding

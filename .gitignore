@@ -5,4 +5,4 @@
 __pycache__/data_preprocess.cpython-39.pyc
 *.pyc
 .DS_Store
-
+/data
