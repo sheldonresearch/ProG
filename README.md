@@ -8,7 +8,7 @@
 
 <p align="left">
 
-![](https://img.shields.io/badge/Latest_version-v0.1.5-red)
+![](https://img.shields.io/badge/Latest_version-v0.1-red)
 ![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-red)
@@ -29,17 +29,22 @@
 
 </p>
 
-<h3 align="center">
-  
-Big News！ We are so happy to announce that we have finished most updating works from ProG to ProG++!
+<h3>
 
-(if you wish to find the original ProG package, go to prog branch)
+ ![](https://img.shields.io/badge/News-red)
+  Big News！
 
 </h3>
 
-<h3>🌟ProG++🌟: A Unified Python Library for Graph Prompting</h3> 
+- We are so happy to announce that we have finished most updating works from ProG to **ProG++**! (the ``main`` branch of this repository. If you wish to find the original ProG package, go to the ``ori`` branch)
 
-**ProG++** is an extended library with **ProG**, which supports more graph prompt models. Currently, **ProG++** is now in its beta version (a little baby: [ProG Plus](https://github.com/Barristen/Prog_plus)), and we will merge ``ProG Plus`` to ``ProG`` in the near future. Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
+
+---
+
+
+<h3 align="center">🌟ProG++🌟: A Unified Python Library for Graph Prompting</h3> 
+
+**ProG++** (the ``main`` branch of this repository) is an extended library of the original ``ProG`` (see in the ``ori`` branch of this repository), which supports more graph prompt models. Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
 
 >- [All in One] X. Sun, H. Cheng, J. Li, B. Liu, and J. Guan, “All in One: Multi-Task Prompting for Graph Neural Networks,” KDD, 2023
 >- [GPF Plus] T. Fang, Y. Zhang, Y. Yang, C. Wang, and L. Chen, “Universal Prompt Tuning for Graph Neural Networks,” NeurIPS, 2023.
@@ -50,10 +55,9 @@ Big News！ We are so happy to announce that we have finished most updating work
 
 <br>
 
-<h3 align="center">
-  
-![](https://img.shields.io/badge/News-red)
-🐶We released a comprehensive survey on graph prompt!
+<h3>
+
+We released a comprehensive survey on graph prompt!
 
 </h3>
 
@@ -272,34 +276,6 @@ this version code     | 79.78 ｜  80.01   ｜
 
 - The above table is copied from this blog: https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023
 
-## Citation
-
-bibtex
-
-```
-@inproceedings{sun2023all,
-  title={All in One: Multi-Task Prompting for Graph Neural Networks},
-  author={Sun, Xiangguo and Cheng, Hong and Li, Jia and Liu, Bo and Guan, Jihong},
-  booktitle={Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery \& data mining (KDD'23)},
-  year={2023},
-  pages = {2120–2131},
-  location = {Long Beach, CA, USA},
-  isbn = {9798400701030},
-  url = {https://doi.org/10.1145/3580305.3599256},
-  doi = {10.1145/3580305.3599256}
-}
-```
-```
-@article{sun2023graph,
-  title = {Graph Prompt Learning: {{A}} Comprehensive Survey and Beyond},
-  author = {Sun, Xiangguo and Zhang, Jiawen and Wu, Xixi and Cheng, Hong and Xiong, Yun and Li, Jia},
-  year = {2023},
-  journal = {arXiv:2311.16534},
-  eprint = {2311.16534},
-  archiveprefix = {arxiv}
-}
-
-```
 
 
 ## Contact
@@ -360,47 +336,6 @@ A widely tested ``main`` branch will then be merged to the ``stable`` branch and
 
 
 
-
-
-
-
-
-
-
-<h1 align='left'>
-ProG Plus (Updating)
-</h1>
-
-
-<h5 align="left">
-
-![](https://img.shields.io/badge/Latest_version-v0.1.5-red)
-![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
-![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
-![Testing Status](https://img.shields.io/badge/PyTorch-v2.0.1-red)
-![Testing Status](https://img.shields.io/badge/license-MIT-blue)
-![Testing Status](https://img.shields.io/badge/python->=3.9-red)
-
-</h5>
-
-<br>
-
-🌟 ``ProG Plus`` is a baby of **ProG++**, an extended library upon [![](https://img.shields.io/badge/ProG-red)](https://github.com/sheldonresearch/ProG). ``ProG Plus`` supports more graph prompt models, and we will merge ``ProG Plus`` to [![](https://img.shields.io/badge/ProG-red)](https://github.com/sheldonresearch/ProG) in the near future (named as **ProG++**). Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
->- ( _**KDD23 Best Paper**_ 🌟)  X. Sun, H. Cheng, J. Li, B. Liu, and J. Guan, “All in One: Multi-Task Prompting for Graph Neural Networks,” in KDD, 2023
->- M. Sun, K. Zhou, X. He, Y. Wang, and X. Wang, “GPPT: Graph Pre-Training and Prompt Tuning to Generalize Graph Neural Networks,” in KDD, 2022
->- T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
->- T. Fang, Y. Zhang, Y. Yang, C. Wang, and L. Chen, “Universal Prompt Tuning for Graph Neural Networks,” in NeurIPS, 2023.
-
-
-<h5 align='center'>
-  
-Thanks to Dr. Xiangguo Sun for his
-
-[![](https://img.shields.io/badge/Python_Library-ProG-red)](https://github.com/sheldonresearch/ProG)
-
-Please visit their [website](https://github.com/sheldonresearch/ProG) to inquire more details on **ProG**, **ProG Plus**, and **ProG++**
-
-</h5>
 
 ## TODO List
 
@@ -464,73 +399,4 @@ pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -
 or run this command
 ```shell
 conda install pyg -c pyg
-```
-## Usage
-
-See in [https://github.com/sheldonresearch/ProG](https://github.com/sheldonresearch/ProG)
-
-## Citation
-
-bibtex
-
-```
-@inproceedings{sun2023all,
-  title={All in One: Multi-Task Prompting for Graph Neural Networks},
-  author={Sun, Xiangguo and Cheng, Hong and Li, Jia and Liu, Bo and Guan, Jihong},
-  booktitle={Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery \& data mining (KDD'23)},
-  year={2023},
-  pages = {2120–2131},
-  location = {Long Beach, CA, USA},
-  isbn = {9798400701030},
-  url = {https://doi.org/10.1145/3580305.3599256},
-  doi = {10.1145/3580305.3599256}
-}
-
-@article{sun2023graph,
-  title = {Graph Prompt Learning: A Comprehensive Survey and Beyond},
-  author = {Sun, Xiangguo and Zhang, Jiawen and Wu, Xixi and Cheng, Hong and Xiong, Yun and Li, Jia},
-  year = {2023},
-  journal = {arXiv:2311.16534},
-  eprint = {2311.16534},
-  archiveprefix = {arxiv}
-}
-
-
-@article{zhao2024all,
-      title={All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining}, 
-      author={Haihong Zhao and Aochuan Chen and Xiangguo Sun and Hong Cheng and Jia Li},
-      year={2024},
-      eprint={2402.09834},
-      archivePrefix={arXiv}
-}
-
-
-@inproceedings{gao2024protein,
-  title={Protein Multimer Structure Prediction via {PPI}-guided Prompt Learning},
-  author={Ziqi Gao and Xiangguo Sun and Zijing Liu and Yu Li and Hong Cheng and Jia Li},
-  booktitle={The Twelfth International Conference on Learning Representations (ICLR)},
-  year={2024},
-  url={https://openreview.net/forum?id=OHpvivXrQr}
-}
-
-
-@article{chen2024prompt,
-      title={Prompt Learning on Temporal Interaction Graphs}, 
-      author={Xi Chen and Siwei Zhang and Yun Xiong and Xixi Wu and Jiawei Zhang and Xiangguo Sun and Yao Zhang and Yinglong Zhao and Yulin Kang},
-      year={2024},
-      eprint={2402.06326},
-      archivePrefix={arXiv},
-      journal = {arXiv:2402.06326}
-}
-
-@article{li2024survey,
-      title={A Survey of Graph Meets Large Language Model: Progress and Future Directions}, 
-      author={Yuhan Li and Zhixun Li and Peisong Wang and Jia Li and Xiangguo Sun and Hong Cheng and Jeffrey Xu Yu},
-      year={2024},
-      eprint={2311.12399},
-      archivePrefix={arXiv},
-      journal = {arXiv:2311.12399}
-}
-
-
 ```
