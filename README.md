@@ -29,7 +29,13 @@
 
 </p>
 
+<h3 align="center">
+  
+Big News！ We are so happy to announce that we have finished most updating works from ProG to ProG++!
 
+(if you wish to find the original ProG package, go to prog branch)
+
+</h3>
 
 <h3>🌟ProG++🌟: A Unified Python Library for Graph Prompting</h3> 
 
