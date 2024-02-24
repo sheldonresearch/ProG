@@ -1,3 +1,0 @@
-torch_geometric == 2.3.1
-deprecated == 1.2.14
-torchmetrics == 1.0.3
