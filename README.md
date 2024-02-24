@@ -8,7 +8,7 @@
 
 <p align="left">
 
-![](https://img.shields.io/badge/Latest_version-v0.1-red)
+![](https://img.shields.io/badge/Latest_version-v0.2-red)
 ![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
 ![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-red)
@@ -37,7 +37,7 @@
 </h3>
 
 - We are so happy to announce that we have finished most updating works from ProG to **ProG++**! (the ``main`` branch of this repository. If you wish to find the original ProG package, go to the ``ori`` branch)
-
+- From v0.2, the term "ProG" means ProG++ by default!
 
 ---
 
