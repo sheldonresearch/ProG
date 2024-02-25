@@ -156,7 +156,7 @@ In this survey, we present more details of **ProG++** and also release a [reposi
 
 ### Pre-train your GNN model
 
-We have designed four pre_trained class (Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE), which is in ProG.pretrain module, you can pre_train the model by setting the parameters you want.
+We have designed four pre_trained class (Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE), which is in ProG.pretrain module, you can pre_train the model by running ``pre_train.py`` and setting the parameters you want.
 
 ```python
 from ProG.utils import mkdir, load_data4pretrain
@@ -177,6 +177,29 @@ pt.pretrain()
 
 
 
+```
+### Do the Downstreamtask
+in ``downstreamtask.py``, we designed 3 task(Node classification, edge prediction, graph classification)
+Here are some examples 
+```python
+from ProG.tasker import NodeTask, LinkTask, GraphTask
+from ProG.prompt import GPF, GPF_plus, GPPTPrompt, GPrompt, LightPrompt
+
+tasker = NodeTask(pre_train_model_path = 'None', 
+                  dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'gpf', shot_num = 5)
+
+# tasker = LinkTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_Gprompt.GCN.pth', 
+#                      dataset_name = 'Cora', gnn_type = 'GAT', prompt_type = 'None')
+
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'MUTAG', gnn_type = 'GCN', prompt_type = 'gpf', shot_num = 50)
+
+# tasker = GraphTask(pre_train_model_path = 'None', 
+#                      dataset_name = 'MUTAG', gnn_type = 'GCN', prompt_type = 'ProG', shot_num = 20)
+
+# tasker = GraphTask(pre_train_model_path = 'None', 
+#                      dataset_name = 'ENZYMES', gnn_type = 'GCN', prompt_type = 'None', shot_num = 50)
+tasker.run()
 ```
 
 ### Create Relative Models
