@@ -156,8 +156,7 @@ In this survey, we present more details of **ProG++** and also release a [reposi
 
 ### Pre-train your GNN model
 
-The following codes present a simple example on how to pre-train a GNN model via GraphCL. You can also find a integrated
-function ``pretrain()`` in ``no_meta_demo.py``.
+We have designed four pre_trained class (Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE), which is in ProG.pretrain module, you can pre_train the model by setting the parameters you want.
 
 ```python
 from ProG.utils import mkdir, load_data4pretrain
@@ -165,20 +164,17 @@ from ProG import PreTrain
 
 mkdir('./pre_trained_gnn/')
 
-pretext = 'GraphCL'  # 'GraphCL', 'SimGRACE'
-gnn_type = 'TransformerConv'  # 'GAT', 'GCN'
-dataname, num_parts, batch_size = 'CiteSeer', 200, 10
+from ProG.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE
 
-print("load data...")
-graph_list, input_dim, hid_dim = load_data4pretrain(dataname, num_parts)
+# pt = Edgepred_GPPT(dataset_name = 'Cora', gnn_type = 'GCN', hid_dim = 128, gln =3, num_epoch=100)
 
-print("create PreTrain instance...")
-pt = PreTrain(pretext, gnn_type, input_dim, hid_dim, gln=2)
+# pt = Edgepred_GPPT(dataset_name = 'MUTAG', gnn_type = 'GCN', hid_dim = 128, gln =3, num_epoch=100)
+# pt = Edgepred_Gprompt(dataset_name = 'Cora', gnn_type = 'GCN', hid_dim = 128, gln =3, num_epoch=100)
+pt = GraphCL(dataset_name = 'ENZYMES', gnn_type = 'GCN', hid_dim = 128, gln =3, num_epoch=50)
+# pt = SimGRACE(dataset_name = 'MUTAG', gnn_type = 'GCN', hid_dim = 128, gln =3, num_epoch=50)
 
-print("pre-training...")
-pt.train(dataname, graph_list, batch_size=batch_size,
-         aug1='dropN', aug2="permE", aug_ratio=None,
-         lr=0.01, decay=0.0001, epochs=100)
+pt.pretrain()
+
 
 
 ```
