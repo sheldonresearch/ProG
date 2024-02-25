@@ -210,10 +210,6 @@ tasker.run()
 
 
 
-**Note:**
-
-- The above table is copied from this blog: https://github.com/sheldonresearch/ProG/blob/main/History.md#13-jul-2023
-
 
 
 ## Contact
