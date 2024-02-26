@@ -38,7 +38,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None):
 
         # 将剩余的数据 1：9 划分为测试集和验证集
         random.shuffle(remaining_data)
-        val_dataset_size = len(remaining_data) // 5
+        val_dataset_size = len(remaining_data) // 9
         val_dataset = remaining_data[:val_dataset_size]
         test_dataset = remaining_data[val_dataset_size:]
         

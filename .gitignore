@@ -2,7 +2,7 @@
 /old/
 .idea/*
 .idea/workspace.xml
-__pycache__/data_preprocess.cpython-39.pyc
+/ProG/__pycache__
 *.pyc
 .DS_Store
 /data
