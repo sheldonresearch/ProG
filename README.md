@@ -308,13 +308,12 @@ A widely tested ``main`` branch will then be merged to the ``stable`` branch and
 ## Environment Setup
 ```shell
 
---cuda 11.8
+--Python 3.9.17 
 
---python 3.9.17 
-
---pytorch 2.0.1 
+--PyTorch 2.0.1 
 
 --torch-geometric 2.3.1
+
 ```
 
 installation for PYG **[quick start](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html)**
