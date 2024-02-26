@@ -148,11 +148,6 @@ In this survey, we present more details of **ProG++** and also release a [reposi
 
 ## Quick Start
 
-### Package Dependencies
-
-- PyTorch 1.13.1
-- torchmetrics 0.11.4
-- torch_geometric 2.2.0
 
 ### Pre-train your GNN model
 

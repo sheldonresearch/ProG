@@ -34,7 +34,7 @@ class SimGRACE(PreTrain):
         sim_matrix = torch.exp(sim_matrix / T)
         pos_sim = sim_matrix[range(batch_size), range(batch_size)]
         loss = pos_sim / ((sim_matrix.sum(dim=1) - pos_sim) + 1e-4)
-        loss = - torch.log(loss).mean() + 10
+        loss = - torch.log(loss).mean() 
         return loss
 
     def get_loader(self, graph_list, batch_size):
