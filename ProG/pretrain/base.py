@@ -4,12 +4,12 @@ from ProG.data import load4node, load4graph
 from torch.optim import Adam
 
 class PreTrain(torch.nn.Module):
-    def __init__(self, gnn_type='TransformerConv', dataset_name = 'Cora', hid_dim = 128, num_layer = 2, num_epoch=100):
+    def __init__(self, gnn_type='TransformerConv', dataset_name = 'Cora', hid_dim = 128, gln = 2, num_epoch=100):
         super().__init__()
         self.device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
         self.dataset_name = dataset_name
         self.gnn_type = gnn_type
-        self.num_layer = num_layer
+        self.num_layer = gln
         self.epochs = num_epoch
         self.hid_dim =hid_dim
        

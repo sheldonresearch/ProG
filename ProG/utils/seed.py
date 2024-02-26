@@ -3,22 +3,13 @@ import numpy as np
 import random
 import torch
 from random import shuffle
-from torch_geometric.data import Data
-from torch_geometric.utils import subgraph, k_hop_subgraph
-import pickle as pk
-from torch_geometric.utils import to_undirected
-import torch.nn.functional as F
-from torch_geometric.loader import NeighborSampler
 
-
-seed = 0
 
 
 def seed_everything(seed):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 

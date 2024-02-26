@@ -82,7 +82,7 @@ class Edgepred_GPPT(PreTrain):
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
                 torch.save(self.gnn.state_dict(),
-                           "../Prog_plus/pre_trained_gnn/{}.{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_GPPT', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+                           "../Prog/pre_trained_gnn/{}.{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_GPPT', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
                 
                 print("+++model saved ! {}.{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_GPPT', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
 

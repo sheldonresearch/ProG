@@ -1,4 +1,10 @@
 from ProG.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE
+from ProG.utils import seed_everything
+from ProG.utils import mkdir
+
+	
+seed_everything(1)
+mkdir('./pre_trained_gnn/')
 
 # pt = Edgepred_GPPT(dataset_name = 'Cora', gnn_type = 'GCN', hid_dim = 128, gln =3, num_epoch=100)
 
