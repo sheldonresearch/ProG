@@ -4,6 +4,7 @@ from torch_geometric.loader import DataLoader
 import torch.nn.functional as F
 from .task import BaseTask
 from ProG.utils import center_embedding
+from ProG.utils import Gprompt_tuning_loss
 
 class GraphTask(BaseTask):
     def __init__(self, *args, **kwargs):    
@@ -76,9 +77,9 @@ class GraphTask(BaseTask):
             batch = batch.to(self.device)
             out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = self.prompt_type)
             # out = s𝑡,𝑥 = ReadOut({p𝑡 ⊙ h𝑣 : 𝑣 ∈ 𝑉 (𝑆𝑥)}),
-            center = center_embedding(out, batch.y)
-            
-            loss = self.criterion(out, center, batch.y)  
+            center = center_embedding(out, batch.y, self.output_dim)
+            criterion = Gprompt_tuning_loss()
+            loss = criterion(out, center, batch.y)  
             loss.backward()  
             self.optimizer.step()  
             total_loss += loss.item()  

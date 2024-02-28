@@ -10,9 +10,10 @@ class Gprompt_tuning_loss(nn.Module):
     def forward(self, embedding, center_embedding, labels):
         # 计算所有样本与两个类原型的相似度
         similarity_matrix = F.cosine_similarity(embedding.unsqueeze(1), center_embedding.unsqueeze(0), dim=-1) / self.tau
-
+        # embedding.unsqueeze(1) 的大小变为 [batch_size, 1, 128]
+        # center_embedding.unsqueeze(0) 的大小变为 [1, label_num, 128]
         # 为每个样本选择其真实类别的相似度
-        true_class_sim = similarity_matrix[torch.arange(16), labels]
+        true_class_sim = similarity_matrix[torch.arange(embedding.size(0)), labels]
 
         # 计算分母（对每个样本，包括所有类的相似度）
         all_classes_sim = similarity_matrix.logsumexp(dim=1)

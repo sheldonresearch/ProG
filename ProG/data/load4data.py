@@ -124,11 +124,15 @@ def load4node(dataname, shot_num= 10):
         train_indices = label_indices[:shot_num]
         train_mask[train_indices] = True
 
-        # 剩余的节点平均分配到测试集和验证集
+        
         remaining_indices = label_indices[shot_num:]
-        half = len(remaining_indices) // 2
-        test_mask[remaining_indices[:half]] = True
-        val_mask[remaining_indices[half:]] = True
+        split_point = int(len(remaining_indices) * 0.1)  # 验证集占剩余的10%
+        
+        val_indices = remaining_indices[:split_point]
+        test_indices = remaining_indices[split_point:]
+
+        val_mask[val_indices] = True
+        test_mask[test_indices] = True
 
     
     data.train_mask = train_mask
