@@ -1,12 +1,12 @@
 Installation
 ============
 
-ProG is available for :python:`Python 3.8` to :python:`Python 3.12`.
+.. tip:: Compatibility about ProG:
 
-.. note::
-   We do not recommend installation as a root user on your system :python:`Python`.
-   Please setup a virtual environment, *e.g.*, via :conda:`null` `Anaconda or Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install>`_, or create a `Docker image <https://www.docker.com/>`_.
-
+    We did our testing in the following environment
+    *. Python 3.9.17
+    *. PyTorch 2.0.1
+    *. torch-geometric 2.3.1
 
 Installation via Anaconda
 -------------------------
