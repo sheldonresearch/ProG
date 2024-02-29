@@ -2,7 +2,7 @@
    sphinx-quickstart on Thu Feb  1 10:57:51 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
-:github_url: https://github.com/WANGkevinCUHK/ProGTut
+:github_url: https://github.com/WANGkevinCUHK/ProG/commits?author=sheldonresearch
 ProG Tutorial
 =================
 .. image:: https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?raw=true
