@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>introduction &mdash; ProG_Tut v0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pre_train" href="../tutorial/pre_train.html" />
+    <link rel="prev" title="Installation" href="../install/installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ProG_Tut
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Install ProG</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install/installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/pre_train.html">pre_train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/downstream.html">downstream</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Package</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/data.html">data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/evaluation.html">evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/meta.html">meta</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/model.html">model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/pre_train.html">pre_train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/prompt.html">prompt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/tasker.html">tasker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/utils.html">utils</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ProG_Tut</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">introduction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/get_started/introduction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="introduction">
+<h1>introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h1>
+<p>proG is mainly composed of modules such as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">data</span>
+<span class="o">-</span> <span class="n">model</span>
+<span class="o">-</span> <span class="n">pre</span><span class="o">-</span><span class="n">training</span>
+<span class="o">-</span> <span class="n">prompt</span>
+<span class="o">-</span> <span class="n">task</span>
+<span class="o">-</span> <span class="n">evaluation</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Our goal is to implement prompt’s <strong>tedious</strong> code framework in <em>a few lines of command</em></p></li>
+<li><p>So as to facilitate the pipelines for prompting research</p></li>
+</ul>
+<img alt="pipline for ProG" src="https://github.com/sheldonresearch/ProG/blob/main/ProG_pipeline.jpg?raw=true" />
+<p>In this way, we can enable cross-comparison and further exploration of different prompts.</p>
+<ul class="simple">
+<li><p>we summarized and unified Prompt Class</p></li>
+</ul>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Graphs</p></th>
+<th class="head"><p>Task (N/E/G)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>GPF</p></td>
+<td><p>N , G</p></td>
+</tr>
+<tr class="row-odd"><td><p>GPPTPrompt</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-even"><td><p>GPrompt</p></td>
+<td><p>N, E, G</p></td>
+</tr>
+<tr class="row-odd"><td><p>ProGPrompt</p></td>
+<td><p>N,    G</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>we also summarized various kind of datasets in prompt research:</p></li>
+</ul>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Graphs</p></th>
+<th class="head"><p>Graph classes</p></th>
+<th class="head"><p>Avg. nodes</p></th>
+<th class="head"><p>Avg. edges</p></th>
+<th class="head"><p>Node features</p></th>
+<th class="head"><p>Node classes</p></th>
+<th class="head"><p>Task</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Cora</p></td>
+<td><p>1</p></td>
+<td><p>2,708</p></td>
+<td><p>5,429</p></td>
+<td><p>1,433</p></td>
+<td><p>7</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-odd"><td><p>Pubmed</p></td>
+<td><p>1</p></td>
+<td><p>19,717</p></td>
+<td><p>88,648</p></td>
+<td><p>500</p></td>
+<td><p>3</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-even"><td><p>CiteSeer</p></td>
+<td><p>1</p></td>
+<td><p>3,327</p></td>
+<td><p>9,104</p></td>
+<td><p>3,703</p></td>
+<td><p>6</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mutag</p></td>
+<td><p>188</p></td>
+<td><p>17.9</p></td>
+<td><p>39.6</p></td>
+<td><p>?</p></td>
+<td><p>7</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-even"><td><p>Reddit</p></td>
+<td><p>1</p></td>
+<td><p>232,965</p></td>
+<td><p>23,213,838</p></td>
+<td><p>602</p></td>
+<td><p>41</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-odd"><td><p>Amazon</p></td>
+<td><p>1</p></td>
+<td><p>13,752</p></td>
+<td><p>491,722</p></td>
+<td><p>767</p></td>
+<td><p>10</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-even"><td><p>Flickr</p></td>
+<td><p>1</p></td>
+<td><p>89,250</p></td>
+<td><p>899,756</p></td>
+<td><p>500</p></td>
+<td><p>7</p></td>
+<td><p>N</p></td>
+</tr>
+<tr class="row-odd"><td><p>PROTEINS</p></td>
+<td><p>1,113</p></td>
+<td><p>39.06</p></td>
+<td><p>72.82</p></td>
+<td><p>1</p></td>
+<td><p>3</p></td>
+<td><p>N, G</p></td>
+</tr>
+<tr class="row-even"><td><p>ENZYMES</p></td>
+<td><p>600</p></td>
+<td><p>32.63</p></td>
+<td><p>62.14</p></td>
+<td><p>18</p></td>
+<td><p>3</p></td>
+<td><p>N, G</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../install/installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tutorial/pre_train.html" class="btn btn-neutral float-right" title="pre_train" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, WANGKevin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
