@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img height="150" src="/Logo.jpg?sanitize=true" />
+  <img height="1500" src="/Logo.jpg?sanitize=true" />
 </h1>
 
 
