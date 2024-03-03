@@ -17,7 +17,8 @@ class NodeTask(BaseTask):
             if self.prompt_type in ['gpf', 'gpf-plus']:
                   data.x = self.prompt.add(data.x)
             out = self.gnn(data.x, data.edge_index, batch=None, prompt = self.prompt, prompt_type=self.prompt_type) 
-            loss = self.criterion(out[data.train_mask], data.y[data.train_mask])  #这里只用了train_mask的标签
+            out = self.answering(out)
+            loss = self.criterion(out[data.train_mask], data.y[data.train_mask])  
             loss.backward()  
             self.optimizer.step()  
             return loss
@@ -40,7 +41,8 @@ class NodeTask(BaseTask):
             if self.prompt_type in ['gpf', 'gpf-plus']:
                   data.x = self.prompt.add(data.x)
             out = self.gnn(data.x, data.edge_index, batch=None, prompt = self.prompt, prompt_type = self.prompt_type)
-            pred = out.argmax(dim=1)  
+            out = self.answering(out)
+            pred = out.argmax(dim=1) 
             correct = pred[mask] == data.y[mask]  
             acc = int(correct.sum()) / int(mask.sum())  
             return acc
