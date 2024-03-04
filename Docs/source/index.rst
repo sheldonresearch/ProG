@@ -51,13 +51,12 @@ ProG Tutorial
    :maxdepth: 1
    :caption: Main Package
 
-   modules/data
-   modules/evaluation
-   modules/meta
-   modules/model
-   modules/pre_train
-   modules/prompt
-   modules/tasker
+   modules/ProG.data
+   modules/ProG.evaluation
+   modules/ProG.model
+   modules/ProG.pre_train
+   modules/ProG.prompt
+   modules/ProG.tasker
    modules/utils
 
 
