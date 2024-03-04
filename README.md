@@ -67,7 +67,7 @@ We released a comprehensive survey on graph prompt!
 >
 >in arXiv [https://arxiv.org/abs/2311.16534](https://arxiv.org/abs/2311.16534)
 >
->(under review in TKDE)
+
 
 In this survey, we present more details of **ProG++** and also release a [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt)🦀 for a comprehensive collection of research papers, benchmark datasets, and readily accessible code implementations. 
 
