@@ -174,8 +174,7 @@ pt.pretrain()
 
 ```
 ### Do the Downstreamtask
-in ``downstreamtask.py``, we designed 3 task(Node classification, edge prediction, graph classification)
-Here are some examples 
+In ``downstreamtask.py``, we designed three tasks (Node Classification, Edge Prediction, Graph Classification). Here are some examples. 
 ```python
 from ProG.tasker import NodeTask, LinkTask, GraphTask
 from ProG.prompt import GPF, GPF_plus, GPPTPrompt, GPrompt, LightPrompt
