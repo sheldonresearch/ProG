@@ -7,7 +7,7 @@ from ProG.utils import seed_everything
 seed_everything(1)
 
 tasker = NodeTask(pre_train_model_path = 'None', 
-                  dataset_name = 'Flickr', num_layer = 3, gnn_type = 'GAT', prompt_type = 'None', shot_num = 10)
+                  dataset_name = 'Cora', num_layer = 3, gnn_type = 'GAT', prompt_type = 'None', shot_num = 10)
 
 # tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_GPPT.GCN.128hidden_dim.pth', 
 #                   dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', shot_num = 10)
