@@ -55,7 +55,7 @@ class GraphTask(BaseTask):
         return total_loss / len(train_loader)  
 
     def GPFTrain(self, train_loader):
-        self.gnn.train()
+        self.prompt.train()
         total_loss = 0.0 
         for batch in train_loader:  
             self.optimizer.zero_grad() 
@@ -70,7 +70,7 @@ class GraphTask(BaseTask):
         return total_loss / len(train_loader)  
     
     def GpromptTrain(self, train_loader):
-        self.gnn.train()
+        self.prompt.train()
         total_loss = 0.0 
         for batch in train_loader:  
             self.optimizer.zero_grad() 
@@ -86,7 +86,7 @@ class GraphTask(BaseTask):
         return total_loss / len(train_loader)  
         
     def GpromptTest(self, loader):
-        self.gnn.eval()
+        self.prompt.eval()
         correct = 0
         for batch in loader: 
             batch = batch.to(self.device) 
@@ -97,7 +97,8 @@ class GraphTask(BaseTask):
         return acc  
     
     def test(self, loader):
-        self.gnn.eval()
+        if self.prompt_type is 'None':
+            self.gnn.eval()
         correct = 0
         for batch in loader: 
             batch = batch.to(self.device) 

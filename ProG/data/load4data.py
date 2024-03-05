@@ -2,7 +2,7 @@ import torch
 import pickle as pk
 from random import shuffle
 import random
-from torch_geometric.datasets import Planetoid, Amazon, Reddit, WikiCS
+from torch_geometric.datasets import Planetoid, Amazon, Reddit, WikiCS, Flickr
 from torch_geometric.data import Batch
 from collections import defaultdict
 from torch_geometric.datasets import TUDataset
@@ -77,7 +77,8 @@ def load4node(dataname, shot_num= 10):
         dataset = Reddit(root='data/Reddit')
     elif dataname == 'WikiCS':
         dataset = WikiCS(root='data/WikiCS')
-  
+    elif dataname == 'Flickr':
+        dataset = Flickr(root='data/Flickr')
     print()
     print(f'Dataset: {dataset}:')
     print('======================')

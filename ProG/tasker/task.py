@@ -17,7 +17,7 @@ class BaseTask:
         self.gnn_type = gnn_type
         self.prompt_type = prompt_type
         self.epochs = epochs
-        if dataset_name in ['PubMed', 'CiteSeer', 'Cora']:
+        if dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
             self.load_node_data()
         if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']:
             self.load_graph_data()
