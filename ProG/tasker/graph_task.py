@@ -14,9 +14,9 @@ class GraphTask(BaseTask):
     def train(self, train_loader):
         if self.prompt_type == 'None':
             return self.Train(train_loader)
-        elif self.prompt_type == 'ProG':
-            return self.ProGTrain(train_loader)
-        elif self.prompt_type in ['gpf', 'gpf-plus']:
+        elif self.prompt_type == 'All-in-one':
+            return self.AllInOneTrain(train_loader)
+        elif self.prompt_type in ['GPF', 'GPF-plus']:
             return self.GPFTrain(train_loader)
         elif self.prompt_type =='Gprompt':
             return self.GpromptTrain(train_loader)
@@ -35,7 +35,8 @@ class GraphTask(BaseTask):
             total_loss += loss.item()  
         return total_loss / len(train_loader)  
         
-    def ProGTrain(self, train_loader):
+    def AllInOneTrain(self, train_loader):
+        #we update answering and prompt alternately.
         self.prompt.train()
         total_loss = 0.0 
         for batch in train_loader:
@@ -85,16 +86,7 @@ class GraphTask(BaseTask):
             total_loss += loss.item()  
         return total_loss / len(train_loader)  
         
-    def GpromptTest(self, loader):
-        self.prompt.eval()
-        correct = 0
-        for batch in loader: 
-            batch = batch.to(self.device) 
-            out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = self.prompt_type)
-            pred = out.argmax(dim=1)  
-            correct += int((pred == batch.y).sum())  
-        acc = correct / len(loader.dataset)
-        return acc  
+
     
     def test(self, loader):
         if self.prompt_type is 'None':
@@ -111,29 +103,7 @@ class GraphTask(BaseTask):
         acc = correct / len(loader.dataset)
         return acc  
     
-    def acc_f1_over_batches(self, test_loader, num_class):
-        accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class).to(self.device)
-        macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro").to(self.device)
-        accuracy.reset()
-        macro_f1.reset()
-        for batch_id, test_batch in enumerate(test_loader):
-            test_batch = test_batch.to(self.device)
-            emb0 = self.gnn(test_batch.x, test_batch.edge_index, test_batch.batch)
-            pg_batch = self.prompt.token_view()
-            pg_batch = pg_batch.to(self.device)
-            pg_emb = self.gnn(pg_batch.x, pg_batch.edge_index, pg_batch.batch)
-            dot = torch.mm(emb0, torch.transpose(pg_emb, 0, 1))
-            pre = torch.softmax(dot, dim=1)
 
-            y = test_batch.y
-            pre_cla = torch.argmax(pre, dim=1)
-
-            acc = accuracy(pre_cla, y)
-            ma_f1 = macro_f1(pre_cla, y)
-
-        acc = accuracy.compute()
-        ma_f1 = macro_f1.compute()
-        return acc
     
     def run(self):
 
@@ -145,7 +115,7 @@ class GraphTask(BaseTask):
         
         for epoch in range(1, self.epochs):
             loss = self.train(train_loader)
-            if self.prompt_type == 'ProG':
+            if self.prompt_type == 'All-in-one':
                 test_acc = self.acc_f1_over_batches(test_loader, self.output_dim)
                 val_acc = self.acc_f1_over_batches(val_loader, self.output_dim)
             else:

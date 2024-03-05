@@ -173,64 +173,6 @@ def mrr_hit(normal_label: np.ndarray, pos_out: np.ndarray, metric: list = None):
     return results
 
 
-def acc_f1_over_batches(test_loader, PG, gnn, answering, num_class, task_type, device):
-    PG = PG.to("cpu")
-    if answering is not None:
-        answering = answering.to("cpu")
-    gnn = gnn.to("cpu")
-    if task_type == "multi_class_classification":
-        accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class)
-        macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro")
-    elif task_type == "binary_classification":
-        accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class)
-        macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro")
-    else:
-        raise NotImplementedError
-
-    for batch_id, test_batch in enumerate(test_loader):
-
-        if answering:  # if answering is not None
-
-            prompted_graph = PG(test_batch)
-
-            graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
-            # print(graph_emb)
-            pre = answering(graph_emb)
-        else:  # if answering is None
-            emb0 = gnn(test_batch.x, test_batch.edge_index, test_batch.batch)
-            pg_batch = PG.token_view()
-            pg_emb = gnn(pg_batch.x, pg_batch.edge_index, pg_batch.batch)
-            dot = torch.mm(emb0, torch.transpose(pg_emb, 0, 1))
-
-            # if task_type == 'multi_class_classification':
-            pre = torch.softmax(dot, dim=1)
-            # elif task_type == 'regression':
-            #     pre = torch.sigmoid(dot)
-            #     pre = pre.detach()
-
-        pre = pre.detach()
-        y = test_batch.y
-
-        pre_cla = torch.argmax(pre, dim=1)
-        # print(pre_cla)
-        # print(y)
-
-        acc = accuracy(pre_cla, y)
-        ma_f1 = macro_f1(pre_cla, y)
-        print("Batch {} Acc: {:.4f} | Macro-F1: {:.4f}".format(batch_id, acc.item(), ma_f1.item()))
-
-    acc = accuracy.compute()
-    ma_f1 = macro_f1.compute()
-    print("Final True Acc: {:.4f} | Macro-F1: {:.4f}".format(acc.item(), ma_f1.item()))
-    accuracy.reset()
-    macro_f1.reset()
-    PG = PG.to(device)
-    if answering is not None:
-        answering = answering.to(device)
-    gnn = gnn.to(device)
-    
-
-
 def compute_acc_unsupervised(emb, labels, train_nids, val_nids, test_nids):
     """
     Compute the accuracy of prediction given the labels.
