@@ -86,22 +86,6 @@ class GraphTask(BaseTask):
             total_loss += loss.item()  
         return total_loss / len(train_loader)  
         
-
-    
-    def test(self, loader):
-        if self.prompt_type is 'None':
-            self.gnn.eval()
-        correct = 0
-        for batch in loader: 
-            batch = batch.to(self.device) 
-            if self.prompt_type in ['gpf', 'gpf-plus']:
-                batch.x = self.prompt.add(batch.x)
-            out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = self.prompt_type)
-            out = self.answering(out)  
-            pred = out.argmax(dim=1)  
-            correct += int((pred == batch.y).sum())  
-        acc = correct / len(loader.dataset)
-        return acc  
     
 
     
