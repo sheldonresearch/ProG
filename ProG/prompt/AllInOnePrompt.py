@@ -71,8 +71,6 @@ class HeavyPrompt(LightPrompt):
         :param graph_batch:
         :return:
         """
-        # device = torch.device("cuda")
-        # device = torch.device("cpu")
 
         pg = self.inner_structure_update()  # batch of prompt graph (currently only 1 prompt graph in the batch)
 
@@ -82,8 +80,6 @@ class HeavyPrompt(LightPrompt):
         re_graph_list = []
         for g in Batch.to_data_list(graph_batch):
             g_edge_index = g.edge_index + token_num
-            # pg_x = pg.x.to(device)
-            # g_x = g.x.to(device)
             
             cross_dot = torch.mm(pg.x, torch.transpose(g.x, 0, 1))
             cross_sim = torch.sigmoid(cross_dot)  # 0-1 from prompt to input graph
@@ -101,6 +97,43 @@ class HeavyPrompt(LightPrompt):
 
         graphp_batch = Batch.from_data_list(re_graph_list)
         return graphp_batch
+    
+
+    def Tune(self, train_loader, gnn, answering, lossfn, opi, device):
+        running_loss = 0.
+        for batch_id, train_batch in enumerate(train_loader):  
+            # print(train_batch)
+            train_batch = train_batch.to(device)
+            prompted_graph = self.forward(train_batch)
+            # print(prompted_graph)
+
+            graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
+            pre = answering(graph_emb)
+            train_loss = lossfn(pre, train_batch.y)
+
+            opi.zero_grad()
+            train_loss.backward()
+            opi.step()
+            running_loss += train_loss.item()
+        return running_loss
+    
+    def TuneWithoutAnswering(self, train_loader, gnn, answering, lossfn, opi, device):
+        total_loss = 0.0 
+        for batch in train_loader:
+            self.optimizer.zero_grad()
+            batch = batch.to(self.device)
+            emb0 = gnn(batch.x, batch.edge_index, batch.batch)
+            pg_batch = self.inner_structure_update()
+            pg_batch = pg_batch.to(self.device)
+            pg_emb = gnn(pg_batch.x, pg_batch.edge_index, pg_batch.batch)
+            # cross link between prompt and input graphs
+            dot = torch.mm(emb0, torch.transpose(pg_emb, 0, 1))
+            sim = torch.softmax(dot, dim=1)
+            loss = lossfn(sim, batch.y)
+            loss.backward()
+            self.optimizer.step()
+            total_loss += loss.item()  
+        return total_loss / len(train_loader) 
 
 class FrontAndHead(torch.nn.Module):
     def __init__(self, input_dim, hid_dim=16, num_classes=2,

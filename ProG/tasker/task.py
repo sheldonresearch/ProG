@@ -1,6 +1,6 @@
 import torch
 from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer, GPPT
-from ProG.prompt import GPF, GPF_plus, LightPrompt, Gprompt, GPPTPrompt
+from ProG.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt
 from torch import nn, optim
 from ProG.data import load4node, load4graph
 from ProG.utils import Gprompt_tuning_loss
@@ -34,15 +34,16 @@ class BaseTask:
             model_param_group.append({"params": self.gnn.parameters()})
             model_param_group.append({"params": self.answering.parameters()})
             self.optimizer = optim.Adam(model_param_group, lr=0.005, weight_decay=5e-4)
-        elif self.prompt_type == 'ProG':
-            self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.prompt.parameters()), lr=0.001, weight_decay= 0.00001)
+        elif self.prompt_type == 'All-in-one':
+            self.pg_opi = optim.Adam(filter(lambda p: p.requires_grad, self.prompt.parameters()), lr=0.001, weight_decay= 0.00001)
+            self.answer_opi = optim.Adam(filter(lambda p: p.requires_grad, self.answering.parameters()), lr=0.001, weight_decay= 0.00001)
         elif self.prompt_type in ['gpf', 'gpf-plus']:
             model_param_group = []
             model_param_group.append({"params": self.prompt.parameters()})
             model_param_group.append({"params": self.answering.parameters()})
             self.optimizer = optim.Adam(model_param_group, lr=0.005, weight_decay=5e-4)
         elif self.prompt_type in ['Gprompt', 'gppt']:
-            self.optimizer = optim.Adam(self.prompt.parameters(), lr=0.005, weight_decay=5e-4)
+            self.pg_opi = optim.Adam(self.prompt.parameters(), lr=0.005, weight_decay=5e-4)
 
 
     def initialize_loss(self):
@@ -58,12 +59,10 @@ class BaseTask:
             train_ids = torch.nonzero(self.data.train_mask, as_tuple=False).squeeze()
             node_embedding = self.gnn(self.data.x, self.data.edge_index)
             self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, train_ids)
-        elif self.prompt_type =='ProG':
+        elif self.prompt_type =='All-in-one':
             lr, wd = 0.001, 0.00001
-            self.prompt = LightPrompt(token_dim=self.input_dim, token_num_per_group=100, group_num=self.output_dim, inner_prune=0.01)
-            for p in self.gnn.parameters():
-                p.requires_grad = False
-            self.optimizer  = optim.Adam(filter(lambda p: p.requires_grad, self.prompt.parameters()),lr=lr, weight_decay=wd)
+            # self.prompt = LightPrompt(token_dim=self.input_dim, token_num_per_group=100, group_num=self.output_dim, inner_prune=0.01).to(self.device)
+            self.prompt = HeavyPrompt(token_dim=self.input_dim, token_num=10, cross_prune=0.1, inner_prune=0.3).to(self.device)
         elif self.prompt_type == 'gpf':
             self.prompt = GPF(self.input_dim).to(self.device)
         elif self.prompt_type == 'gpf-plus':
@@ -100,11 +99,11 @@ class BaseTask:
             print("Successfully loaded pre-trained weights!")
 
     def load_graph_data(self):
-            self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
+        self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
         
     def load_node_data(self):
-            self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
-            self.data.to(self.device)
-            self.input_dim = self.dataset.num_features
-            self.output_dim = self.dataset.num_classes
+        self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
+        self.data.to(self.device)
+        self.input_dim = self.dataset.num_features
+        self.output_dim = self.dataset.num_classes
       

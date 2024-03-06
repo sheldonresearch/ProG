@@ -5,21 +5,13 @@ import torch.nn.functional as F
 from .task import BaseTask
 from ProG.utils import center_embedding
 from ProG.utils import Gprompt_tuning_loss
+from ProG.evaluation import GpromptEva, GNNEva, GPFEva, AllInOneEva
 
 class GraphTask(BaseTask):
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs)
 
-    
-    def train(self, train_loader):
-        if self.prompt_type == 'None':
-            return self.Train(train_loader)
-        elif self.prompt_type == 'All-in-one':
-            return self.AllInOneTrain(train_loader)
-        elif self.prompt_type in ['GPF', 'GPF-plus']:
-            return self.GPFTrain(train_loader)
-        elif self.prompt_type =='Gprompt':
-            return self.GpromptTrain(train_loader)
+
     
     def Train(self, train_loader):
         self.gnn.train()
@@ -37,23 +29,24 @@ class GraphTask(BaseTask):
         
     def AllInOneTrain(self, train_loader):
         #we update answering and prompt alternately.
+        
+        answer_epoch = 1  # 50
+        prompt_epoch = 1  # 50
+        
+        # tune task head
+        self.answering.train()
+        self.prompt.eval()
+        for epoch in range(1, answer_epoch + 1):
+            answer_loss = self.prompt.Tune(train_loader, self.gnn,  self.answering, self.criterion, self.answer_opi, self.device)
+            print(("frozen gnn | frozen prompt | *tune answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, answer_loss)))
+
+        # tune prompt
+        self.answering.eval()
         self.prompt.train()
-        total_loss = 0.0 
-        for batch in train_loader:
-            self.optimizer.zero_grad()
-            batch = batch.to(self.device)
-            emb0 = self.gnn(batch.x, batch.edge_index, batch.batch)
-            pg_batch = self.prompt.inner_structure_update()
-            pg_batch = pg_batch.to(self.device)
-            pg_emb = self.gnn(pg_batch.x, pg_batch.edge_index, pg_batch.batch)
-            # cross link between prompt and input graphs
-            dot = torch.mm(emb0, torch.transpose(pg_emb, 0, 1))
-            sim = torch.softmax(dot, dim=1)
-            loss = self.criterion(sim, batch.y)
-            loss.backward()
-            self.optimizer.step()
-            total_loss += loss.item()  
-        return total_loss / len(train_loader)  
+        for epoch in range(1, prompt_epoch + 1):
+            pg_loss = self.prompt.Tune( train_loader,  self.gnn, self.answering, self.criterion, self.pg_opi, self.device)
+            print(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, pg_loss)))
+        return pg_loss
 
     def GPFTrain(self, train_loader):
         self.prompt.train()
@@ -96,19 +89,29 @@ class GraphTask(BaseTask):
         val_loader = DataLoader(self.val_dataset, batch_size=16, shuffle=False)
         print("prepare data is finished!")
         best_val_acc = final_test_acc = 0
-        
-        for epoch in range(1, self.epochs):
-            loss = self.train(train_loader)
-            if self.prompt_type == 'All-in-one':
-                test_acc = self.acc_f1_over_batches(test_loader, self.output_dim)
-                val_acc = self.acc_f1_over_batches(val_loader, self.output_dim)
-            else:
+        for epoch in range(1, self.epochs + 1):
+            if self.prompt_type == 'None':
+                self.Train(train_loader)
                 test_acc = self.test(test_loader)
                 val_acc = self.test(val_loader)
+            elif self.prompt_type == 'All-in-one':
+                loss = self.AllInOneTrain(train_loader)
+                test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+                val_acc, F1 = AllInOneEva(val_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+            # elif self.prompt_type in ['GPF', 'GPF-plus']:
+            #     self.GPFTrain(train_loader)
+            #     test_acc = self.test(test_loader)
+            #     val_acc = self.test(val_loader)
+            # elif self.prompt_type =='Gprompt':
+            #     self.GpromptTrain(train_loader)
+            #     test_acc = self.test(test_loader)
+            #     val_acc = self.test(val_loader)
+                    
+
             if val_acc > best_val_acc:
                 best_val_acc = val_acc
                 final_test_acc = test_acc
-            print("Epoch {:03d} | Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, loss, val_acc, test_acc))
+            print("Epoch {:03d}/{:03d}  | Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, self.epochs, loss, val_acc, test_acc))
         print(f'Final Test: {final_test_acc:.4f}')
         
         print("Graph Task completed")

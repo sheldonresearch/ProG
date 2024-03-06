@@ -4,8 +4,8 @@ import torch
 def AllInOneEva(loader, prompt, gnn, answering, num_class, device):
         prompt.eval()
         answering.eval()
-        accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class)
-        macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro")
+        accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class).to(device)
+        macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro").to(device)
         accuracy.reset()
         macro_f1.reset()
         for batch in loader: 
@@ -20,6 +20,7 @@ def AllInOneEva(loader, prompt, gnn, answering, num_class, device):
             
             acc = accuracy(pred, batch.y)
             f1 = macro_f1(pred, batch.y)
+            # print(acc)
         acc = accuracy.compute()
         ma_f1 = macro_f1.compute()
         # print("Final True Acc: {:.4f} | Macro-F1: {:.4f}".format(acc.item(), ma_f1.item()))
