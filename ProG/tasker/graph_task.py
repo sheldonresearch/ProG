@@ -46,6 +46,7 @@ class GraphTask(BaseTask):
         for epoch in range(1, prompt_epoch + 1):
             pg_loss = self.prompt.Tune( train_loader,  self.gnn, self.answering, self.criterion, self.pg_opi, self.device)
             print(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, pg_loss)))
+        
         return pg_loss
 
     def GPFTrain(self, train_loader):

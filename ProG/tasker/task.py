@@ -26,7 +26,7 @@ class BaseTask:
         self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                             torch.nn.Softmax(dim=1)).to(self.device)
         self.initialize_optimizer()
-        self.initialize_loss()
+        self.initialize_lossfn()
 
     def initialize_optimizer(self):
         if self.prompt_type == 'None':
@@ -46,7 +46,7 @@ class BaseTask:
             self.pg_opi = optim.Adam(self.prompt.parameters(), lr=0.005, weight_decay=5e-4)
 
 
-    def initialize_loss(self):
+    def initialize_lossfn(self):
         self.criterion = torch.nn.CrossEntropyLoss()
         if self.prompt_type == 'Gprompt':
             self.criterion = Gprompt_tuning_loss()
