@@ -3,6 +3,8 @@ from ProG.prompt import GPF, GPF_plus, GPPTPrompt, GPrompt, LightPrompt
 from ProG.utils import seed_everything
 
 
+# gnn_type =  'GCN' 'GAT' 'GT'
+# prompt_type = 'All-in-one', 'GPF', GPF-plus', 'GPPT', 'Gprompt'
 	
 seed_everything(1)
 
@@ -18,9 +20,26 @@ seed_everything(1)
 # tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
 #                      dataset_name = 'MUTAG', gnn_type = 'GCN', prompt_type = 'gpf', shot_num = 50)
 
-tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/ENZYMES.GraphCL.GCN.128hidden_dim.pth', 
-                     dataset_name = 'ENZYMES', num_layer = 3, gnn_type = 'GCN', prompt_type = 'All-in-one', shot_num = 20)
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/ENZYMES.GraphCL.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'ENZYMES', num_layer = 3, gnn_type = 'GCN', prompt_type = 'All-in-one', shot_num = 20)
+
+# MUTAG dataset
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'All-in-one', shot_num = 10)
 
 # tasker = GraphTask(pre_train_model_path = 'None', 
-#                      dataset_name = 'ENZYMES', gnn_type = 'GCN', prompt_type = 'None', shot_num = 50)
+#                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', shot_num = 10)
+
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', shot_num = 10)
+
+tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+                     dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPF', shot_num = 10)
+
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPF-plus', shot_num = 10)
+
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'Gprompt', shot_num = 10)
+
 tasker.run()

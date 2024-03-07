@@ -11,8 +11,6 @@ class GraphTask(BaseTask):
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs)
 
-
-    
     def Train(self, train_loader):
         self.gnn.train()
         total_loss = 0.0 
@@ -92,21 +90,21 @@ class GraphTask(BaseTask):
         best_val_acc = final_test_acc = 0
         for epoch in range(1, self.epochs + 1):
             if self.prompt_type == 'None':
-                self.Train(train_loader)
-                test_acc = self.test(test_loader)
-                val_acc = self.test(val_loader)
+                loss = self.Train(train_loader)
+                test_acc = GNNEva(test_loader, self.gnn, self.answering, self.device)
+                val_acc = GNNEva(val_loader, self.gnn, self.answering, self.device)
             elif self.prompt_type == 'All-in-one':
                 loss = self.AllInOneTrain(train_loader)
                 test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
                 val_acc, F1 = AllInOneEva(val_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
-            # elif self.prompt_type in ['GPF', 'GPF-plus']:
-            #     self.GPFTrain(train_loader)
-            #     test_acc = self.test(test_loader)
-            #     val_acc = self.test(val_loader)
-            # elif self.prompt_type =='Gprompt':
-            #     self.GpromptTrain(train_loader)
-            #     test_acc = self.test(test_loader)
-            #     val_acc = self.test(val_loader)
+            elif self.prompt_type in ['GPF', 'GPF-plus']:
+                loss = self.GPFTrain(train_loader)
+                test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
+                val_acc = GPFEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
+            elif self.prompt_type =='Gprompt':
+                loss = self.GpromptTrain(train_loader)
+                test_acc = GpromptEva(test_loader, self.gnn, self.answering, self.device)
+                val_acc = GpromptEva(val_loader, self.gnn, self.answering, self.device)
                     
 
             if val_acc > best_val_acc:

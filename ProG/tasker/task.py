@@ -7,7 +7,7 @@ from ProG.utils import Gprompt_tuning_loss
 import numpy as np
 
 class BaseTask:
-    def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv', hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='gpf', epochs=100, shot_num=10):
+    def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv', hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='GPF', epochs=100, shot_num=10):
         self.pre_train_model_path = pre_train_model_path
         self.device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
         self.hid_dim = hid_dim
@@ -37,12 +37,12 @@ class BaseTask:
         elif self.prompt_type == 'All-in-one':
             self.pg_opi = optim.Adam(filter(lambda p: p.requires_grad, self.prompt.parameters()), lr=0.001, weight_decay= 0.00001)
             self.answer_opi = optim.Adam(filter(lambda p: p.requires_grad, self.answering.parameters()), lr=0.001, weight_decay= 0.00001)
-        elif self.prompt_type in ['gpf', 'gpf-plus']:
+        elif self.prompt_type in ['GPF', 'GPF-plus']:
             model_param_group = []
             model_param_group.append({"params": self.prompt.parameters()})
             model_param_group.append({"params": self.answering.parameters()})
             self.optimizer = optim.Adam(model_param_group, lr=0.005, weight_decay=5e-4)
-        elif self.prompt_type in ['Gprompt', 'gppt']:
+        elif self.prompt_type in ['Gprompt', 'GPPT']:
             self.pg_opi = optim.Adam(self.prompt.parameters(), lr=0.005, weight_decay=5e-4)
 
 
@@ -54,7 +54,7 @@ class BaseTask:
     def initialize_prompt(self):
         if self.prompt_type == 'None':
             self.prompt = None
-        elif self.prompt_type == 'gppt':
+        elif self.prompt_type == 'GPPT':
             self.prompt = GPPTPrompt(self.hid_dim, self.output_dim, self.output_dim, device = self.device)
             train_ids = torch.nonzero(self.data.train_mask, as_tuple=False).squeeze()
             node_embedding = self.gnn(self.data.x, self.data.edge_index)
@@ -63,9 +63,9 @@ class BaseTask:
             lr, wd = 0.001, 0.00001
             # self.prompt = LightPrompt(token_dim=self.input_dim, token_num_per_group=100, group_num=self.output_dim, inner_prune=0.01).to(self.device)
             self.prompt = HeavyPrompt(token_dim=self.input_dim, token_num=10, cross_prune=0.1, inner_prune=0.3).to(self.device)
-        elif self.prompt_type == 'gpf':
+        elif self.prompt_type == 'GPF':
             self.prompt = GPF(self.input_dim).to(self.device)
-        elif self.prompt_type == 'gpf-plus':
+        elif self.prompt_type == 'GPF-plus':
             self.prompt = GPF_plus(self.input_dim, 20).to(self.device)
         elif self.prompt_type == 'Gprompt':
             self.prompt = Gprompt(self.hid_dim).to(self.device)

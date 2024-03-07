@@ -115,7 +115,8 @@ class HeavyPrompt(LightPrompt):
             train_loss.backward()
             opi.step()
             running_loss += train_loss.item()
-        return running_loss
+
+        return running_loss / len(train_loader)
     
     def TuneWithoutAnswering(self, train_loader, gnn, answering, lossfn, opi, device):
         total_loss = 0.0 
