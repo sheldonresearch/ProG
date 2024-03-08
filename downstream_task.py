@@ -23,6 +23,9 @@ seed_everything(1)
 # tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/ENZYMES.GraphCL.GCN.128hidden_dim.pth', 
 #                      dataset_name = 'ENZYMES', num_layer = 3, gnn_type = 'GCN', prompt_type = 'All-in-one', shot_num = 20)
 
+
+### GraphTask
+
 # MUTAG dataset
 # tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
 #                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'All-in-one', shot_num = 10)
@@ -33,13 +36,33 @@ seed_everything(1)
 # tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
 #                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', shot_num = 10)
 
-tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
-                     dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPF', shot_num = 10)
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPF', shot_num = 10)
 
 # tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
 #                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPF-plus', shot_num = 10)
 
 # tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
 #                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'Gprompt', shot_num = 10)
+
+# ENZYMES dataset
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'All-in-one', shot_num = 10)
+
+tasker = GraphTask(pre_train_model_path = 'None', 
+                     dataset_name = 'ENZYMES', num_layer = 3, gnn_type = 'GraphSAGE', prompt_type = 'None', shot_num = 10)
+
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'ENZYMES', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', shot_num = 10)
+
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'ENZYMES', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPF', shot_num = 10)
+
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'ENZYMES', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPF-plus', shot_num = 10)
+
+# tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+#                      dataset_name = 'ENZYMES', num_layer = 3, gnn_type = 'GCN', prompt_type = 'Gprompt', shot_num = 10)
+
 
 tasker.run()

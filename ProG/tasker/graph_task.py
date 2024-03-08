@@ -66,15 +66,15 @@ class GraphTask(BaseTask):
         self.prompt.train()
         total_loss = 0.0 
         for batch in train_loader:  
-            self.optimizer.zero_grad() 
+            self.pg_opi.zero_grad() 
             batch = batch.to(self.device)
-            out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = self.prompt_type)
+            out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = 'Gprompt')
             # out = s𝑡,𝑥 = ReadOut({p𝑡 ⊙ h𝑣 : 𝑣 ∈ 𝑉 (𝑆𝑥)}),
             center = center_embedding(out, batch.y, self.output_dim)
             criterion = Gprompt_tuning_loss()
             loss = criterion(out, center, batch.y)  
             loss.backward()  
-            self.optimizer.step()  
+            self.pg_opi.step()  
             total_loss += loss.item()  
         return total_loss / len(train_loader)  
         
@@ -103,8 +103,8 @@ class GraphTask(BaseTask):
                 val_acc = GPFEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
             elif self.prompt_type =='Gprompt':
                 loss = self.GpromptTrain(train_loader)
-                test_acc = GpromptEva(test_loader, self.gnn, self.answering, self.device)
-                val_acc = GpromptEva(val_loader, self.gnn, self.answering, self.device)
+                test_acc = GpromptEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
+                val_acc = GpromptEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
                     
 
             if val_acc > best_val_acc:

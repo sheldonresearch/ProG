@@ -11,5 +11,5 @@ def GNNEva(loader, gnn, answering, device):
             out = answering(out)  
         pred = out.argmax(dim=1)  
         correct += int((pred == batch.y).sum())  
-    acc = correct / len(loader)
+    acc = correct / len(loader.dataset)
     return acc  
