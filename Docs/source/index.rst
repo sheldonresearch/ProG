@@ -53,7 +53,6 @@ ProG Tutorial
 
    modules/data
    modules/evaluation
-   modules/meta
    modules/model
    modules/pre_train
    modules/prompt
