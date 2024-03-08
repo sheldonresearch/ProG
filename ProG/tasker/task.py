@@ -1,13 +1,13 @@
 import torch
-from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer, GPPT
-from ProG.prompt import GPF, GPF_plus, LightPrompt, Gprompt, GPPTPrompt
+from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
+from ProG.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt
 from torch import nn, optim
 from ProG.data import load4node, load4graph
 from ProG.utils import Gprompt_tuning_loss
 import numpy as np
 
 class BaseTask:
-    def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv', hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='gpf', epochs=100, shot_num=10):
+    def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv', hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='GPF', epochs=100, shot_num=10):
         self.pre_train_model_path = pre_train_model_path
         self.device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
         self.hid_dim = hid_dim
@@ -17,7 +17,7 @@ class BaseTask:
         self.gnn_type = gnn_type
         self.prompt_type = prompt_type
         self.epochs = epochs
-        if dataset_name in ['PubMed', 'CiteSeer', 'Cora']:
+        if dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
             self.load_node_data()
         if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']:
             self.load_graph_data()
@@ -26,7 +26,7 @@ class BaseTask:
         self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                             torch.nn.Softmax(dim=1)).to(self.device)
         self.initialize_optimizer()
-        self.initialize_loss()
+        self.initialize_lossfn()
 
     def initialize_optimizer(self):
         if self.prompt_type == 'None':
@@ -34,18 +34,19 @@ class BaseTask:
             model_param_group.append({"params": self.gnn.parameters()})
             model_param_group.append({"params": self.answering.parameters()})
             self.optimizer = optim.Adam(model_param_group, lr=0.005, weight_decay=5e-4)
-        elif self.prompt_type == 'ProG':
-            self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.prompt.parameters()), lr=0.001, weight_decay= 0.00001)
-        elif self.prompt_type in ['gpf', 'gpf-plus']:
+        elif self.prompt_type == 'All-in-one':
+            self.pg_opi = optim.Adam(filter(lambda p: p.requires_grad, self.prompt.parameters()), lr=0.001, weight_decay= 0.00001)
+            self.answer_opi = optim.Adam(filter(lambda p: p.requires_grad, self.answering.parameters()), lr=0.001, weight_decay= 0.00001)
+        elif self.prompt_type in ['GPF', 'GPF-plus']:
             model_param_group = []
             model_param_group.append({"params": self.prompt.parameters()})
             model_param_group.append({"params": self.answering.parameters()})
             self.optimizer = optim.Adam(model_param_group, lr=0.005, weight_decay=5e-4)
-        elif self.prompt_type in ['Gprompt', 'gppt']:
-            self.optimizer = optim.Adam(self.prompt.parameters(), lr=0.005, weight_decay=5e-4)
+        elif self.prompt_type in ['Gprompt', 'GPPT']:
+            self.pg_opi = optim.Adam(self.prompt.parameters(), lr=0.005, weight_decay=5e-4)
 
 
-    def initialize_loss(self):
+    def initialize_lossfn(self):
         self.criterion = torch.nn.CrossEntropyLoss()
         if self.prompt_type == 'Gprompt':
             self.criterion = Gprompt_tuning_loss()
@@ -53,20 +54,18 @@ class BaseTask:
     def initialize_prompt(self):
         if self.prompt_type == 'None':
             self.prompt = None
-        elif self.prompt_type == 'gppt':
+        elif self.prompt_type == 'GPPT':
             self.prompt = GPPTPrompt(self.hid_dim, self.output_dim, self.output_dim, device = self.device)
             train_ids = torch.nonzero(self.data.train_mask, as_tuple=False).squeeze()
             node_embedding = self.gnn(self.data.x, self.data.edge_index)
             self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, train_ids)
-        elif self.prompt_type =='ProG':
+        elif self.prompt_type =='All-in-one':
             lr, wd = 0.001, 0.00001
-            self.prompt = LightPrompt(token_dim=self.input_dim, token_num_per_group=100, group_num=self.output_dim, inner_prune=0.01)
-            for p in self.gnn.parameters():
-                p.requires_grad = False
-            self.optimizer  = optim.Adam(filter(lambda p: p.requires_grad, self.prompt.parameters()),lr=lr, weight_decay=wd)
-        elif self.prompt_type == 'gpf':
+            # self.prompt = LightPrompt(token_dim=self.input_dim, token_num_per_group=100, group_num=self.output_dim, inner_prune=0.01).to(self.device)
+            self.prompt = HeavyPrompt(token_dim=self.input_dim, token_num=10, cross_prune=0.1, inner_prune=0.3).to(self.device)
+        elif self.prompt_type == 'GPF':
             self.prompt = GPF(self.input_dim).to(self.device)
-        elif self.prompt_type == 'gpf-plus':
+        elif self.prompt_type == 'GPF-plus':
             self.prompt = GPF_plus(self.input_dim, 20).to(self.device)
         elif self.prompt_type == 'Gprompt':
             self.prompt = Gprompt(self.hid_dim).to(self.device)
@@ -100,11 +99,11 @@ class BaseTask:
             print("Successfully loaded pre-trained weights!")
 
     def load_graph_data(self):
-            self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
+        self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
         
     def load_node_data(self):
-            self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
-            self.data.to(self.device)
-            self.input_dim = self.dataset.num_features
-            self.output_dim = self.dataset.num_classes
+        self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
+        self.data.to(self.device)
+        self.input_dim = self.dataset.num_features
+        self.output_dim = self.dataset.num_classes
       

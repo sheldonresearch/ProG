@@ -11,6 +11,46 @@ import warnings
 from ProG.utils import mkdir
 from random import shuffle
 
+def induced_graphs(data, smallest_size=10, largest_size=30):
+
+    from torch_geometric.utils import subgraph, k_hop_subgraph
+    from torch_geometric.data import Data
+    import numpy as np
+
+    induced_graph_list = []
+
+    for index in range(data.x.size(0)):
+        current_label = data.y[index].item()
+
+        current_hop = 2
+        subset, _, _, _ = k_hop_subgraph(node_idx=index, num_hops=current_hop,
+                                            edge_index=data.edge_index, relabel_nodes=True)
+        
+        while len(subset) < smallest_size and current_hop < 5:
+            current_hop += 1
+            subset, _, _, _ = k_hop_subgraph(node_idx=index, num_hops=current_hop,
+                                                edge_index=data.edge_index)
+            
+        if len(subset) < smallest_size:
+            need_node_num = smallest_size - len(subset)
+            pos_nodes = torch.argwhere(data.y == int(current_label)) 
+            candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
+            candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][0:need_node_num]
+            subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
+
+        if len(subset) > largest_size:
+            subset = subset[torch.randperm(subset.shape[0])][0:largest_size - 1]
+            subset = torch.unique(torch.cat([torch.LongTensor([index]), torch.flatten(subset)]))
+
+        sub_edge_index, _ = subgraph(subset, data.edge_index, relabel_nodes=True)
+
+        x = data.x[subset]
+
+        induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label)
+        induced_graph_list.append(induced_graph)
+
+    return induced_graph_list
+
 def multi_class_NIG(dataname, num_class,shots=100):
     """
     NIG: node induced graphs
@@ -497,112 +537,6 @@ def load_tasks(meta_stage: str, task_pairs: list, dataname: str = None, K_shot=N
 
         i = i + 1
         yield task_1, task_2, support, query, len(task_pairs)
-
-###integrate from GPF
-def random_split(dataset, frac_train=0.8, frac_valid=0.1, frac_test=0.1,
-                 seed=0):
-    """
-    Adapted from graph-pretrain
-    :param dataset:
-    :param task_idx:
-    :param null_value:
-    :param frac_train:
-    :param frac_valid:
-    :param frac_test:
-    :param seed:
-    :return: train, valid, test slices of the input dataset obj.
-    """
-    np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
-
-    num_mols = len(dataset)
-    random.seed(seed)
-    all_idx = list(range(num_mols))
-    random.shuffle(all_idx)
-
-    train_idx = all_idx[:int(frac_train * num_mols)]
-    valid_idx = all_idx[int(frac_train * num_mols):int(frac_valid * num_mols)
-                                                   + int(frac_train * num_mols)]
-    test_idx = all_idx[int(frac_valid * num_mols) + int(frac_train * num_mols):]
-
-    assert len(set(train_idx).intersection(set(valid_idx))) == 0
-    assert len(set(valid_idx).intersection(set(test_idx))) == 0
-    assert len(train_idx) + len(valid_idx) + len(test_idx) == num_mols
-
-    train_dataset = dataset[torch.tensor(train_idx)]
-    valid_dataset = dataset[torch.tensor(valid_idx)]
-    if frac_test == 0:
-        test_dataset = None
-    else:
-        test_dataset = dataset[torch.tensor(test_idx)]
-
-    return train_dataset, valid_dataset, test_dataset
-
-
-def random_split_abs_value(dataset, number_train=100, frac_valid=0.1, frac_test=0.1,
-                           seed=0):
-    """
-    Adapted from graph-pretrain
-    :param dataset:
-    :param task_idx:
-    :param null_value:
-    :param frac_train:
-    :param frac_valid:
-    :param frac_test:
-    :param seed:
-    :return: train, valid, test slices of the input dataset obj.
-    """
-    # np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
-
-    num_mols = len(dataset)
-    random.seed(seed)
-    all_idx = list(range(num_mols))
-    random.shuffle(all_idx)
-
-    train_idx = all_idx[:number_train]
-    valid_idx = all_idx[int((1 - frac_valid - frac_test) * num_mols):int((1 - frac_test) * num_mols)]
-    test_idx = all_idx[int((1 - frac_test) * num_mols):]
-
-    assert len(set(train_idx).intersection(set(valid_idx))) == 0
-    assert len(set(valid_idx).intersection(set(test_idx))) == 0
-    # assert len(train_idx) + len(valid_idx) + len(test_idx) == num_mols
-
-    train_dataset = dataset[torch.tensor(train_idx)]
-    valid_dataset = dataset[torch.tensor(valid_idx)]
-    if frac_test == 0:
-        test_dataset = None
-    else:
-        test_dataset = dataset[torch.tensor(test_idx)]
-
-    return train_dataset, valid_dataset, test_dataset
-
-
-def species_split(dataset, train_valid_species_id_list=[3702, 6239, 511145,
-                                                        7227, 10090, 4932, 7955],
-                  test_species_id_list=[9606]):
-    """
-    Split dataset based on species_id attribute
-    :param dataset:
-    :param train_valid_species_id_list:
-    :param test_species_id_list:
-    :return: train_valid dataset, test dataset
-    """
-    # NB: pytorch geometric dataset object can be indexed using slices or
-    # byte tensors. We will use byte tensors here
-
-    train_valid_byte_tensor = torch.zeros(len(dataset), dtype=torch.uint8)
-    for id in train_valid_species_id_list:
-        train_valid_byte_tensor += (dataset.data.species_id == id)
-
-    test_species_byte_tensor = torch.zeros(len(dataset), dtype=torch.uint8)
-    for id in test_species_id_list:
-        test_species_byte_tensor += (dataset.data.species_id == id)
-
-    assert ((train_valid_byte_tensor + test_species_byte_tensor) == 1).all()
-
-    train_valid_dataset = dataset[train_valid_byte_tensor]
-    test_valid_dataset = dataset[test_species_byte_tensor]
-
-    return train_valid_dataset, test_valid_dataset
 
 
 

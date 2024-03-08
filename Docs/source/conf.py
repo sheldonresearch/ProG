@@ -16,7 +16,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'ProG_Tut'
+project = 'ProG'
 copyright = '2024, WANGKevin'
 author = 'WANGKevin'
 

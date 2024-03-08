@@ -8,3 +8,4 @@ from .loss import Gprompt_tuning_loss, Gprompt_link_loss
 from . NegativeEdge import NegativeEdge
 from .prepare_structured_data import prepare_structured_data
 from . seed import seed_everything
+from .print_para import print_model_parameters
