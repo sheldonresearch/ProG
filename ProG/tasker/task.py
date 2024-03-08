@@ -1,5 +1,5 @@
 import torch
-from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer, GPPT
+from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 from ProG.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt
 from torch import nn, optim
 from ProG.data import load4node, load4graph
