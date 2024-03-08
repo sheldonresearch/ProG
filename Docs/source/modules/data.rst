@@ -7,11 +7,13 @@ data
 Induced graph
 ------------
 
-.. currentmodule::
+.. currentmodule:: ProG.data
 
 .. autosummary::
    :nosignatures:
-   :toctree:
-   :template:
+   :toctree: ../generated
+   :template: autosummary/inherited_class.rst
 
-
+   {% for name in ProG.data.data_classes %}
+     {{ name }}
+   {% endfor %}

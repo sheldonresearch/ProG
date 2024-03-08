@@ -2,7 +2,7 @@
    sphinx-quickstart on Thu Feb  1 10:57:51 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
-:github_url: https://github.com/sheldonresearch/ProG
+:github_url: https://github.com/WANGkevinCUHK/ProGTut
 ProG Tutorial
 =================
 .. image:: https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?raw=true
@@ -51,12 +51,12 @@ ProG Tutorial
    :maxdepth: 1
    :caption: Main Package
 
-   modules/ProG.data
-   modules/ProG.evaluation
-   modules/ProG.model
-   modules/ProG.pre_train
-   modules/ProG.prompt
-   modules/ProG.tasker
+   modules/data
+   modules/evaluation
+   modules/model
+   modules/pre_train
+   modules/prompt
+   modules/tasker
    modules/utils
 
 
