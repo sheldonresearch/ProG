@@ -6,6 +6,7 @@ from .task import BaseTask
 from ProG.utils import center_embedding
 from ProG.utils import Gprompt_tuning_loss
 from ProG.evaluation import GpromptEva, GNNEva, GPFEva, AllInOneEva
+import time
 
 class GraphTask(BaseTask):
     def __init__(self, *args, **kwargs):    
@@ -89,6 +90,7 @@ class GraphTask(BaseTask):
         print("prepare data is finished!")
         best_val_acc = final_test_acc = 0
         for epoch in range(1, self.epochs + 1):
+            t0 = time.time()
             if self.prompt_type == 'None':
                 loss = self.Train(train_loader)
                 test_acc = GNNEva(test_loader, self.gnn, self.answering, self.device)
@@ -110,7 +112,7 @@ class GraphTask(BaseTask):
             if val_acc > best_val_acc:
                 best_val_acc = val_acc
                 final_test_acc = test_acc
-            print("Epoch {:03d}/{:03d}  | Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, self.epochs, loss, val_acc, test_acc))
+            print("Epoch {:03d}/{:03d}  |  Time(s) {:.4f}| Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, time.time() - t0, self.epochs, loss, val_acc, test_acc))
         print(f'Final Test: {final_test_acc:.4f}')
         
         print("Graph Task completed")
