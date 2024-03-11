@@ -20,6 +20,23 @@ dataloader
     DataLoaderAE
     DataLoaderSubstructContext
 
+batch
+-------------------
+
+.. currentmodule:: ProG.data.batch
+
+
+.. autosummary::
+    :nosignatures:
+    :toctree: ../generated
+    :template: autosummary/class.rst
+
+    BatchFinetune
+    BatchMasking
+    BatchAE
+    BatchSubstructContext
+
+
 load4data
 -------------------
 
