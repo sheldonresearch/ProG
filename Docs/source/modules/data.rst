@@ -23,7 +23,7 @@ dataloader
 batch
 -------------------
 
-.. currentmodule:: ProG.data.batch
+.. currentmodule:: ProG.data
 
 
 .. autosummary::
