@@ -3,8 +3,6 @@ import pickle as pk
 from random import shuffle
 import random
 from torch_geometric.datasets import Planetoid, Amazon, Reddit, WikiCS, Flickr
-from torch_geometric.data import Batch
-from collections import defaultdict
 from torch_geometric.datasets import TUDataset
 from torch_geometric.transforms import NormalizeFeatures
 from torch_geometric.utils import to_undirected
@@ -212,18 +210,26 @@ def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
     return graph_list, input_dim, output_dim
 
 # used in pre_train.py
-def load_data4pretrain(dataname='CiteSeer', num_parts=200):
-    data = pk.load(open('../Dataset/{}/feature_reduced.data'.format(dataname), 'br'))
-    print(data)
+def NodePretrain(dataname='CiteSeer', num_parts=200):
+    if dataname in ['PubMed', 'CiteSeer', 'Cora']:
+        dataset = Planetoid(root='data/Planetoid', name=dataname, transform=NormalizeFeatures())
+    elif dataname in ['Computers', 'Photo']:
+        dataset = Amazon(root='data/amazon', name=dataname)
+    elif dataname == 'Reddit':
+        dataset = Reddit(root='data/Reddit')
+    elif dataname == 'WikiCS':
+        dataset = WikiCS(root='data/WikiCS')
+    elif dataname == 'Flickr':
+        dataset = Flickr(root='data/Flickr')
+    data = dataset[0]
 
     x = data.x.detach()
     edge_index = data.edge_index
     edge_index = to_undirected(edge_index)
     data = Data(x=x, edge_index=edge_index)
     input_dim = data.x.shape[1]
-    hid_dim = input_dim
-    graph_list = list(ClusterData(data=data, num_parts=num_parts, save_dir='../Dataset/{}/'.format(dataname)))
+    graph_list = list(ClusterData(data=data, num_parts=num_parts))
 
-    return graph_list, input_dim, hid_dim
+    return graph_list, input_dim
 
 

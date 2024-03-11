@@ -11,8 +11,23 @@ seed_everything(1)
 
 ### NodeTask
 
-tasker = NodeTask(pre_train_model_path = 'None', 
-                  dataset_name = 'Cora', num_layer = 3, gnn_type = 'GAT', prompt_type = 'All-in-one', shot_num = 10)
+# tasker = NodeTask(pre_train_model_path = 'None', 
+#                   dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', epochs = 150, shot_num = 5)
+
+# tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_Gprompt.GCN.128hidden_dim.pth', 
+#                   dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPPT', epochs = 150, shot_num = 5)
+
+tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_Gprompt.GCN.128hidden_dim.pth', 
+                  dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPF', epochs = 150, shot_num = 5)
+
+# tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_Gprompt.GCN.128hidden_dim.pth', 
+#                   dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'GPF-plus', epochs = 150, shot_num = 5) bug
+
+# tasker = NodeTask(pre_train_model_path = 'None', 
+#                   dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', shot_num = 5)
+
+# tasker = NodeTask(pre_train_model_path = 'None', 
+#                   dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', shot_num = 5)
 
 # tasker = NodeTask(pre_train_model_path = 'None', 
 #                   dataset_name = 'Cora', num_layer = 3, gnn_type = 'GAT', prompt_type = 'None', shot_num = 10)
