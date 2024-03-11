@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>evaluation &mdash; ProG v0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -21,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="model" href="model.html" />
-    <link rel="prev" title="data" href="data.html" /> 
+    <link rel="next" title="ProG.evaluation.AllInOneEva.AllInOneEva" href="../generated/ProG.evaluation.AllInOneEva.AllInOneEva.html" />
+    <link rel="prev" title="ProG.data.load4data.load_data4pretrain" href="../generated/ProG.data.load4data.load_data4pretrain.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -30,15 +28,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="../index.html" class="icon icon-home">
-            ProG
+            <a href="../index.html" class="icon icon-home"> ProG
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -60,7 +54,32 @@
 <p class="caption" role="heading"><span class="caption-text">Main Package</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="data.html">data</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">evaluation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">evaluation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#allinoneeva">AllInOneEva</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.evaluation.AllInOneEva.AllInOneEva.html">ProG.evaluation.AllInOneEva.AllInOneEva</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.evaluation.AllInOneEva.AllInOneEvaWithoutAnswer.html">ProG.evaluation.AllInOneEva.AllInOneEvaWithoutAnswer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#eva">eva</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.evaluation.eva.Evaluator.html">ProG.evaluation.eva.Evaluator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.evaluation.eva.mrr_hit.html">ProG.evaluation.eva.mrr_hit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.evaluation.eva.compute_acc_unsupervised.html">ProG.evaluation.eva.compute_acc_unsupervised</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gnneva">GNNEva</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.evaluation.GNNEva.GNNEva.html">ProG.evaluation.GNNEva.GNNEva</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gpfeva">GPFEva</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.evaluation.GPFEva.GPFEva.html">ProG.evaluation.GPFEva.GPFEva</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gprompteva">GpromptEva</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.evaluation.GpromptEva.GpromptEva.html">ProG.evaluation.GpromptEva.GpromptEva</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pre_train.html">pre_train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prompt.html">prompt</a></li>
@@ -81,7 +100,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
       <li class="breadcrumb-item active">evaluation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/modules/evaluation.rst.txt" rel="nofollow"> View page source</a>
@@ -94,14 +113,83 @@
              
   <section id="evaluation">
 <h1>evaluation<a class="headerlink" href="#evaluation" title="Permalink to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#allinoneeva" id="id1">AllInOneEva</a></p></li>
+<li><p><a class="reference internal" href="#eva" id="id2">eva</a></p></li>
+<li><p><a class="reference internal" href="#gnneva" id="id3">GNNEva</a></p></li>
+<li><p><a class="reference internal" href="#gpfeva" id="id4">GPFEva</a></p></li>
+<li><p><a class="reference internal" href="#gprompteva" id="id5">GpromptEva</a></p></li>
+</ul>
+</nav>
+<section id="allinoneeva">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">AllInOneEva</a><a class="headerlink" href="#allinoneeva" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.evaluation.AllInOneEva.AllInOneEva.html#ProG.evaluation.AllInOneEva.AllInOneEva" title="ProG.evaluation.AllInOneEva.AllInOneEva"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AllInOneEva</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.evaluation.AllInOneEva.AllInOneEvaWithoutAnswer.html#ProG.evaluation.AllInOneEva.AllInOneEvaWithoutAnswer" title="ProG.evaluation.AllInOneEva.AllInOneEvaWithoutAnswer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AllInOneEvaWithoutAnswer</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="eva">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">eva</a><a class="headerlink" href="#eva" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.evaluation.eva.Evaluator.html#ProG.evaluation.eva.Evaluator" title="ProG.evaluation.eva.Evaluator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Evaluator</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.evaluation.eva.mrr_hit.html#ProG.evaluation.eva.mrr_hit" title="ProG.evaluation.eva.mrr_hit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mrr_hit</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.evaluation.eva.compute_acc_unsupervised.html#ProG.evaluation.eva.compute_acc_unsupervised" title="ProG.evaluation.eva.compute_acc_unsupervised"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_acc_unsupervised</span></code></a></p></td>
+<td><p>Compute the accuracy of prediction given the labels.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="gnneva">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">GNNEva</a><a class="headerlink" href="#gnneva" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.evaluation.GNNEva.GNNEva.html#ProG.evaluation.GNNEva.GNNEva" title="ProG.evaluation.GNNEva.GNNEva"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GNNEva</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="gpfeva">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">GPFEva</a><a class="headerlink" href="#gpfeva" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.evaluation.GPFEva.GPFEva.html#ProG.evaluation.GPFEva.GPFEva" title="ProG.evaluation.GPFEva.GPFEva"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPFEva</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="gprompteva">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">GpromptEva</a><a class="headerlink" href="#gprompteva" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.evaluation.GpromptEva.GpromptEva.html#ProG.evaluation.GpromptEva.GpromptEva" title="ProG.evaluation.GpromptEva.GpromptEva"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GpromptEva</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="data.html" class="btn btn-neutral float-left" title="data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="model.html" class="btn btn-neutral float-right" title="model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../generated/ProG.data.load4data.load_data4pretrain.html" class="btn btn-neutral float-left" title="ProG.data.load4data.load_data4pretrain" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../generated/ProG.evaluation.AllInOneEva.AllInOneEva.html" class="btn btn-neutral float-right" title="ProG.evaluation.AllInOneEva.AllInOneEva" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

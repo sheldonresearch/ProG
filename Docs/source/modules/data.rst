@@ -29,7 +29,7 @@ batch
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
-    :template: autosummary/inherited_class.rst
+    :template: autosummary/class.rst
 
     BatchFinetune
     BatchMasking
@@ -59,12 +59,10 @@ loader
 
 .. currentmodule:: ProG.data.loader
 
-
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
-    :template: autosummary/inherited_class.rst
-
+    :template: autosummary/function.rst
 
 
 

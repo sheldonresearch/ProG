@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>data &mdash; ProG v0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -30,15 +28,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="../index.html" class="icon icon-home">
-            ProG
+            <a href="../index.html" class="icon icon-home"> ProG
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -76,8 +70,13 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#load4data">load4data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load4graph.html">ProG.data.load4data.load4graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load4node.html">ProG.data.load4data.load4node</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load4link_prediction_single_graph.html">ProG.data.load4data.load4link_prediction_single_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load4link_prediction_multi_graph.html">ProG.data.load4data.load4link_prediction_multi_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load_data4pretrain.html">ProG.data.load4data.load_data4pretrain</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#loader">loader</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">evaluation</a></li>
@@ -101,7 +100,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
       <li class="breadcrumb-item active">data</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/modules/data.rst.txt" rel="nofollow"> View page source</a>
@@ -120,6 +119,7 @@
 <li><p><a class="reference internal" href="#dataloader" id="id3">dataloader</a></p></li>
 <li><p><a class="reference internal" href="#batch" id="id4">batch</a></p></li>
 <li><p><a class="reference internal" href="#load4data" id="id5">load4data</a></p></li>
+<li><p><a class="reference internal" href="#loader" id="id6">loader</a></p></li>
 </ul>
 </nav>
 <section id="dataloader">
@@ -169,6 +169,25 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load4graph.html#ProG.data.load4data.load4graph" title="ProG.data.load4data.load4graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4graph</span></code></a></p></td>
 <td><p>A plain old python object modeling a batch of graphs as one big (dicconnected) graph.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load4node.html#ProG.data.load4data.load4node" title="ProG.data.load4data.load4node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4node</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load4link_prediction_single_graph.html#ProG.data.load4data.load4link_prediction_single_graph" title="ProG.data.load4data.load4link_prediction_single_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4link_prediction_single_graph</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load4link_prediction_multi_graph.html#ProG.data.load4data.load4link_prediction_multi_graph" title="ProG.data.load4data.load4link_prediction_multi_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4link_prediction_multi_graph</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load_data4pretrain.html#ProG.data.load4data.load_data4pretrain" title="ProG.data.load4data.load_data4pretrain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data4pretrain</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="loader">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">loader</a><a class="headerlink" href="#loader" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
 </tbody>
 </table>
 </section>

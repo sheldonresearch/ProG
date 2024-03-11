@@ -29,7 +29,7 @@ batch
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
-    :template: autosummary/inherited_class.rst
+    :template: autosummary/class.rst
 
     BatchFinetune
     BatchMasking
@@ -49,6 +49,21 @@ load4data
     :template: autosummary/inherited_class.rst
 
     load4graph
+    load4node
+    load4link_prediction_single_graph
+    load4link_prediction_multi_graph
+    load_data4pretrain
+
+loader
+-------------------
+
+.. currentmodule:: ProG.data.loader
+
+.. autosummary::
+    :nosignatures:
+    :toctree: ../generated
+    :template: autosummary/function.rst
+
 
 
 
