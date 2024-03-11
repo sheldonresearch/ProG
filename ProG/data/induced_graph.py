@@ -10,12 +10,11 @@ import random
 import warnings
 from ProG.utils import mkdir
 from random import shuffle
+from torch_geometric.utils import subgraph, k_hop_subgraph
+from torch_geometric.data import Data
+import numpy as np
 
 def induced_graphs(data, smallest_size=10, largest_size=30):
-
-    from torch_geometric.utils import subgraph, k_hop_subgraph
-    from torch_geometric.data import Data
-    import numpy as np
 
     induced_graph_list = []
 

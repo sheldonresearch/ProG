@@ -24,10 +24,10 @@ class NodeTask(BaseTask):
                   self.data.to('cpu')
                   self.input_dim = self.dataset.num_features
                   self.output_dim = self.dataset.num_classes
-                  graph_list = induced_graphs(self.data, smallest_size=10, largest_size=30)
-                  for g in graph_list:
-                        g.to(self.device)
-                        self.train_dataset, self.test_dataset, self.val_dataset = graph_split(graph_list, self.shot_num)
+                  self.train_dataset, self.test_dataset, self.val_dataset = induced_graphs(self.data, smallest_size=10, largest_size=30)
+                  # for g in graph_list:
+                  #       g.to(self.device)
+ 
 
             else:
                   self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
