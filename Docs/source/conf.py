@@ -13,7 +13,10 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
-sys.path.insert(0, os.path.abspath('../../ProG.data.batch'))
+sys.path.insert(0, os.path.abspath('../../ProG/data'))
+sys.path.insert(0, os.path.abspath("../../ProG"))
+sys.path.insert(0, os.path.abspath("../../ProG/data/batch.py"))
+
 # -- Project information -----------------------------------------------------
 
 project = 'ProG'
