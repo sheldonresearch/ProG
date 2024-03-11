@@ -14,6 +14,13 @@ from torch_geometric.utils import negative_sampling
 
 
 def load4graph(dataset_name, shot_num= 10, num_parts=None):
+    r"""A plain old python object modeling a batch of graphs as one big
+        (dicconnected) graph. With :class:`torch_geometric.data.Data` being the
+        base class, all its methods can also be used here.
+        In addition, single graphs can be reconstructed via the assignment vector
+        :obj:`batch`, which maps each node to its respective graph identifier.
+        """
+
     if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name)
         

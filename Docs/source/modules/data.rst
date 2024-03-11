@@ -4,16 +4,66 @@ data
 .. contents:: Contents
     :local:
 
-Induced graph
-------------
+dataloader
+-------------------
 
-.. currentmodule:: ProG.data
+.. currentmodule:: ProG.data.dataloader
+
 
 .. autosummary::
-   :nosignatures:
-   :toctree: ../generated
-   :template: autosummary/inherited_class.rst
+    :nosignatures:
+    :toctree: ../generated
+    :template: autosummary/inherited_class.rst
 
-   {% for name in ProG.data.data_classes %}
-     {{ name }}
-   {% endfor %}
+    DataLoaderFinetune
+    DataLoaderMasking
+    DataLoaderAE
+    DataLoaderSubstructContext
+
+batch
+-------------------
+
+.. currentmodule:: ProG.data.batch
+
+
+.. autosummary::
+    :nosignatures:
+    :toctree: ../generated
+    :template: autosummary/class.rst
+
+    BatchFinetune
+    BatchMasking
+    BatchAE
+    BatchSubstructContext
+
+
+load4data
+-------------------
+
+.. currentmodule:: ProG.data.load4data
+
+
+.. autosummary::
+    :nosignatures:
+    :toctree: ../generated
+    :template: autosummary/inherited_class.rst
+
+    load4graph
+    load4node
+    load4link_prediction_single_graph
+    load4link_prediction_multi_graph
+    load_data4pretrain
+
+loader
+-------------------
+
+.. currentmodule:: ProG.data.loader
+
+.. autosummary::
+    :nosignatures:
+    :toctree: ../generated
+    :template: autosummary/function.rst
+
+
+
+

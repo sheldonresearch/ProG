@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProG.data.batch.BatchFinetune &mdash; ProG v0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ProG.data.batch.BatchMasking" href="ProG.data.batch.BatchMasking.html" />
+    <link rel="prev" title="ProG.data.dataloader.DataLoaderSubstructContext" href="ProG.data.dataloader.DataLoaderSubstructContext.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> ProG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Install ProG</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install/installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/introduction.html">introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/pre_train.html">pre_train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/downstream.html">downstream</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Main Package</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules/data.html">data</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../modules/data.html#dataloader">dataloader</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../modules/data.html#batch">batch</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ProG.data.batch.BatchFinetune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ProG.data.batch.BatchMasking.html">ProG.data.batch.BatchMasking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ProG.data.batch.BatchAE.html">ProG.data.batch.BatchAE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ProG.data.batch.BatchSubstructContext.html">ProG.data.batch.BatchSubstructContext</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/data.html#load4data">load4data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/data.html#loader">loader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/evaluation.html">evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/model.html">model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/pre_train.html">pre_train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/prompt.html">prompt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/tasker.html">tasker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/utils.html">utils</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ProG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules/data.html">data</a></li>
+      <li class="breadcrumb-item active">ProG.data.batch.BatchFinetune</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/ProG.data.batch.BatchFinetune.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="prog-data-batch-batchfinetune">
+<h1>ProG.data.batch.BatchFinetune<a class="headerlink" href="#prog-data-batch-batchfinetune" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="ProG.data.batch.BatchFinetune">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ProG.data.batch.</span></span><span class="sig-name descname"><span class="pre">BatchFinetune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ProG.data.batch.BatchFinetune" title="Permalink to this definition"></a></dt>
+<dd><p>The Projected Randomized Block Coordinate Descent (PRBCD) adversarial
+attack from the <a class="reference external" href="https://www.cs.cit.tum.de/daml/robustness-of-gnns-at-scale">Robustness of Graph Neural Networks at Scale</a> paper.</p>
+<p>This attack uses an efficient gradient based approach that (during the
+attack) relaxes the discrete entries in the adjacency matrix
+<span class="math notranslate nohighlight">\(\{0, 1\}\)</span> to <span class="math notranslate nohighlight">\([0, 1]\)</span> and solely perturbs the adjacency matrix
+(no feature perturbations). Thus, this attack supports all models that can
+handle weighted graphs that are differentiable w.r.t. these edge weights,
+<em>e.g.</em>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GCNConv</span></code> or
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphConv</span></code>. For non-differentiable models
+you might need modifications, e.g., see example for
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GATConv</span></code>.</p>
+<p>The memory overhead is driven by the additional edges (at most
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">block_size</span></code>). For scalability reasons, the block is drawn with
+replacement and then the index is made unique. Thus, the actual block size
+is typically slightly smaller than specified.</p>
+<p>This attack can be used for both global and local attacks as well as
+test-time attacks (evasion) and training-time attacks (poisoning). Please
+see the provided examples.</p>
+<p>This attack is designed with a focus on node- or graph-classification,
+however, to adapt to other tasks you most likely only need to provide an
+appropriate loss and model. However, we currently do not support batching
+out of the box (sampling needs to be adapted).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For examples of using the PRBCD Attack, see
+<a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/blob/master/examples/contrib/rbcd_attack.py">examples/contrib/rbcd_attack.py</a>
+for a test time attack (evasion) or
+<a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/blob/master/examples/contrib/rbcd_attack_poisoning.py">examples/contrib/rbcd_attack_poisoning.py</a>
+for a training time (poisoning) attack.</p>
+</div>
+<dl>
+<dt>Args:</dt><dd><p>model (torch.nn.Module): The GNN module to assess.
+block_size (int): Number of randomly selected elements in the</p>
+<blockquote>
+<div><p>adjacency matrix to consider.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>epochs (int, optional): Number of epochs (aborts early if</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode='greedy'</span></code> and budget is satisfied) (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">125</span></code>)</p>
+</dd>
+<dt>epochs_resampling (int, optional): Number of epochs to resample the</dt><dd><p>random block. (default: obj:<cite>100</cite>)</p>
+</dd>
+<dt>loss (str or callable, optional): A loss to quantify the “strength” of</dt><dd><p>an attack. Note that this function must match the output format of
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">model</span></code>. By default, it is assumed that the task is
+classification and that the model returns raw predictions (<em>i.e.</em>,
+no output activation) or uses <code class="xref py py-obj docutils literal notranslate"><span class="pre">logsoftmax</span></code>. Moreover, and the
+number of predictions should match the number of labels passed to
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">attack</span></code>. Either pass a callable or one of: <code class="xref py py-obj docutils literal notranslate"><span class="pre">'masked'</span></code>,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">'margin'</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">'prob_margin'</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">'tanh_margin'</span></code>.
+(default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">'prob_margin'</span></code>)</p>
+</dd>
+<dt>metric (callable, optional): Second (potentially</dt><dd><p>non-differentiable) loss for monitoring or early stopping (if
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">mode='greedy'</span></code>). (default: same as <code class="xref py py-attr docutils literal notranslate"><span class="pre">loss</span></code>)</p>
+</dd>
+<dt>lr (float, optional): Learning rate for updating edge weights.</dt><dd><p>Additionally, it is heuristically corrected for <code class="xref py py-attr docutils literal notranslate"><span class="pre">block_size</span></code>,
+budget (see <code class="xref py py-attr docutils literal notranslate"><span class="pre">attack</span></code>) and graph size. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1_000</span></code>)</p>
+</dd>
+<dt>is_undirected (bool, optional): If <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> the graph is</dt><dd><p>assumed to be undirected. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
+<dt>log (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>, will not log any learning</dt><dd><p>progress. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ProG.data.batch.BatchFinetune.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ProG.data.batch.BatchFinetune.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ProG.data.batch.BatchFinetune.__init__" title="ProG.data.batch.BatchFinetune.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([batch])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code>(func, *args)</p></td>
+<td><p>Applies the function <code class="xref py py-obj docutils literal notranslate"><span class="pre">func</span></code>, either to all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_</span></code>(func, *args)</p></td>
+<td><p>Applies the in-place function <code class="xref py py-obj docutils literal notranslate"><span class="pre">func</span></code>, either to all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clone</span></code>(*args)</p></td>
+<td><p>Performs cloning of tensors, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">coalesce</span></code>()</p></td>
+<td><p>Sorts and removes duplicated entries from edge indices <code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_index</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">concat</span></code>(data)</p></td>
+<td><p>Concatenates <code class="xref py py-obj docutils literal notranslate"><span class="pre">self</span></code> with another <code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code> object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">contains_isolated_nodes</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">contains_self_loops</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">contiguous</span></code>(*args)</p></td>
+<td><p>Ensures a contiguous memory layout, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">coo</span></code>([edge_types, store])</p></td>
+<td><p>Returns the edge indices in the <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphStore</span></code> in COO format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cpu</span></code>(*args)</p></td>
+<td><p>Copies attributes to CPU memory, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">csc</span></code>([edge_types, store])</p></td>
+<td><p>Returns the edge indices in the <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphStore</span></code> in CSC format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">csr</span></code>([edge_types, store])</p></td>
+<td><p>Returns the edge indices in the <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphStore</span></code> in CSR format.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cuda</span></code>([device, non_blocking])</p></td>
+<td><p>Copies attributes to CUDA memory, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">detach</span></code>(*args)</p></td>
+<td><p>Detaches attributes from the computation graph by creating a new tensor, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">detach_</span></code>(*args)</p></td>
+<td><p>Detaches attributes from the computation graph, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_attrs</span></code>()</p></td>
+<td><p>Returns all edge-level tensor attribute names.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_subgraph</span></code>(subset)</p></td>
+<td><p>Returns the induced subgraph given by the edge indices <code class="xref py py-obj docutils literal notranslate"><span class="pre">subset</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_data_list</span></code>(data_list)</p></td>
+<td><p>Constructs a batch object from a python list holding <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.Data</span></code> objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code>(mapping)</p></td>
+<td><p>Creates a <code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code> object from a dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_ids</span></code>()</p></td>
+<td><p>Generates and sets <code class="xref py py-obj docutils literal notranslate"><span class="pre">n_id</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">e_id</span></code> attributes to assign each node and edge to a continuously ascending and unique ID.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_edge_attrs</span></code>()</p></td>
+<td><p>Returns all registered edge attributes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_tensor_attrs</span></code>()</p></td>
+<td><p>Obtains all feature attributes stored in <cite>Data</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_edge_index</span></code>(*args, **kwargs)</p></td>
+<td><p>Synchronously obtains an <code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_index</span></code> tuple from the <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphStore</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tensor</span></code>(*args[, convert_type])</p></td>
+<td><p>Synchronously obtains a <code class="xref py py-class docutils literal notranslate"><span class="pre">tensor</span></code> from the <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureStore</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tensor_size</span></code>(*args, **kwargs)</p></td>
+<td><p>Obtains the size of a tensor given its <code class="xref py py-class docutils literal notranslate"><span class="pre">TensorAttr</span></code>, or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> if the tensor does not exist.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_isolated_nodes</span></code>()</p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if the graph contains isolated nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_self_loops</span></code>()</p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if the graph contains self-loops.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_coalesced</span></code>()</p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if edge indices <code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_index</span></code> are sorted and do not contain duplicate entries.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_directed</span></code>()</p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if graph edges are directed.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_edge_attr</span></code>(key)</p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if the object at key <code class="xref py py-obj docutils literal notranslate"><span class="pre">key</span></code> denotes an edge-level tensor attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_node_attr</span></code>(key)</p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if the object at key <code class="xref py py-obj docutils literal notranslate"><span class="pre">key</span></code> denotes a node-level tensor attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_sorted</span></code>([sort_by_row])</p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if edge indices <code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_index</span></code> are sorted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_sorted_by_time</span></code>()</p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if <code class="xref py py-obj docutils literal notranslate"><span class="pre">time</span></code> is sorted.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_undirected</span></code>()</p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if graph edges are undirected.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code>()</p></td>
+<td><p>Returns a list of all graph attribute names.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">multi_get_tensor</span></code>(attrs[, convert_type])</p></td>
+<td><p>Synchronously obtains a list of tensors from the <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureStore</span></code> for each tensor associated with the attributes in <code class="xref py py-obj docutils literal notranslate"><span class="pre">attrs</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">node_attrs</span></code>()</p></td>
+<td><p>Returns all node-level tensor attribute names.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pin_memory</span></code>(*args)</p></td>
+<td><p>Copies attributes to pinned memory, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_edge_index</span></code>(edge_index, *args, **kwargs)</p></td>
+<td><p>Synchronously adds an <code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_index</span></code> tuple to the <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphStore</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_tensor</span></code>(tensor, *args, **kwargs)</p></td>
+<td><p>Synchronously adds a <code class="xref py py-obj docutils literal notranslate"><span class="pre">tensor</span></code> to the <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureStore</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">record_stream</span></code>(stream, *args)</p></td>
+<td><p>Ensures that the tensor memory is not reused for another tensor until all current work queued on <code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code> has been completed, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_edge_index</span></code>(*args, **kwargs)</p></td>
+<td><p>Synchronously deletes an <code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_index</span></code> tuple from the <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphStore</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_tensor</span></code>(*args, **kwargs)</p></td>
+<td><p>Removes a tensor from the <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureStore</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">requires_grad_</span></code>(*args[, requires_grad])</p></td>
+<td><p>Tracks gradient computation, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">share_memory_</span></code>(*args)</p></td>
+<td><p>Moves attributes to shared memory, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code>([dim])</p></td>
+<td><p>Returns the size of the adjacency matrix induced by the graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">snapshot</span></code>(start_time, end_time)</p></td>
+<td><p>Returns a snapshot of <code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code> to only hold events that occurred in period <code class="xref py py-obj docutils literal notranslate"><span class="pre">[start_time,</span> <span class="pre">end_time]</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort</span></code>([sort_by_row])</p></td>
+<td><p>Sorts edge indices <code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_index</span></code> and their corresponding edge features.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_by_time</span></code>()</p></td>
+<td><p>Sorts data associated with <code class="xref py py-obj docutils literal notranslate"><span class="pre">time</span></code> according to <code class="xref py py-obj docutils literal notranslate"><span class="pre">time</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stores_as</span></code>(data)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subgraph</span></code>(subset)</p></td>
+<td><p>Returns the induced subgraph given by the node indices <code class="xref py py-obj docutils literal notranslate"><span class="pre">subset</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to</span></code>(device, *args[, non_blocking])</p></td>
+<td><p>Performs tensor device conversion, either for all attributes or only the ones given in <code class="xref py py-obj docutils literal notranslate"><span class="pre">*args</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>()</p></td>
+<td><p>Returns a dictionary of stored key/value pairs.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_heterogeneous</span></code>([node_type, edge_type, ...])</p></td>
+<td><p>Converts a <code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code> object to a heterogeneous <code class="xref py py-class docutils literal notranslate"><span class="pre">HeteroData</span></code> object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_namedtuple</span></code>()</p></td>
+<td><p>Returns a <code class="xref py py-obj docutils literal notranslate"><span class="pre">NamedTuple</span></code> of stored key/value pairs.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">up_to</span></code>(end_time)</p></td>
+<td><p>Returns a snapshot of <code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code> to only hold events that occurred up to <code class="xref py py-obj docutils literal notranslate"><span class="pre">end_time</span></code> (inclusive of <code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_time</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code>(data)</p></td>
+<td><p>Updates the data object with the elements from another data object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_tensor</span></code>(tensor, *args, **kwargs)</p></td>
+<td><p>Updates a <code class="xref py py-obj docutils literal notranslate"><span class="pre">tensor</span></code> in the <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureStore</span></code> with a new value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code>([raise_on_error])</p></td>
+<td><p>Validates the correctness of the data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">view</span></code>(*args, **kwargs)</p></td>
+<td><p>Returns a view of the <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureStore</span></code> given a not yet fully-specified <code class="xref py py-class docutils literal notranslate"><span class="pre">TensorAttr</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">batch</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_attr</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_index</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_stores</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_weight</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">face</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_cuda</span></code></p></td>
+<td><p>Returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> if any <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.Tensor</span></code> attribute is stored on the GPU, <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">node_offsets</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">node_stores</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_edge_features</span></code></p></td>
+<td><p>Returns the number of features per edge in the graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_edge_types</span></code></p></td>
+<td><p>Returns the number of edge types in the graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_edges</span></code></p></td>
+<td><p>Returns the number of edges in the graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_faces</span></code></p></td>
+<td><p>Returns the number of faces in the mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_features</span></code></p></td>
+<td><p>Returns the number of features per node in the graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_graphs</span></code></p></td>
+<td><p>Returns the number of graphs in the batch.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_node_features</span></code></p></td>
+<td><p>Returns the number of features per node in the graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_node_types</span></code></p></td>
+<td><p>Returns the number of node types in the graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_nodes</span></code></p></td>
+<td><p>Returns the number of nodes in the graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pos</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stores</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">time</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">y</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ProG.data.dataloader.DataLoaderSubstructContext.html" class="btn btn-neutral float-left" title="ProG.data.dataloader.DataLoaderSubstructContext" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ProG.data.batch.BatchMasking.html" class="btn btn-neutral float-right" title="ProG.data.batch.BatchMasking" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, WANGKevin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

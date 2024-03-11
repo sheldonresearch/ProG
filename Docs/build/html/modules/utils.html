@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>utils &mdash; ProG_Tut v0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
-
-  
+  <title>utils &mdash; ProG v0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -21,7 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="tasker" href="tasker.html" /> 
+    <link rel="next" title="ProG.utils.act.act" href="../generated/ProG.utils.act.act.html" />
+    <link rel="prev" title="ProG.tasker.task.BaseTask" href="../generated/ProG.tasker.task.BaseTask.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -29,15 +28,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="../index.html" class="icon icon-home">
-            ProG_Tut
+            <a href="../index.html" class="icon icon-home"> ProG
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -60,12 +55,72 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="data.html">data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">evaluation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meta.html">meta</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pre_train.html">pre_train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prompt.html">prompt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tasker.html">tasker</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">utils</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#act">act</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.act.act.html">ProG.utils.act.act</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#center-embedding">center_embedding</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.center_embedding.center_embedding.html">ProG.utils.center_embedding.center_embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.center_embedding.distance2center.html">ProG.utils.center_embedding.distance2center</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#constraint">constraint</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.constraint.constraint.html">ProG.utils.constraint.constraint</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#edge-index-to-sparse-matrix">edge_index_to_sparse_matrix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.edge_index_to_sparse_matrix.edge_index_to_sparse_matrix.html">ProG.utils.edge_index_to_sparse_matrix.edge_index_to_sparse_matrix</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#loss">loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.loss.Gprompt_tuning_loss.html">ProG.utils.loss.Gprompt_tuning_loss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.loss.Gprompt_link_loss.html">ProG.utils.loss.Gprompt_link_loss</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mkdir">mkdir</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.mkdir.mkdir.html">ProG.utils.mkdir.mkdir</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#negativeedge">NegativeEdge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.NegativeEdge.NegativeEdge.html">ProG.utils.NegativeEdge.NegativeEdge</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#perturbation">perturbation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.perturbation.graph_views.html">ProG.utils.perturbation.graph_views</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.perturbation.drop_nodes.html">ProG.utils.perturbation.drop_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.perturbation.permute_edges.html">ProG.utils.perturbation.permute_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.perturbation.mask_nodes.html">ProG.utils.perturbation.mask_nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#prepare-structured-data">prepare_structured_data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.prepare_structured_data.prepare_structured_data.html">ProG.utils.prepare_structured_data.prepare_structured_data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#print-para">print_para</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.print_para.print_model_parameters.html">ProG.utils.print_para.print_model_parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#seed">seed</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.seed.seed_everything.html">ProG.utils.seed.seed_everything</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.seed.__seeds_list__.html">ProG.utils.seed.__seeds_list__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.seed.seed_torch.html">ProG.utils.seed.seed_torch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.utils.evaluate.html">ProG.utils.utils.evaluate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.utils.__dname__.html">ProG.utils.utils.__dname__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.utils.__pos_neg_nodes__.html">ProG.utils.utils.__pos_neg_nodes__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.utils.__induced_graph_list_for_graphs__.html">ProG.utils.utils.__induced_graph_list_for_graphs__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.utils.utils.GPPT_evaluate.html">ProG.utils.utils.GPPT_evaluate</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -74,14 +129,14 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">ProG_Tut</a>
+          <a href="../index.html">ProG</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
       <li class="breadcrumb-item active">utils</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/modules/utils.rst.txt" rel="nofollow"> View page source</a>
@@ -94,13 +149,184 @@
              
   <section id="utils">
 <h1>utils<a class="headerlink" href="#utils" title="Permalink to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#act" id="id2">act</a></p></li>
+<li><p><a class="reference internal" href="#center-embedding" id="id3">center_embedding</a></p></li>
+<li><p><a class="reference internal" href="#constraint" id="id4">constraint</a></p></li>
+<li><p><a class="reference internal" href="#edge-index-to-sparse-matrix" id="id5">edge_index_to_sparse_matrix</a></p></li>
+<li><p><a class="reference internal" href="#loss" id="id6">loss</a></p></li>
+<li><p><a class="reference internal" href="#mkdir" id="id7">mkdir</a></p></li>
+<li><p><a class="reference internal" href="#negativeedge" id="id8">NegativeEdge</a></p></li>
+<li><p><a class="reference internal" href="#perturbation" id="id9">perturbation</a></p></li>
+<li><p><a class="reference internal" href="#prepare-structured-data" id="id10">prepare_structured_data</a></p></li>
+<li><p><a class="reference internal" href="#print-para" id="id11">print_para</a></p></li>
+<li><p><a class="reference internal" href="#seed" id="id12">seed</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id13">utils</a></p></li>
+</ul>
+</nav>
+<section id="act">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">act</a><a class="headerlink" href="#act" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.act.act.html#ProG.utils.act.act" title="ProG.utils.act.act"><code class="xref py py-obj docutils literal notranslate"><span class="pre">act</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="center-embedding">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">center_embedding</a><a class="headerlink" href="#center-embedding" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.center_embedding.center_embedding.html#ProG.utils.center_embedding.center_embedding" title="ProG.utils.center_embedding.center_embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">center_embedding</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.utils.center_embedding.distance2center.html#ProG.utils.center_embedding.distance2center" title="ProG.utils.center_embedding.distance2center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance2center</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="constraint">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">constraint</a><a class="headerlink" href="#constraint" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.constraint.constraint.html#ProG.utils.constraint.constraint" title="ProG.utils.constraint.constraint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constraint</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="edge-index-to-sparse-matrix">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">edge_index_to_sparse_matrix</a><a class="headerlink" href="#edge-index-to-sparse-matrix" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.edge_index_to_sparse_matrix.edge_index_to_sparse_matrix.html#ProG.utils.edge_index_to_sparse_matrix.edge_index_to_sparse_matrix" title="ProG.utils.edge_index_to_sparse_matrix.edge_index_to_sparse_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_index_to_sparse_matrix</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="loss">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">loss</a><a class="headerlink" href="#loss" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.loss.Gprompt_tuning_loss.html#ProG.utils.loss.Gprompt_tuning_loss" title="ProG.utils.loss.Gprompt_tuning_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gprompt_tuning_loss</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.utils.loss.Gprompt_link_loss.html#ProG.utils.loss.Gprompt_link_loss" title="ProG.utils.loss.Gprompt_link_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gprompt_link_loss</span></code></a></p></td>
+<td><p>Refer to GraphPrompt original codes</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mkdir">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">mkdir</a><a class="headerlink" href="#mkdir" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.mkdir.mkdir.html#ProG.utils.mkdir.mkdir" title="ProG.utils.mkdir.mkdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mkdir</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="negativeedge">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">NegativeEdge</a><a class="headerlink" href="#negativeedge" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.NegativeEdge.NegativeEdge.html#ProG.utils.NegativeEdge.NegativeEdge" title="ProG.utils.NegativeEdge.NegativeEdge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NegativeEdge</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="perturbation">
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">perturbation</a><a class="headerlink" href="#perturbation" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.perturbation.graph_views.html#ProG.utils.perturbation.graph_views" title="ProG.utils.perturbation.graph_views"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_views</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.utils.perturbation.drop_nodes.html#ProG.utils.perturbation.drop_nodes" title="ProG.utils.perturbation.drop_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_nodes</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.perturbation.permute_edges.html#ProG.utils.perturbation.permute_edges" title="ProG.utils.perturbation.permute_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permute_edges</span></code></a></p></td>
+<td><p>only change edge_index, all the other keys unchanged and consistent</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.utils.perturbation.mask_nodes.html#ProG.utils.perturbation.mask_nodes" title="ProG.utils.perturbation.mask_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_nodes</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="prepare-structured-data">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">prepare_structured_data</a><a class="headerlink" href="#prepare-structured-data" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.prepare_structured_data.prepare_structured_data.html#ProG.utils.prepare_structured_data.prepare_structured_data" title="ProG.utils.prepare_structured_data.prepare_structured_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_structured_data</span></code></a></p></td>
+<td><p>Prepare structured &lt;i,k,j&gt; format link prediction data</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="print-para">
+<h2><a class="toc-backref" href="#id11" role="doc-backlink">print_para</a><a class="headerlink" href="#print-para" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.print_para.print_model_parameters.html#ProG.utils.print_para.print_model_parameters" title="ProG.utils.print_para.print_model_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_model_parameters</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="seed">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">seed</a><a class="headerlink" href="#seed" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.seed.seed_everything.html#ProG.utils.seed.seed_everything" title="ProG.utils.seed.seed_everything"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seed_everything</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.utils.seed.__seeds_list__.html#ProG.utils.seed.__seeds_list__" title="ProG.utils.seed.__seeds_list__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__seeds_list__</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.seed.seed_torch.html#ProG.utils.seed.seed_torch" title="ProG.utils.seed.seed_torch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">seed_torch</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id1">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">utils</a><a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.utils.evaluate.html#ProG.utils.utils.evaluate" title="ProG.utils.utils.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.utils.utils.__dname__.html#ProG.utils.utils.__dname__" title="ProG.utils.utils.__dname__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dname__</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.utils.__pos_neg_nodes__.html#ProG.utils.utils.__pos_neg_nodes__" title="ProG.utils.utils.__pos_neg_nodes__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pos_neg_nodes__</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.utils.utils.__induced_graph_list_for_graphs__.html#ProG.utils.utils.__induced_graph_list_for_graphs__" title="ProG.utils.utils.__induced_graph_list_for_graphs__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__induced_graph_list_for_graphs__</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.utils.utils.GPPT_evaluate.html#ProG.utils.utils.GPPT_evaluate" title="ProG.utils.utils.GPPT_evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GPPT_evaluate</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tasker.html" class="btn btn-neutral float-left" title="tasker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../generated/ProG.tasker.task.BaseTask.html" class="btn btn-neutral float-left" title="ProG.tasker.task.BaseTask" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../generated/ProG.utils.act.act.html" class="btn btn-neutral float-right" title="ProG.utils.act.act" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

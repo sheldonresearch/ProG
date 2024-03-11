@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>data &mdash; ProG_Tut v0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
-
-  
+  <title>data &mdash; ProG v0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -21,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="evaluation" href="evaluation.html" />
+    <link rel="next" title="ProG.data.dataloader.DataLoaderFinetune" href="../generated/ProG.data.dataloader.DataLoaderFinetune.html" />
     <link rel="prev" title="downstream" href="../tutorial/downstream.html" /> 
 </head>
 
@@ -30,15 +28,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="../index.html" class="icon icon-home">
-            ProG_Tut
+            <a href="../index.html" class="icon icon-home"> ProG
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -60,11 +54,25 @@
 <p class="caption" role="heading"><span class="caption-text">Main Package</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#induced-graph">Induced graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dataloader">dataloader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderFinetune.html">ProG.data.dataloader.DataLoaderFinetune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderMasking.html">ProG.data.dataloader.DataLoaderMasking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderAE.html">ProG.data.dataloader.DataLoaderAE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderSubstructContext.html">ProG.data.dataloader.DataLoaderSubstructContext</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#load4data">load4data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load4graph.html">ProG.data.load4data.load4graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load4node.html">ProG.data.load4data.load4node</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load4link_prediction_single_graph.html">ProG.data.load4data.load4link_prediction_single_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load4link_prediction_multi_graph.html">ProG.data.load4data.load4link_prediction_multi_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.load4data.load_data4pretrain.html">ProG.data.load4data.load_data4pretrain</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#loader">loader</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">evaluation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meta.html">meta</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pre_train.html">pre_train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prompt.html">prompt</a></li>
@@ -78,14 +86,14 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">ProG_Tut</a>
+          <a href="../index.html">ProG</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
       <li class="breadcrumb-item active">data</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/modules/data.rst.txt" rel="nofollow"> View page source</a>
@@ -101,11 +109,58 @@
 <nav class="contents local" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#induced-graph" id="id1">Induced graph</a></p></li>
+<li><p><a class="reference internal" href="#dataloader" id="id1">dataloader</a></p></li>
+<li><p><a class="reference internal" href="#load4data" id="id2">load4data</a></p></li>
+<li><p><a class="reference internal" href="#loader" id="id3">loader</a></p></li>
 </ul>
 </nav>
-<section id="induced-graph">
-<h2><a class="toc-backref" href="#id1" role="doc-backlink">Induced graph</a><a class="headerlink" href="#induced-graph" title="Permalink to this heading"></a></h2>
+<section id="dataloader">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">dataloader</a><a class="headerlink" href="#dataloader" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderFinetune.html#ProG.data.dataloader.DataLoaderFinetune" title="ProG.data.dataloader.DataLoaderFinetune"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderFinetune</span></code></a></p></td>
+<td><p>The Projected Randomized Block Coordinate Descent (PRBCD) adversarial attack from the <a class="reference external" href="https://www.cs.cit.tum.de/daml/robustness-of-gnns-at-scale">Robustness of Graph Neural Networks at Scale</a> paper.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderMasking.html#ProG.data.dataloader.DataLoaderMasking" title="ProG.data.dataloader.DataLoaderMasking"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderMasking</span></code></a></p></td>
+<td><p>Data loader which merges data objects from a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch. Args:     dataset (Dataset): The dataset from which to load the data. batch_size (int, optional): How may samples per batch to load. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)     shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be         reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderAE.html#ProG.data.dataloader.DataLoaderAE" title="ProG.data.dataloader.DataLoaderAE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderAE</span></code></a></p></td>
+<td><p>Data loader which merges data objects from a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch. Args:     dataset (Dataset): The dataset from which to load the data. batch_size (int, optional): How may samples per batch to load. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)     shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be         reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderSubstructContext.html#ProG.data.dataloader.DataLoaderSubstructContext" title="ProG.data.dataloader.DataLoaderSubstructContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderSubstructContext</span></code></a></p></td>
+<td><p>Data loader which merges data objects from a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch. Args:     dataset (Dataset): The dataset from which to load the data. batch_size (int, optional): How may samples per batch to load. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)     shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be         reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="load4data">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">load4data</a><a class="headerlink" href="#load4data" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load4graph.html#ProG.data.load4data.load4graph" title="ProG.data.load4data.load4graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4graph</span></code></a></p></td>
+<td><p>A plain old python object modeling a batch of graphs as one big (dicconnected) graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load4node.html#ProG.data.load4data.load4node" title="ProG.data.load4data.load4node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4node</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load4link_prediction_single_graph.html#ProG.data.load4data.load4link_prediction_single_graph" title="ProG.data.load4data.load4link_prediction_single_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4link_prediction_single_graph</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load4link_prediction_multi_graph.html#ProG.data.load4data.load4link_prediction_multi_graph" title="ProG.data.load4data.load4link_prediction_multi_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4link_prediction_multi_graph</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.load4data.load_data4pretrain.html#ProG.data.load4data.load_data4pretrain" title="ProG.data.load4data.load_data4pretrain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_data4pretrain</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="loader">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">loader</a><a class="headerlink" href="#loader" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+</tbody>
+</table>
 </section>
 </section>
 
@@ -114,7 +169,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../tutorial/downstream.html" class="btn btn-neutral float-left" title="downstream" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="evaluation.html" class="btn btn-neutral float-right" title="evaluation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../generated/ProG.data.dataloader.DataLoaderFinetune.html" class="btn btn-neutral float-right" title="ProG.data.dataloader.DataLoaderFinetune" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
