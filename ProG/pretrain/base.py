@@ -1,6 +1,5 @@
 import torch
 from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
-from ProG.data import load4node, load4graph
 from torch.optim import Adam
 
 class PreTrain(torch.nn.Module):
@@ -33,8 +32,7 @@ class PreTrain(torch.nn.Module):
         self.gnn.to(self.device)
         self.optimizer = Adam(self.gnn.parameters(), lr=0.001, weight_decay=0.00005)
 
-    def load_graph_data(self):
-        self.input_dim, self.output_dim, _, _, _, self.graph_list= load4graph(self.dataset_name)
+
         
 #     def load_node_data(self):
 #         self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)

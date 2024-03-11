@@ -5,7 +5,7 @@ from torch_geometric.loader import DataLoader
 from torch_geometric.data import Data
 from ProG.utils import mkdir
 from torch.optim import Adam
-import time
+from ProG.data import load4node, load4graph, NodePretrain
 from copy import deepcopy
 from.base import PreTrain
 
@@ -20,6 +20,21 @@ class SimGRACE(PreTrain):
                                                    torch.nn.ReLU(inplace=True),
                                                    torch.nn.Linear(hid_dim, hid_dim)).to(self.device)
         
+    def load_graph_data(self):
+        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
+            self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
+        else:
+            self.input_dim, _, _, _, _, self.graph_list= load4graph(self.dataset_name)
+        
+    def get_loader(self, graph_list, batch_size):
+
+        if len(graph_list) % batch_size == 1:
+            raise KeyError(
+                "batch_size {} makes the last batch only contain 1 graph, \n which will trigger a zero bug in SimGRACE!")
+
+        loader = DataLoader(graph_list, batch_size=batch_size, shuffle=False, num_workers=1)
+        return loader
+    
     def forward_cl(self, x, edge_index, batch):
         x = self.gnn(x, edge_index, batch)
         x = self.projection_head(x)
@@ -36,15 +51,6 @@ class SimGRACE(PreTrain):
         loss = pos_sim / ((sim_matrix.sum(dim=1) - pos_sim) + 1e-4)
         loss = - torch.log(loss).mean() 
         return loss
-
-    def get_loader(self, graph_list, batch_size):
-
-        if len(graph_list) % batch_size == 1:
-            raise KeyError(
-                "batch_size {} makes the last batch only contain 1 graph, \n which will trigger a zero bug in SimGRACE!")
-
-        loader = DataLoader(graph_list, batch_size=batch_size, shuffle=False, num_workers=1)
-        return loader
 
     def perturbate_gnn(self, data):
         vice_model = deepcopy(self).to(self.device)
