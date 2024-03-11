@@ -1,10 +1,9 @@
 import torch
-from ProG.data import load4graph
+from ProG.data import load4graph,load4node
 from torch_geometric.loader import DataLoader
 import torch.nn.functional as F
 from .task import BaseTask
-from ProG.utils import center_embedding
-from ProG.utils import Gprompt_tuning_loss
+from ProG.utils import center_embedding, Gprompt_tuning_loss
 from ProG.evaluation import GpromptEva, GNNEva, GPFEva, AllInOneEva
 import time
 
@@ -19,7 +18,19 @@ class GraphTask(BaseTask):
         self.initialize_optimizer()
 
     def load_data(self):
-        self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
+        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']:
+            self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
+        # if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
+        #     self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
+        #     self.data.to('cpu')
+        #     self.input_dim = self.dataset.num_features
+        #     self.output_dim = self.dataset.num_classes
+        #     graph_list = induced_graphs(self.data, smallest_size=10, largest_size=30)
+        #     for g in graph_list:
+        #         g.to(self.device)
+        #     self.train_dataset, self.test_dataset, self.val_dataset = graph_split(graph_list, self.shot_num)
+            
+
   
     def Train(self, train_loader):
         self.gnn.train()
@@ -122,7 +133,7 @@ class GraphTask(BaseTask):
                 best_val_acc = val_acc
                 final_test_acc = test_acc
             print("Epoch {:03d}/{:03d}  |  Time(s) {:.4f}| Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, self.epochs, time.time() - t0, loss, val_acc, test_acc))
-            print(' ')
+            
         print(f'Final Test: {final_test_acc:.4f}')
         
         print("Graph Task completed")

@@ -19,9 +19,6 @@ class BaseTask:
         self.epochs = epochs
         self.initialize_lossfn()
 
-
-        # # if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']:
-         # # if dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
     def initialize_optimizer(self):
         if self.prompt_type == 'None':
             model_param_group = []

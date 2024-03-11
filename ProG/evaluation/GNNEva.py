@@ -1,5 +1,15 @@
 
-def GNNEva(loader, gnn, answering, device):
+def GNNNodeEva(data, mask,  gnn, answering, device):
+    gnn.eval()
+    out = gnn(data.x, data.edge_index, batch=None)
+    out = answering(out)
+    pred = out.argmax(dim=1) 
+    correct = pred[mask] == data.y[mask]  
+    acc = int(correct.sum()) / int(mask.sum())  
+    return acc
+
+
+def GNNGraphEva(loader, gnn, answering, device):
     gnn.eval()
     if answering:
         answering.eval()
