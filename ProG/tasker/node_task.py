@@ -1,10 +1,11 @@
 import torch
 from ProG.prompt import GPF,GPF_plus
 from ProG.utils import constraint
+from ProG.evaluation import GPPTEva, GNNNodeEva,GPFNodeEva
 from .task import BaseTask
 import time
 import warnings
-from ProG.data import load4node
+from ProG.data import load4node, induced_graphs, graph_split
 warnings.filterwarnings("ignore")
 
 class NodeTask(BaseTask):
@@ -18,17 +19,38 @@ class NodeTask(BaseTask):
             self.initialize_optimizer()
       
       def load_data(self):
-            self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
-            self.data.to(self.device)
-            self.input_dim = self.dataset.num_features
-            self.output_dim = self.dataset.num_classes
+            if self.prompt_type in ['All-in-one', 'Gprompt']:
+                  self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
+                  self.data.to('cpu')
+                  self.input_dim = self.dataset.num_features
+                  self.output_dim = self.dataset.num_classes
+                  graph_list = induced_graphs(self.data, smallest_size=10, largest_size=30)
+                  for g in graph_list:
+                        g.to(self.device)
+                        self.train_dataset, self.test_dataset, self.val_dataset = graph_split(graph_list, self.shot_num)
+
+            else:
+                  self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
+                  self.data.to(self.device)
+                  self.input_dim = self.dataset.num_features
+                  self.output_dim = self.dataset.num_classes
+            
 
       def train(self, data):
             self.gnn.train()
             self.optimizer.zero_grad() 
-            if self.prompt_type in ['gpf', 'gpf-plus']:
-                  data.x = self.prompt.add(data.x)
-            out = self.gnn(data.x, data.edge_index, batch=None, prompt = self.prompt, prompt_type=self.prompt_type) 
+            out = self.gnn(data.x, data.edge_index, batch=None) 
+            out = self.answering(out)
+            loss = self.criterion(out[data.train_mask], data.y[data.train_mask])  
+            loss.backward()  
+            self.optimizer.step()  
+            return loss
+      
+      def GPFtrain(self, data):
+            self.gnn.train()
+            self.optimizer.zero_grad() 
+            data.x = self.prompt.add(data.x)
+            out = self.gnn(data.x, data.edge_index, batch=None) 
             out = self.answering(out)
             loss = self.criterion(out[data.train_mask], data.y[data.train_mask])  
             loss.backward()  
@@ -48,39 +70,26 @@ class NodeTask(BaseTask):
             return loss
 
 
-      def test(self, data, mask):
-            self.gnn.eval()
-            if self.prompt_type in ['gpf', 'gpf-plus']:
-                  data.x = self.prompt.add(data.x)
-            out = self.gnn(data.x, data.edge_index, batch=None, prompt = self.prompt, prompt_type = self.prompt_type)
-            out = self.answering(out)
-            pred = out.argmax(dim=1) 
-            correct = pred[mask] == data.y[mask]  
-            acc = int(correct.sum()) / int(mask.sum())  
-            return acc
-      
-      def GPPTtest(self, data, mask):
-            # self.gnn.eval()
-            self.prompt.eval()
-            node_embedding = self.gnn(data.x, data.edge_index)
-            out = self.prompt(node_embedding, data.edge_index)
-            pred = out.argmax(dim=1)  
-            correct = pred[mask] == data.y[mask]  
-            acc = int(correct.sum()) / int(mask.sum())  
-            return acc
       
       def run(self):
             best_val_acc = final_test_acc = 0
             for epoch in range(1, self.epochs):
                   t0 = time.time()
-                  if self.prompt_type == 'GPPT':
-                        loss = self.GPPTtrain(self.data)
-                        val_acc = self.GPPTtest(self.data, self.data.val_mask)
-                        test_acc = self.GPPTtest(self.data, self.data.test_mask)
-                  else:
+                  if self.prompt_type == 'None':
                         loss = self.train(self.data)
-                        val_acc = self.test(self.data, self.data.val_mask)
-                        test_acc = self.test(self.data, self.data.test_mask)
+                        val_acc = GNNNodeEva(self.data, self.data.val_mask, self.gnn, self.answering)
+                        test_acc = GNNNodeEva(self.data, self.data.test_mask, self.gnn, self.answering)
+                  elif self.prompt_type == 'GPPT':
+                        loss = self.GPPTtrain(self.data)
+                        val_acc = GPPTEva(self.data, self.data.val_mask, self.gnn, self.prompt)
+                        test_acc = GPPTEva(self.data, self.data.test_mask, self.gnn, self.prompt)
+                  elif self.prompt_type in ['GPF', 'GPF-plus']:
+                        loss = self.GPFtrain(self.data)
+                        val_acc = GPFNodeEva(self.data, self.data.val_mask, self.gnn, self.prompt, self.answering)
+                        test_acc = GPFNodeEva(self.data, self.data.test_mask, self.gnn, self.prompt, self.answering)
+                  # elif self.prompt_type == 'All-in-one':
+                  # elif self.prompt_type =='Gprompt':
+                  
                   if val_acc > best_val_acc:
                         best_val_acc = val_acc
                         final_test_acc = test_acc
