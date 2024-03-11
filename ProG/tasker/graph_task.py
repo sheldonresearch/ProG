@@ -1,5 +1,5 @@
 import torch
-import torchmetrics
+from ProG.data import load4graph
 from torch_geometric.loader import DataLoader
 import torch.nn.functional as F
 from .task import BaseTask
@@ -11,7 +11,16 @@ import time
 class GraphTask(BaseTask):
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs)
+        self.load_data()
+        self.initialize_gnn()
+        self.initialize_prompt()
+        self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
+                                            torch.nn.Softmax(dim=1)).to(self.device)
+        self.initialize_optimizer()
 
+    def load_data(self):
+        self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
+  
     def Train(self, train_loader):
         self.gnn.train()
         total_loss = 0.0 
@@ -112,7 +121,8 @@ class GraphTask(BaseTask):
             if val_acc > best_val_acc:
                 best_val_acc = val_acc
                 final_test_acc = test_acc
-            print("Epoch {:03d}/{:03d}  |  Time(s) {:.4f}| Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, time.time() - t0, self.epochs, loss, val_acc, test_acc))
+            print("Epoch {:03d}/{:03d}  |  Time(s) {:.4f}| Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, self.epochs, time.time() - t0, loss, val_acc, test_acc))
+            print(' ')
         print(f'Final Test: {final_test_acc:.4f}')
         
         print("Graph Task completed")

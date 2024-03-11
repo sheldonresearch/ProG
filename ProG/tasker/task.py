@@ -17,17 +17,11 @@ class BaseTask:
         self.gnn_type = gnn_type
         self.prompt_type = prompt_type
         self.epochs = epochs
-        if dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
-            self.load_node_data()
-        if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']:
-            self.load_graph_data()
-        self.initialize_gnn()
-        self.initialize_prompt()
-        self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
-                                            torch.nn.Softmax(dim=1)).to(self.device)
-        self.initialize_optimizer()
         self.initialize_lossfn()
 
+
+        # # if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']:
+         # # if dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
     def initialize_optimizer(self):
         if self.prompt_type == 'None':
             model_param_group = []
@@ -98,12 +92,7 @@ class BaseTask:
             self.gnn.load_state_dict(torch.load(self.pre_train_model_path, map_location=self.device))
             print("Successfully loaded pre-trained weights!")
 
-    def load_graph_data(self):
-        self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
-        
-    def load_node_data(self):
-        self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
-        self.data.to(self.device)
-        self.input_dim = self.dataset.num_features
-        self.output_dim = self.dataset.num_classes
+      
+ 
+            
       

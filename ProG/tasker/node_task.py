@@ -4,12 +4,24 @@ from ProG.utils import constraint
 from .task import BaseTask
 import time
 import warnings
+from ProG.data import load4node
 warnings.filterwarnings("ignore")
 
 class NodeTask(BaseTask):
       def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
+            self.load_data()
+            self.initialize_gnn()
+            self.initialize_prompt()
+            self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
+                                                torch.nn.Softmax(dim=1)).to(self.device)
+            self.initialize_optimizer()
       
+      def load_data(self):
+            self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
+            self.data.to(self.device)
+            self.input_dim = self.dataset.num_features
+            self.output_dim = self.dataset.num_classes
 
       def train(self, data):
             self.gnn.train()
@@ -29,9 +41,9 @@ class NodeTask(BaseTask):
             out = self.prompt(node_embedding, data.edge_index)
             loss = self.criterion(out[data.train_mask], data.y[data.train_mask])
             loss = loss + 0.001 * constraint(self.device, self.prompt.get_TaskToken())
-            self.optimizer.zero_grad()
+            self.pg_opi.zero_grad()
             loss.backward()
-            self.optimizer.step()
+            self.pg_opi.step()
             self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
             return loss
 
@@ -61,7 +73,7 @@ class NodeTask(BaseTask):
             best_val_acc = final_test_acc = 0
             for epoch in range(1, self.epochs):
                   t0 = time.time()
-                  if self.prompt_type == 'gppt':
+                  if self.prompt_type == 'GPPT':
                         loss = self.GPPTtrain(self.data)
                         val_acc = self.GPPTtest(self.data, self.data.val_mask)
                         test_acc = self.GPPTtest(self.data, self.data.test_mask)
