@@ -10,3 +10,4 @@ from .prepare_structured_data import prepare_structured_data
 from . seed import seed_everything
 from .print_para import print_model_parameters
 from .contrast import generate_random_model_output, contrastive_loss, generate_corrupted_graph
+from .get_args import get_args

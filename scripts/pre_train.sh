@@ -1,0 +1,1 @@
+python pre_tain.py -- 
