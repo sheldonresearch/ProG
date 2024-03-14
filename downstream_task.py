@@ -3,8 +3,6 @@ from ProG.utils import seed_everything
 from torchsummary import summary
 from ProG.utils import print_model_parameters
 from ProG.utils import  get_args
-# gnn_type =  'GCN' 'GAT' 'GT' 'GCov' 'GIN' 'GraphSAGE'
-# prompt_type = 'All-in-one', 'GPF', GPF-plus', 'GPPT', 'Gprompt'
 	
 
 args = get_args()

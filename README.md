@@ -147,6 +147,26 @@ In this survey, we present more details of **ProG++** and also release a [reposi
 ---
 
 ## Quick Start
+We have provided scripts with hyper-parameter settings to get the experimental results
+
+In the pre-train phase, you can obtain the experimental results by running the parameters you want
+```shell
+python pre_train.py --task Edgepred_Gprompt --dataset_name 'PubMed' --gnn_type 'GCN' --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
+```
+or run `pre_train.sh`
+```shell
+cd scripts
+./ pre_train.sh
+```
+In downstream_task, you can obtain the experimental results by running the parameters you want
+
+
+or run `downstream_task.sh`
+```shell
+cd scripts
+./ downstream_task.sh
+```
+
 
 
 ### Pre-train your GNN model
