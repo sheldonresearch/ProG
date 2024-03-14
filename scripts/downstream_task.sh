@@ -1,4 +1,4 @@
-
+cd ..
 # Node Task
     
 # GCN
