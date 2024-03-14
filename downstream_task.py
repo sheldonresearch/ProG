@@ -13,11 +13,11 @@ seed_everything(args.seed)
 ### NodeTask
 if args.task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = 'None', 
-                    dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', epochs = 150, shot_num = 5)
+                    dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, prompt_type = args.prompt_type, epochs = args.epochs, shot_num = args.shot_num)
     tasker.run()
 
 
 if args.task == 'GraphTask':
     tasker = GraphTask(pre_train_model_path = 'None', 
-                    dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', epochs = 150, shot_num = 5)
+                    dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, prompt_type = args.prompt_type, epochs = args.epochs, shot_num = args.shot_num)
     tasker.run()
