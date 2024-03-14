@@ -6,11 +6,11 @@ def get_args():
     parser.add_argument('--dataset_name', type=str, default='Cora',help='Choose the dataset of pretrainor downstream task')
     parser.add_argument('--device', type=int, default=0,
                         help='Which gpu to use if any (default: 0)')
-    parser.add_argument('--gnn_type', type=str, default="GCN")
+    parser.add_argument('--gnn_type', type=str, default="GCN", help='We support gnn like \GCN\ \GAT\ \GT\ \GCov\ \GIN\ \GraphSAGE\, please read ProG.model module')
     parser.add_argument('--prompt_type', type=str, default="All-in-one", 
-                        help='Choose the prompt type for node or graph task, for node task,we support GPPT, All-in-one, Gpromptand for graph task , All-in-one, Gprompt, GPF, GPF-plus')
+                        help='Choose the prompt type for node or graph task, for node task,we support \GPPT\, \All-in-one\, \Gprompt\ for graph task , \All-in-one\, \Gprompt\, \GPF\, \GPF-plus\ ')
     parser.add_argument('--hid_dim', type=int, default=128,
-                        help='Embedding dimensions (default: 300)')
+                        help='hideen layer of GNN dimensions (default: 300)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='Input batch size for training (default: 32)')
     parser.add_argument('--epochs', type=int, default=50,
@@ -23,7 +23,7 @@ def get_args():
     parser.add_argument('--decay', type=float, default=0,
                         help='Weight decay (default: 0)')
     parser.add_argument('--num_layer', type=int, default=3,
-                        help='Number of GNN message passing layers (default: 5).')
+                        help='Number of GNN message passing layers (default: 3).')
 
     parser.add_argument('--dropout_ratio', type=float, default=0.5,
                         help='Dropout ratio (default: 0.5)')
@@ -32,7 +32,6 @@ def get_args():
     parser.add_argument('--JK', type=str, default="last",
                         help='How the node features across layers are combined. last, sum, max or concat')
 
-    # parser.add_argument('--tuning_type', type=str, default="gpf", help='\'gpf\' for GPF and \'gpf-plus\' for GPF-plus in the paper')
     parser.add_argument('--seed', type=int, default=42, help = "Seed for splitting dataset.")
     parser.add_argument('--runseed', type=int, default=0, help = "Seed for running experiments.")
     parser.add_argument('--num_workers', type=int, default = 0, help='Number of workers for dataset loading')
