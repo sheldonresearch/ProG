@@ -16,6 +16,8 @@ def get_args():
     parser.add_argument('--epochs', type=int, default=50,
                         help='Number of epochs to train (default: 50)')
     parser.add_argument('--shot_number', type=int, default = 5, help='Number of shots')
+    parser.add_argument('--pre_train_model_path', type=str, default='None', 
+                        help='add pre_train_model_path to the downstream task, the model is self-supervise model if the path is None and prompttype is None.')
     parser.add_argument('--lr', type=float, default=0.0001,
                         help='Learning rate (default: 0.0001)')
     parser.add_argument('--decay', type=float, default=0,
