@@ -6,6 +6,7 @@ from torch_geometric.data import Data
 from random import shuffle
 import random
 from ProG.utils import mkdir, graph_views
+from ProG.data import load4node, load4graph, NodePretrain
 from torch.optim import Adam
 import time
 from.base import PreTrain
@@ -19,24 +20,11 @@ class GraphCL(PreTrain):
         self.projection_head = torch.nn.Sequential(torch.nn.Linear(hid_dim, hid_dim),
                                                    torch.nn.ReLU(inplace=True),
                                                    torch.nn.Linear(hid_dim, hid_dim)).to(self.device)
-        
-
-    def forward_cl(self, x, edge_index, batch):
-        x = self.gnn(x, edge_index, batch)
-        x = self.projection_head(x)
-        return x
-
-    def loss_cl(self, x1, x2):
-        T = 0.1
-        batch_size, _ = x1.size()
-        x1_abs = x1.norm(dim=1)
-        x2_abs = x2.norm(dim=1)
-        sim_matrix = torch.einsum('ik,jk->ij', x1, x2) / torch.einsum('i,j->ij', x1_abs, x2_abs)
-        sim_matrix = torch.exp(sim_matrix / T)
-        pos_sim = sim_matrix[range(batch_size), range(batch_size)]
-        loss = pos_sim / ((sim_matrix.sum(dim=1) - pos_sim) + 1e-4)
-        loss = - torch.log(loss).mean() 
-        return loss
+    def load_graph_data(self):
+        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
+            self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
+        else:
+            self.input_dim, _, _, _, _, self.graph_list= load4graph(self.dataset_name)
     
     def get_loader(self, graph_list, batch_size,aug1=None, aug2=None, aug_ratio=None):
 
@@ -70,7 +58,23 @@ class GraphCL(PreTrain):
                                 num_workers=1)  # you must set shuffle=False !
 
         return loader1, loader2
+    
+    def forward_cl(self, x, edge_index, batch):
+        x = self.gnn(x, edge_index, batch)
+        x = self.projection_head(x)
+        return x
 
+    def loss_cl(self, x1, x2):
+        T = 0.1
+        batch_size, _ = x1.size()
+        x1_abs = x1.norm(dim=1)
+        x2_abs = x2.norm(dim=1)
+        sim_matrix = torch.einsum('ik,jk->ij', x1, x2) / torch.einsum('i,j->ij', x1_abs, x2_abs)
+        sim_matrix = torch.exp(sim_matrix / T)
+        pos_sim = sim_matrix[range(batch_size), range(batch_size)]
+        loss = pos_sim / ((sim_matrix.sum(dim=1) - pos_sim) + 1e-4)
+        loss = - torch.log(loss).mean() 
+        return loss
 
     def train_graphcl(self, loader1, loader2, optimizer):
         self.train()

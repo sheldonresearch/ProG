@@ -1,4 +1,4 @@
-def GPFNodeEva(data, mask,  gnn, prompt, answering, device):
+def GPFNodeEva(data, mask,  gnn, prompt, answering):
     gnn.eval()
     data.x = prompt.add(data.x)
     out = gnn(data.x, data.edge_index, batch=None)

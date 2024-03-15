@@ -1,15 +1,15 @@
 import torch
 from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
-from ProG.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt
+from ProG.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt, DiffPoolPrompt, SAGPoolPrompt
 from torch import nn, optim
 from ProG.data import load4node, load4graph
 from ProG.utils import Gprompt_tuning_loss
 import numpy as np
 
 class BaseTask:
-    def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv', hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='GPF', epochs=100, shot_num=10):
+    def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv', hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='GPF', epochs=100, shot_num=10, device : int = 5):
         self.pre_train_model_path = pre_train_model_path
-        self.device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda:'+ str(device) if torch.cuda.is_available() else 'cpu')
         self.hid_dim = hid_dim
         self.num_layer = num_layer
         self.dataset_name = dataset_name
@@ -58,6 +58,10 @@ class BaseTask:
             self.prompt = GPF(self.input_dim).to(self.device)
         elif self.prompt_type == 'GPF-plus':
             self.prompt = GPF_plus(self.input_dim, 20).to(self.device)
+        elif self.prompt_type == 'sagpool':
+            self.prompt = SAGPoolPrompt(self.input_dim , num_clusters=5, ratio=0.5).to(self.device)
+        elif self.prompt_type == 'diffpool':
+            self.prompt = DiffPoolPrompt(self.input_dim, num_clusters=5 ).to(self.device)
         elif self.prompt_type == 'Gprompt':
             self.prompt = Gprompt(self.hid_dim).to(self.device)
         else:

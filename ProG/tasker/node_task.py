@@ -24,10 +24,10 @@ class NodeTask(BaseTask):
                   self.data.to('cpu')
                   self.input_dim = self.dataset.num_features
                   self.output_dim = self.dataset.num_classes
-                  graph_list = induced_graphs(self.data, smallest_size=10, largest_size=30)
-                  for g in graph_list:
-                        g.to(self.device)
-                        self.train_dataset, self.test_dataset, self.val_dataset = graph_split(graph_list, self.shot_num)
+                  self.train_dataset, self.test_dataset, self.val_dataset = induced_graphs(self.data, smallest_size=10, largest_size=30)
+                  # for g in graph_list:
+                  #       g.to(self.device)
+ 
 
             else:
                   self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
@@ -53,10 +53,24 @@ class NodeTask(BaseTask):
             out = self.gnn(data.x, data.edge_index, batch=None) 
             out = self.answering(out)
             loss = self.criterion(out[data.train_mask], data.y[data.train_mask])  
+            loss.backward(retain_graph=True)  
+            self.optimizer.step()  
+            return loss
+      
+      def SUPTtrain(self, data):
+            self.gnn.train()
+            self.optimizer.zero_grad() 
+            data.x = self.prompt.add(data.x)
+            out = self.gnn(data.x, data.edge_index, batch=None) 
+            out = self.answering(out)
+            loss = self.criterion(out[data.train_mask], data.y[data.train_mask])  
+            orth_loss = self.prompt.orthogonal_loss()
+            loss += orth_loss
             loss.backward()  
             self.optimizer.step()  
             return loss
-            
+      
+
       def GPPTtrain(self, data):
             self.prompt.train()
             node_embedding = self.gnn(data.x, data.edge_index)

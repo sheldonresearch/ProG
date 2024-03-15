@@ -1,12 +1,11 @@
 import torch
 from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
-from ProG.data import load4node, load4graph
 from torch.optim import Adam
 
 class PreTrain(torch.nn.Module):
-    def __init__(self, gnn_type='TransformerConv', dataset_name = 'Cora', hid_dim = 128, gln = 2, num_epoch=100):
+    def __init__(self, gnn_type='TransformerConv', dataset_name = 'Cora', hid_dim = 128, gln = 2, num_epoch=100, device : int = 5):
         super().__init__()
-        self.device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda:' + str(device) if torch.cuda.is_available() else 'cpu')
         self.dataset_name = dataset_name
         self.gnn_type = gnn_type
         self.num_layer = gln
@@ -33,8 +32,7 @@ class PreTrain(torch.nn.Module):
         self.gnn.to(self.device)
         self.optimizer = Adam(self.gnn.parameters(), lr=0.001, weight_decay=0.00005)
 
-    def load_graph_data(self):
-        self.input_dim, self.output_dim, _, _, _, self.graph_list= load4graph(self.dataset_name)
+
         
 #     def load_node_data(self):
 #         self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
