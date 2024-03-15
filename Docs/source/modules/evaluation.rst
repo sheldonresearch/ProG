@@ -22,7 +22,7 @@ AllInOneEva
 eva
 -------------------
 
-.. currentmodule:: ProG.evaluation.eva
+.. currentmodule:: ../../ProG.evaluation.eva
 
 .. autosummary::
     :nosignatures:
