@@ -20,18 +20,7 @@ class GraphTask(BaseTask):
     def load_data(self):
         if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']:
             self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
-        # if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
-        #     self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
-        #     self.data.to('cpu')
-        #     self.input_dim = self.dataset.num_features
-        #     self.output_dim = self.dataset.num_classes
-        #     graph_list = induced_graphs(self.data, smallest_size=10, largest_size=30)
-        #     for g in graph_list:
-        #         g.to(self.device)
-        #     self.train_dataset, self.test_dataset, self.val_dataset = graph_split(graph_list, self.shot_num)
-            
 
-  
     def Train(self, train_loader):
         self.gnn.train()
         total_loss = 0.0 
@@ -99,9 +88,7 @@ class GraphTask(BaseTask):
             total_loss += loss.item()  
         return total_loss / len(train_loader)  
         
-    
 
-    
     def run(self):
 
         train_loader = DataLoader(self.train_dataset, batch_size=16, shuffle=True)
