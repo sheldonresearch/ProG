@@ -163,11 +163,8 @@ In downstream_task, you can obtain the experimental results by running the param
 ```shell
 python downstream_task.py --pre_train_path 'None' --task GraphTask --dataset_name 'MUTAG' --gnn_type 'GCN' --prompt_type 'None' --shot_num 10 --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
 ```
-or run `downstream_task.sh`
-```shell
-cd scripts
-./ downstream_task.sh
-```
+or run `GraphTask.sh` for Graph task in **MUTAG** dataset, or run run `NodeTask.sh` for Node task in **Cora** dataset.
+
 
 
 

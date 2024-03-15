@@ -3,7 +3,7 @@ import argparse
 def get_args():
     parser = argparse.ArgumentParser(description='PyTorch implementation of pre-training of graph neural networks')
     parser.add_argument('--task', type = str)
-    parser.add_argument('--pre_train_path', type = str, default='None')
+    parser.add_argument('--pre_train_model_path', type = str, default='None')
     parser.add_argument('--dataset_name', type=str, default='Cora',help='Choose the dataset of pretrainor downstream task')
     parser.add_argument('--device', type=int, default=0,
                         help='Which gpu to use if any (default: 0)')
