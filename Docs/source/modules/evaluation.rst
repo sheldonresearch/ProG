@@ -22,7 +22,7 @@ AllInOneEva
 eva
 -------------------
 
-.. currentmodule:: ProG.evaluation.eva
+.. currentmodule:: ../../ProG.evaluation.eva
 
 .. autosummary::
     :nosignatures:
@@ -63,7 +63,7 @@ GPFEva
 GpromptEva
 -------------------
 
-.. currentmodule:: ProG.evaluation.GpromptEva
+.. currentmodule:: ../../ProG.evaluation.GpromptEva
 
 
 .. autosummary::

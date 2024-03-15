@@ -8,7 +8,7 @@ utils
 act
 -------------------
 
-.. currentmodule:: ProG.utils.act
+.. currentmodule:: ../../ProG.utils.act
 
 
 .. autosummary::
@@ -23,7 +23,7 @@ act
 center_embedding
 -------------------
 
-.. currentmodule:: ProG.utils.center_embedding
+.. currentmodule:: ../../ProG.utils.center_embedding
 
 .. autosummary::
     :nosignatures:
@@ -37,7 +37,7 @@ center_embedding
 constraint
 -------------------
 
-.. currentmodule:: ProG.utils.constraint
+.. currentmodule:: ../../ProG.utils.constraint
 
 
 .. autosummary::
@@ -50,7 +50,7 @@ constraint
 edge_index_to_sparse_matrix
 -------------------
 
-.. currentmodule:: ProG.utils.edge_index_to_sparse_matrix
+.. currentmodule:: ../../ProG.utils.edge_index_to_sparse_matrix
 
 .. autosummary::
     :nosignatures:
@@ -62,7 +62,7 @@ edge_index_to_sparse_matrix
 loss
 -------------------
 
-.. currentmodule:: ProG.utils.loss
+.. currentmodule:: ../../ProG.utils.loss
 
 
 .. autosummary::
@@ -76,7 +76,7 @@ loss
 mkdir
 -------------------
 
-.. currentmodule:: ProG.utils.mkdir
+.. currentmodule:: ../../ProG.utils.mkdir
 
 
 .. autosummary::
@@ -89,7 +89,7 @@ mkdir
 NegativeEdge
 -------------------
 
-.. currentmodule:: ProG.utils.NegativeEdge
+.. currentmodule:: ../../ProG.utils.NegativeEdge
 
 
 .. autosummary::
@@ -102,7 +102,7 @@ NegativeEdge
 perturbation
 -------------------
 
-.. currentmodule:: ProG.utils.perturbation
+.. currentmodule:: ../../ProG.utils.perturbation
 
 
 .. autosummary::
@@ -118,7 +118,7 @@ perturbation
 prepare_structured_data
 -------------------
 
-.. currentmodule:: ProG.utils.prepare_structured_data
+.. currentmodule:: ../../ProG.utils.prepare_structured_data
 
 
 .. autosummary::
@@ -131,7 +131,7 @@ prepare_structured_data
 print_para
 -------------------
 
-.. currentmodule:: ProG.utils.print_para
+.. currentmodule:: ../../ProG.utils.print_para
 
 
 .. autosummary::
@@ -144,7 +144,7 @@ print_para
 seed
 -------------------
 
-.. currentmodule:: ProG.utils.seed
+.. currentmodule:: ../../ProG.utils.seed
 
 
 .. autosummary::
@@ -159,7 +159,7 @@ seed
 utils
 -------------------
 
-.. currentmodule:: ProG.utils.utils
+.. currentmodule:: ../../ProG.utils.utils
 
 
 .. autosummary::

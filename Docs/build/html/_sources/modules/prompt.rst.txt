@@ -7,7 +7,7 @@ prompt
 AllInOnePrompt
 -------------------
 
-.. currentmodule:: ProG.prompt.AllInOnePrompt
+.. currentmodule:: ../../ProG.prompt.AllInOnePrompt
 
 
 .. autosummary::
@@ -23,7 +23,7 @@ AllInOnePrompt
 GPF
 -------------------
 
-.. currentmodule:: ProG.prompt.GPF
+.. currentmodule:: ../../ProG.prompt.GPF
 
 .. autosummary::
     :nosignatures:
@@ -36,7 +36,7 @@ GPF
 GPPTPrompt
 -------------------
 
-.. currentmodule:: ProG.prompt.GPPTPrompt
+.. currentmodule:: ../../ProG.prompt.GPPTPrompt
 
 
 .. autosummary::
@@ -51,7 +51,7 @@ GPPTPrompt
 GPrompt
 -------------------
 
-.. currentmodule:: ProG.prompt.GPrompt
+.. currentmodule:: ../../ProG.prompt.GPrompt
 
 .. autosummary::
     :nosignatures:
