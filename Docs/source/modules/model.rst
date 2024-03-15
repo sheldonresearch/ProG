@@ -8,7 +8,7 @@ model
 GAT
 -------------------
 
-.. currentmodule:: ProG.model.GAT
+.. currentmodule:: ../../ProG.model.GAT
 
 
 .. autosummary::
@@ -23,7 +23,7 @@ GAT
 GCN
 -------------------
 
-.. currentmodule:: ProG.model.GCN
+.. currentmodule:: ../../ProG.model.GCN
 
 .. autosummary::
     :nosignatures:
@@ -36,7 +36,7 @@ GCN
 GCov
 -------------------
 
-.. currentmodule:: ProG.model.GCov
+.. currentmodule:: ../../ProG.model.GCov
 
 
 .. autosummary::
@@ -49,7 +49,7 @@ GCov
 GIN
 -------------------
 
-.. currentmodule:: ProG.model.GIN
+.. currentmodule:: ../../ProG.model.GIN
 
 .. autosummary::
     :nosignatures:
@@ -61,7 +61,7 @@ GIN
 GraphSAGE
 -------------------
 
-.. currentmodule:: ProG.model.GraphSAGE
+.. currentmodule:: ../../ProG.model.GraphSAGE
 
 
 .. autosummary::
@@ -74,7 +74,7 @@ GraphSAGE
 GraphTransformer
 -------------------
 
-.. currentmodule:: ProG.model.GraphTransformer
+.. currentmodule:: ../../ProG.model.GraphTransformer
 
 
 .. autosummary::
