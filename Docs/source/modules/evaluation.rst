@@ -7,7 +7,7 @@ evaluation
 AllInOneEva
 -------------------
 
-.. currentmodule:: ProG.evaluation.AllInOneEva
+.. currentmodule:: ../../ProG.evaluation.AllInOneEva
 
 
 .. autosummary::
