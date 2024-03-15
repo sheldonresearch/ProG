@@ -12,7 +12,7 @@ dataloader
 
 .. autosummary::
     :nosignatures:
-    :toctree: ../generated
+
     :template: autosummary/inherited_class.rst
 
     DataLoaderFinetune
@@ -23,7 +23,7 @@ dataloader
 batch
 -------------------
 
-.. currentmodule:: ../ProG.data.batch
+.. currentmodule:: ../../ProG.data.batch
 
 
 .. autosummary::
@@ -40,12 +40,11 @@ batch
 load4data
 -------------------
 
-.. currentmodule:: ../ProG.data.load4data
+.. currentmodule:: ProG/ProG/data/load4data
 
 
 .. autosummary::
     :nosignatures:
-    :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
     load4graph
