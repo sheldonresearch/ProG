@@ -40,7 +40,7 @@ batch
 load4data
 -------------------
 
-.. currentmodule:: ProG.data.load4data
+.. currentmodule:: ../../ProG.data.load4data
 
 
 .. autosummary::
