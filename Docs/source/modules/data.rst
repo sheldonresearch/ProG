@@ -7,7 +7,7 @@ data
 dataloader
 -------------------
 
-.. currentmodule::  ProG.data.dataloader
+.. currentmodule::  ../..ProG.data.dataloader
 
 
 .. autosummary::
