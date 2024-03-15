@@ -16,9 +16,12 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ProG.data.batch.BatchMasking" href="ProG.data.batch.BatchMasking.html" />
+    <link rel="prev" title="data" href="../modules/data.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,8 +53,20 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/downstream.html">downstream</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Main Package</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules/data.html">data</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../modules/data.html">data</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../modules/data.html#dataloader">dataloader</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../modules/data.html#batch">batch</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ProG.data.batch.BatchFinetune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ProG.data.batch.BatchMasking.html">ProG.data.batch.BatchMasking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ProG.data.batch.BatchAE.html">ProG.data.batch.BatchAE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ProG.data.batch.BatchSubstructContext.html">ProG.data.batch.BatchSubstructContext</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/data.html#load4data">load4data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/data.html#loader">loader</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/evaluation.html">evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/model.html">model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/pre_train.html">pre_train</a></li>
@@ -74,6 +89,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../modules/data.html">data</a></li>
       <li class="breadcrumb-item active">ProG.data.batch.BatchFinetune</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/generated/ProG.data.batch.BatchFinetune.rst.txt" rel="nofollow"> View page source</a>
@@ -86,12 +102,83 @@
              
   <section id="prog-data-batch-batchfinetune">
 <h1>ProG.data.batch.BatchFinetune<a class="headerlink" href="#prog-data-batch-batchfinetune" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="ProG.data.batch.BatchFinetune">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ProG.data.batch.</span></span><span class="sig-name descname"><span class="pre">BatchFinetune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ProG.data.batch.BatchFinetune" title="Permalink to this definition"></a></dt>
+<dd><p>The Projected Randomized Block Coordinate Descent (PRBCD) adversarial
+attack from the <a class="reference external" href="https://www.cs.cit.tum.de/daml/robustness-of-gnns-at-scale">Robustness of Graph Neural Networks at Scale</a> paper.</p>
+<p>This attack uses an efficient gradient based approach that (during the
+attack) relaxes the discrete entries in the adjacency matrix
+<span class="math notranslate nohighlight">\(\{0, 1\}\)</span> to <span class="math notranslate nohighlight">\([0, 1]\)</span> and solely perturbs the adjacency matrix
+(no feature perturbations). Thus, this attack supports all models that can
+handle weighted graphs that are differentiable w.r.t. these edge weights,
+<em>e.g.</em>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GCNConv</span></code> or
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphConv</span></code>. For non-differentiable models
+you might need modifications, e.g., see example for
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GATConv</span></code>.</p>
+<p>The memory overhead is driven by the additional edges (at most
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">block_size</span></code>). For scalability reasons, the block is drawn with
+replacement and then the index is made unique. Thus, the actual block size
+is typically slightly smaller than specified.</p>
+<p>This attack can be used for both global and local attacks as well as
+test-time attacks (evasion) and training-time attacks (poisoning). Please
+see the provided examples.</p>
+<p>This attack is designed with a focus on node- or graph-classification,
+however, to adapt to other tasks you most likely only need to provide an
+appropriate loss and model. However, we currently do not support batching
+out of the box (sampling needs to be adapted).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For examples of using the PRBCD Attack, see
+<a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/blob/master/examples/contrib/rbcd_attack.py">examples/contrib/rbcd_attack.py</a>
+for a test time attack (evasion) or
+<a class="reference external" href="https://github.com/pyg-team/pytorch_geometric/blob/master/examples/contrib/rbcd_attack_poisoning.py">examples/contrib/rbcd_attack_poisoning.py</a>
+for a training time (poisoning) attack.</p>
+</div>
+<dl>
+<dt>Args:</dt><dd><p>model (torch.nn.Module): The GNN module to assess.
+block_size (int): Number of randomly selected elements in the</p>
+<blockquote>
+<div><p>adjacency matrix to consider.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>epochs (int, optional): Number of epochs (aborts early if</dt><dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode='greedy'</span></code> and budget is satisfied) (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">125</span></code>)</p>
+</dd>
+<dt>epochs_resampling (int, optional): Number of epochs to resample the</dt><dd><p>random block. (default: obj:<cite>100</cite>)</p>
+</dd>
+<dt>loss (str or callable, optional): A loss to quantify the “strength” of</dt><dd><p>an attack. Note that this function must match the output format of
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">model</span></code>. By default, it is assumed that the task is
+classification and that the model returns raw predictions (<em>i.e.</em>,
+no output activation) or uses <code class="xref py py-obj docutils literal notranslate"><span class="pre">logsoftmax</span></code>. Moreover, and the
+number of predictions should match the number of labels passed to
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">attack</span></code>. Either pass a callable or one of: <code class="xref py py-obj docutils literal notranslate"><span class="pre">'masked'</span></code>,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">'margin'</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">'prob_margin'</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">'tanh_margin'</span></code>.
+(default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">'prob_margin'</span></code>)</p>
+</dd>
+<dt>metric (callable, optional): Second (potentially</dt><dd><p>non-differentiable) loss for monitoring or early stopping (if
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">mode='greedy'</span></code>). (default: same as <code class="xref py py-attr docutils literal notranslate"><span class="pre">loss</span></code>)</p>
+</dd>
+<dt>lr (float, optional): Learning rate for updating edge weights.</dt><dd><p>Additionally, it is heuristically corrected for <code class="xref py py-attr docutils literal notranslate"><span class="pre">block_size</span></code>,
+budget (see <code class="xref py py-attr docutils literal notranslate"><span class="pre">attack</span></code>) and graph size. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1_000</span></code>)</p>
+</dd>
+<dt>is_undirected (bool, optional): If <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code> the graph is</dt><dd><p>assumed to be undirected. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
+<dt>log (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>, will not log any learning</dt><dd><p>progress. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../modules/data.html" class="btn btn-neutral float-left" title="data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ProG.data.batch.BatchMasking.html" class="btn btn-neutral float-right" title="ProG.data.batch.BatchMasking" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

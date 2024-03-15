@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="evaluation" href="evaluation.html" />
+    <link rel="next" title="ProG.data.batch.BatchFinetune" href="../generated/ProG.data.batch.BatchFinetune.html" />
     <link rel="prev" title="downstream" href="../tutorial/downstream.html" /> 
 </head>
 
@@ -55,7 +55,13 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#dataloader">dataloader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#batch">batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#batch">batch</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.batch.BatchFinetune.html">ProG.data.batch.BatchFinetune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.batch.BatchMasking.html">ProG.data.batch.BatchMasking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.batch.BatchAE.html">ProG.data.batch.BatchAE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/ProG.data.batch.BatchSubstructContext.html">ProG.data.batch.BatchSubstructContext</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#load4data">load4data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#loader">loader</a></li>
 </ul>
@@ -97,35 +103,61 @@
 <nav class="contents local" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#dataloader" id="id1">dataloader</a></p></li>
-<li><p><a class="reference internal" href="#batch" id="id2">batch</a></p></li>
-<li><p><a class="reference internal" href="#load4data" id="id3">load4data</a></p></li>
-<li><p><a class="reference internal" href="#loader" id="id4">loader</a></p></li>
+<li><p><a class="reference internal" href="#dataloader" id="id3">dataloader</a></p></li>
+<li><p><a class="reference internal" href="#batch" id="id4">batch</a></p></li>
+<li><p><a class="reference internal" href="#load4data" id="id5">load4data</a></p></li>
+<li><p><a class="reference internal" href="#loader" id="id6">loader</a></p></li>
 </ul>
 </nav>
 <section id="dataloader">
-<h2><a class="toc-backref" href="#id1" role="doc-backlink">dataloader</a><a class="headerlink" href="#dataloader" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">dataloader</a><a class="headerlink" href="#dataloader" title="Permalink to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderFinetune.html#ProG.data.dataloader.DataLoaderFinetune" title="ProG.data.dataloader.DataLoaderFinetune"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderFinetune</span></code></a></p></td>
+<td><p>The Projected Randomized Block Coordinate Descent (PRBCD) adversarial attack from the <a class="reference external" href="https://www.cs.cit.tum.de/daml/robustness-of-gnns-at-scale">Robustness of Graph Neural Networks at Scale</a> paper.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderMasking.html#ProG.data.dataloader.DataLoaderMasking" title="ProG.data.dataloader.DataLoaderMasking"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderMasking</span></code></a></p></td>
+<td><p>Data loader which merges data objects from a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch. Args:     dataset (Dataset): The dataset from which to load the data. batch_size (int, optional): How may samples per batch to load. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)     shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be         reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderAE.html#ProG.data.dataloader.DataLoaderAE" title="ProG.data.dataloader.DataLoaderAE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderAE</span></code></a></p></td>
+<td><p>Data loader which merges data objects from a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch. Args:     dataset (Dataset): The dataset from which to load the data. batch_size (int, optional): How may samples per batch to load. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)     shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be         reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.dataloader.DataLoaderSubstructContext.html#ProG.data.dataloader.DataLoaderSubstructContext" title="ProG.data.dataloader.DataLoaderSubstructContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderSubstructContext</span></code></a></p></td>
+<td><p>Data loader which merges data objects from a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch. Args:     dataset (Dataset): The dataset from which to load the data. batch_size (int, optional): How may samples per batch to load. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)     shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be         reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>).</p></td>
+</tr>
 </tbody>
 </table>
 </section>
 <section id="batch">
-<h2><a class="toc-backref" href="#id2" role="doc-backlink">batch</a><a class="headerlink" href="#batch" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">batch</a><a class="headerlink" href="#batch" title="Permalink to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.batch.BatchFinetune.html#ProG.data.batch.BatchFinetune" title="ProG.data.batch.BatchFinetune"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchFinetune</span></code></a></p></td>
+<td><p><p>The Projected Randomized Block Coordinate Descent (PRBCD) adversarial attack from the <a class="reference external" href="https://www.cs.cit.tum.de/daml/robustness-of-gnns-at-scale">Robustness of Graph Neural Networks at Scale</a> paper.</p>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.batch.BatchMasking.html#ProG.data.batch.BatchMasking" title="ProG.data.batch.BatchMasking"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchMasking</span></code></a></p></td>
+<td><p><p>The Projected Randomized Block Coordinate Descent (PRBCD) adversarial attack from the <a class="reference external" href="https://www.cs.cit.tum.de/daml/robustness-of-gnns-at-scale">Robustness of Graph Neural Networks at Scale</a> paper.</p>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/ProG.data.batch.BatchAE.html#ProG.data.batch.BatchAE" title="ProG.data.batch.BatchAE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchAE</span></code></a></p></td>
+<td><p>A plain old python object modeling a batch of graphs as one big (dicconnected) graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/ProG.data.batch.BatchSubstructContext.html#ProG.data.batch.BatchSubstructContext" title="ProG.data.batch.BatchSubstructContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchSubstructContext</span></code></a></p></td>
+<td><p>A plain old python object modeling a batch of graphs as one big (dicconnected) graph.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
 <section id="load4data">
-<h2><a class="toc-backref" href="#id3" role="doc-backlink">load4data</a><a class="headerlink" href="#load4data" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">load4data</a><a class="headerlink" href="#load4data" title="Permalink to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 </tbody>
 </table>
 </section>
 <section id="loader">
-<h2><a class="toc-backref" href="#id4" role="doc-backlink">loader</a><a class="headerlink" href="#loader" title="Permalink to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">loader</a><a class="headerlink" href="#loader" title="Permalink to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 </tbody>
@@ -138,7 +170,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../tutorial/downstream.html" class="btn btn-neutral float-left" title="downstream" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="evaluation.html" class="btn btn-neutral float-right" title="evaluation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../generated/ProG.data.batch.BatchFinetune.html" class="btn btn-neutral float-right" title="ProG.data.batch.BatchFinetune" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
