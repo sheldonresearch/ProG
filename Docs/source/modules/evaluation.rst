@@ -50,7 +50,7 @@ GNNEva
 GPFEva
 -------------------
 
-.. currentmodule:: ProG.evaluation.GPFEva
+.. currentmodule:: ../../ProG.evaluation.GPFEva
 
 
 .. autosummary::
