@@ -37,7 +37,7 @@ eva
 GNNEva
 -------------------
 
-.. currentmodule:: ProG.evaluation.GNNEva
+.. currentmodule:: ../../ProG.evaluation.GNNEva
 
 
 .. autosummary::
