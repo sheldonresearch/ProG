@@ -63,7 +63,7 @@ GPFEva
 GpromptEva
 -------------------
 
-.. currentmodule:: ProG.evaluation.GpromptEva
+.. currentmodule:: ../../ProG.evaluation.GpromptEva
 
 
 .. autosummary::
