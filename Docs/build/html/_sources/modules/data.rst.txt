@@ -7,7 +7,7 @@ data
 dataloader
 -------------------
 
-.. currentmodule::  ProG.data.dataloader
+.. currentmodule::  ../..ProG.data.dataloader
 
 
 .. autosummary::
@@ -40,7 +40,7 @@ batch
 load4data
 -------------------
 
-.. currentmodule:: ProG.data.load4data
+.. currentmodule:: ../../ProG.data.load4data
 
 
 .. autosummary::
