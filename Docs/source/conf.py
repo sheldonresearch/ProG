@@ -12,16 +12,16 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
-sys.path.insert(0, os.path.abspath('../../ProG/data'))
-sys.path.insert(0, os.path.abspath("../../ProG"))
-sys.path.insert(0, os.path.abspath("../../ProG/data/batch.py"))
+sys.path.insert(0, os.path.abspath("../.."))
+print(os.path.abspath("../.."))
+
 
 # -- Project information -----------------------------------------------------
 
 project = 'ProG'
 copyright = '2024, WANGKevin'
 author = 'WANGKevin'
+
 
 # The full version, including alpha/beta/rc tags
 release = 'v0.0'

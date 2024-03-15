@@ -7,7 +7,7 @@ data
 dataloader
 -------------------
 
-.. currentmodule:: ProG.data.dataloader
+.. currentmodule::  ../../ProG.data.dataloader
 
 
 .. autosummary::
@@ -23,18 +23,18 @@ dataloader
 batch
 -------------------
 
-.. currentmodule:: ProG.data.batch
+.. currentmodule:: ../../ProG.data
 
 
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
-    :template: autosummary/class.rst
+    :template: autosummary/inherited_class.rst
 
-    BatchFinetune
-    BatchMasking
-    BatchAE
-    BatchSubstructContext
+    batch.BatchFinetune
+    batch.BatchMasking
+    batch.BatchAE
+    batch.BatchSubstructContext
 
 
 load4data
