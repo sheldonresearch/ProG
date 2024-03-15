@@ -50,6 +50,54 @@ def induced_graphs(data, smallest_size=10, largest_size=30):
 
     return induced_graph_list
 
+
+
+def split_induced_graphs(data, smallest_size=10, largest_size=30):
+    induced_graph_list = []
+    train_graphs = []
+    test_graphs = []
+    val_graphs = []
+
+    for index in range(data.x.size(0)):
+        current_label = data.y[index].item()
+
+        current_hop = 2
+        subset, _, _, _ = k_hop_subgraph(node_idx=index, num_hops=current_hop,
+                                            edge_index=data.edge_index, relabel_nodes=True)
+        
+        while len(subset) < smallest_size and current_hop < 5:
+            current_hop += 1
+            subset, _, _, _ = k_hop_subgraph(node_idx=index, num_hops=current_hop,
+                                                edge_index=data.edge_index)
+            
+        if len(subset) < smallest_size:
+            need_node_num = smallest_size - len(subset)
+            pos_nodes = torch.argwhere(data.y == int(current_label)) 
+            candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
+            candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][0:need_node_num]
+            subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
+
+        if len(subset) > largest_size:
+            subset = subset[torch.randperm(subset.shape[0])][0:largest_size - 1]
+            subset = torch.unique(torch.cat([torch.LongTensor([index]), torch.flatten(subset)]))
+
+        sub_edge_index, _ = subgraph(subset, data.edge_index, relabel_nodes=True)
+
+        x = data.x[subset]
+
+        induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label)
+
+        # 检查节点子图是否在训练集、测试集或验证集中
+        if (data.train_mask[index]):
+            train_graphs.append(induced_graph)
+        elif (data.test_mask[index]):
+            test_graphs.append(induced_graph)
+        else:
+            val_graphs.append(induced_graph)
+
+    return train_graphs, test_graphs, val_graphs
+
+
 def multi_class_NIG(dataname, num_class,shots=100):
     """
     NIG: node induced graphs

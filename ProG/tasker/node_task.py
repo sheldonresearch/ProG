@@ -5,7 +5,7 @@ from ProG.evaluation import GPPTEva, GNNNodeEva,GPFNodeEva
 from .task import BaseTask
 import time
 import warnings
-from ProG.data import load4node, induced_graphs, graph_split
+from ProG.data import load4node, induced_graphs, graph_split, split_induced_graphs
 warnings.filterwarnings("ignore")
 
 class NodeTask(BaseTask):
@@ -24,7 +24,7 @@ class NodeTask(BaseTask):
                   self.data.to('cpu')
                   self.input_dim = self.dataset.num_features
                   self.output_dim = self.dataset.num_classes
-                  self.train_dataset, self.test_dataset, self.val_dataset = induced_graphs(self.data, smallest_size=10, largest_size=30)
+                  self.train_dataset, self.test_dataset, self.val_dataset = split_induced_graphs(self.data, smallest_size=10, largest_size=30)
                   # for g in graph_list:
                   #       g.to(self.device)
  
