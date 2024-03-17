@@ -38,10 +38,10 @@ class NodeTask(BaseTask):
             self.optimizer.zero_grad() 
             out = self.gnn(data.x, data.edge_index, batch=None) 
             out = self.answering(out)
-            loss = self.criterion(out[data.train_mask], data.y[data.train_mask])  
+            loss = self.criterion(out[data.train_mask], data.y[data.train_mask])
             loss.backward()  
             self.optimizer.step()  
-            return loss
+            return loss.item()
       
       def SUPTtrain(self, data):
             self.gnn.train()
@@ -66,7 +66,7 @@ class NodeTask(BaseTask):
             loss.backward()
             self.pg_opi.step()
             self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
-            return loss
+            return loss.item()
       
       def GPFTrain(self, train_loader):
             self.prompt.train()
@@ -122,7 +122,7 @@ class NodeTask(BaseTask):
             return total_loss / len(train_loader)  
       
       def run(self):
-            
+            # for all-in-one and Gprompt we use k-hop subgraph
             train_loader = DataLoader(self.train_dataset, batch_size=16, shuffle=True)
             test_loader = DataLoader(self.test_dataset, batch_size=16, shuffle=False)
             val_loader = DataLoader(self.val_dataset, batch_size=16, shuffle=False)
@@ -135,6 +135,7 @@ class NodeTask(BaseTask):
                         loss = self.train(self.data)
                         val_acc = GNNNodeEva(self.data, self.data.val_mask, self.gnn, self.answering)
                         test_acc = GNNNodeEva(self.data, self.data.test_mask, self.gnn, self.answering)
+                        
                   elif self.prompt_type == 'GPPT':
                         loss = self.GPPTtrain(self.data)
                         val_acc = GPPTEva(self.data, self.data.val_mask, self.gnn, self.prompt)
@@ -144,10 +145,12 @@ class NodeTask(BaseTask):
                         loss = self.AllInOneTrain(train_loader)
                         test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
                         val_acc, F1 = AllInOneEva(val_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+
                   elif self.prompt_type in ['GPF', 'GPF-plus']:
                         loss = self.GPFTrain(train_loader)
                         test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
                         val_acc = GPFEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
+                        
                   elif self.prompt_type =='Gprompt':
                         loss = self.GpromptTrain(train_loader)
                         test_acc = GpromptEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
@@ -156,9 +159,9 @@ class NodeTask(BaseTask):
                   if val_acc > best_val_acc:
                         best_val_acc = val_acc
                         final_test_acc = test_acc
-                  print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, time.time() - t0, loss.item(), val_acc, test_acc))
+                  print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, time.time() - t0, loss, val_acc, test_acc))
             print(f'Final Test: {final_test_acc:.4f}')
          
-            print("Task completed")
+            print("Node Task completed")
 
 
