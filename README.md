@@ -173,6 +173,7 @@ or run `GraphTask.sh` for Graph task in **MUTAG** dataset, or run run `NodeTask.
 We have designed four pre_trained class (Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE), which is in ProG.pretrain module, you can pre_train the model by running ``pre_train.py`` and setting the parameters you want.
 
 ```python
+import prompt_graph as ProG
 from ProG.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE
 from ProG.utils import seed_everything
 from ProG.utils import mkdir, get_args
@@ -199,6 +200,7 @@ pt.pretrain()
 ### Do the Downstreamtask
 In ``downstreamtask.py``, we designed two tasks (Node Classification, Graph Classification). Here are some examples. 
 ```python
+import prompt_graph as ProG
 from ProG.tasker import NodeTask, LinkTask, GraphTask
 
 if args.task == 'NodeTask':
