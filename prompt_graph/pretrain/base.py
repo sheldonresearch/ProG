@@ -1,5 +1,5 @@
 import torch
-from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
+from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 from torch.optim import Adam
 
 class PreTrain(torch.nn.Module):

@@ -1,13 +1,13 @@
 import torch
-from ProG.prompt import GPF,GPF_plus
+from prompt_graph.prompt import GPF,GPF_plus
 from torch_geometric.loader import DataLoader
-from ProG.utils import constraint,  center_embedding, Gprompt_tuning_loss
-from ProG.evaluation import GPPTEva, GNNNodeEva, GPFEva
+from prompt_graph.utils import constraint,  center_embedding, Gprompt_tuning_loss
+from prompt_graph.evaluation import GPPTEva, GNNNodeEva, GPFEva
 from .task import BaseTask
 import time
 import warnings
-from ProG.data import load4node, induced_graphs, graph_split, split_induced_graphs
-from ProG.evaluation import GpromptEva, AllInOneEva
+from prompt_graph.data import load4node, induced_graphs, graph_split, split_induced_graphs
+from prompt_graph.evaluation import GpromptEva, AllInOneEva
 warnings.filterwarnings("ignore")
 
 class NodeTask(BaseTask):

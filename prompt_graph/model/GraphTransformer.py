@@ -4,17 +4,17 @@ import torch.nn.functional as F
 import sklearn.linear_model as lm
 import sklearn.metrics as skm
 import torch, gc
+from torch_geometric.nn import SAGEConv
 from torch_geometric.utils import add_self_loops
 from torch_geometric.nn import global_add_pool, global_max_pool, GlobalAttention
-from torch_geometric.nn import global_mean_pool
+from torch_geometric.nn import GCNConv, global_mean_pool, GATConv, TransformerConv,GINConv,SAGEConv
 from torch_geometric.nn import GraphConv as GConv
 import numpy as np
 import sklearn.linear_model as lm
 import sklearn.metrics as skm
-from ProG.utils import act
-
-
-class GCov(torch.nn.Module):
+from prompt_graph.utils import act
+    
+class GraphTransformer(torch.nn.Module):
     def __init__(self, input_dim, hid_dim=None, out_dim=None, num_layer=3,JK="last", drop_ratio=0, pool='mean'):
         super().__init__()
         """
@@ -28,7 +28,7 @@ class GCov(torch.nn.Module):
         See https://arxiv.org/abs/1810.00826
         JK-net: https://arxiv.org/abs/1806.03536
         """
-        GraphConv = GConv
+        GraphConv = TransformerConv
   
         if hid_dim is None:
             hid_dim = int(0.618 * input_dim)  # "golden cut"

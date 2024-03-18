@@ -1,9 +1,9 @@
 import torch
-from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
-from ProG.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt, DiffPoolPrompt, SAGPoolPrompt
+from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
+from prompt_graph.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt, DiffPoolPrompt, SAGPoolPrompt
 from torch import nn, optim
-from ProG.data import load4node, load4graph
-from ProG.utils import Gprompt_tuning_loss
+from prompt_graph.data import load4node, load4graph
+from prompt_graph.utils import Gprompt_tuning_loss
 import numpy as np
 
 class BaseTask:

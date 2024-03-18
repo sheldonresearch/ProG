@@ -11,7 +11,7 @@ from torch_geometric.nn import global_mean_pool, GATConv
 import numpy as np
 import sklearn.linear_model as lm
 import sklearn.metrics as skm
-from ProG.utils import act
+from prompt_graph.utils import act
 
 class GAT(torch.nn.Module):
     def __init__(self, input_dim, hid_dim=None, out_dim=None, num_layer=3,JK="last", drop_ratio=0, pool='mean'):

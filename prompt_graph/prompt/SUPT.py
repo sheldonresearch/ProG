@@ -9,7 +9,7 @@ from torch import Tensor
 from torch_geometric.nn.inits import glorot
 from torch_geometric.nn import GATConv, GINConv, GCNConv, SGConv
 
-from ProG.data.pooling import TopKPooling, SAGPooling #, MemPooling
+from prompt_graph.data.pooling import TopKPooling, SAGPooling #, MemPooling
 
 from torch_geometric.nn import dense_diff_pool, DenseGINConv, DenseGCNConv, DenseSAGEConv
 

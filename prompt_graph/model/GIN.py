@@ -12,7 +12,7 @@ from torch_geometric.nn import GraphConv as GConv
 import numpy as np
 import sklearn.linear_model as lm
 import sklearn.metrics as skm
-from ProG.utils import act
+from prompt_graph.utils import act
 
     
 class GIN(torch.nn.Module):

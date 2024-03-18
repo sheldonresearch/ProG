@@ -1,7 +1,7 @@
 # Graph Task
 
 # GCN
-python downstream_task.py --pre_train_model_path 'None' --task GraphTask --dataset_name 'MUTAG' --gnn_type 'GCN' --prompt_type 'None' --shot_num 10 --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
+python downstream_task.py --pre_train_model_path 'None' --task GraphTask --dataset_name 'PROTEINS' --gnn_type 'GCN' --prompt_type 'None' --shot_num 10 --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
 
 # SimGRACE + GCN
 python downstream_task.py --pre_train_model_path './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth' --task GraphTask --dataset_name 'MUTAG' --gnn_type 'GCN' --prompt_type 'None' --shot_num 10 --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5

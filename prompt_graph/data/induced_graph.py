@@ -8,7 +8,7 @@ from torch_geometric.datasets import Planetoid, Amazon
 from torch_geometric.data import Data, Batch
 import random
 import warnings
-from ProG.utils import mkdir
+from prompt_graph.utils import mkdir
 from random import shuffle
 from torch_geometric.utils import subgraph, k_hop_subgraph
 from torch_geometric.data import Data

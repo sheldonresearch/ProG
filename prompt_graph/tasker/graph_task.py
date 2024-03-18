@@ -1,10 +1,10 @@
 import torch
-from ProG.data import load4graph,load4node
+from prompt_graph.data import load4graph,load4node
 from torch_geometric.loader import DataLoader
 import torch.nn.functional as F
 from .task import BaseTask
-from ProG.utils import center_embedding, Gprompt_tuning_loss
-from ProG.evaluation import GpromptEva, GNNEva, GPFEva, AllInOneEva
+from prompt_graph.utils import center_embedding, Gprompt_tuning_loss
+from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva
 import time
 
 class GraphTask(BaseTask):
@@ -100,8 +100,8 @@ class GraphTask(BaseTask):
             t0 = time.time()
             if self.prompt_type == 'None':
                 loss = self.Train(train_loader)
-                test_acc = GNNEva(test_loader, self.gnn, self.answering, self.device)
-                val_acc = GNNEva(val_loader, self.gnn, self.answering, self.device)
+                test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)
+                val_acc = GNNGraphEva(val_loader, self.gnn, self.answering, self.device)
             elif self.prompt_type == 'All-in-one':
                 loss = self.AllInOneTrain(train_loader)
                 test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)

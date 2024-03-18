@@ -5,8 +5,8 @@ from torch_geometric.loader import DataLoader
 from torch_geometric.data import Data
 from random import shuffle
 import random
-from ProG.utils import mkdir, graph_views
-from ProG.data import load4node, load4graph, NodePretrain
+from prompt_graph.utils import mkdir, graph_views
+from prompt_graph.data import load4node, load4graph, NodePretrain
 from torch.optim import Adam
 import time
 from.base import PreTrain

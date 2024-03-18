@@ -1,10 +1,10 @@
 import torch
 from torch.utils.data import TensorDataset
 from torch.utils.data import DataLoader
-from ProG.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
-from ProG.utils import Gprompt_link_loss
-from ProG.utils import edge_index_to_sparse_matrix, prepare_structured_data
-from ProG.data import load4link_prediction_single_graph
+from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
+from prompt_graph.utils import Gprompt_link_loss
+from prompt_graph.utils import edge_index_to_sparse_matrix, prepare_structured_data
+from prompt_graph.data import load4link_prediction_single_graph
 import time
 from .base import PreTrain
 

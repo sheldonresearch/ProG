@@ -1,8 +1,8 @@
-from ProG.tasker import NodeTask, GraphTask
-from ProG.utils import seed_everything
+from prompt_graph.tasker import NodeTask, GraphTask
+from prompt_graph.utils import seed_everything
 from torchsummary import summary
-from ProG.utils import print_model_parameters
-from ProG.utils import  get_args
+from prompt_graph.utils import print_model_parameters
+from prompt_graph.utils import  get_args
 	
 
 args = get_args()

@@ -1,6 +1,5 @@
 import torch
 import numpy as np
-import torchmetrics
 import warnings
 import sklearn.linear_model as lm
 import sklearn.metrics as skm

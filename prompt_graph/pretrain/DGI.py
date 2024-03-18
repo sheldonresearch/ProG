@@ -6,7 +6,7 @@ from torch.optim import Adam
 import torch
 from torch import nn
 import time
-from ProG.utils import generate_corrupted_graph
+from prompt_graph.utils import generate_corrupted_graph
 
 
 class Discriminator(nn.Module):

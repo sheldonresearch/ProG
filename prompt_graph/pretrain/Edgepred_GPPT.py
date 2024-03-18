@@ -3,7 +3,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch_geometric.loader import DataLoader
 from torch.utils.data import TensorDataset
-from ProG.data import load4link_prediction_multi_graph, load4link_prediction_single_graph
+from prompt_graph.data import load4link_prediction_multi_graph, load4link_prediction_single_graph
 from torch.optim import Adam
 import time
 from .base import PreTrain

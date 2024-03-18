@@ -1,6 +1,6 @@
-from ProG.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE
-from ProG.utils import seed_everything
-from ProG.utils import mkdir, get_args
+from prompt_graph.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE
+from prompt_graph.utils import seed_everything
+from prompt_graph.utils import mkdir, get_args
 
 
 args = get_args()
