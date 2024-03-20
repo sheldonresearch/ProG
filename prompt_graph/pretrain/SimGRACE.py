@@ -3,9 +3,9 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch_geometric.loader import DataLoader
 from torch_geometric.data import Data
-from ProG.utils import mkdir
+from prompt_graph.utils import mkdir
 from torch.optim import Adam
-from ProG.data import load4node, load4graph, NodePretrain
+from prompt_graph.data import load4node, load4graph, NodePretrain
 from copy import deepcopy
 from.base import PreTrain
 
