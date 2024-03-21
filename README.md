@@ -42,7 +42,11 @@
 ---
 
 
-<h3 align="center">🌟ProG++🌟: A Unified Python Library for Graph Prompting</h3> 
+<h3 align="center">🌟ProG🌟: A Unified Python Library for Graph Prompting</h3> 
+
+**ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
+pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, Jia Li,
+etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (🔥  _**Best Research Paper Award**, which is the first time for Hong Kong and Mainland China_)
 
 **ProG++** (the ``main`` branch of this repository) is an extended library of the original ``ProG`` (see in the ``ori`` branch of this repository), which supports more graph prompt models. Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
 
@@ -52,6 +56,7 @@
 >- [GPPT] M. Sun, K. Zhou, X. He, Y. Wang, and X. Wang, “GPPT: Graph Pre-Training and Prompt Tuning to Generalize Graph Neural Networks,” KDD, 2022
 >- [GPF] T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
 
+**From now on (v0.2), the term "ProG" means ProG++ by default!**
 
 <br>
 
