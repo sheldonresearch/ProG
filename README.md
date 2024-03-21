@@ -84,71 +84,6 @@ In this survey, we present more details of **ProG++** and also release a [reposi
   <br>
   
 
-
-**🌹Please cite our work if you find help for you:**
-
-
-```
-@inproceedings{sun2023all,
-  title={All in One: Multi-Task Prompting for Graph Neural Networks},
-  author={Sun, Xiangguo and Cheng, Hong and Li, Jia and Liu, Bo and Guan, Jihong},
-  booktitle={Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery \& data mining (KDD'23)},
-  year={2023},
-  pages = {2120–2131},
-  location = {Long Beach, CA, USA},
-  isbn = {9798400701030},
-  url = {https://doi.org/10.1145/3580305.3599256},
-  doi = {10.1145/3580305.3599256}
-}
-
-@article{sun2023graph,
-  title = {Graph Prompt Learning: A Comprehensive Survey and Beyond},
-  author = {Sun, Xiangguo and Zhang, Jiawen and Wu, Xixi and Cheng, Hong and Xiong, Yun and Li, Jia},
-  year = {2023},
-  journal = {arXiv:2311.16534},
-  eprint = {2311.16534},
-  archiveprefix = {arxiv}
-}
-
-
-@article{zhao2024all,
-      title={All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining}, 
-      author={Haihong Zhao and Aochuan Chen and Xiangguo Sun and Hong Cheng and Jia Li},
-      year={2024},
-      eprint={2402.09834},
-      archivePrefix={arXiv}
-}
-
-
-@inproceedings{gao2024protein,
-  title={Protein Multimer Structure Prediction via {PPI}-guided Prompt Learning},
-  author={Ziqi Gao and Xiangguo Sun and Zijing Liu and Yu Li and Hong Cheng and Jia Li},
-  booktitle={The Twelfth International Conference on Learning Representations (ICLR)},
-  year={2024},
-  url={https://openreview.net/forum?id=OHpvivXrQr}
-}
-
-
-@article{chen2024prompt,
-      title={Prompt Learning on Temporal Interaction Graphs}, 
-      author={Xi Chen and Siwei Zhang and Yun Xiong and Xixi Wu and Jiawei Zhang and Xiangguo Sun and Yao Zhang and Yinglong Zhao and Yulin Kang},
-      year={2024},
-      eprint={2402.06326},
-      archivePrefix={arXiv},
-      journal = {arXiv:2402.06326}
-}
-
-@article{li2024survey,
-      title={A Survey of Graph Meets Large Language Model: Progress and Future Directions}, 
-      author={Yuhan Li and Zhixun Li and Peisong Wang and Jia Li and Xiangguo Sun and Hong Cheng and Jeffrey Xu Yu},
-      year={2024},
-      eprint={2311.12399},
-      archivePrefix={arXiv},
-      journal = {arXiv:2311.12399}
-}
-
-```
-
 ---
 
 ## Quick Start
@@ -230,66 +165,6 @@ if args.task == 'GraphTask':
 
 
 
-
-## Contact
-
-- For More Information, Further discussion, Contact: [Website](https://graphprompt.github.io/)
-- Email: xiangguosun at cuhk dot edu dot hk
-
-## Media Coverage
-
-**Media Reports**
-
-- [香港首位學者獲ACM頒最佳研究論文獎, 香港新聞網, 2023-09-20 15:21](http://www.hkcna.hk/docDetail.jsp?id=100474675&channel=4372)
-- [内地及香港首次！港中大的他们获得这项国际大奖！,香港中文大学官方公众号， 2023-09-11 21:30](https://mp.weixin.qq.com/s/0AYazi8HD9CGRs0kxqUinw)
-- [Two CUHK scholars receive Best Paper Award from ACM SIGKDD Conference 2023, CUHK Focus](https://www.focus.cuhk.edu.hk/20230906/two-cuhk-scholars-receive-best-paper-award-from-acm-sigkdd-conference-2023/)
-- [Prof. Cheng Hong and her postdoc fellow Dr. Sun Xiangguo won the best paper award at KDD2023, CUHK SEEM](https://www.se.cuhk.edu.hk/prof-cheng-hong-and-her-postdoc-fellow-dr-sun-xiangguo-won-the-best-paper-award-at-kdd2023/)
-- [港科夜闻｜香港科大(广州)熊辉教授、李佳教授分别荣获 ACM SIGKDD2023 服务奖与最佳论文奖(研究)](https://mp.weixin.qq.com/s/QCm-QtwNjh6rXrzJ3K2njQ)
-- [数据科学与分析学域李佳教授荣获SIGKDD2023最佳论文奖（研究）！](https://mp.weixin.qq.com/s/3Efakieo9Y9Tj6DTwZoonA)
-- [实时追踪科研动态丨姚期智、Quoc Viet Le等人8.9精选新论文，附ChatPaper综述](https://mp.weixin.qq.com/s/nfKiBcLIMcuvNqZT0XgSGA)
-- KDD 2023奖项出炉：港中文、港科大等获最佳论文奖，GNN大牛Leskovec获创新奖
-  - [机器之心](https://mp.weixin.qq.com/s/_JwfqlvFLOyauJgWxw-iWw)
-  - [专知](https://mp.weixin.qq.com/s/2XLudB9BFCp8yZgLgbF3sQ)
-  - [PaperWeekly](https://mp.weixin.qq.com/s/eZpMdWAG4Lg0r0EZ0O6nVA)
-  - [深度学习技术前沿](https://mp.weixin.qq.com/s/PhjszSX3RGv3_Nml3dfwsQ)
-  - [智源社区](https://hub.baai.ac.cn/view/28475)
-- [多篇GNN论文获KDD 2023大奖, 图神经网络与推荐系统  2023-08-09 16:03](https://mp.weixin.qq.com/s/7DQC-565F8VoqLluU3WwLw)
-- [港科广数据科学与分析学域李佳教授荣获SIGKDD2023最佳论文奖（研究）！](https://mp.weixin.qq.com/s/6eUT7SE6ew2N7tRCaFE6gQ)
-
-**Online Discussion**
-
-- [LOGS第2023/08/12期||KDD 2023 Best Paper Winner 孙相国 ：提示学习在图神经网络中的探索](https://mp.weixin.qq.com/s/vdFCNhgi2wuXscSauGbSgA)
-- [Talk预告 | KDD'23 Best Paper 港中文孙相国：All in One - 提示学习在图神经网络中的探索](https://mp.weixin.qq.com/s/z8AiCwTUn2TvY8tzB4NjVg)
-- [All in One Multi-Task Prompting for Graph Neural Networks 论文解读](https://www.bilibili.com/video/BV1Rk4y1V7wA/?share_source=copy_web&vd_source=dc2c6946b0127024c2225b0e695d9a83)
-- [kdd2023最佳论文](https://www.bilibili.com/video/BV1Uu4y1B7zp/?share_source=copy_web&vd_source=dc2c6946b0127024c2225b0e695d9a83)
-- [All in One: Multi-task Prompting for Graph Neural Networks（KDD 2023 Best Paper](https://zhuanlan.zhihu.com/p/650958869)
-- [怎么评价KDD23的best paper？ - 知乎](https://www.zhihu.com/question/617300883)
-
-**Other research papers released by us**
-- [最新图大模型综述：由港科广、港中文、清华联合发布，详述使用大模型处理图任务的进展与挑战](https://mp.weixin.qq.com/s/hohAfy04rApaaqz6_3EdsQ)
-- [大模型和图如何结合？最新《图遇见大型语言模型》综述，详述最新进展](https://mp.weixin.qq.com/s/maqKuu9lVqEDpSptBqwoWg)
-- [香港中文领衔港科广、复旦重磅发布：迈向通用图智能的新方法，图提示学习进展与挑战](https://mp.weixin.qq.com/s/NvfgtXLUX2MWu0U2p7RKEQ)
-- [香港中文领衔港科广、复旦重磅发布：迈向通用图智能的新方法，图提示学习进展与挑战](https://mp.weixin.qq.com/s/zSTFTgKGaOXbOC0kKT8raQ)
-- [图上如何提示？港中文等最新《图提示学习》全面综述，详述图提示分类体系](https://mp.weixin.qq.com/s/6k7ZTVM0Hj8bO4iAjOERAQ)
-
-## Call for Contributors!
-
-Once you are invited as a contributor, you would be asked to follow the following steps:
-
-- step 1. create a temp branch (e.g. ``xgTemp``) from the ``main`` branch (latest branch). 
-- step 2. fetch ``origin/xgTemp`` to your local ``xgTemp``, and make your own changes via PyCharm etc.
-- step 3. push your changes from local ``xgTemp`` to your github cloud branch: ``origin/xgTemp``.
-- step 4. open a pull request to merge from your branch to ``main``.
-
-When you finish all these jobs. I will get a notification and approve merging your branch to ``main``.
-Once I finish, I will delete your branch, and next time you will repeat the above jobs.
-
-
-A widely tested ``main`` branch will then be merged to the ``stable`` branch and a new version will be released based on ``stable`` branch.
-
-
-
-
 ## TODO List
 
 > **Note**
@@ -351,3 +226,128 @@ or run this command
 ```shell
 conda install pyg -c pyg
 ```
+
+
+**🌹Please cite our work if you find help for you:**
+
+
+```
+@inproceedings{sun2023all,
+  title={All in One: Multi-Task Prompting for Graph Neural Networks},
+  author={Sun, Xiangguo and Cheng, Hong and Li, Jia and Liu, Bo and Guan, Jihong},
+  booktitle={Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery \& data mining (KDD'23)},
+  year={2023},
+  pages = {2120–2131},
+  location = {Long Beach, CA, USA},
+  isbn = {9798400701030},
+  url = {https://doi.org/10.1145/3580305.3599256},
+  doi = {10.1145/3580305.3599256}
+}
+
+@article{sun2023graph,
+  title = {Graph Prompt Learning: A Comprehensive Survey and Beyond},
+  author = {Sun, Xiangguo and Zhang, Jiawen and Wu, Xixi and Cheng, Hong and Xiong, Yun and Li, Jia},
+  year = {2023},
+  journal = {arXiv:2311.16534},
+  eprint = {2311.16534},
+  archiveprefix = {arxiv}
+}
+
+
+@article{zhao2024all,
+      title={All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining}, 
+      author={Haihong Zhao and Aochuan Chen and Xiangguo Sun and Hong Cheng and Jia Li},
+      year={2024},
+      eprint={2402.09834},
+      archivePrefix={arXiv}
+}
+
+
+@inproceedings{gao2024protein,
+  title={Protein Multimer Structure Prediction via {PPI}-guided Prompt Learning},
+  author={Ziqi Gao and Xiangguo Sun and Zijing Liu and Yu Li and Hong Cheng and Jia Li},
+  booktitle={The Twelfth International Conference on Learning Representations (ICLR)},
+  year={2024},
+  url={https://openreview.net/forum?id=OHpvivXrQr}
+}
+
+
+@article{chen2024prompt,
+      title={Prompt Learning on Temporal Interaction Graphs}, 
+      author={Xi Chen and Siwei Zhang and Yun Xiong and Xixi Wu and Jiawei Zhang and Xiangguo Sun and Yao Zhang and Yinglong Zhao and Yulin Kang},
+      year={2024},
+      eprint={2402.06326},
+      archivePrefix={arXiv},
+      journal = {arXiv:2402.06326}
+}
+
+@article{li2024survey,
+      title={A Survey of Graph Meets Large Language Model: Progress and Future Directions}, 
+      author={Yuhan Li and Zhixun Li and Peisong Wang and Jia Li and Xiangguo Sun and Hong Cheng and Jeffrey Xu Yu},
+      year={2024},
+      eprint={2311.12399},
+      archivePrefix={arXiv},
+      journal = {arXiv:2311.12399}
+}
+
+```
+
+
+## Contact
+
+- For More Information, Further discussion, Contact: [Website](https://graphprompt.github.io/)
+- Email: xiangguosun at cuhk dot edu dot hk
+
+## Media Coverage
+
+**Media Reports**
+
+- [香港首位學者獲ACM頒最佳研究論文獎, 香港新聞網, 2023-09-20 15:21](http://www.hkcna.hk/docDetail.jsp?id=100474675&channel=4372)
+- [内地及香港首次！港中大的他们获得这项国际大奖！,香港中文大学官方公众号， 2023-09-11 21:30](https://mp.weixin.qq.com/s/0AYazi8HD9CGRs0kxqUinw)
+- [Two CUHK scholars receive Best Paper Award from ACM SIGKDD Conference 2023, CUHK Focus](https://www.focus.cuhk.edu.hk/20230906/two-cuhk-scholars-receive-best-paper-award-from-acm-sigkdd-conference-2023/)
+- [Prof. Cheng Hong and her postdoc fellow Dr. Sun Xiangguo won the best paper award at KDD2023, CUHK SEEM](https://www.se.cuhk.edu.hk/prof-cheng-hong-and-her-postdoc-fellow-dr-sun-xiangguo-won-the-best-paper-award-at-kdd2023/)
+- [港科夜闻｜香港科大(广州)熊辉教授、李佳教授分别荣获 ACM SIGKDD2023 服务奖与最佳论文奖(研究)](https://mp.weixin.qq.com/s/QCm-QtwNjh6rXrzJ3K2njQ)
+- [数据科学与分析学域李佳教授荣获SIGKDD2023最佳论文奖（研究）！](https://mp.weixin.qq.com/s/3Efakieo9Y9Tj6DTwZoonA)
+- [实时追踪科研动态丨姚期智、Quoc Viet Le等人8.9精选新论文，附ChatPaper综述](https://mp.weixin.qq.com/s/nfKiBcLIMcuvNqZT0XgSGA)
+- KDD 2023奖项出炉：港中文、港科大等获最佳论文奖，GNN大牛Leskovec获创新奖
+  - [机器之心](https://mp.weixin.qq.com/s/_JwfqlvFLOyauJgWxw-iWw)
+  - [专知](https://mp.weixin.qq.com/s/2XLudB9BFCp8yZgLgbF3sQ)
+  - [PaperWeekly](https://mp.weixin.qq.com/s/eZpMdWAG4Lg0r0EZ0O6nVA)
+  - [深度学习技术前沿](https://mp.weixin.qq.com/s/PhjszSX3RGv3_Nml3dfwsQ)
+  - [智源社区](https://hub.baai.ac.cn/view/28475)
+- [多篇GNN论文获KDD 2023大奖, 图神经网络与推荐系统  2023-08-09 16:03](https://mp.weixin.qq.com/s/7DQC-565F8VoqLluU3WwLw)
+- [港科广数据科学与分析学域李佳教授荣获SIGKDD2023最佳论文奖（研究）！](https://mp.weixin.qq.com/s/6eUT7SE6ew2N7tRCaFE6gQ)
+
+**Online Discussion**
+
+- [LOGS第2023/08/12期||KDD 2023 Best Paper Winner 孙相国 ：提示学习在图神经网络中的探索](https://mp.weixin.qq.com/s/vdFCNhgi2wuXscSauGbSgA)
+- [Talk预告 | KDD'23 Best Paper 港中文孙相国：All in One - 提示学习在图神经网络中的探索](https://mp.weixin.qq.com/s/z8AiCwTUn2TvY8tzB4NjVg)
+- [All in One Multi-Task Prompting for Graph Neural Networks 论文解读](https://www.bilibili.com/video/BV1Rk4y1V7wA/?share_source=copy_web&vd_source=dc2c6946b0127024c2225b0e695d9a83)
+- [kdd2023最佳论文](https://www.bilibili.com/video/BV1Uu4y1B7zp/?share_source=copy_web&vd_source=dc2c6946b0127024c2225b0e695d9a83)
+- [All in One: Multi-task Prompting for Graph Neural Networks（KDD 2023 Best Paper](https://zhuanlan.zhihu.com/p/650958869)
+- [怎么评价KDD23的best paper？ - 知乎](https://www.zhihu.com/question/617300883)
+
+**Other research papers released by us**
+- [最新图大模型综述：由港科广、港中文、清华联合发布，详述使用大模型处理图任务的进展与挑战](https://mp.weixin.qq.com/s/hohAfy04rApaaqz6_3EdsQ)
+- [大模型和图如何结合？最新《图遇见大型语言模型》综述，详述最新进展](https://mp.weixin.qq.com/s/maqKuu9lVqEDpSptBqwoWg)
+- [香港中文领衔港科广、复旦重磅发布：迈向通用图智能的新方法，图提示学习进展与挑战](https://mp.weixin.qq.com/s/NvfgtXLUX2MWu0U2p7RKEQ)
+- [香港中文领衔港科广、复旦重磅发布：迈向通用图智能的新方法，图提示学习进展与挑战](https://mp.weixin.qq.com/s/zSTFTgKGaOXbOC0kKT8raQ)
+- [图上如何提示？港中文等最新《图提示学习》全面综述，详述图提示分类体系](https://mp.weixin.qq.com/s/6k7ZTVM0Hj8bO4iAjOERAQ)
+
+## Call for Contributors!
+
+Once you are invited as a contributor, you would be asked to follow the following steps:
+
+- step 1. create a temp branch (e.g. ``xgTemp``) from the ``main`` branch (latest branch). 
+- step 2. fetch ``origin/xgTemp`` to your local ``xgTemp``, and make your own changes via PyCharm etc.
+- step 3. push your changes from local ``xgTemp`` to your github cloud branch: ``origin/xgTemp``.
+- step 4. open a pull request to merge from your branch to ``main``.
+
+When you finish all these jobs. I will get a notification and approve merging your branch to ``main``.
+Once I finish, I will delete your branch, and next time you will repeat the above jobs.
+
+
+A widely tested ``main`` branch will then be merged to the ``stable`` branch and a new version will be released based on ``stable`` branch.
+
+
+
