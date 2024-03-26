@@ -86,25 +86,6 @@
              
   <section id="prog-data-dataloader-dataloadermasking">
 <h1>ProG.data.dataloader.DataLoaderMasking<a class="headerlink" href="#prog-data-dataloader-dataloadermasking" title="Permalink to this heading"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="ProG.data.dataloader.DataLoaderMasking">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ProG.data.dataloader.</span></span><span class="sig-name descname"><span class="pre">DataLoaderMasking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ProG.data.dataloader.DataLoaderMasking" title="Permalink to this definition"></a></dt>
-<dd><p>Data loader which merges data objects from a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch.
-Args:</p>
-<blockquote>
-<div><p>dataset (Dataset): The dataset from which to load the data.
-batch_size (int, optional): How may samples per batch to load.</p>
-<blockquote>
-<div><p>(default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be</dt><dd><p>reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>)</p>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
 </section>
 
 

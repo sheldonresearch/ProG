@@ -7,7 +7,7 @@ data
 dataloader
 -------------------
 
-.. currentmodule::  ProG.data.dataloader
+.. currentmodule::  prompt_graph.data.dataloader
 
 
 .. autosummary::
@@ -23,7 +23,7 @@ dataloader
 batch
 -------------------
 
-.. currentmodule:: ProG.data.batch
+.. currentmodule:: prompt_graph.data.batch
 
 
 .. autosummary::
@@ -40,7 +40,7 @@ batch
 load4data
 -------------------
 
-.. currentmodule:: ProG/data/load4data
+.. currentmodule:: prompt_graph/data/load4data
 
 
 .. autosummary::
@@ -56,7 +56,7 @@ load4data
 loader
 -------------------
 
-.. currentmodule:: ProG.data.loader
+.. currentmodule:: prompt_graph.data.loader
 
 .. autosummary::
     :nosignatures:

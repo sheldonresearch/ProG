@@ -18,9 +18,7 @@
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="evaluation" href="../modules/evaluation.html" />
-    <link rel="prev" title="ProG.data.batch.BatchAE" href="ProG.data.batch.BatchAE.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -52,20 +50,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/downstream.html">downstream</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Main Package</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../modules/data.html">data</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../modules/data.html#dataloader">dataloader</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../modules/data.html#batch">batch</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="ProG.data.batch.BatchFinetune.html">ProG.data.batch.BatchFinetune</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ProG.data.batch.BatchMasking.html">ProG.data.batch.BatchMasking</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ProG.data.batch.BatchAE.html">ProG.data.batch.BatchAE</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">ProG.data.batch.BatchSubstructContext</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../modules/data.html#load4data">load4data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../modules/data.html#loader">loader</a></li>
-</ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/data.html">data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/evaluation.html">evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/model.html">model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/pre_train.html">pre_train</a></li>
@@ -88,7 +74,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../modules/data.html">data</a></li>
       <li class="breadcrumb-item active">ProG.data.batch.BatchSubstructContext</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/generated/ProG.data.batch.BatchSubstructContext.rst.txt" rel="nofollow"> View page source</a>
@@ -101,25 +86,12 @@
              
   <section id="prog-data-batch-batchsubstructcontext">
 <h1>ProG.data.batch.BatchSubstructContext<a class="headerlink" href="#prog-data-batch-batchsubstructcontext" title="Permalink to this heading"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="ProG.data.batch.BatchSubstructContext">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ProG.data.batch.</span></span><span class="sig-name descname"><span class="pre">BatchSubstructContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ProG.data.batch.BatchSubstructContext" title="Permalink to this definition"></a></dt>
-<dd><p>A plain old python object modeling a batch of graphs as one big
-(dicconnected) graph. With <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.Data</span></code> being the
-base class, all its methods can also be used here.
-In addition, single graphs can be reconstructed via the assignment vector
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">batch</span></code>, which maps each node to its respective graph identifier.</p>
-</dd></dl>
-
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="ProG.data.batch.BatchAE.html" class="btn btn-neutral float-left" title="ProG.data.batch.BatchAE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../modules/evaluation.html" class="btn btn-neutral float-right" title="evaluation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

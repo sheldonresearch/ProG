@@ -7,7 +7,7 @@ evaluation
 AllInOneEva
 -------------------
 
-.. currentmodule:: ../../ProG.evaluation.AllInOneEva
+.. currentmodule:: prompt_graph.evaluation.AllInOneEva
 
 
 .. autosummary::
@@ -22,7 +22,7 @@ AllInOneEva
 eva
 -------------------
 
-.. currentmodule:: ../../ProG.evaluation.eva
+.. currentmodule:: prompt_graph.evaluation.eva
 
 .. autosummary::
     :nosignatures:
@@ -37,7 +37,7 @@ eva
 GNNEva
 -------------------
 
-.. currentmodule:: ../../ProG.evaluation.GNNEva
+.. currentmodule:: prompt_graph.evaluation.GNNEva
 
 
 .. autosummary::
@@ -50,7 +50,7 @@ GNNEva
 GPFEva
 -------------------
 
-.. currentmodule:: ../../ProG.evaluation.GPFEva
+.. currentmodule:: prompt_graph.evaluation.GPFEva
 
 
 .. autosummary::
@@ -63,7 +63,7 @@ GPFEva
 GpromptEva
 -------------------
 
-.. currentmodule:: ../../ProG.evaluation.GpromptEva
+.. currentmodule:: prompt_graph.evaluation.GpromptEva
 
 
 .. autosummary::

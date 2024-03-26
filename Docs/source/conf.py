@@ -12,9 +12,10 @@
 #
 import os
 import sys
-sys.path.append(os.path.abspath("../.."))
-import  ProG
+sys.path.append("../..")
+import prompt_graph
 
+print(os.path.abspath("../.."))
 
 
 # -- Project information -----------------------------------------------------
