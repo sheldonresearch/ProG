@@ -42,7 +42,11 @@
 ---
 
 
-<h3 align="center">🌟ProG++🌟: A Unified Python Library for Graph Prompting</h3> 
+<h3 align="center">🌟ProG🌟: A Unified Python Library for Graph Prompting</h3> 
+
+**ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
+pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, Jia Li,
+etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (🔥  _**Best Research Paper Award**, which is the first time for Hong Kong and Mainland China_)
 
 **ProG++** (the ``main`` branch of this repository) is an extended library of the original ``ProG`` (see in the ``ori`` branch of this repository), which supports more graph prompt models. Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
 
@@ -52,6 +56,7 @@
 >- [GPPT] M. Sun, K. Zhou, X. He, Y. Wang, and X. Wang, “GPPT: Graph Pre-Training and Prompt Tuning to Generalize Graph Neural Networks,” KDD, 2022
 >- [GPF] T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
 
+**From now on (v0.2), the term "ProG" means ProG++ by default!**
 
 <br>
 
@@ -78,6 +83,149 @@ In this survey, we present more details of **ProG++** and also release a [reposi
   <img height="350" src="/ProG_pipeline.jpg?sanitize=true" />
   <br>
   
+
+---
+
+## Quick Start
+We have provided scripts with hyper-parameter settings to get the experimental results
+
+In the pre-train phase, you can obtain the experimental results by running the parameters you want:
+```shell
+python pre_train.py --task Edgepred_Gprompt --dataset_name 'PubMed' --gnn_type 'GCN' --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
+```
+or run `pre_train.sh`
+```shell
+cd scripts
+./ pre_train.sh
+```
+In downstream_task, you can obtain the experimental results by running the parameters you want:
+
+```shell
+python downstream_task.py --pre_train_path 'None' --task GraphTask --dataset_name 'MUTAG' --gnn_type 'GCN' --prompt_type 'None' --shot_num 10 --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
+```
+or run `GraphTask.sh` for Graph task in **MUTAG** dataset, or run run `NodeTask.sh` for Node task in **Cora** dataset.
+
+
+
+
+### Pre-train your GNN model
+
+We have designed four pre_trained class (Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE), which is in ProG.pretrain module, you can pre_train the model by running ``pre_train.py`` and setting the parameters you want.
+
+```python
+import prompt_graph as ProG
+from ProG.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE
+from ProG.utils import seed_everything
+from ProG.utils import mkdir, get_args
+
+
+args = get_args()
+seed_everything(args.seed)
+mkdir('./pre_trained_gnn/')
+
+if args.task == 'SimGRACE':
+    pt = SimGRACE(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
+if args.task == 'GraphCL':
+    pt = GraphCL(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
+if args.task == 'Edgepred_GPPT':
+    pt = Edgepred_GPPT(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
+if args.task == 'Edgepred_Gprompt':
+    pt = Edgepred_Gprompt(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
+
+pt.pretrain()
+
+
+
+```
+### Do the Downstreamtask
+In ``downstreamtask.py``, we designed two tasks (Node Classification, Graph Classification). Here are some examples. 
+```python
+import prompt_graph as ProG
+from ProG.tasker import NodeTask, LinkTask, GraphTask
+
+if args.task == 'NodeTask':
+    tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_GPPT.GCN.128hidden_dim.pth', 
+                    dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', epochs = 150, shot_num = 5)
+    tasker.run()
+
+
+if args.task == 'GraphTask':
+    tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
+                    dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'All-in-one', epochs = 150, shot_num = 5)
+    tasker.run()
+
+```
+
+
+
+  
+**Kindly note that the comparison takes the same pre-trained pth.The absolute value of performance won't mean much because the final results may vary depending on different
+  pre-training states.It would be more interesting to see the relative performance with other training paradigms.**
+
+
+
+
+## TODO List
+
+> **Note**
+> <span style="color:blue"> Current experimental datasets: Node/Edge:Cora/Citeseer/Pubmed; Graph:MUTAG</span>
+
+- [ ] **Write a comprehensive usage document**(refer to pyG)
+- [ ] Write a tutorial, and polish data code, to make our readers feel more easily to deal with their own data. That is to: (1) provide a demo/tutorial to let our readers know how to deal with data; (2) polish data code, making it more robust, reliable, and readable.  
+- [ ] Pre_train: implementation of DGI. (Deep Graph Infomax), InfoGraph, contextpred, AttrMasking, ContextPred, GraphMAE, GraphLoG, JOAO
+- [ ] Debug Gprompt inference, All-in-one Tune，graphcl loss
+- [ ] Add Prompt: prodigy (NeurIPS'2023 Spotlight)
+- [ ] induced graph(1.better way to generate induced graph/2.simplify the 3 type of generate-func)
+- [ ] add prompt type table (prompt_type, prompt paradigm, loss function, task_type)
+- [ ] add pre_train type table
+- [ ] support deep GNN layers by adding the feature [DeepGCNLayer](https://pytorch-geometric.readthedocs.io/en/latest/generated/torch_geometric.nn.models.DeepGCNLayer.html#torch_geometric.nn.models.DeepGCNLayer)
+      
+## Dataset
+
+| Graphs    | Graph classes | Avg. nodes | Avg. edges | Node features | Node classes | Task (N/E/G) |
+|-----------|---------------|------------|------------|---------------|--------------|------------|
+| Cora      | 1             | 2,708      | 5,429      | 1,433         | 7            |N           |
+| Pubmed    | 1             |19,717      | 88,648     | 500           | 3            |N           |
+| CiteSeer  | 1             | 3,327      | 9,104      | 3,703         | 6            |N           |
+| Mutag     | 188           | 17.9       | 39.6       | ?             | 7            |N           |
+| Reddit    | 1             | 232,965    | 23,213,838 | 602           | 41           |N           |
+| Amazon    | 1             | 13,752     | 491,722    | 767           | 10           |N           |
+| [Flickr](https://snap.stanford.edu/data/web-flickr.html)    | 1             | 89,250     | 899,756    | 500           | 7            | N          |
+| PROTEINS  | 1,113         | 39.06      | 72.82      | 1             | 3            | N, G       |
+| ENZYMES   | 600           | 32.63      | 62.14      | 18            | 3            | N, G       |
+
+## Prompt Class
+| Graphs    | Task (N/E/G)|
+|-----------|------------|
+| GPF       |      G     |
+| GPPTPrompt|      N     |
+| GPrompt   |   N, E, G  |
+| ProGPrompt|   N,    G  |
+
+
+## Environment Setup
+```shell
+
+--Python 3.9.17 
+
+--PyTorch 2.0.1 
+
+--torch-geometric 2.3.1
+
+```
+
+installation for PYG **[quick start](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html)**
+
+```shell
+pip install torch_geometric
+
+pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.1.0+cu118.html # Optional dependencies
+
+```
+or run this command
+```shell
+conda install pyg -c pyg
+```
 
 
 **🌹Please cite our work if you find help for you:**
@@ -144,85 +292,6 @@ In this survey, we present more details of **ProG++** and also release a [reposi
 
 ```
 
----
-
-## Quick Start
-We have provided scripts with hyper-parameter settings to get the experimental results
-
-In the pre-train phase, you can obtain the experimental results by running the parameters you want:
-```shell
-python pre_train.py --task Edgepred_Gprompt --dataset_name 'PubMed' --gnn_type 'GCN' --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
-```
-or run `pre_train.sh`
-```shell
-cd scripts
-./ pre_train.sh
-```
-In downstream_task, you can obtain the experimental results by running the parameters you want:
-
-```shell
-python downstream_task.py --pre_train_path 'None' --task GraphTask --dataset_name 'MUTAG' --gnn_type 'GCN' --prompt_type 'None' --shot_num 10 --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
-```
-or run `GraphTask.sh` for Graph task in **MUTAG** dataset, or run run `NodeTask.sh` for Node task in **Cora** dataset.
-
-
-
-
-### Pre-train your GNN model
-
-We have designed four pre_trained class (Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE), which is in ProG.pretrain module, you can pre_train the model by running ``pre_train.py`` and setting the parameters you want.
-
-```python
-from ProG.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE
-from ProG.utils import seed_everything
-from ProG.utils import mkdir, get_args
-
-
-args = get_args()
-seed_everything(args.seed)
-mkdir('./pre_trained_gnn/')
-
-if args.task == 'SimGRACE':
-    pt = SimGRACE(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
-if args.task == 'GraphCL':
-    pt = GraphCL(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
-if args.task == 'Edgepred_GPPT':
-    pt = Edgepred_GPPT(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
-if args.task == 'Edgepred_Gprompt':
-    pt = Edgepred_Gprompt(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
-
-pt.pretrain()
-
-
-
-```
-### Do the Downstreamtask
-In ``downstreamtask.py``, we designed two tasks (Node Classification, Graph Classification). Here are some examples. 
-```python
-from ProG.tasker import NodeTask, LinkTask, GraphTask
-
-if args.task == 'NodeTask':
-    tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_GPPT.GCN.128hidden_dim.pth', 
-                    dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'None', epochs = 150, shot_num = 5)
-    tasker.run()
-
-
-if args.task == 'GraphTask':
-    tasker = GraphTask(pre_train_model_path = './pre_trained_gnn/MUTAG.SimGRACE.GCN.128hidden_dim.pth', 
-                    dataset_name = 'MUTAG', num_layer = 3, gnn_type = 'GCN', prompt_type = 'All-in-one', epochs = 150, shot_num = 5)
-    tasker.run()
-
-```
-
-
-
-  
-**Kindly note that the comparison takes the same pre-trained pth.The absolute value of performance won't mean much because the final results may vary depending on different
-  pre-training states.It would be more interesting to see the relative performance with other training paradigms.**
-
-
-
-
 
 ## Contact
 
@@ -282,65 +351,3 @@ A widely tested ``main`` branch will then be merged to the ``stable`` branch and
 
 
 
-
-## TODO List
-
-> **Note**
-> <span style="color:blue"> Current experimental datasets: Node/Edge:Cora/Citeseer/Pubmed; Graph:MUTAG</span>
-
-- [ ] **Write a comprehensive usage document**(refer to pyG)
-- [ ] Write a tutorial, and polish data code, to make our readers feel more easily to deal with their own data. That is to: (1) provide a demo/tutorial to let our readers know how to deal with data; (2) polish data code, making it more robust, reliable, and readable.  
-- [ ] Pre_train: implementation of DGI. (Deep Graph Infomax), InfoGraph, contextpred, AttrMasking, ContextPred, GraphMAE, GraphLoG, JOAO
-- [ ] Add Prompt: prodigy (NeurIPS'2023 Spotlight)
-- [ ] induced graph(1.better way to generate induced graph/2.simplify the 3 type of generate-func)
-- [ ] Solve Node Task for All-in-one and Gprompt
-- [ ] add prompt type table (prompt_type, prompt paradigm, loss function, task_type)
-- [ ] add pre_train type table
-- [ ] support deep GNN layers by adding the feature [DeepGCNLayer](https://pytorch-geometric.readthedocs.io/en/latest/generated/torch_geometric.nn.models.DeepGCNLayer.html#torch_geometric.nn.models.DeepGCNLayer)
-      
-## Dataset
-
-| Graphs    | Graph classes | Avg. nodes | Avg. edges | Node features | Node classes | Task (N/E/G) |
-|-----------|---------------|------------|------------|---------------|--------------|------------|
-| Cora      | 1             | 2,708      | 5,429      | 1,433         | 7            |N           |
-| Pubmed    | 1             |19,717      | 88,648     | 500           | 3            |N           |
-| CiteSeer  | 1             | 3,327      | 9,104      | 3,703         | 6            |N           |
-| Mutag     | 188           | 17.9       | 39.6       | ?             | 7            |N           |
-| Reddit    | 1             | 232,965    | 23,213,838 | 602           | 41           |N           |
-| Amazon    | 1             | 13,752     | 491,722    | 767           | 10           |N           |
-| [Flickr](https://snap.stanford.edu/data/web-flickr.html)    | 1             | 89,250     | 899,756    | 500           | 7            | N          |
-| PROTEINS  | 1,113         | 39.06      | 72.82      | 1             | 3            | N, G       |
-| ENZYMES   | 600           | 32.63      | 62.14      | 18            | 3            | N, G       |
-
-## Prompt Class
-| Graphs    | Task (N/E/G)|
-|-----------|------------|
-| GPF       |    N , G   |
-| GPPTPrompt|      N     |
-| GPrompt   |   N, E, G  |
-| ProGPrompt|   N,    G  |
-
-
-## Environment Setup
-```shell
-
---Python 3.9.17 
-
---PyTorch 2.0.1 
-
---torch-geometric 2.3.1
-
-```
-
-installation for PYG **[quick start](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html)**
-
-```shell
-pip install torch_geometric
-
-pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.1.0+cu118.html # Optional dependencies
-
-```
-or run this command
-```shell
-conda install pyg -c pyg
-```
