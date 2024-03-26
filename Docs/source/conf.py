@@ -15,9 +15,9 @@ import sys
 sys.path.append("../..")
 import torch
 import prompt_graph
-
-print(os.path.abspath("../.."))
-
+import deprecated
+import torch_geometric
+import torchmetrics
 
 # -- Project information -----------------------------------------------------
 
