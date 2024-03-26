@@ -48,8 +48,9 @@ class SimGRACE(PreTrain):
         sim_matrix = torch.einsum('ik,jk->ij', x1, x2) / torch.einsum('i,j->ij', x1_abs, x2_abs)
         sim_matrix = torch.exp(sim_matrix / T)
         pos_sim = sim_matrix[range(batch_size), range(batch_size)]
-        loss = pos_sim / ((sim_matrix.sum(dim=1) - pos_sim) + 1e-4)
-        loss = - torch.log(loss).mean() 
+        loss = - torch.log(pos_sim / (sim_matrix.sum(dim=1) + 1e-4)).mean()
+        # loss = pos_sim / ((sim_matrix.sum(dim=1) - pos_sim) + 1e-4)
+        # loss = - torch.log(loss).mean() 
         return loss
 
     def perturbate_gnn(self, data):
@@ -57,8 +58,9 @@ class SimGRACE(PreTrain):
 
         for (vice_name, vice_model_param) in vice_model.named_parameters():
             if vice_name.split('.')[0] != 'projection_head':
-                vice_model_param.data += 0.1 * torch.normal(0, torch.ones_like(vice_model_param.data) * vice_model_param.data.std())
-            # print(vice_name)
+                std = vice_model_param.data.std() if vice_model_param.data.numel() > 1 else torch.tensor(1.0)
+                noise = 0.1 * torch.normal(0, torch.ones_like(vice_model_param.data) * std)
+                vice_model_param.data += noise
         z2 = vice_model.forward_cl(data.x, data.edge_index, data.batch)
         return z2
     

@@ -8,6 +8,8 @@ import time
 import warnings
 from prompt_graph.data import load4node, induced_graphs, graph_split, split_induced_graphs
 from prompt_graph.evaluation import GpromptEva, AllInOneEva
+import pickle
+import os
 warnings.filterwarnings("ignore")
 
 class NodeTask(BaseTask):
@@ -26,7 +28,22 @@ class NodeTask(BaseTask):
                   self.data.to('cpu')
                   self.input_dim = self.dataset.num_features
                   self.output_dim = self.dataset.num_classes
-                  self.train_dataset, self.test_dataset, self.val_dataset = split_induced_graphs(self.data, smallest_size=10, largest_size=30)
+                  file_path = './data/induced_graph/' + self.dataset_name + '_induced_graph.pkl'
+                  if os.path.exists(file_path):
+                        with open(file_path, 'rb') as f:
+                              graphs_dict = pickle.load(f)
+                        self.train_dataset = graphs_dict['train_graphs']
+                        self.test_dataset = graphs_dict['test_graphs']
+                        self.val_dataset = graphs_dict['val_graphs']
+                  else:
+                        print('Begin split_induced_graphs.')
+                        split_induced_graphs(self.dataset_name, self.data, smallest_size=10, largest_size=30)
+                        with open(file_path, 'rb') as f:
+                              graphs_dict = pickle.load(f)
+                        self.train_dataset = graphs_dict['train_graphs']
+                        self.test_dataset = graphs_dict['test_graphs']
+                        self.val_dataset = graphs_dict['val_graphs']
+
             else:
                   self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
                   self.data.to(self.device)
@@ -123,10 +140,11 @@ class NodeTask(BaseTask):
       
       def run(self):
             # for all-in-one and Gprompt we use k-hop subgraph
-            train_loader = DataLoader(self.train_dataset, batch_size=16, shuffle=True)
-            test_loader = DataLoader(self.test_dataset, batch_size=16, shuffle=False)
-            val_loader = DataLoader(self.val_dataset, batch_size=16, shuffle=False)
-            print("prepare data is finished!")
+            if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
+                  train_loader = DataLoader(self.train_dataset, batch_size=16, shuffle=True)
+                  test_loader = DataLoader(self.test_dataset, batch_size=16, shuffle=False)
+                  val_loader = DataLoader(self.val_dataset, batch_size=16, shuffle=False)
+                  print("prepare induce graph data is finished!")
 
             best_val_acc = final_test_acc = 0
             for epoch in range(1, self.epochs):

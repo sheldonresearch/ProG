@@ -13,6 +13,7 @@ from random import shuffle
 from torch_geometric.utils import subgraph, k_hop_subgraph
 from torch_geometric.data import Data
 import numpy as np
+import pickle
 
 def induced_graphs(data, smallest_size=10, largest_size=30):
 
@@ -47,13 +48,13 @@ def induced_graphs(data, smallest_size=10, largest_size=30):
 
         induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label)
         induced_graph_list.append(induced_graph)
-
+        # print(index)
     return induced_graph_list
 
 
 
-def split_induced_graphs(data, smallest_size=10, largest_size=30):
-    induced_graph_list = []
+def split_induced_graphs(name, data, smallest_size=10, largest_size=30):
+    
     train_graphs = []
     test_graphs = []
     val_graphs = []
@@ -86,7 +87,7 @@ def split_induced_graphs(data, smallest_size=10, largest_size=30):
         x = data.x[subset]
 
         induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label)
-
+        # print(index+100)
         # 检查节点子图是否在训练集、测试集或验证集中
         if (data.train_mask[index]):
             train_graphs.append(induced_graph)
@@ -94,8 +95,17 @@ def split_induced_graphs(data, smallest_size=10, largest_size=30):
             test_graphs.append(induced_graph)
         else:
             val_graphs.append(induced_graph)
+        # print(index)
 
-    return train_graphs, test_graphs, val_graphs
+        graphs_dict = {
+            'train_graphs': train_graphs,
+            'test_graphs': test_graphs,
+            'val_graphs': val_graphs
+        }
+
+    # Save the dictionary into a file
+    with open('./data/induced_graph/'+ name +'_induced_graph.pkl', 'wb') as f:
+        pickle.dump(graphs_dict, f)    
 
 
 def multi_class_NIG(dataname, num_class,shots=100):
