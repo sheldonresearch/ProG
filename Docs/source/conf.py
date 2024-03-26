@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.append("../..")
+import torch
 import prompt_graph
 
 print(os.path.abspath("../.."))
