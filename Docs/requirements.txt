@@ -1,4 +1,4 @@
-https://download.pytorch.org/whl/cpu/torch-1.13.0%2Bcpu-cp38-cp38-linux_x86_64.whl
+
 sphinx==5.3.0
 sphinx_rtd_theme==1.1.1
 readthedocs-sphinx-search==0.1.1
