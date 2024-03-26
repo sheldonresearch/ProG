@@ -12,12 +12,9 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath("../.."))
-<<<<<<< HEAD
-print(os.path.abspath("../.."))
-=======
-#print(os.path.abspath("../.."))
->>>>>>> 6a8004a7dfe110bf9837037fc8aacef10a5937c3
+sys.path.append(os.path.abspath("../.."))
+import  ProG
+
 
 
 # -- Project information -----------------------------------------------------
