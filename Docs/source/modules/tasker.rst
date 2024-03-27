@@ -1,13 +1,13 @@
-prompt
-=================================
+tasker
+============================
 
 .. contents:: Contents
     :local:
 
-AllInOnePrompt
+graph_task
 -------------------
 
-.. currentmodule:: ../../ProG.prompt.AllInOnePrompt
+.. currentmodule:: prompt_graph.tasker.graph_task
 
 
 .. autosummary::
@@ -15,28 +15,25 @@ AllInOnePrompt
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    LightPrompt
-    HeavyPrompt
-    FrontAndHead
+    GraphTask
 
 
-GPF
+link_task
 -------------------
 
-.. currentmodule:: ../../ProG.prompt.GPF
+.. currentmodule:: prompt_graph.tasker.link_task
 
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    GPF
-    GPF_plus
+    LinkTask
 
-GPPTPrompt
+node_task
 -------------------
 
-.. currentmodule:: ../../ProG.prompt.GPPTPrompt
+.. currentmodule:: prompt_graph.tasker.node_task
 
 
 .. autosummary::
@@ -44,21 +41,21 @@ GPPTPrompt
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    GPPTPrompt
-    SimpleMeanConv
+
+    NodeTask
 
 
-GPrompt
+task
 -------------------
 
-.. currentmodule:: ../../ProG.prompt.GPrompt
+.. currentmodule:: prompt_graph.tasker.task
 
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    Gprompt
+    BaseTask
 
 
 

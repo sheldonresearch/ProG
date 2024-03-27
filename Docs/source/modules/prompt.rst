@@ -1,13 +1,13 @@
-pre_train
-============================
+prompt
+=================================
 
 .. contents:: Contents
     :local:
 
-base
+AllInOnePrompt
 -------------------
 
-.. currentmodule:: ../../ProG.pretrain.base
+.. currentmodule:: prompt_graph.prompt.AllInOnePrompt
 
 
 .. autosummary::
@@ -15,52 +15,28 @@ base
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    PreTrain
+    LightPrompt
+    HeavyPrompt
+    FrontAndHead
 
 
-
-Edgepred_GPPT
+GPF
 -------------------
 
-.. currentmodule:: ../../ProG.pretrain.Edgepred_GPPT
+.. currentmodule:: prompt_graph.prompt.GPF
 
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    Edgepred_GPPT
+    GPF
+    GPF_plus
 
-
-Edgepred_Gprompt
+GPPTPrompt
 -------------------
 
-.. currentmodule:: ../../ProG.pretrain.Edgepred_Gprompt
-
-
-.. autosummary::
-    :nosignatures:
-    :toctree: ../generated
-    :template: autosummary/inherited_class.rst
-
-    Edgepred_Gprompt
-
-GraphCL
--------------------
-
-.. currentmodule:: ../../ProG.pretrain.GraphCL
-
-.. autosummary::
-    :nosignatures:
-    :toctree: ../generated
-    :template: autosummary/inherited_class.rst
-
-    GraphCL
-
-SimGRACE
--------------------
-
-.. currentmodule:: ../../ProG.pretrain.SimGRACE
+.. currentmodule:: prompt_graph.prompt.GPPTPrompt
 
 
 .. autosummary::
@@ -68,4 +44,21 @@ SimGRACE
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    SimGRACE
+    GPPTPrompt
+    SimpleMeanConv
+
+
+GPrompt
+-------------------
+
+.. currentmodule:: prompt_graph.prompt.GPrompt
+
+.. autosummary::
+    :nosignatures:
+    :toctree: ../generated
+    :template: autosummary/inherited_class.rst
+
+    Gprompt
+
+
+

@@ -1,13 +1,13 @@
-tasker
+pre_train
 ============================
 
 .. contents:: Contents
     :local:
 
-graph_task
+base
 -------------------
 
-.. currentmodule:: ../../ProG.tasker.graph_task
+.. currentmodule:: prompt_graph.pretrain.base
 
 
 .. autosummary::
@@ -15,25 +15,27 @@ graph_task
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    GraphTask
+    PreTrain
 
 
-link_task
+
+Edgepred_GPPT
 -------------------
 
-.. currentmodule:: ../../ProG.tasker.link_task
+.. currentmodule:: prompt_graph.pretrain.Edgepred_GPPT
 
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    LinkTask
+    Edgepred_GPPT
 
-node_task
+
+Edgepred_Gprompt
 -------------------
 
-.. currentmodule:: ../../ProG.tasker.node_task
+.. currentmodule:: prompt_graph.pretrain.Edgepred_Gprompt
 
 
 .. autosummary::
@@ -41,21 +43,29 @@ node_task
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
+    Edgepred_Gprompt
 
-    NodeTask
-
-
-task
+GraphCL
 -------------------
 
-.. currentmodule:: ../../ProG.tasker.task
+.. currentmodule:: prompt_graph.pretrain.GraphCL
 
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    BaseTask
+    GraphCL
+
+SimGRACE
+-------------------
+
+.. currentmodule:: prompt_graph.pretrain.SimGRACE
 
 
+.. autosummary::
+    :nosignatures:
+    :toctree: ../generated
+    :template: autosummary/inherited_class.rst
 
+    SimGRACE
