@@ -121,5 +121,5 @@ pooling
 
     topk
     filter_adj
-    TopKPoolings
+    TopKPooling
     SAGPooling
