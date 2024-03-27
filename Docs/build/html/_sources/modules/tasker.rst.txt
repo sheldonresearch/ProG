@@ -7,7 +7,7 @@ tasker
 graph_task
 -------------------
 
-.. currentmodule:: ../../ProG.tasker.graph_task
+.. currentmodule:: prompt_graph.tasker.graph_task
 
 
 .. autosummary::
@@ -21,7 +21,7 @@ graph_task
 link_task
 -------------------
 
-.. currentmodule:: ../../ProG.tasker.link_task
+.. currentmodule:: prompt_graph.tasker.link_task
 
 .. autosummary::
     :nosignatures:
@@ -33,7 +33,7 @@ link_task
 node_task
 -------------------
 
-.. currentmodule:: ../../ProG.tasker.node_task
+.. currentmodule:: prompt_graph.tasker.node_task
 
 
 .. autosummary::
@@ -48,7 +48,7 @@ node_task
 task
 -------------------
 
-.. currentmodule:: ../../ProG.tasker.task
+.. currentmodule:: prompt_graph.tasker.task
 
 .. autosummary::
     :nosignatures:

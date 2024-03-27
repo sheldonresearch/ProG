@@ -4,6 +4,7 @@ deprecated
 torchmetrics
 pandas
 numpy
+
 sphinx==5.3.0
 sphinx_rtd_theme==1.1.1
 readthedocs-sphinx-search==0.1.1

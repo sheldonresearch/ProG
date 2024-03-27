@@ -7,7 +7,7 @@ pre_train
 base
 -------------------
 
-.. currentmodule:: ../../ProG.pretrain.base
+.. currentmodule:: prompt_graph.pretrain.base
 
 
 .. autosummary::
@@ -22,7 +22,7 @@ base
 Edgepred_GPPT
 -------------------
 
-.. currentmodule:: ../../ProG.pretrain.Edgepred_GPPT
+.. currentmodule:: prompt_graph.pretrain.Edgepred_GPPT
 
 .. autosummary::
     :nosignatures:
@@ -35,7 +35,7 @@ Edgepred_GPPT
 Edgepred_Gprompt
 -------------------
 
-.. currentmodule:: ../../ProG.pretrain.Edgepred_Gprompt
+.. currentmodule:: prompt_graph.pretrain.Edgepred_Gprompt
 
 
 .. autosummary::
@@ -48,7 +48,7 @@ Edgepred_Gprompt
 GraphCL
 -------------------
 
-.. currentmodule:: ../../ProG.pretrain.GraphCL
+.. currentmodule:: prompt_graph.pretrain.GraphCL
 
 .. autosummary::
     :nosignatures:
@@ -60,7 +60,7 @@ GraphCL
 SimGRACE
 -------------------
 
-.. currentmodule:: ../../ProG.pretrain.SimGRACE
+.. currentmodule:: prompt_graph.pretrain.SimGRACE
 
 
 .. autosummary::

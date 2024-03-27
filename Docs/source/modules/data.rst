@@ -31,7 +31,7 @@ dataloader
 
 .. autosummary::
     :nosignatures:
-    :toctree: ../generated
+    :toctree: generated/
     :template: autosummary/inherited_class.rst
 
     DataLoaderFinetune
@@ -54,12 +54,12 @@ graph_split
 induced_graphs
 -------------------
 
-.. currentmodule:: prompt_graph.data.induced_graphs
+.. currentmodule:: prompt_graph.data.induced_graph
 
 
 .. autosummary::
     :nosignatures:
-    :toctree: ../generated
+    :toctree: generated/
     :template: autosummary/inherited_class.rst
 
     induced_graphs

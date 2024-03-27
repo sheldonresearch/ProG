@@ -3,4 +3,14 @@
 
 .. currentmodule:: prompt_graph.data.graph_split
 
-.. autofunction:: graph_split
+.. autoclass:: graph_split
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   

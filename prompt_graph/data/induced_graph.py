@@ -1,4 +1,4 @@
-from collections import defaultdict
+# from collections import defaultdict
 import pickle as pk
 from torch_geometric.utils import subgraph, k_hop_subgraph
 import torch
