@@ -6,3 +6,4 @@
 *.pyc
 .DS_Store
 /data
+/pre_trained_gnn
