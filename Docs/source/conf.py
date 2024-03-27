@@ -55,9 +55,8 @@ extensions = [
 ]
 
 html_theme = 'pyg_sphinx_theme'
-html_logo = (' https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?raw=true')
-html_favicon = ('https://raw.githubusercontent.com/pyg-team/pyg_sphinx_theme/'
-                'master/pyg_sphinx_theme/static/img/favicon.png')
+html_logo = ('https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?raw=true')
+html_favicon = ('https://github.com/sheldonresearch/ProG/blob/main/Logo.jpg?raw=true')
 html_static_path = ['_static']
 templates_path = ['_templates']
 
