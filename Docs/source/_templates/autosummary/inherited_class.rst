@@ -1,3 +1,8 @@
+{{ fullname.split('.')[-1].replace('.', '') }}
+{{ '=' * (fullname.split('.')[-1].replace('.', '')|length) }}
+
+.. autoclass:: {{ fullname }}
+   :members:
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
