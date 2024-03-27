@@ -63,6 +63,7 @@ templates_path = ['_templates']
 
 add_module_names = False
 autodoc_member_order = 'bysource'
+autoclass_content = 'class'
 
 suppress_warnings = ['autodoc.import_object']
 
