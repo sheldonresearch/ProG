@@ -107,8 +107,3 @@ def rst_jinja_render(app, _, source):
 def setup(app):
     app.connect('source-read', rst_jinja_render)
     app.add_js_file('js/version_alert.js')
-
-def split_fullname(fullname):
-    parts = fullname.split('.')
-    classname = parts[-1]
-    return classname

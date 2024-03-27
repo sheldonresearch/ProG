@@ -1,5 +1,3 @@
-{{ split_fullname(fullname)}}
-
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
