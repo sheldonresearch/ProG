@@ -14,10 +14,12 @@ import os
 import sys
 sys.path.append("../..")
 import torch
-import prompt_graph
 import deprecated
 import torch_geometric
 import torchmetrics
+
+import prompt_graph
+
 
 # -- Project information -----------------------------------------------------
 

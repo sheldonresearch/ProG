@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="prompt_graph.data.batch.BatchFinetune" href="../generated/prompt_graph.data.batch.BatchFinetune.html" />
+    <link rel="next" title="prompt_graph.data.dataloader.DataLoaderFinetune" href="../generated/prompt_graph.data.dataloader.DataLoaderFinetune.html" />
     <link rel="prev" title="downstream" href="../tutorial/downstream.html" /> 
 </head>
 
@@ -54,7 +54,13 @@
 <p class="caption" role="heading"><span class="caption-text">Main Package</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dataloader">dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dataloader">dataloader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.dataloader.DataLoaderFinetune.html">prompt_graph.data.dataloader.DataLoaderFinetune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.dataloader.DataLoaderMasking.html">prompt_graph.data.dataloader.DataLoaderMasking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.dataloader.DataLoaderAE.html">prompt_graph.data.dataloader.DataLoaderAE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.dataloader.DataLoaderSubstructContext.html">prompt_graph.data.dataloader.DataLoaderSubstructContext</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#batch">batch</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.batch.BatchFinetune.html">prompt_graph.data.batch.BatchFinetune</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.batch.BatchMasking.html">prompt_graph.data.batch.BatchMasking</a></li>
@@ -62,16 +68,23 @@
 <li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.batch.BatchSubstructContext.html">prompt_graph.data.batch.BatchSubstructContext</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#load4data">load4data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#loader">loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#load4data">load4data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.load4data.load4graph.html">prompt_graph.data.load4data.load4graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.load4data.load4node.html">prompt_graph.data.load4data.load4node</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.load4data.load4link_prediction_single_graph.html">prompt_graph.data.load4data.load4link_prediction_single_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.load4data.load4link_prediction_multi_graph.html">prompt_graph.data.load4data.load4link_prediction_multi_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.load4data.NodePretrain.html">prompt_graph.data.load4data.NodePretrain</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#loader">loader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.loader.nx_to_graph_data_obj.html">prompt_graph.data.loader.nx_to_graph_data_obj</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.loader.graph_data_obj_to_nx.html">prompt_graph.data.loader.graph_data_obj_to_nx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../generated/prompt_graph.data.loader.BioDataset.html">prompt_graph.data.loader.BioDataset</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">evaluation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model.html">model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pre_train.html">pre_train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="prompt.html">prompt</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tasker.html">tasker</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">utils</a></li>
 </ul>
 
         </div>
@@ -113,16 +126,16 @@
 <h2><a class="toc-backref" href="#id3" role="doc-backlink">dataloader</a><a class="headerlink" href="#dataloader" title="Permalink to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderFinetune</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/prompt_graph.data.dataloader.DataLoaderFinetune.html#prompt_graph.data.dataloader.DataLoaderFinetune" title="prompt_graph.data.dataloader.DataLoaderFinetune"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderFinetune</span></code></a></p></td>
 <td><p>The Projected Randomized Block Coordinate Descent (PRBCD) adversarial attack from the <a class="reference external" href="https://www.cs.cit.tum.de/daml/robustness-of-gnns-at-scale">Robustness of Graph Neural Networks at Scale</a> paper.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderMasking</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/prompt_graph.data.dataloader.DataLoaderMasking.html#prompt_graph.data.dataloader.DataLoaderMasking" title="prompt_graph.data.dataloader.DataLoaderMasking"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderMasking</span></code></a></p></td>
 <td><p>Data loader which merges data objects from a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch. Args:     dataset (Dataset): The dataset from which to load the data. batch_size (int, optional): How may samples per batch to load. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)     shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be         reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderAE</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/prompt_graph.data.dataloader.DataLoaderAE.html#prompt_graph.data.dataloader.DataLoaderAE" title="prompt_graph.data.dataloader.DataLoaderAE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderAE</span></code></a></p></td>
 <td><p>Data loader which merges data objects from a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch. Args:     dataset (Dataset): The dataset from which to load the data. batch_size (int, optional): How may samples per batch to load. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)     shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be         reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderSubstructContext</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/prompt_graph.data.dataloader.DataLoaderSubstructContext.html#prompt_graph.data.dataloader.DataLoaderSubstructContext" title="prompt_graph.data.dataloader.DataLoaderSubstructContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataLoaderSubstructContext</span></code></a></p></td>
 <td><p>Data loader which merges data objects from a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch_geometric.data.dataset</span></code> to a mini-batch. Args:     dataset (Dataset): The dataset from which to load the data. batch_size (int, optional): How may samples per batch to load. (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>)     shuffle (bool, optional): If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>, the data will be         reshuffled at every epoch (default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>).</p></td>
 </tr>
 </tbody>
@@ -153,6 +166,21 @@
 <h2><a class="toc-backref" href="#id5" role="doc-backlink">load4data</a><a class="headerlink" href="#load4data" title="Permalink to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/prompt_graph.data.load4data.load4graph.html#prompt_graph.data.load4data.load4graph" title="prompt_graph.data.load4data.load4graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4graph</span></code></a></p></td>
+<td><p>A plain old python object modeling a batch of graphs as one big (dicconnected) graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/prompt_graph.data.load4data.load4node.html#prompt_graph.data.load4data.load4node" title="prompt_graph.data.load4data.load4node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4node</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/prompt_graph.data.load4data.load4link_prediction_single_graph.html#prompt_graph.data.load4data.load4link_prediction_single_graph" title="prompt_graph.data.load4data.load4link_prediction_single_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4link_prediction_single_graph</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/prompt_graph.data.load4data.load4link_prediction_multi_graph.html#prompt_graph.data.load4data.load4link_prediction_multi_graph" title="prompt_graph.data.load4data.load4link_prediction_multi_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load4link_prediction_multi_graph</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/prompt_graph.data.load4data.NodePretrain.html#prompt_graph.data.load4data.NodePretrain" title="prompt_graph.data.load4data.NodePretrain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NodePretrain</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -160,6 +188,15 @@
 <h2><a class="toc-backref" href="#id6" role="doc-backlink">loader</a><a class="headerlink" href="#loader" title="Permalink to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/prompt_graph.data.loader.nx_to_graph_data_obj.html#prompt_graph.data.loader.nx_to_graph_data_obj" title="prompt_graph.data.loader.nx_to_graph_data_obj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nx_to_graph_data_obj</span></code></a></p></td>
+<td><p>Converts nx graph of PPI to pytorch geometric Data object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/prompt_graph.data.loader.graph_data_obj_to_nx.html#prompt_graph.data.loader.graph_data_obj_to_nx" title="prompt_graph.data.loader.graph_data_obj_to_nx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_data_obj_to_nx</span></code></a></p></td>
+<td><p>Converts pytorch geometric Data obj to network x data object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/prompt_graph.data.loader.BioDataset.html#prompt_graph.data.loader.BioDataset" title="prompt_graph.data.loader.BioDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BioDataset</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -170,7 +207,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../tutorial/downstream.html" class="btn btn-neutral float-left" title="downstream" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../generated/prompt_graph.data.batch.BatchFinetune.html" class="btn btn-neutral float-right" title="prompt_graph.data.batch.BatchFinetune" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../generated/prompt_graph.data.dataloader.DataLoaderFinetune.html" class="btn btn-neutral float-right" title="prompt_graph.data.dataloader.DataLoaderFinetune" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

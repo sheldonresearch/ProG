@@ -12,7 +12,7 @@ dataloader
 
 .. autosummary::
     :nosignatures:
-
+    :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
     DataLoaderFinetune
@@ -40,29 +40,32 @@ batch
 load4data
 -------------------
 
-.. currentmodule:: prompt_graph/data/load4data
+.. currentmodule:: prompt_graph.data.load4data
 
 
 .. autosummary::
     :nosignatures:
+    :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
     load4graph
     load4node
     load4link_prediction_single_graph
     load4link_prediction_multi_graph
-    load_data4pretrain
+    NodePretrain
 
 loader
 -------------------
 
 .. currentmodule:: prompt_graph.data.loader
 
+
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
-    :template: autosummary/function.rst
+    :template: autosummary/inherited_class.rst
 
-
-
+    nx_to_graph_data_obj
+    graph_data_obj_to_nx
+    BioDataset
 
