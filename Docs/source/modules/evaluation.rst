@@ -45,7 +45,8 @@ GNNEva
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    GNNEva
+    GNNNodeEva
+    GNNGraphEva
 
 GPFEva
 -------------------
