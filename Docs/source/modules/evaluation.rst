@@ -13,7 +13,7 @@ AllInOneEva
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
-    :template: autosummary/class.rst
+    :template: autosummary/inherited_class.rst
 
     AllInOneEva
     AllInOneEvaWithoutAnswer
