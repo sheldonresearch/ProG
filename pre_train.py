@@ -6,8 +6,6 @@ from prompt_graph.utils import mkdir, get_args
 args = get_args()
 seed_everything(args.seed)
 mkdir('./pre_trained_gnn/')
-# args.dataset_name = 'Photo'
-# args.task = 'Edgepred_GPPT'
 
 if args.task == 'SimGRACE':
     pt = SimGRACE(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)

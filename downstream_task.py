@@ -7,9 +7,6 @@ from prompt_graph.utils import  get_args
 
 args = get_args()
 seed_everything(args.seed)
-args.prompt_type = 'Gprompt'
-args.task = 'GraphTask'
-args.dataset_name = 'MUTAG'
 
 if args.task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
