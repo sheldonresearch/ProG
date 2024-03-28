@@ -71,7 +71,7 @@ class GraphTask(BaseTask):
             self.optimizer.step()  
             total_loss += loss.item()  
         return total_loss / len(train_loader)  
-    
+
     def GpromptTrain(self, train_loader):
         self.prompt.train()
         total_loss = 0.0 
@@ -86,8 +86,8 @@ class GraphTask(BaseTask):
             loss.backward()  
             self.pg_opi.step()  
             total_loss += loss.item()  
-        return total_loss / len(train_loader)  
-        
+        return total_loss / len(train_loader), center
+
 
     def run(self):
 
@@ -111,9 +111,9 @@ class GraphTask(BaseTask):
                 test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
                 val_acc = GPFEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
             elif self.prompt_type =='Gprompt':
-                loss = self.GpromptTrain(train_loader)
-                test_acc = GpromptEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
-                val_acc = GpromptEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
+                loss, center = self.GpromptTrain(train_loader)
+                test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+                val_acc = GpromptEva(val_loader, self.gnn, self.prompt, center, self.device)
                     
 
             if val_acc > best_val_acc:

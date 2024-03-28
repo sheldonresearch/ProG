@@ -8,18 +8,18 @@ class Gprompt_tuning_loss(nn.Module):
         self.tau = tau
     
     def forward(self, embedding, center_embedding, labels):
-        # 计算所有样本与两个类原型的相似度
+        # 对于每个样本对（xi,yi), loss为 -ln(sim正 / sim正+sim负)
+
+        # 计算所有样本与所有个类原型的相似度
         similarity_matrix = F.cosine_similarity(embedding.unsqueeze(1), center_embedding.unsqueeze(0), dim=-1) / self.tau
-        # embedding.unsqueeze(1) 的大小变为 [batch_size, 1, 128]
-        # center_embedding.unsqueeze(0) 的大小变为 [1, label_num, 128]
-        # 为每个样本选择其真实类别的相似度
-        true_class_sim = similarity_matrix[torch.arange(embedding.size(0)), labels]
-
-        # 计算分母（对每个样本，包括所有类的相似度）
-        all_classes_sim = similarity_matrix.logsumexp(dim=1)
-
-        loss = - (true_class_sim - all_classes_sim).mean()
-
+        exp_similarities = torch.exp(similarity_matrix)
+        # Sum exponentiated similarities for the denominator
+        pos_neg = torch.sum(exp_similarities, dim=1, keepdim=True)
+        # select the exponentiated similarities for the correct classes for the every pair (xi,yi)
+        pos = exp_similarities.gather(1, labels.view(-1, 1))
+        L_prompt = -torch.log(pos / pos_neg)
+        loss = torch.sum(L_prompt)
+        
         return loss
 
 def Gprompt_link_loss(node_emb, pos_emb, neg_emb, temperature=0.2):
