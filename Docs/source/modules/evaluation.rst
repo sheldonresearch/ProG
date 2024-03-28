@@ -13,7 +13,7 @@ AllInOneEva
 .. autosummary::
     :nosignatures:
     :toctree: ../generated
-    :template: autosummary/class.rst
+    :template: autosummary/inherited_class.rst
 
     AllInOneEva
     AllInOneEvaWithoutAnswer
@@ -45,7 +45,8 @@ GNNEva
     :toctree: ../generated
     :template: autosummary/inherited_class.rst
 
-    GNNEva
+    GNNNodeEva
+    GNNGraphEva
 
 GPFEva
 -------------------
@@ -59,6 +60,19 @@ GPFEva
     :template: autosummary/inherited_class.rst
 
     GPFEva
+
+GPPTEva
+-------------------
+
+.. currentmodule:: prompt_graph.evaluation.GPPTEva
+
+
+.. autosummary::
+    :nosignatures:
+    :toctree: ../generated
+    :template: autosummary/inherited_class.rst
+
+    GPPTEva
 
 GpromptEva
 -------------------
