@@ -2,10 +2,8 @@ import torch
 
 
 
-def center_embedding(input,index, label_num):
+def center_embedding(input, index, label_num):
     device=input.device
-
-    
     c = torch.zeros(label_num, input.size(1)).to(device)
     c = c.scatter_add_(dim=0, index=index.unsqueeze(1).expand(-1, input.size(1)), src=input)
     class_counts = torch.bincount(index, minlength=label_num).unsqueeze(1).to(dtype=input.dtype, device=device)
