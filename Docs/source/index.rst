@@ -42,6 +42,7 @@ ProG Tutorial
 .. toctree::
    :maxdepth: 1
    :caption: Tutorials
+
    tutorial/start_in_10min.rst
    tutorial/pre_train
    tutorial/downstream
