@@ -34,6 +34,7 @@ These properties are all built into the tasker object, and only need to be set i
 Let's show a concrete example of a design task:
 
 .. code-block:: python
+
     from prompt_graph.tasker import NodeTask, LinkTask, GraphTask
     tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_Gprompt.GCN.pth',
                   dataset_name = 'Cora', num_layer = 3, gnn_type = 'GCN', prompt_type = 'gpf', shot_num = 5)
@@ -72,6 +73,7 @@ These properties are all built into the  preTrainType object, and only need to b
 Let's show a concrete example of a design task:
 
 .. code-block:: python
+
     from prompt_graph.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE
     from prompt_graph.utils import seed_everything
     from prompt_graph.utils import mkdir, get_args
