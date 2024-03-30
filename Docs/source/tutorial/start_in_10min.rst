@@ -1,5 +1,10 @@
 Learn to use ProG in 10 minutes
 =======================
+
+-----------------------
+Basic concept(5min)
+-----------------------
+
 Firstly, Let's introduce the fundamental concepts and usage of :pyg:`ProG` through a few examples.
 
 The core concept of  :pyg:`ProG` is to integrate the prompting engineering of graph neural network into a **single task**
@@ -105,11 +110,106 @@ Now, let's introduce the 5 other packages below.
 - "prompt": implements all the prompt methods.
 - "utils": implements various other related tools.
 
+
+
+
+-----------------------
+introduce with an example(5min)
+-----------------------
+
+For example, now we want to compare the node classification task without prompting and using the Allinone prompting method.
+
+
+Let's construct it step by step.
+
+Firstly, let's overview the simple code.
+
+.. code-block:: python
+
+    from prompt_graph.tasker import NodeTask, GraphTask
+    from prompt_graph.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE
+    from prompt_graph.utils import seed_everything
+    from torchsummary import summary
+    from prompt_graph.utils import print_model_parameters
+    from prompt_graph.utils import  mkdir, get_args
+
+    # build a unified preTrained model
+    args = get_args()
+    seed_everything(args.seed)
+    mkdir('./pre_trained_gnn/')
+    pt = Edgepred_Gprompt(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
+    pt.pretrain()
+    # build different task with same pretrained model and run, compare them
+    # tasker 1
+    tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_Gprompt.GCN.pth',
+                  dataset_name = args.dataset_name, num_layer = args.num_layer gnn_type = args.gnn_type, prompt_type = 'none', shot_num = 5)
+    tasker.run()
+    # tasker 2
+    tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_Gprompt.GCN.pth',
+                   dataset_name = args.dataset_name, num_layer = args.num_layer gnn_type = args.gnn_type, prompt_type = 'allinone', shot_num = 5)
+    tasker.run()
+
+
+Secondly, let's break it down bit by bit.
+
+- import relevant packages
+
+.. code-block:: python
+
+    from prompt_graph.tasker import NodeTask
+    from prompt_graph.pretrain import Edgepred_Gprompt
+    from prompt_graph.utils import seed_everything
+    from prompt_graph.utils import print_model_parameters
+    from prompt_graph.utils import  mkdir, get_args
+
+
+.. Note::
+    You need to import the method you want to use for pre-train from
+    **preTain** and import the level of the task you want to perform from **tasker**
+
+- preTain your model
+
+.. code-block:: python
+
+    # build a unified preTrained model
+    args = get_args()
+    seed_everything(args.seed)
+    mkdir('./pre_trained_gnn/')
+    pt = Edgepred_Gprompt(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs)
+    pt.pretrain()
+    >>>
+
+
+.. Note::
+    Choose a pre-training parameter list and do a preTain,
+    which you can generate randomly by seeding everything, or specify yourself.
+
+- compare two prompting method
+
+.. code-block:: python
+
+    # build different task with same pretrained model and run, compare them
+    # tasker 1
+    tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_Gprompt.GCN.pth',
+                  dataset_name = args.dataset_name, num_layer = args.num_layer gnn_type = args.gnn_type, prompt_type = 'none', shot_num = 5)
+    tasker.run()
+    >>>
+    # tasker 2
+    tasker = NodeTask(pre_train_model_path = './pre_trained_gnn/Cora.Edgepred_Gprompt.GCN.pth',
+                   dataset_name = args.dataset_name, num_layer = args.num_layer gnn_type = args.gnn_type, prompt_type = 'allinone', shot_num = 5)
+    tasker.run()
+    >>>
+
+
+.. Note::
+    Use a pre-trained model with a specified cue to do downstream and give an assessment of the effect.
+    In this way, we can compare the accuracy, training complexity, etc. of different prompting methods
+
 Exercises
 ---------
 
-1. What does tasker.Tasktype do?
+1. What does "tasker.Tasktype" do?
 
-2. Design a pre-training task and try to run it on your computer to see if it creates a .pth file locally.
+2. Design a pre-training task and try to run it on your computer to see if it creates a ".pth" file locally.
 
-3. Run a prompting project to see the difference between different cues.
+3. Run script to see the difference between all the different prompting methods.
