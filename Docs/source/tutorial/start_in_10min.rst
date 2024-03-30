@@ -1,9 +1,10 @@
+===============================
 Learn to use ProG in 10 minutes
-=======================
+===============================
 
------------------------
+
 Basic concept(5min)
------------------------
+==============================
 
 Firstly, Let's introduce the fundamental concepts and usage of :pyg:`ProG` through a few examples.
 
@@ -113,9 +114,8 @@ Now, let's introduce the 5 other packages below.
 
 
 
------------------------
 introduce with an example(5min)
------------------------
+==============================
 
 For example, now we want to compare the node classification task without prompting and using the Allinone prompting method.
 
