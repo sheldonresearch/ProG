@@ -7,7 +7,7 @@ import torch
 from torch import nn
 import time
 from prompt_graph.utils import generate_corrupted_graph
-
+from prompt_graph.data import load4node, load4graph, NodePretrain
 
 class Discriminator(nn.Module):
     def __init__(self, n_h):
@@ -41,12 +41,20 @@ class Discriminator(nn.Module):
 
 
 class DgiPretrain(PreTrain):
-    def __init__(self, pretext_config=None, gnn_config=None, pre_train_graph_data=Data(), task_type="node"):
-        super().__init__(pretext_config, gnn_config, pre_train_graph_data)
-        self.sigm = torch.sigmoid
-        self.optimizer = Adam(self.gnn.parameters(), lr=pretext_config["lr"], weight_decay=pretext_config["wd"])
-        self.disc = Discriminator(gnn_config["hidden_dim"])
+    def __init__(self, *args, hid_dim = 16, **kwargs):    # hid_dim=16
+        super().__init__(*args, **kwargs)
+        
+        self.optimizer = Adam(self.gnn.parameters(), lr=0.01, weight_decay = 0.0001)
+        self.disc = Discriminator(hid_dim)
         self.loss = nn.BCEWithLogitsLoss()
+        self.load_graph_data()
+        self.initialize_gnn(self.input_dim, hid_dim)  
+
+    def load_graph_data(self):
+        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
+            self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
+        else:
+            self.input_dim, _, _, _, _, self.graph_list= load4graph(self.dataset_name)
 
     def generate_loader_data(self):
         loader1 = self.graph_data
@@ -67,7 +75,7 @@ class DgiPretrain(PreTrain):
         pos_z = self.gnn(graph_original.x, graph_original.edge_index)
         neg_z = self.gnn(graph_corrupted.x, graph_corrupted.edge_index)
 
-        s = self.sigm(torch.mean(pos_z, dim=0))
+        s = torch.sigmoid(torch.mean(pos_z, dim=0))
         # print(pos_z.shape, neg_z.shape, s.shape)
 
         logits = self.disc(s, pos_z, neg_z)
