@@ -1,6 +1,8 @@
 import torch
 from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 from prompt_graph.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt, DiffPoolPrompt, SAGPoolPrompt
+from prompt_graph.prompt import featureprompt, downprompt
+from prompt_graph.pretrain import PrePrompt
 from torch import nn, optim
 from prompt_graph.data import load4node, load4graph
 from prompt_graph.utils import Gprompt_tuning_loss
@@ -35,6 +37,8 @@ class BaseTask:
             self.optimizer = optim.Adam(model_param_group, lr=0.005, weight_decay=5e-4)
         elif self.prompt_type in ['Gprompt', 'GPPT']:
             self.pg_opi = optim.Adam(self.prompt.parameters(), lr=0.005, weight_decay=5e-4)
+        elif self.prompt_type == 'MultiGprompt':
+            self.optimizer = torch.optim.Adam([*self.DownPrompt.parameters(),*self.feature_prompt.parameters()], lr=0.001)
 
 
     def initialize_lossfn(self):
@@ -64,24 +68,34 @@ class BaseTask:
             self.prompt = DiffPoolPrompt(self.input_dim, num_clusters=5 ).to(self.device)
         elif self.prompt_type == 'Gprompt':
             self.prompt = Gprompt(self.hid_dim).to(self.device)
+        elif self.prompt_type == 'MultiGprompt':
+            nonlinearity = 'prelu'
+            self.Preprompt = PrePrompt(self.dataset_name, self.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3).cuda()
+            self.Preprompt.load_state_dict(torch.load(self.pre_train_model_path))
+            self.Preprompt.eval()
+            dgiprompt = self.Preprompt.dgi.prompt  
+            graphcledgeprompt = self.Preprompt.graphcledge.prompt
+            lpprompt = self.Preprompt.lp.prompt
+            self.feature_prompt = featureprompt(self.Preprompt.dgiprompt.prompt,self.Preprompt.graphcledgeprompt.prompt,self.Preprompt.lpprompt.prompt).cuda()
+            self.DownPrompt = downprompt(dgiprompt, graphcledgeprompt, lpprompt, 0.001, self.hid_dim, 7).cuda()
         else:
             raise KeyError(" We don't support this kind of prompt.")
 
     def initialize_gnn(self):
         if self.gnn_type == 'GAT':
-                self.gnn = GAT(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
+            self.gnn = GAT(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
         elif self.gnn_type == 'GCN':
-                self.gnn = GCN(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
+            self.gnn = GCN(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
         elif self.gnn_type == 'GraphSAGE':
-                self.gnn = GraphSAGE(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
+            self.gnn = GraphSAGE(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
         elif self.gnn_type == 'GIN':
-                self.gnn = GIN(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
+            self.gnn = GIN(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
         elif self.gnn_type == 'GCov':
-                self.gnn = GCov(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
+            self.gnn = GCov(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
         elif self.gnn_type == 'GraphTransformer':
-                self.gnn = GraphTransformer(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
+            self.gnn = GraphTransformer(input_dim=self.input_dim, out_dim=self.hid_dim, num_layer=self.num_layer)
         else:
-                raise ValueError(f"Unsupported GNN type: {self.gnn_type}")
+            raise ValueError(f"Unsupported GNN type: {self.gnn_type}")
         self.gnn.to(self.device)
 
         if self.pre_train_model_path != 'None':
@@ -93,6 +107,7 @@ class BaseTask:
             self.gnn.load_state_dict(torch.load(self.pre_train_model_path, map_location=self.device))
             print("Successfully loaded pre-trained weights!")
 
+         
       
  
             

@@ -3,24 +3,44 @@ from prompt_graph.prompt import GPF,GPF_plus
 from torch_geometric.loader import DataLoader
 from prompt_graph.utils import constraint,  center_embedding, Gprompt_tuning_loss
 from prompt_graph.evaluation import GPPTEva, GNNNodeEva, GPFEva
+from prompt_graph.pretrain import PrePrompt, prompt_pretrain_sample
 from .task import BaseTask
 import time
 import warnings
+import numpy as np
 from prompt_graph.data import load4node, induced_graphs, graph_split, split_induced_graphs
 from prompt_graph.evaluation import GpromptEva, AllInOneEva
 import pickle
 import os
+from prompt_graph.utils import process
 warnings.filterwarnings("ignore")
 
 class NodeTask(BaseTask):
       def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.load_data()
-            self.initialize_gnn()
+            
+            if self.prompt_type == 'MultiGprompt':
+                  self.load_multigprompt_data()
+            else:
+                  self.load_data()
+                  self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
+                                                torch.nn.Softmax(dim=1)).to(self.device)            
+            # self.initialize_gnn()
             self.initialize_prompt()
-            self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
-                                                torch.nn.Softmax(dim=1)).to(self.device)
             self.initialize_optimizer()
+      
+      def load_multigprompt_data(self):
+            adj, features, labels, idx_train, idx_val, idx_test = process.load_data(self.dataset_name)  
+            features, _ = process.preprocess_features(features)
+            self.sp_adj = process.sparse_mx_to_torch_sparse_tensor(adj)
+            self.labels = torch.FloatTensor(labels[np.newaxis])
+            self.features = torch.FloatTensor(features[np.newaxis]).cuda()
+            self.idx_train = torch.LongTensor(idx_train)
+            # print("labels",labels)
+            print("adj",self.sp_adj.shape)
+            print("feature",features.shape)
+            self.idx_val = torch.LongTensor(idx_val)
+            self.idx_test = torch.LongTensor(idx_test)
       
       def load_data(self):
             if self.prompt_type in ['All-in-one', 'Gprompt']:
@@ -49,7 +69,8 @@ class NodeTask(BaseTask):
                   self.data.to(self.device)
                   self.input_dim = self.dataset.num_features
                   self.output_dim = self.dataset.num_classes
-            
+      
+
       def train(self, data):
             self.gnn.train()
             self.optimizer.zero_grad() 
@@ -145,41 +166,106 @@ class NodeTask(BaseTask):
                   test_loader = DataLoader(self.test_dataset, batch_size=16, shuffle=False)
                   val_loader = DataLoader(self.val_dataset, batch_size=16, shuffle=False)
                   print("prepare induce graph data is finished!")
+            if self.prompt_type != 'MultiGprompt':
+                  best_val_acc = final_test_acc = 0
+                  for epoch in range(1, self.epochs):
+                        t0 = time.time()
+                        if self.prompt_type == 'None':
+                              loss = self.train(self.data)
+                              val_acc = GNNNodeEva(self.data, self.data.val_mask, self.gnn, self.answering)
+                              test_acc = GNNNodeEva(self.data, self.data.test_mask, self.gnn, self.answering)
+                              
+                        elif self.prompt_type == 'GPPT':
+                              loss = self.GPPTtrain(self.data)
+                              val_acc = GPPTEva(self.data, self.data.val_mask, self.gnn, self.prompt)
+                              test_acc = GPPTEva(self.data, self.data.test_mask, self.gnn, self.prompt)
+                              
+                        elif self.prompt_type == 'All-in-one':
+                              loss = self.AllInOneTrain(train_loader)
+                              test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+                              val_acc, F1 = AllInOneEva(val_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
 
-            best_val_acc = final_test_acc = 0
-            for epoch in range(1, self.epochs):
-                  t0 = time.time()
-                  if self.prompt_type == 'None':
-                        loss = self.train(self.data)
-                        val_acc = GNNNodeEva(self.data, self.data.val_mask, self.gnn, self.answering)
-                        test_acc = GNNNodeEva(self.data, self.data.test_mask, self.gnn, self.answering)
+                        elif self.prompt_type in ['GPF', 'GPF-plus']:
+                              loss = self.GPFTrain(train_loader)
+                              test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
+                              val_acc = GPFEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
+                              
+                        elif self.prompt_type =='Gprompt':
+                              loss = self.GpromptTrain(train_loader)
+                              test_acc = GpromptEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
+                              val_acc = GpromptEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
                         
-                  elif self.prompt_type == 'GPPT':
-                        loss = self.GPPTtrain(self.data)
-                        val_acc = GPPTEva(self.data, self.data.val_mask, self.gnn, self.prompt)
-                        test_acc = GPPTEva(self.data, self.data.test_mask, self.gnn, self.prompt)
-                        
-                  elif self.prompt_type == 'All-in-one':
-                        loss = self.AllInOneTrain(train_loader)
-                        test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
-                        val_acc, F1 = AllInOneEva(val_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+                        if val_acc > best_val_acc:
+                              best_val_acc = val_acc
+                              final_test_acc = test_acc
+                        print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, time.time() - t0, loss, val_acc, test_acc))
+                  print(f'Final Test: {final_test_acc:.4f}')
+            
+            else:
+                  embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
 
-                  elif self.prompt_type in ['GPF', 'GPF-plus']:
-                        loss = self.GPFTrain(train_loader)
-                        test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
-                        val_acc = GPFEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
-                        
-                  elif self.prompt_type =='Gprompt':
-                        loss = self.GpromptTrain(train_loader)
-                        test_acc = GpromptEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
-                        val_acc = GpromptEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
+                  preval_embs = embeds[0, self.idx_val]
+                  test_embs = embeds[0, self.idx_test]
+                  val_lbls = torch.argmax(self.labels[0, self.idx_val], dim=1)
+                  test_lbls = torch.argmax(self.labels[0, self.idx_test], dim=1).cuda()
+                  tot = torch.zeros(1)
+                  tot = tot.cuda()
+                  accs = []
+                  patience = 20
+                  print('-' * 100)
+                  cnt_wait = 0
+                  for i in range(10):
+                        idx_train = torch.load("./data/fewshot_cora/{}-shot_cora/{}/idx.pt".format(self.shot_num,i)).type(torch.long).cuda()
+                        train_lbls = torch.load("./data/fewshot_cora/{}-shot_cora/{}/labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().cuda()
+                        print("true",i,train_lbls)
+                        best = 1e9
+                        pat_steps = 0
+                        best_acc = torch.zeros(1)
+                        best_acc = best_acc.cuda()
+                        pretrain_embs = embeds[0, idx_train]
+                        for _ in range(50):
+                              self.DownPrompt.train()
+                              self.optimizer.zero_grad()
+                              prompt_feature = self.feature_prompt(self.features)
+                              embeds1= self.Preprompt.gcn(prompt_feature, self.sp_adj , True, False)
+                              pretrain_embs1 = embeds1[0, idx_train]
+                              logits = self.DownPrompt(pretrain_embs,pretrain_embs1, train_lbls,1).float().cuda()
+                              loss = self.criterion(logits, train_lbls)
+                              # print(loss.item())
+                              if loss < best:
+                                    best = loss
+                                    # best_t = epoch
+                                    cnt_wait = 0
+                                    # torch.save(model.state_dict(), args.save_name)
+                              else:
+                                    cnt_wait += 1
+                                    if cnt_wait == patience:
+                                          print('Early stopping at '+str(_) +' eopch!')
+                                          break
+                              
+                              loss.backward(retain_graph=True)
+                              self.optimizer.step()
+
+                        prompt_feature = self.feature_prompt(self.features)
+                        embeds1, _ = self.Preprompt.embed(prompt_feature, self.sp_adj, True, None, False)
+                        test_embs1 = embeds1[0, self.idx_test]
+                        logits = self.DownPrompt(test_embs, test_embs1, train_lbls)
+                        # print("logits",logits)
+                        # print(DownPrompt.a)
+                        preds = torch.argmax(logits, dim=1)
+                        acc = torch.sum(preds == test_lbls).float() / test_lbls.shape[0]
+                        accs.append(acc * 100)
+                        print('acc:[{:.4f}]'.format(acc))
+                        tot += acc
+
+                  print('-' * 100)
+                  print('Average accuracy:[{:.4f}]'.format(tot.item() / 10))
+                  accs = torch.stack(accs)
+                  print('Mean:[{:.4f}]'.format(accs.mean().item()))
+                  print('Std :[{:.4f}]'.format(accs.std().item()))
+                  print('-' * 100)
                   
-                  if val_acc > best_val_acc:
-                        best_val_acc = val_acc
-                        final_test_acc = test_acc
-                  print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, time.time() - t0, loss, val_acc, test_acc))
-            print(f'Final Test: {final_test_acc:.4f}')
-         
+            
             print("Node Task completed")
 
 
