@@ -3,15 +3,20 @@ from prompt_graph.utils import seed_everything
 from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
 from prompt_graph.utils import  get_args
-	
 
 args = get_args()
 seed_everything(args.seed)
-args.task = 'NodeTask'
-args.dataset_name = 'cora'
-args.prompt_type = 'MultiGprompt'
-args.pre_train_model_path = './multigprompt_model/cora.multigprompt.GCL.128hidden_dim.pth'
-args.shot_num =10
+# args.task = 'NodeTask'
+# args.dataset_name = 'cora'
+# args.prompt_type = 'MultiGprompt'
+# args.pre_train_model_path = './multigprompt_model/cora.multigprompt.GCL.128hidden_dim.pth'
+# args.shot_num = 1
+args.dataset_name = 'Cora'
+args.prompt_type = 'None'
+args.pre_train_model_path = 'None'
+args.epochs= 1000
+
+
 if args.task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, prompt_type = args.prompt_type, epochs = args.epochs, shot_num = args.shot_num)

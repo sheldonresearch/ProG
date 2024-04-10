@@ -73,10 +73,10 @@ class BaseTask:
             self.Preprompt = PrePrompt(self.dataset_name, self.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3).cuda()
             self.Preprompt.load_state_dict(torch.load(self.pre_train_model_path))
             self.Preprompt.eval()
+            self.feature_prompt = featureprompt(self.Preprompt.dgiprompt.prompt,self.Preprompt.graphcledgeprompt.prompt,self.Preprompt.lpprompt.prompt).cuda()
             dgiprompt = self.Preprompt.dgi.prompt  
             graphcledgeprompt = self.Preprompt.graphcledge.prompt
             lpprompt = self.Preprompt.lp.prompt
-            self.feature_prompt = featureprompt(self.Preprompt.dgiprompt.prompt,self.Preprompt.graphcledgeprompt.prompt,self.Preprompt.lpprompt.prompt).cuda()
             self.DownPrompt = downprompt(dgiprompt, graphcledgeprompt, lpprompt, 0.001, self.hid_dim, 7).cuda()
         else:
             raise KeyError(" We don't support this kind of prompt.")
@@ -98,10 +98,10 @@ class BaseTask:
             raise ValueError(f"Unsupported GNN type: {self.gnn_type}")
         self.gnn.to(self.device)
 
-        if self.pre_train_model_path != 'None':
-            if self.gnn_type not in self.pre_train_model_path:
+        if self.pre_train_model_path != 'None' and self.prompt_type != 'MultiGprompt':
+            if self.gnn_type not in self.pre_train_model_path :
                 raise ValueError(f"the Downstream gnn '{self.gnn_type}' does not match the pre-train model")
-            if self.dataset_name not in self.pre_train_model_path:
+            if self.dataset_name not in self.pre_train_model_path :
                 raise ValueError(f"the Downstream dataset '{self.dataset_name}' does not match the pre-train dataset")
 
             self.gnn.load_state_dict(torch.load(self.pre_train_model_path, map_location=self.device))

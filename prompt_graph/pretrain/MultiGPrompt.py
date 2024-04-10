@@ -1,14 +1,15 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from prompt_graph.prompt import DGI,GraphCL,GcnLayers,Lp,AvgReadout,DGIprompt,GraphCLprompt,Lpprompt
+from prompt_graph.prompt import DGI,GraphCL,Lp,AvgReadout, DGIprompt,GraphCLprompt,Lpprompt, GcnLayers
+# from prompt_graph.model import GCN
 import tqdm
 import scipy.sparse as sp
 import numpy as np
 from prompt_graph.utils import process
 import prompt_graph.utils.aug as aug
 class PrePrompt(nn.Module):
-    def __init__(self, dataset_name, n_h, activation,a1,a2,a3,a4,num_layers_num,p):
+    def __init__(self, dataset_name, n_h, activation,a1,a2,a3, a4, num_layers_num, dropout):
         super(PrePrompt, self).__init__()
         self.dataset_name = dataset_name
         self.hid_dim = n_h
@@ -16,7 +17,9 @@ class PrePrompt(nn.Module):
         self.dgi = DGI(n_in, n_h, activation)
         self.graphcledge = GraphCL(n_in, n_h, activation)
         self.lp = Lp(n_in, n_h)
-        self.gcn = GcnLayers(n_in, n_h,num_layers_num,p)
+
+        self.gcn = GcnLayers(n_in, n_h, num_layers_num, dropout)
+        # self.gcn = GCN(n_in, n_h, n_h, num_layers_num, drop_ratio=dropout)
         self.read = AvgReadout()
 
         self.weighted_feature=weighted_feature(a1,a2,a3)
@@ -167,7 +170,6 @@ class PrePrompt(nn.Module):
             idx_val = idx_val.cuda()
             idx_test = idx_test.cuda()
     
-        loss_fn = nn.CrossEntropyLoss()
         cnt_wait = 0
         best = 1e9
 

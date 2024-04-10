@@ -3,22 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import tqdm
 import numpy as np
-
-class weighted_feature(nn.Module):
-    def __init__(self,a1,a2,a3):
-        super(weighted_feature, self).__init__()
-        self.weight= nn.Parameter(torch.FloatTensor(1,3), requires_grad=True)
-        self.reset_parameters(a1,a2,a3)
-    def reset_parameters(self,a1,a2,a3):
-        # torch.nn.init.xavier_uniform_(self.weight)
-
-        self.weight[0][0].data.fill_(a1)
-        self.weight[0][1].data.fill_(a2)
-        self.weight[0][2].data.fill_(a3)
-    def forward(self, graph_embedding1,graph_embedding2,graph_embedding3):
-        print("weight",self.weight)
-        graph_embedding= self.weight[0][0] * graph_embedding1 + self.weight[0][1] * graph_embedding2 + self.weight[0][2] * graph_embedding3
-        return graph_embedding
     
 
 class downprompt(nn.Module):
@@ -191,9 +175,6 @@ class GCN(nn.Module):
         super(GCN, self).__init__()
         self.fc = nn.Linear(in_ft, out_ft, bias=False)
         self.act = nn.PReLU()
-        # print("act",type(self.act))
-        # print("fc",self.fc.weight)
-        # print("fc",self.fc.weight.shape)
         
         if bias:
             self.bias = nn.Parameter(torch.FloatTensor(out_ft))
@@ -215,8 +196,6 @@ class GCN(nn.Module):
         # print("input",input)
         seq = input[0].cuda()
         adj = input[1].cuda()
-        # print("seq",seq.shape)
-        # print("adj",adj.shape)
         seq_fts = self.fc(seq)
         if sparse:
             out = torch.spmm(adj, seq_fts)
@@ -225,12 +204,51 @@ class GCN(nn.Module):
         if self.bias is not None:
             out += self.bias
 
-        # print("out",out)
-        # print("act",self.act)
-
         return self.act(out)
-        # return out.type(torch.float)
 
+class GcnLayers(torch.nn.Module):
+    def __init__(self, n_in, n_h,num_layers_num,dropout):
+        super(GcnLayers, self).__init__()
+
+        self.act=torch.nn.ReLU()
+        self.num_layers_num=num_layers_num
+        self.g_net, self.bns = self.create_net(n_in,n_h,self.num_layers_num)
+
+        self.dropout=torch.nn.Dropout(p=dropout)
+
+    def create_net(self,input_dim, hidden_dim,num_layers):
+
+        self.convs = torch.nn.ModuleList()
+        self.bns = torch.nn.ModuleList()
+
+        for i in range(num_layers):
+
+            if i:
+                nn = GCN(hidden_dim, hidden_dim)
+            else:
+                nn = GCN(input_dim, hidden_dim)
+            conv = nn
+            bn = torch.nn.BatchNorm1d(hidden_dim)
+
+            self.convs.append(conv)
+            self.bns.append(bn)
+
+        return self.convs, self.bns
+
+
+    def forward(self, seq, adj,sparse,LP=False):
+        graph_output = torch.squeeze(seq,dim=0)
+        graph_len = adj
+        xs = []
+        for i in range(self.num_layers_num):
+            input=(graph_output,adj)
+            graph_output = self.convs[i](input)
+            if LP:
+                graph_output = self.bns[i](graph_output)
+                graph_output = self.dropout(graph_output)
+            xs.append(graph_output)
+
+        return graph_output.unsqueeze(dim=0)
 
 class Discriminator(nn.Module):
     def __init__(self, n_h):
@@ -275,64 +293,7 @@ class AvgReadout(nn.Module):
             msk = torch.unsqueeze(msk, -1)
             return torch.sum(seq * msk, 1) / torch.sum(msk)
 
-class GcnLayers(torch.nn.Module):
-    def __init__(self, n_in, n_h,num_layers_num,dropout):
-        super(GcnLayers, self).__init__()
 
-        self.act=torch.nn.ReLU()
-        self.num_layers_num=num_layers_num
-        self.g_net, self.bns = self.create_net(n_in,n_h,self.num_layers_num)
-
-        self.dropout=torch.nn.Dropout(p=dropout)
-
-    def create_net(self,input_dim, hidden_dim,num_layers):
-
-        self.convs = torch.nn.ModuleList()
-        self.bns = torch.nn.ModuleList()
-
-        for i in range(num_layers):
-
-            if i:
-                nn = GCN(hidden_dim, hidden_dim)
-            else:
-                nn = GCN(input_dim, hidden_dim)
-            conv = nn
-            bn = torch.nn.BatchNorm1d(hidden_dim)
-
-            self.convs.append(conv)
-            self.bns.append(bn)
-
-        return self.convs, self.bns
-
-
-    def forward(self, seq, adj,sparse,LP=False):
-        graph_output = torch.squeeze(seq,dim=0)
-        graph_len = adj
-        # print("seq",seq.shape)
-        # print("adj",adj.shape)
-        xs = []
-        for i in range(self.num_layers_num):
-            # print("i",i)
-            input=(graph_output,adj)
-            graph_output = self.convs[i](input)
-            # print("graphout1",graph_output)
-            # print("graphout1",graph_output.shape)
-            if LP:
-                # print("graphout1",graph_output.shape)
-                graph_output = self.bns[i](graph_output)
-                # print("graphout2",graph_output.shape)
-                graph_output = self.dropout(graph_output)
-            # print("graphout2",graph_output)
-            # print("graphout2",graph_output.shape)
-            xs.append(graph_output)
-            # print("Xs",xs)
-        # xpool= []
-        # for x in xs:
-        #     graph_embedding = split_and_batchify_graph_feats(x, graph_len)[0]
-        #     graph_embedding = torch.sum(graph_embedding, dim=1)
-        #     xpool.append(graph_embedding)
-        # x = torch.cat(xpool, -1).unsqueeze(dim=0)
-        return graph_output.unsqueeze(dim=0)
     
 class DGI(nn.Module):
     def __init__(self, n_in, n_h, activation):

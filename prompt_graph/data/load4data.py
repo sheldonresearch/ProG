@@ -9,7 +9,30 @@ from torch_geometric.utils import to_undirected
 from torch_geometric.loader.cluster import ClusterData
 from torch_geometric.data import Data
 from torch_geometric.utils import negative_sampling
+import os
 
+def node_sample_and_save(data, k, folder):
+    # 获取标签
+    labels = data.y
+    
+    # 随机选择90%的数据作为测试集
+    num_test = int(0.9 * data.num_nodes)
+    test_idx = torch.randperm(data.num_nodes)[:num_test]
+    test_labels = labels[test_idx]
+    
+    # 剩下的10%作为候选训练集
+    remaining_idx = torch.randperm(data.num_nodes)[num_test:]
+    remaining_labels = labels[remaining_idx]
+    
+    # 从剩下的数据中选出k*标签数个样本作为训练集
+    train_idx = torch.cat([remaining_idx[remaining_labels == i][:k] for i in range(data.num_classes)])
+    train_labels = labels[train_idx]
+
+    # 保存文件
+    torch.save(train_idx, os.path.join(folder, 'train_idx.pt'))
+    torch.save(train_labels, os.path.join(folder, 'train_labels.pt'))
+    torch.save(test_idx, os.path.join(folder, 'test_idx.pt'))
+    torch.save(test_labels, os.path.join(folder, 'test_labels.pt'))
 
 def load4graph(dataset_name, shot_num= 10, num_parts=None):
     r"""A plain old python object modeling a batch of graphs as one big
@@ -114,38 +137,30 @@ def load4node(dataname, shot_num= 10):
     
     train_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
     test_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
-    val_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
+    # val_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
 
     
     for label in data.y.unique():
         label_indices = (data.y == label).nonzero(as_tuple=False).view(-1)
 
-        if len(label_indices) < 3 * shot_num:
-            raise ValueError(f"类别 {label.item()} 的样本数不足以分配到训练集、测试集和验证集。")
-
+        # if len(label_indices) < 3 * shot_num:
+        #     raise ValueError(f"类别 {label.item()} 的样本数不足以分配到训练集、测试集和验证集。")
 
         label_indices = label_indices[torch.randperm(len(label_indices))]
-
-        
         train_indices = label_indices[:shot_num]
-        train_mask[train_indices] = True
-
+        train_mask[train_indices] = True       
+        remaining_indices = label_indices[100:]
+        # split_point = int(len(remaining_indices) * 0.1)  # 验证集占剩余的10%
         
-        remaining_indices = label_indices[shot_num:]
-        split_point = int(len(remaining_indices) * 0.1)  # 验证集占剩余的10%
-        
-        val_indices = remaining_indices[:split_point]
-        test_indices = remaining_indices[split_point:]
+        # val_indices = remaining_indices[:split_point]
+        test_indices = remaining_indices
 
-        val_mask[val_indices] = True
+        # val_mask[val_indices] = True
         test_mask[test_indices] = True
 
-    
     data.train_mask = train_mask
     data.test_mask = test_mask
-    data.val_mask = val_mask
-
-
+    # data.val_mask = val_mask
 
     return data,dataset
 
