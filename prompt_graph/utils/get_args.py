@@ -13,7 +13,7 @@ def get_args():
                         help='hideen layer of GNN dimensions (default: 300)')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='Input batch size for training (default: 32)')
-    parser.add_argument('--epochs', type=int, default=50,
+    parser.add_argument('--epochs', type=int, default=1000,
                         help='Number of epochs to train (default: 50)')
     parser.add_argument('--shot_num', type=int, default = 5, help='Number of shots')
     parser.add_argument('--pre_train_model_path', type=str, default='None', 

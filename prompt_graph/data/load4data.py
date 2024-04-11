@@ -11,9 +11,9 @@ from torch_geometric.data import Data
 from torch_geometric.utils import negative_sampling
 import os
 
-def node_sample_and_save(data, k, folder):
+def node_sample_and_save(data, k, folder, num_classes):
     # 获取标签
-    labels = data.y
+    labels = data.y.to('cpu')
     
     # 随机选择90%的数据作为测试集
     num_test = int(0.9 * data.num_nodes)
@@ -25,7 +25,9 @@ def node_sample_and_save(data, k, folder):
     remaining_labels = labels[remaining_idx]
     
     # 从剩下的数据中选出k*标签数个样本作为训练集
-    train_idx = torch.cat([remaining_idx[remaining_labels == i][:k] for i in range(data.num_classes)])
+    train_idx = torch.cat([remaining_idx[remaining_labels == i][:k] for i in range(num_classes)])
+    shuffled_indices = torch.randperm(train_idx.size(0))
+    train_idx = train_idx[shuffled_indices]
     train_labels = labels[train_idx]
 
     # 保存文件

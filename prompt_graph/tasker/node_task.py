@@ -27,22 +27,23 @@ class NodeTask(BaseTask):
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
-            self.create_data()           
+            # self.create_few_data_folder()         
             self.initialize_gnn()
             self.initialize_prompt()
             self.initialize_optimizer()
       
 
-      def create_data(self):
+      def create_few_data_folder(self):
             # 创建文件夹并保存数据
-            for k in range(10):
-                  k_shot_folder = f'{k}_shot'
+            for k in range(1, 11):
+                  k_shot_folder = './sample_data/'+ self.dataset_name +'/' + str(k) +'_shot'
                   os.makedirs(k_shot_folder, exist_ok=True)
                   
-                  for i in range(5):
+                  for i in range(1, 6):
                         folder = os.path.join(k_shot_folder, str(i))
                         os.makedirs(folder, exist_ok=True)
-                        node_sample_and_save(self.data, k, folder)
+                        node_sample_and_save(self.data, k, folder, self.output_dim)
+                        print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
       def load_multigprompt_data(self):
             adj, features, labels, idx_train, idx_val, idx_test = process.load_data(self.dataset_name)  
@@ -86,15 +87,26 @@ class NodeTask(BaseTask):
                   self.input_dim = self.dataset.num_features
                   self.output_dim = self.dataset.num_classes
       
-
-      def train(self, data):
+      def train(self, data, train_idx):
             self.gnn.train()
             self.optimizer.zero_grad() 
             out = self.gnn(data.x, data.edge_index, batch=None) 
             out = self.answering(out)
-            loss = self.criterion(out[data.train_mask], data.y[data.train_mask])
+            loss = self.criterion(out[train_idx], data.y[train_idx])
             loss.backward()  
             self.optimizer.step()  
+            return loss.item()
+      
+      def GPPTtrain(self, data, train_idx):
+            self.prompt.train()
+            node_embedding = self.gnn(data.x, data.edge_index)
+            out = self.prompt(node_embedding, data.edge_index)
+            loss = self.criterion(out[train_idx], data.y[train_idx])
+            loss = loss + 0.001 * constraint(self.device, self.prompt.get_TaskToken())
+            self.pg_opi.zero_grad()
+            loss.backward()
+            self.pg_opi.step()
+            self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
             return loss.item()
       
       def SUPTtrain(self, data):
@@ -109,18 +121,6 @@ class NodeTask(BaseTask):
             loss.backward()  
             self.optimizer.step()  
             return loss
-      
-      def GPPTtrain(self, data):
-            self.prompt.train()
-            node_embedding = self.gnn(data.x, data.edge_index)
-            out = self.prompt(node_embedding, data.edge_index)
-            loss = self.criterion(out[data.train_mask], data.y[data.train_mask])
-            loss = loss + 0.001 * constraint(self.device, self.prompt.get_TaskToken())
-            self.pg_opi.zero_grad()
-            loss.backward()
-            self.pg_opi.step()
-            self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
-            return loss.item()
       
       def GPFTrain(self, train_loader):
             self.prompt.train()
@@ -184,55 +184,65 @@ class NodeTask(BaseTask):
                   print("prepare induce graph data is finished!")
 
             if self.prompt_type != 'MultiGprompt':
-                  best_val_acc = final_test_acc = 0
-                  patience = 20
-                  best = 1e9
-                  cnt_wait = 0
                   test_accs = []
-                  for epoch in range(1, self.epochs):
+                  
+                  for i in range(1, 6):
+                        idx_train = torch.load("./sample_data/Cora/{}_shot/{}/train_idx.pt".format(self.shot_num,i)).type(torch.long).to(self.device)
+                        print('idx_train',idx_train)
+                        train_lbls = torch.load("./sample_data/Cora/{}_shot/{}/train_labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().to(self.device)
+                        print("true",i,train_lbls)
 
-                        t0 = time.time()
-                        if self.prompt_type == 'None':
-                              loss = self.train(self.data)                             
-                        elif self.prompt_type == 'GPPT':
-                              loss = self.GPPTtrain(self.data)                
-                        elif self.prompt_type == 'All-in-one':
-                              loss = self.AllInOneTrain(train_loader)                           
-                        elif self.prompt_type in ['GPF', 'GPF-plus']:
-                              loss = self.GPFTrain(train_loader)                                                          
-                        elif self.prompt_type =='Gprompt':
-                              loss = self.GpromptTrain(train_loader)
-
-                        if loss < best:
-                              best = loss
-                              # best_t = epoch
-                              cnt_wait = 0
-                              # torch.save(model.state_dict(), args.save_name)
-                        else:
-                              cnt_wait += 1
-                              if cnt_wait == patience:
-                                    print('-' * 100)
-                                    print('Early stopping at '+str(epoch) +' eopch!')
-                                    break
-                        print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
+                        idx_test = torch.load("./sample_data/Cora/{}_shot/{}/test_idx.pt".format(self.shot_num,i)).type(torch.long).to(self.device)
+                        test_lbls = torch.load("./sample_data/Cora/{}_shot/{}/test_labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().to(self.device)
+                   
+                        patience = 20
+                        best = 1e9
+                        cnt_wait = 0
                         
-                  for _ in range(10):
+                        for epoch in range(1, self.epochs):
+
+                              t0 = time.time()
+                              if self.prompt_type == 'None':
+                                    loss = self.train(self.data, idx_train)                             
+                              elif self.prompt_type == 'GPPT':
+                                    loss = self.GPPTtrain(self.data, idx_train)                
+                              elif self.prompt_type == 'All-in-one':
+                                    loss = self.AllInOneTrain(train_loader, idx_train)                           
+                              elif self.prompt_type in ['GPF', 'GPF-plus']:
+                                    loss = self.GPFTrain(train_loader, idx_train)                                                          
+                              elif self.prompt_type =='Gprompt':
+                                    loss = self.GpromptTrain(train_loader, idx_train)
+
+                              if loss < best:
+                                    best = loss
+                                    # best_t = epoch
+                                    cnt_wait = 0
+                                    # torch.save(model.state_dict(), args.save_name)
+                              else:
+                                    cnt_wait += 1
+                                    if cnt_wait == patience:
+                                          print('-' * 100)
+                                          print('Early stopping at '+str(epoch) +' eopch!')
+                                          break
+                              print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
+                 
                         if self.prompt_type == 'None':
-                              test_acc = GNNNodeEva(self.data, self.data.test_mask, self.gnn, self.answering)                           
+                              test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
                         elif self.prompt_type == 'GPPT':
-                              test_acc = GPPTEva(self.data, self.data.test_mask, self.gnn, self.prompt)                
+                              test_acc = GPPTEva(self.data, idx_test, self.gnn, self.prompt)                
                         elif self.prompt_type == 'All-in-one':
                               test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)                                           
                         elif self.prompt_type in ['GPF', 'GPF-plus']:
                               test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)                                                         
                         elif self.prompt_type =='Gprompt':
                               test_acc = GpromptEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
-                                            
+
+                        print("test accuracy {:.4f} ".format(test_acc))                        
                         test_accs.append(test_acc)
-                        mean_test_acc = np.mean(test_accs)
-                        std_test_acc = np.std(test_accs)    
-                        
-                        
+               
+
+                  mean_test_acc = np.mean(test_accs)
+                  std_test_acc = np.std(test_accs)    
                   print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
                   
             elif self.prompt_type == 'MultiGprompt':
