@@ -72,7 +72,7 @@ class GraphTask(BaseTask):
             total_loss += loss.item()  
         return total_loss / len(train_loader)  
 
-    def GpromptTrain(self, train_loader):
+    def GpromptTrain(self, train_loader, center):
         self.prompt.train()
         total_loss = 0.0 
         for batch in train_loader:  
@@ -80,7 +80,7 @@ class GraphTask(BaseTask):
             batch = batch.to(self.device)
             out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = 'Gprompt')
             # out = s𝑡,𝑥 = ReadOut({p𝑡 ⊙ h𝑣 : 𝑣 ∈ 𝑉 (𝑆𝑥)}),
-            center = center_embedding(out, batch.y, self.output_dim)
+            # center = center_embedding(out, batch.y, self.output_dim)
             criterion = Gprompt_tuning_loss()
             loss = criterion(out, center, batch.y)  
             loss.backward()  

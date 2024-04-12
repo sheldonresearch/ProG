@@ -7,7 +7,8 @@ from prompt_graph.utils import  get_args
 args = get_args()
 seed_everything(args.seed)
 args.task = 'NodeTask'
-# args.dataset_name = 'cora'
+# args.dataset_name = 'CiteSeer'
+
 # args.prompt_type = 'MultiGprompt'
 # args.pre_train_model_path = './multigprompt_model/cora.multigprompt.GCL.128hidden_dim.pth'
 

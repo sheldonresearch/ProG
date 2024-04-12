@@ -7,7 +7,7 @@ def get_args():
     parser.add_argument('--device', type=int, default=0,
                         help='Which gpu to use if any (default: 0)')
     parser.add_argument('--gnn_type', type=str, default="GCN", help='We support gnn like \GCN\ \GAT\ \GT\ \GCov\ \GIN\ \GraphSAGE\, please read ProG.model module')
-    parser.add_argument('--prompt_type', type=str, default="All-in-one", 
+    parser.add_argument('--prompt_type', type=str, default="None", 
                         help='Choose the prompt type for node or graph task, for node task,we support \GPPT\, \All-in-one\, \Gprompt\ for graph task , \All-in-one\, \Gprompt\, \GPF\, \GPF-plus\ ')
     parser.add_argument('--hid_dim', type=int, default=128,
                         help='hideen layer of GNN dimensions (default: 300)')
