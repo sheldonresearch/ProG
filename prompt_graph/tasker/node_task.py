@@ -58,34 +58,29 @@ class NodeTask(BaseTask):
             print("feature",features.shape)
             self.idx_val = torch.LongTensor(idx_val)
             self.idx_test = torch.LongTensor(idx_test)
+
+      def load_induced_graph(self):
+            self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
+            self.data.to('cpu')
+            self.input_dim = self.dataset.num_features
+            self.output_dim = self.dataset.num_classes
+            file_path = './induced_graph/' + self.dataset_name + '_induced_graph.pkl'
+            if os.path.exists(file_path):
+                  with open(file_path, 'rb') as f:
+                        graphs_list = pickle.load(f)
+            else:
+                  print('Begin split_induced_graphs.')
+                  split_induced_graphs(self.dataset_name, self.data, smallest_size=10, largest_size=30)
+                  with open(file_path, 'rb') as f:
+                        graphs_list = pickle.load(f)
+            return graphs_list
+
       
       def load_data(self):
-            if self.prompt_type in ['All-in-one', 'Gprompt']:
-                  self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
-                  self.data.to('cpu')
-                  self.input_dim = self.dataset.num_features
-                  self.output_dim = self.dataset.num_classes
-                  file_path = './data/induced_graph/' + self.dataset_name + '_induced_graph.pkl'
-                  if os.path.exists(file_path):
-                        with open(file_path, 'rb') as f:
-                              graphs_dict = pickle.load(f)
-                        self.train_dataset = graphs_dict['train_graphs']
-                        self.test_dataset = graphs_dict['test_graphs']
-                        self.val_dataset = graphs_dict['val_graphs']
-                  else:
-                        print('Begin split_induced_graphs.')
-                        split_induced_graphs(self.dataset_name, self.data, smallest_size=10, largest_size=30)
-                        with open(file_path, 'rb') as f:
-                              graphs_dict = pickle.load(f)
-                        self.train_dataset = graphs_dict['train_graphs']
-                        self.test_dataset = graphs_dict['test_graphs']
-                        self.val_dataset = graphs_dict['val_graphs']
-
-            else:
-                  self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
-                  self.data.to(self.device)
-                  self.input_dim = self.dataset.num_features
-                  self.output_dim = self.dataset.num_classes
+            self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
+            self.data.to(self.device)
+            self.input_dim = self.dataset.num_features
+            self.output_dim = self.dataset.num_classes
       
       def train(self, data, train_idx):
             self.gnn.train()
@@ -178,22 +173,24 @@ class NodeTask(BaseTask):
       def run(self):
             # for all-in-one and Gprompt we use k-hop subgraph
             if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-                  train_loader = DataLoader(self.train_dataset, batch_size=16, shuffle=True)
-                  test_loader = DataLoader(self.test_dataset, batch_size=16, shuffle=False)
-                  # val_loader = DataLoader(self.val_dataset, batch_size=16, shuffle=False)
+                  graphs_list = self.load_induced_graph
+                  for graph in graphs_list:
+                        
+                  train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+                  test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
                   print("prepare induce graph data is finished!")
 
             if self.prompt_type != 'MultiGprompt':
                   test_accs = []
                   
                   for i in range(1, 6):
-                        idx_train = torch.load("./sample_data/Cora/{}_shot/{}/train_idx.pt".format(self.shot_num,i)).type(torch.long).to(self.device)
+                        idx_train = torch.load("./sample_data/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                         print('idx_train',idx_train)
-                        train_lbls = torch.load("./sample_data/Cora/{}_shot/{}/train_labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().to(self.device)
+                        train_lbls = torch.load("./sample_data/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
                         print("true",i,train_lbls)
 
-                        idx_test = torch.load("./sample_data/Cora/{}_shot/{}/test_idx.pt".format(self.shot_num,i)).type(torch.long).to(self.device)
-                        test_lbls = torch.load("./sample_data/Cora/{}_shot/{}/test_labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().to(self.device)
+                        idx_test = torch.load("./sample_data/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                        test_lbls = torch.load("./sample_data/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
                    
                         patience = 20
                         best = 1e9

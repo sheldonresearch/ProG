@@ -54,11 +54,9 @@ def induced_graphs(data, smallest_size=10, largest_size=30):
 
 
 def split_induced_graphs(name, data, smallest_size=10, largest_size=30):
-    
-    train_graphs = []
-    test_graphs = []
-    val_graphs = []
 
+    induced_graph_list = []
+    
     for index in range(data.x.size(0)):
         current_label = data.y[index].item()
 
@@ -86,26 +84,13 @@ def split_induced_graphs(name, data, smallest_size=10, largest_size=30):
 
         x = data.x[subset]
 
-        induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label)
-        # print(index+100)
-        # 检查节点子图是否在训练集、测试集或验证集中
-        if (data.train_mask[index]):
-            train_graphs.append(induced_graph)
-        elif (data.test_mask[index]):
-            test_graphs.append(induced_graph)
-        else:
-            val_graphs.append(induced_graph)
-        # print(index)
+        induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label, index = index)
+        induced_graph_list.append(induced_graph)
 
-        graphs_dict = {
-            'train_graphs': train_graphs,
-            'test_graphs': test_graphs,
-            'val_graphs': val_graphs
-        }
 
     # Save the dictionary into a file
-    with open('./data/induced_graph/'+ name +'_induced_graph.pkl', 'wb') as f:
-        pickle.dump(graphs_dict, f)    
+    with open('./induced_graph/'+ name +'_induced_graph.pkl', 'wb') as f:
+        pickle.dump(induced_graph_list, f)    
 
 
 def multi_class_NIG(dataname, num_class,shots=100):

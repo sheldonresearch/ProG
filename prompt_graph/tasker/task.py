@@ -36,7 +36,7 @@ class BaseTask:
             model_param_group.append({"params": self.answering.parameters()})
             self.optimizer = optim.Adam(model_param_group, lr=0.005, weight_decay=5e-4)
         elif self.prompt_type in ['Gprompt', 'GPPT']:
-            self.pg_opi = optim.Adam(self.prompt.parameters(), lr=0.005, weight_decay=5e-4)
+            self.pg_opi = optim.Adam(self.prompt.parameters(), lr=0.01, weight_decay=5e-4)
         elif self.prompt_type == 'MultiGprompt':
             self.optimizer = torch.optim.Adam([*self.DownPrompt.parameters(),*self.feature_prompt.parameters()], lr=0.001)
 

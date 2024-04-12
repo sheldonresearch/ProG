@@ -74,7 +74,7 @@ class GraphTask(BaseTask):
             total_loss += loss.item()  
         return total_loss / len(train_loader)  
 
-    def GpromptTrain(self, train_loader):
+    def GpromptTrain(self, train_loader, center):
         self.prompt.train()
         total_loss = 0.0
 
