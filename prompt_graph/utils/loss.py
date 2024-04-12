@@ -19,7 +19,7 @@ class Gprompt_tuning_loss(nn.Module):
         pos = exp_similarities.gather(1, labels.view(-1, 1))
         L_prompt = -torch.log(pos / pos_neg)
         loss = torch.sum(L_prompt)
-        
+                    
         return loss
 
 def Gprompt_link_loss(node_emb, pos_emb, neg_emb, temperature=0.2):

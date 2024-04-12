@@ -1,4 +1,5 @@
 import torch.nn.functional as F
+import torch
 
 def GpromptEva(loader, gnn, prompt, center_embedding, device):
     prompt.eval()

@@ -18,7 +18,7 @@ class GraphTask(BaseTask):
         self.initialize_optimizer()
 
     def load_data(self):
-        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY']:
+        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC']:
             self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
 
     def Train(self, train_loader):
@@ -40,6 +40,8 @@ class GraphTask(BaseTask):
         
         answer_epoch = 1  # 50
         prompt_epoch = 1  # 50
+        # answer_epoch = 5  # 50
+        # prompt_epoch = 1  # 50        
         
         # tune task head
         self.answering.train()
@@ -74,18 +76,46 @@ class GraphTask(BaseTask):
 
     def GpromptTrain(self, train_loader):
         self.prompt.train()
-        total_loss = 0.0 
-        for batch in train_loader:  
+        total_loss = 0.0
+
+        for batch in train_loader:
+            
+            # archived code for complete prototype embeddings of each labels. Not as well as batch version
+            # # compute the prototype embeddings of each type of label
+
+            # for index, batch in enumerate(train_loader):     
+            #     self.pg_opi.zero_grad() 
+            #     batch = batch.to(self.device)
+                
+            #     out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = 'Gprompt')
+
+            #     if(index == 0):
+            #         total_embed_of_each_label = torch.zeros(self.output_dim, out.size(1)).to(self.device)
+            #         totoal_num_of_each_label = torch.zeros(self.output_dim, 1).to(self.device)           
+
+            #     # out = s𝑡,𝑥 = ReadOut({p𝑡 ⊙ h𝑣 : 𝑣 ∈ 𝑉 (𝑆𝑥)}),
+            #     b_total_embed, b_total_num = batch_total_embedding(out, batch.y, self.output_dim)
+            #     total_embed_of_each_label+=b_total_embed
+            #     totoal_num_of_each_label+=b_total_num
+            
+            # # center = total_embed_of_each_label 
+            # for i in range(self.output_dim): # self.output_dim = label number
+            #     if(totoal_num_of_each_label[i].item()==0):
+            #         continue
+            #     else:
+            #         center[i] /= totoal_num_of_each_label[i] # compute average embs of each type of label, where the sample num is not 0.
+
             self.pg_opi.zero_grad() 
             batch = batch.to(self.device)
             out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = 'Gprompt')
             # out = s𝑡,𝑥 = ReadOut({p𝑡 ⊙ h𝑣 : 𝑣 ∈ 𝑉 (𝑆𝑥)}),
-            center = center_embedding(out, batch.y, self.output_dim)
+            center=center_embedding(out,batch.y, self.output_dim)
             criterion = Gprompt_tuning_loss()
             loss = criterion(out, center, batch.y)  
             loss.backward()  
             self.pg_opi.step()  
-            total_loss += loss.item()  
+            total_loss += loss.item()
+
         return total_loss / len(train_loader), center
 
 
@@ -98,6 +128,7 @@ class GraphTask(BaseTask):
         best_val_acc = final_test_acc = 0
         for epoch in range(1, self.epochs + 1):
             t0 = time.time()
+
             if self.prompt_type == 'None':
                 loss = self.Train(train_loader)
                 test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)

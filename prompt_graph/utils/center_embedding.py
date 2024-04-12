@@ -1,7 +1,6 @@
 import torch
 
-
-
+# ours
 def center_embedding(input, index, label_num):
     device=input.device
     c = torch.zeros(label_num, input.size(1)).to(device)
@@ -9,8 +8,15 @@ def center_embedding(input, index, label_num):
     class_counts = torch.bincount(index, minlength=label_num).unsqueeze(1).to(dtype=input.dtype, device=device)
 
     # Take the average embeddings for each class
-    c /= class_counts
-    
+    # If directly divided the variable 'c', maybe encountering zero values in 'class_counts', such as the class_counts=[[0.],[4.]]
+    # So we need to judge every value in 'class_counts' one by one, and seperately divided them.
+    # output_c = c/class_counts
+    for i in range(label_num):
+        if(class_counts[i].item()==0):
+            continue
+        else:
+            c[i] /= class_counts[i]
+
     return c
 
 def distance2center(input,center):

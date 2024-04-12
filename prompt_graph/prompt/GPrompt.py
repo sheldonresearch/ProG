@@ -8,7 +8,7 @@ class Gprompt(torch.nn.Module):
         self.reset_parameters()
     def reset_parameters(self):
         torch.nn.init.xavier_uniform_(self.weight)
-    def forward(self, graph_embedding):
-        graph_embedding=graph_embedding*self.weight
+    def forward(self, node_embeddings):
+        node_embeddings=node_embeddings*self.weight
         # graph_embedding=graph_embedding.sum(dim=1) 有一点点抽象
-        return graph_embedding
+        return node_embeddings
