@@ -171,14 +171,6 @@ class NodeTask(BaseTask):
             return total_loss / len(train_loader)  
       
       def run(self):
-            # for all-in-one and Gprompt we use k-hop subgraph
-            if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-                  graphs_list = self.load_induced_graph
-                  for graph in graphs_list:
-                        
-                  train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
-                  test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
-                  print("prepare induce graph data is finished!")
 
             if self.prompt_type != 'MultiGprompt':
                   test_accs = []
@@ -191,7 +183,23 @@ class NodeTask(BaseTask):
 
                         idx_test = torch.load("./sample_data/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                         test_lbls = torch.load("./sample_data/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
-                   
+                        
+                        # for all-in-one and Gprompt we use k-hop subgraph
+                        if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
+                              graphs_list = self.load_induced_graph()
+                              train_graphs = []
+                              test_graphs = []
+                              
+                              for graph in graphs_list:                              
+                                    if graph.index in idx_train:
+                                          train_graphs.append(graph)
+                                    elif graph.index in idx_test:
+                                          test_graphs.append(graph)
+
+                                    train_loader = DataLoader(train_graphs, batch_size=16, shuffle=True)
+                                    test_loader = DataLoader(test_graphs, batch_size=16, shuffle=False)
+                                    print("prepare induce graph data is finished!")
+
                         patience = 20
                         best = 1e9
                         cnt_wait = 0
