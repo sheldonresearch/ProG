@@ -174,11 +174,11 @@ class NodeTask(BaseTask):
             # for all-in-one and Gprompt we use k-hop subgraph
             if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
                   graphs_list = self.load_induced_graph
-                  for graph in graphs_list:
+                  # for graph in graphs_list:
                         
-                  train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
-                  test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
-                  print("prepare induce graph data is finished!")
+                  #       train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+                  #       test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
+                  #       print("prepare induce graph data is finished!")
 
             if self.prompt_type != 'MultiGprompt':
                   test_accs = []
