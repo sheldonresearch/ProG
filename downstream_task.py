@@ -8,7 +8,7 @@ args = get_args()
 seed_everything(args.seed)
 # args.task = 'NodeTask'
 # args.dataset_name = 'cora'
-args.task = 'NodeTask'
+# args.task = 'NodeTask'
 # args.dataset_name = 'CiteSeer'
 
 # args.prompt_type = 'MultiGprompt'
