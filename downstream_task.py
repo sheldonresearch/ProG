@@ -6,7 +6,8 @@ from prompt_graph.utils import  get_args
 
 args = get_args()
 seed_everything(args.seed)
-# args.task = 'NodeTask'
+args.task = 'NodeTask'
+args.prompt_type = 'All-in-one'
 # args.dataset_name = 'cora'
 # args.task = 'NodeTask'
 # args.dataset_name = 'CiteSeer'

@@ -61,10 +61,10 @@ class NodeTask(BaseTask):
 
       def load_induced_graph(self):
             self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
-            self.data.to('cpu')
+            # self.data.to('cpu')
             self.input_dim = self.dataset.num_features
             self.output_dim = self.dataset.num_classes
-            file_path = './induced_graph/' + self.dataset_name + '_induced_graph.pkl'
+            file_path = './induced_graph/' + self.dataset_name + '/induced_graph.pkl'
             if os.path.exists(file_path):
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
@@ -171,22 +171,6 @@ class NodeTask(BaseTask):
             return total_loss / len(train_loader)  
       
       def run(self):
-            # for all-in-one and Gprompt we use k-hop subgraph
-            if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-                  graphs_list = self.load_induced_graph()
-                  
-                  train_graphs = []
-                  test_graphs = []
-
-                  for graph in graphs_list:
-                        if graph.index in idx_train:
-                              train_graphs.append(graph)
-                        elif graph.index in idx_test:
-                              test_graphs.append(graph)
-
-                  train_loader = DataLoader(train_graphs, batch_size=16, shuffle=True)
-                  test_loader = DataLoader(test_graphs, batch_size=16, shuffle=False)
-                  print("prepare induce graph data is finished!")
 
             if self.prompt_type != 'MultiGprompt':
                   test_accs = []
@@ -212,9 +196,9 @@ class NodeTask(BaseTask):
                                     elif graph.index in idx_test:
                                           test_graphs.append(graph)
 
-                                    train_loader = DataLoader(train_graphs, batch_size=16, shuffle=True)
-                                    test_loader = DataLoader(test_graphs, batch_size=16, shuffle=False)
-                                    print("prepare induce graph data is finished!")
+                              train_loader = DataLoader(train_graphs, batch_size=16, shuffle=True)
+                              test_loader = DataLoader(test_graphs, batch_size=16, shuffle=False)
+                              print("prepare induce graph data is finished!")
 
                         patience = 20
                         best = 1e9
@@ -228,11 +212,11 @@ class NodeTask(BaseTask):
                               elif self.prompt_type == 'GPPT':
                                     loss = self.GPPTtrain(self.data, idx_train)                
                               elif self.prompt_type == 'All-in-one':
-                                    loss = self.AllInOneTrain(train_loader, idx_train)                           
+                                    loss = self.AllInOneTrain(train_loader)                           
                               elif self.prompt_type in ['GPF', 'GPF-plus']:
-                                    loss = self.GPFTrain(train_loader, idx_train)                                                          
+                                    loss = self.GPFTrain(train_loader)                                                          
                               elif self.prompt_type =='Gprompt':
-                                    loss = self.GpromptTrain(train_loader, idx_train)
+                                    loss = self.GpromptTrain(train_loader)
 
                               if loss < best:
                                     best = loss
