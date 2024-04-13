@@ -157,18 +157,21 @@ class NodeTask(BaseTask):
       def GpromptTrain(self, train_loader):
             self.prompt.train()
             total_loss = 0.0 
+            center_list = []
             for batch in train_loader:  
                   self.pg_opi.zero_grad() 
                   batch = batch.to(self.device)
                   out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = 'Gprompt')
                   # out = s𝑡,𝑥 = ReadOut({p𝑡 ⊙ h𝑣 : 𝑣 ∈ 𝑉 (𝑆𝑥)}),
-                  center = center_embedding(out, batch.y, self.output_dim)
+                  center, class_counts = center_embedding(out, batch.y, self.output_dim)
                   criterion = Gprompt_tuning_loss()
                   loss = criterion(out, center, batch.y)  
                   loss.backward()  
                   self.pg_opi.step()  
-                  total_loss += loss.item()  
-            return total_loss / len(train_loader)  
+                  total_loss += loss.item()
+                  center_list.append(center)
+
+            return total_loss / len(train_loader), center_list.mean()
       
       def run(self):
 
@@ -216,7 +219,7 @@ class NodeTask(BaseTask):
                               elif self.prompt_type in ['GPF', 'GPF-plus']:
                                     loss = self.GPFTrain(train_loader)                                                          
                               elif self.prompt_type =='Gprompt':
-                                    loss = self.GpromptTrain(train_loader)
+                                    loss, center = self.GpromptTrain(train_loader)
 
                               if loss < best:
                                     best = loss
@@ -240,7 +243,7 @@ class NodeTask(BaseTask):
                         elif self.prompt_type in ['GPF', 'GPF-plus']:
                               test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)                                                         
                         elif self.prompt_type =='Gprompt':
-                              test_acc = GpromptEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
+                              test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
 
                         print("test accuracy {:.4f} ".format(test_acc))                        
                         test_accs.append(test_acc)

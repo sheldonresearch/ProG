@@ -17,7 +17,7 @@ def center_embedding(input, index, label_num):
         else:
             c[i] /= class_counts[i]
 
-    return c
+    return c, class_counts
 
 def distance2center(input,center):
     n = input.size(0)
