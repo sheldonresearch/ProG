@@ -8,6 +8,7 @@ args = get_args()
 seed_everything(args.seed)
 args.task = 'NodeTask'
 args.prompt_type = 'Gprompt'
+args.shot_num =1
 # args.dataset_name = 'cora'
 # args.task = 'NodeTask'
 # args.dataset_name = 'CiteSeer'

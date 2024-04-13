@@ -1,5 +1,4 @@
 import torch
-from prompt_graph.prompt import GPF,GPF_plus
 from torch_geometric.loader import DataLoader
 from prompt_graph.utils import constraint,  center_embedding, Gprompt_tuning_loss
 from prompt_graph.evaluation import GPPTEva, GNNNodeEva, GPFEva
@@ -12,7 +11,6 @@ from prompt_graph.data import load4node, induced_graphs, graph_split, split_indu
 from prompt_graph.evaluation import GpromptEva, AllInOneEva
 import pickle
 import os
-import copy
 from prompt_graph.utils import process
 warnings.filterwarnings("ignore")
 
@@ -64,7 +62,7 @@ class NodeTask(BaseTask):
             # self.data.to('cpu')
             self.input_dim = self.dataset.num_features
             self.output_dim = self.dataset.num_classes
-            file_path = './induced_graph/' + self.dataset_name + '/induced_graph.pkl'
+            file_path = './Experiment/induced_graph/' + self.dataset_name + '/induced_graph.pkl'
             if os.path.exists(file_path):
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
@@ -157,21 +155,30 @@ class NodeTask(BaseTask):
       def GpromptTrain(self, train_loader):
             self.prompt.train()
             total_loss = 0.0 
-            center_list = []
+            accumulated_centers = None
+            accumulated_counts = None
             for batch in train_loader:  
                   self.pg_opi.zero_grad() 
                   batch = batch.to(self.device)
                   out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = 'Gprompt')
                   # out = s𝑡,𝑥 = ReadOut({p𝑡 ⊙ h𝑣 : 𝑣 ∈ 𝑉 (𝑆𝑥)}),
                   center, class_counts = center_embedding(out, batch.y, self.output_dim)
+                   # 累积中心向量和样本数
+                  if accumulated_centers is None:
+                        accumulated_centers = center
+                        accumulated_counts = class_counts
+                  else:
+                        accumulated_centers += center * class_counts
+                        accumulated_counts += class_counts
                   criterion = Gprompt_tuning_loss()
                   loss = criterion(out, center, batch.y)  
                   loss.backward()  
                   self.pg_opi.step()  
                   total_loss += loss.item()
-                  center_list.append(center)
+            # 计算加权平均中心向量
+            mean_centers = accumulated_centers / accumulated_counts
 
-            return total_loss / len(train_loader), center_list.mean()
+            return total_loss / len(train_loader), mean_centers
       
       def run(self):
 
@@ -179,13 +186,13 @@ class NodeTask(BaseTask):
                   test_accs = []
                   
                   for i in range(1, 6):
-                        idx_train = torch.load("./sample_data/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                        idx_train = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                         print('idx_train',idx_train)
-                        train_lbls = torch.load("./sample_data/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+                        train_lbls = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
                         print("true",i,train_lbls)
 
-                        idx_test = torch.load("./sample_data/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-                        test_lbls = torch.load("./sample_data/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+                        idx_test = torch.load("./Experiment/sample_data/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                        test_lbls = torch.load("./Experiment/sample_data/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
                         
                         # for all-in-one and Gprompt we use k-hop subgraph
                         if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:

@@ -77,46 +77,35 @@ class GraphTask(BaseTask):
     def GpromptTrain(self, train_loader):
         self.prompt.train()
         total_loss = 0.0
+        accumulated_centers = None
+        accumulated_counts = None
 
         for batch in train_loader:
             
             # archived code for complete prototype embeddings of each labels. Not as well as batch version
             # # compute the prototype embeddings of each type of label
 
-            # for index, batch in enumerate(train_loader):     
-            #     self.pg_opi.zero_grad() 
-            #     batch = batch.to(self.device)
-                
-            #     out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = 'Gprompt')
-
-            #     if(index == 0):
-            #         total_embed_of_each_label = torch.zeros(self.output_dim, out.size(1)).to(self.device)
-            #         totoal_num_of_each_label = torch.zeros(self.output_dim, 1).to(self.device)           
-
-            #     # out = s𝑡,𝑥 = ReadOut({p𝑡 ⊙ h𝑣 : 𝑣 ∈ 𝑉 (𝑆𝑥)}),
-            #     b_total_embed, b_total_num = batch_total_embedding(out, batch.y, self.output_dim)
-            #     total_embed_of_each_label+=b_total_embed
-            #     totoal_num_of_each_label+=b_total_num
-            
-            # # center = total_embed_of_each_label 
-            # for i in range(self.output_dim): # self.output_dim = label number
-            #     if(totoal_num_of_each_label[i].item()==0):
-            #         continue
-            #     else:
-            #         center[i] /= totoal_num_of_each_label[i] # compute average embs of each type of label, where the sample num is not 0.
-
             self.pg_opi.zero_grad() 
             batch = batch.to(self.device)
             out = self.gnn(batch.x, batch.edge_index, batch.batch, prompt = self.prompt, prompt_type = 'Gprompt')
             # out = s𝑡,𝑥 = ReadOut({p𝑡 ⊙ h𝑣 : 𝑣 ∈ 𝑉 (𝑆𝑥)}),
-            center=center_embedding(out,batch.y, self.output_dim)
+            center, class_counts = center_embedding(out,batch.y, self.output_dim)
+            # 累积中心向量和样本数
+            if accumulated_centers is None:
+                accumulated_centers = center
+                accumulated_counts = class_counts
+            else:
+                accumulated_centers += center * class_counts
+                accumulated_counts += class_counts
             criterion = Gprompt_tuning_loss()
             loss = criterion(out, center, batch.y)  
             loss.backward()  
             self.pg_opi.step()  
             total_loss += loss.item()
+            # 计算加权平均中心向量
+            mean_centers = accumulated_centers / accumulated_counts
 
-        return total_loss / len(train_loader), center
+            return total_loss / len(train_loader), mean_centers
 
 
     def run(self):
