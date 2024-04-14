@@ -6,26 +6,27 @@ import numpy as np
     
 
 class downprompt(nn.Module):
-    def __init__(self, prompt1, prompt2, prompt3,a4,ft_in, nb_classes):
+    def __init__(self, prompt1, prompt2, prompt3,a4,ft_in, nb_classes, device):
         super(downprompt, self).__init__()
         self.downprompt = downstreamprompt(ft_in)
         self.nb_classes = nb_classes
         self.a4 = a4
         self.leakyrelu = nn.ELU()
+        self.device = device
         self.prompt = torch.cat((prompt1, prompt2, prompt3), 0)
         self.nodelabelprompt = weighted_prompt(3)
         self.dffprompt = weighted_feature(2)
-        self.aveemb0 = torch.FloatTensor(ft_in, ).cuda()
-        self.aveemb1 = torch.FloatTensor(ft_in, ).cuda()
-        self.aveemb2 = torch.FloatTensor(ft_in, ).cuda()
-        self.aveemb3 = torch.FloatTensor(ft_in, ).cuda()
-        self.aveemb4 = torch.FloatTensor(ft_in, ).cuda()
-        self.aveemb5 = torch.FloatTensor(ft_in, ).cuda()
-        self.aveemb6 = torch.FloatTensor(ft_in, ).cuda()
+        self.aveemb0 = torch.FloatTensor(ft_in, ).to(self.device)
+        self.aveemb1 = torch.FloatTensor(ft_in, ).to(self.device)
+        self.aveemb2 = torch.FloatTensor(ft_in, ).to(self.device)
+        self.aveemb3 = torch.FloatTensor(ft_in, ).to(self.device)
+        self.aveemb4 = torch.FloatTensor(ft_in, ).to(self.device)
+        self.aveemb5 = torch.FloatTensor(ft_in, ).to(self.device)
+        self.aveemb6 = torch.FloatTensor(ft_in, ).to(self.device)
 
 
-        self.one = torch.ones(1,ft_in).cuda()
-        self.ave = torch.FloatTensor(nb_classes,ft_in).cuda()
+        self.one = torch.ones(1,ft_in).to(self.device)
+        self.ave = torch.FloatTensor(nb_classes,ft_in).to(self.device)
    
     def forward(self,seq,seq1,labels,train=0):
 
@@ -41,12 +42,12 @@ class downprompt(nn.Module):
         rawret =rawret3 +self.a4 * rawret4
 
         # rawret = seq
-        rawret = rawret.cuda()
+        rawret = rawret.to(self.device)
         # rawret = torch.stack((rawret,rawret,rawret,rawret,rawret,rawret))
         if train == 1:
-            self.ave = averageemb(labels=labels, rawret=rawret,nb_class=self.nb_classes)
+            self.ave = averageemb(labels=labels, rawret=rawret,nb_class=self.nb_classes).to(self.device)
 
-        ret = torch.FloatTensor(seq.shape[0],self.nb_classes).cuda()
+        ret = torch.FloatTensor(seq.shape[0],self.nb_classes).to(self.device)
         # print("avesize",self.ave.size(),"ave",self.ave)
         # print("rawret=", rawret[1])
         # print("aveemb", self.ave)
@@ -75,7 +76,7 @@ class downprompt(nn.Module):
 
 
 def averageemb(labels,rawret,nb_class):
-    retlabel = torch.FloatTensor(nb_class,int(rawret.shape[0]/nb_class),int(rawret.shape[1])).cuda()
+    retlabel = torch.FloatTensor(nb_class,int(rawret.shape[0]/nb_class),int(rawret.shape[1]))
     cnt1 = 0
     cnt2 = 0
     cnt3 = 0
@@ -194,8 +195,8 @@ class GCN(nn.Module):
     # Shape of seq: (batch, nodes, features)
     def forward(self, input, sparse=True):
         # print("input",input)
-        seq = input[0].cuda()
-        adj = input[1].cuda()
+        seq = input[0]
+        adj = input[1]
         seq_fts = self.fc(seq)
         if sparse:
             out = torch.spmm(adj, seq_fts)

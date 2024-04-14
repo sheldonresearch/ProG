@@ -1,7 +1,7 @@
 import torch
 from torch_geometric.loader import DataLoader
 from prompt_graph.utils import constraint,  center_embedding, Gprompt_tuning_loss
-from prompt_graph.evaluation import GPPTEva, GNNNodeEva, GPFEva
+from prompt_graph.evaluation import GPPTEva, GNNNodeEva, GPFEva, MultiGpromptEva
 from prompt_graph.pretrain import PrePrompt, prompt_pretrain_sample
 from .task import BaseTask
 import time
@@ -47,9 +47,9 @@ class NodeTask(BaseTask):
             adj, features, labels, idx_train, idx_val, idx_test = process.load_data(self.dataset_name)  
             self.input_dim = features.shape[1]
             features, _ = process.preprocess_features(features)
-            self.sp_adj = process.sparse_mx_to_torch_sparse_tensor(adj)
+            self.sp_adj = process.sparse_mx_to_torch_sparse_tensor(adj).to(self.device)
             self.labels = torch.FloatTensor(labels[np.newaxis])
-            self.features = torch.FloatTensor(features[np.newaxis]).cuda()
+            self.features = torch.FloatTensor(features[np.newaxis]).to(self.device)
             self.idx_train = torch.LongTensor(idx_train)
             # print("labels",labels)
             print("adj",self.sp_adj.shape)
@@ -100,6 +100,20 @@ class NodeTask(BaseTask):
             loss.backward()
             self.pg_opi.step()
             self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
+            return loss.item()
+      
+      def MultiGpromptTrain(self, pretrain_embs, train_lbls, train_idx):
+            self.DownPrompt.train()
+            self.optimizer.zero_grad()
+            prompt_feature = self.feature_prompt(self.features)
+            # prompt_feature = self.feature_prompt(self.data.x)
+            # embeds1 = self.gnn(prompt_feature, self.data.edge_index)
+            embeds1= self.Preprompt.gcn(prompt_feature, self.sp_adj , True, False)
+            pretrain_embs1 = embeds1[0, train_idx]
+            logits = self.DownPrompt(pretrain_embs,pretrain_embs1, train_lbls,1).float().to(self.device)
+            loss = self.criterion(logits, train_lbls)           
+            loss.backward(retain_graph=True)
+            self.optimizer.step()
             return loss.item()
       
       def SUPTtrain(self, data):
@@ -182,10 +196,11 @@ class NodeTask(BaseTask):
       
       def run(self):
 
-            if self.prompt_type != 'MultiGprompt':
+            if self.prompt_type == 'MultiGprompt':
                   test_accs = []
                   
                   for i in range(1, 6):
+                        self.dataset_name ='Cora'
                         idx_train = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                         print('idx_train',idx_train)
                         train_lbls = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
@@ -210,12 +225,17 @@ class NodeTask(BaseTask):
                               test_loader = DataLoader(test_graphs, batch_size=16, shuffle=False)
                               print("prepare induce graph data is finished!")
 
+                        if self.prompt_type == 'MultiGprompt':
+                              embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
+                              pretrain_embs = embeds[0, idx_train]
+                              test_embs = embeds[0, idx_test]
+
                         patience = 20
                         best = 1e9
                         cnt_wait = 0
-                        
-                        for epoch in range(1, self.epochs):
 
+
+                        for epoch in range(1, self.epochs):
                               t0 = time.time()
                               if self.prompt_type == 'None':
                                     loss = self.train(self.data, idx_train)                             
@@ -227,6 +247,9 @@ class NodeTask(BaseTask):
                                     loss = self.GPFTrain(train_loader)                                                          
                               elif self.prompt_type =='Gprompt':
                                     loss, center = self.GpromptTrain(train_loader)
+                              elif self.prompt_type == 'MultiGprompt':
+                                    loss = self.MultiGpromptTrain(pretrain_embs, train_lbls, idx_train)
+
 
                               if loss < best:
                                     best = loss
@@ -251,6 +274,9 @@ class NodeTask(BaseTask):
                               test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)                                                         
                         elif self.prompt_type =='Gprompt':
                               test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+                        elif self.prompt_type == 'MultiGprompt':
+                              prompt_feature = self.feature_prompt(self.features)
+                              test_acc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj)
 
                         print("test accuracy {:.4f} ".format(test_acc))                        
                         test_accs.append(test_acc)
@@ -260,13 +286,11 @@ class NodeTask(BaseTask):
                   std_test_acc = np.std(test_accs)    
                   print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
                   
-            elif self.prompt_type == 'MultiGprompt':
+            elif self.prompt_type != 'MultiGprompt':
                   # embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
                   embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
 
-                  preval_embs = embeds[0, self.idx_val]
-                  test_embs = embeds[0, self.idx_test]
-                  val_lbls = torch.argmax(self.labels[0, self.idx_val], dim=1)
+                  
                   test_lbls = torch.argmax(self.labels[0, self.idx_test], dim=1).cuda()
                   tot = torch.zeros(1)
                   tot = tot.cuda()
@@ -274,11 +298,21 @@ class NodeTask(BaseTask):
                   patience = 20
                   print('-' * 100)
                   cnt_wait = 0
-                  for i in range(10):
-                        idx_train = torch.load("./data/fewshot_cora/{}-shot_cora/{}/idx.pt".format(self.shot_num,i)).type(torch.long).cuda()
+                  for i in range(1,6):
+                        # idx_train = torch.load("./data/fewshot_cora/{}-shot_cora/{}/idx.pt".format(self.shot_num,i)).type(torch.long).cuda()
+                        # print('idx_train',idx_train)
+                        # train_lbls = torch.load("./data/fewshot_cora/{}-shot_cora/{}/labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().cuda()
+                        # print("true",i,train_lbls)
+                        self.dataset_name ='Cora'
+                        idx_train = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
                         print('idx_train',idx_train)
-                        train_lbls = torch.load("./data/fewshot_cora/{}-shot_cora/{}/labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().cuda()
+                        train_lbls = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
                         print("true",i,train_lbls)
+
+                        idx_test = torch.load("./Experiment/sample_data/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
+                        test_lbls = torch.load("./Experiment/sample_data/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
+                        
+                        test_embs = embeds[0, idx_test]
                         best = 1e9
                         pat_steps = 0
                         best_acc = torch.zeros(1)
@@ -308,8 +342,8 @@ class NodeTask(BaseTask):
 
                         prompt_feature = self.feature_prompt(self.features)
                         embeds1, _ = self.Preprompt.embed(prompt_feature, self.sp_adj, True, None, False)
-                        test_embs1 = embeds1[0, self.idx_test]
-                        print('idx_test', self.idx_test)
+                        test_embs1 = embeds1[0, idx_test]
+                        print('idx_test', idx_test)
                         logits = self.DownPrompt(test_embs, test_embs1, train_lbls)
                         preds = torch.argmax(logits, dim=1)
                         acc = torch.sum(preds == test_lbls).float() / test_lbls.shape[0]
