@@ -36,6 +36,41 @@ def node_sample_and_save(data, k, folder, num_classes):
     torch.save(test_idx, os.path.join(folder, 'test_idx.pt'))
     torch.save(test_labels, os.path.join(folder, 'test_labels.pt'))
 
+def graph_sample_and_save(dataset, k, folder, num_classes):
+
+    # 计算测试集的数量（例如90%的图作为测试集）
+    num_graphs = len(dataset)
+    num_test = int(0.8 * num_graphs)
+    labels = torch.tensor([graph.y.item() for graph in dataset])
+
+    # 随机选择测试集的图索引
+    all_indices = torch.randperm(num_graphs)
+    test_indices = all_indices[:num_test]
+    torch.save(test_indices, os.path.join(folder, 'test_idx.pt'))
+    test_labels = labels[test_indices]
+    torch.save(test_labels, os.path.join(folder, 'test_labels.pt'))
+
+    remaining_indices = all_indices[num_test:]
+
+    # 从剩下的10%的图中为训练集选择每个类别的k个样本
+    train_indices = []
+    for i in range(num_classes):
+        # 选出该类别的所有图
+        class_indices = [idx for idx in remaining_indices if labels[idx].item() == i]
+        # 如果选出的图少于k个，就取所有该类的图
+        selected_indices = class_indices[:k] 
+        train_indices.extend(selected_indices)
+
+    # 随机打乱训练集的图索引
+    train_indices = torch.tensor(train_indices)
+    shuffled_indices = torch.randperm(train_indices.size(0))
+    train_indices = train_indices[shuffled_indices]
+    torch.save(train_indices, os.path.join(folder, 'train_idx.pt'))
+    train_labels = labels[train_indices]
+    torch.save(train_labels, os.path.join(folder, 'train_labels.pt'))
+
+
+
 def load4graph(dataset_name, shot_num= 10, num_parts=None):
     r"""A plain old python object modeling a batch of graphs as one big
         (dicconnected) graph. With :class:`torch_geometric.data.Data` being the
@@ -51,31 +86,31 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None):
         dataset = dataset.shuffle()
         graph_list = [data for data in dataset]
 
-        # 分类并选择每个类别的图
-        class_datasets = {}
-        for data in dataset:
-            label = data.y.item()
-            if label not in class_datasets:
-                class_datasets[label] = []
-            class_datasets[label].append(data)
+        # # 分类并选择每个类别的图
+        # class_datasets = {}
+        # for data in dataset:
+        #     label = data.y.item()
+        #     if label not in class_datasets:
+        #         class_datasets[label] = []
+        #     class_datasets[label].append(data)
 
-        train_data = []
-        remaining_data = []
-        for label, data_list in class_datasets.items():
-            train_data.extend(data_list[:shot_num])
-            random.shuffle(train_data)
-            remaining_data.extend(data_list[shot_num:])
+        # train_data = []
+        # remaining_data = []
+        # for label, data_list in class_datasets.items():
+        #     train_data.extend(data_list[:shot_num])
+        #     random.shuffle(train_data)
+        #     remaining_data.extend(data_list[shot_num:])
 
-        # 将剩余的数据 1：9 划分为测试集和验证集
-        random.shuffle(remaining_data)
-        val_dataset_size = len(remaining_data) // 9
-        val_dataset = remaining_data[:val_dataset_size]
-        test_dataset = remaining_data[val_dataset_size:]
+        # # 将剩余的数据 1：9 划分为测试集和验证集
+        # random.shuffle(remaining_data)
+        # val_dataset_size = len(remaining_data) // 9
+        # val_dataset = remaining_data[:val_dataset_size]
+        # test_dataset = remaining_data[val_dataset_size:]
         
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
 
-        return input_dim, out_dim, train_data, test_dataset, val_dataset, graph_list
+        return input_dim, out_dim, dataset
 
 
 

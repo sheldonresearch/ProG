@@ -34,7 +34,7 @@ class NodeTask(BaseTask):
       def create_few_data_folder(self):
             # 创建文件夹并保存数据
             for k in range(1, 11):
-                  k_shot_folder = './sample_data/'+ self.dataset_name +'/' + str(k) +'_shot'
+                  k_shot_folder = './Experiment/sample_data/Node/'+ self.dataset_name +'/' + str(k) +'_shot'
                   os.makedirs(k_shot_folder, exist_ok=True)
                   
                   for i in range(1, 6):
@@ -196,9 +196,7 @@ class NodeTask(BaseTask):
       
       def run(self):
 
-            if self.prompt_type == 'MultiGprompt':
-                  test_accs = []
-                  
+            if self.prompt_type == 'MultiGprompt':    
                   for i in range(1, 6):
                         self.dataset_name ='Cora'
                         idx_train = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
@@ -233,6 +231,7 @@ class NodeTask(BaseTask):
                         patience = 20
                         best = 1e9
                         cnt_wait = 0
+                        test_accs = []
 
 
                         for epoch in range(1, self.epochs):

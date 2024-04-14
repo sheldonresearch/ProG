@@ -1,25 +1,40 @@
 import torch
-from prompt_graph.data import load4graph,load4node
+from prompt_graph.data import load4graph, load4node, graph_sample_and_save
 from torch_geometric.loader import DataLoader
 import torch.nn.functional as F
 from .task import BaseTask
 from prompt_graph.utils import center_embedding, Gprompt_tuning_loss
 from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva
 import time
+import os 
+import numpy as np
 
 class GraphTask(BaseTask):
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs)
         self.load_data()
+        # self.create_few_data_folder()
         self.initialize_gnn()
         self.initialize_prompt()
         self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                             torch.nn.Softmax(dim=1)).to(self.device)
         self.initialize_optimizer()
 
+    def create_few_data_folder(self):
+            # 创建文件夹并保存数据
+            for k in range(1, 11):
+                  k_shot_folder = './Experiment/sample_data/Graph/'+ self.dataset_name +'/' + str(k) +'_shot'
+                  os.makedirs(k_shot_folder, exist_ok=True)
+                  
+                  for i in range(1, 6):
+                        folder = os.path.join(k_shot_folder, str(i))
+                        os.makedirs(folder, exist_ok=True)
+                        graph_sample_and_save(self.dataset, k, folder, self.output_dim)
+                        print(str(k) + ' shot ' + str(i) + ' th is saved!!')
+
     def load_data(self):
         if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC']:
-            self.input_dim, self.output_dim, self.train_dataset, self.test_dataset, self.val_dataset, _= load4graph(self.dataset_name, self.shot_num)
+            self.input_dim, self.output_dim, self.dataset= load4graph(self.dataset_name, self.shot_num)
 
     def Train(self, train_loader):
         self.gnn.train()
@@ -109,41 +124,73 @@ class GraphTask(BaseTask):
 
 
     def run(self):
-
-        train_loader = DataLoader(self.train_dataset, batch_size=16, shuffle=True)
-        test_loader = DataLoader(self.test_dataset, batch_size=16, shuffle=False)
-        val_loader = DataLoader(self.val_dataset, batch_size=16, shuffle=False)
-        print("prepare data is finished!")
-        best_val_acc = final_test_acc = 0
-        for epoch in range(1, self.epochs + 1):
-            t0 = time.time()
-
-            if self.prompt_type == 'None':
-                loss = self.Train(train_loader)
-                test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)
-                val_acc = GNNGraphEva(val_loader, self.gnn, self.answering, self.device)
-            elif self.prompt_type == 'All-in-one':
-                loss = self.AllInOneTrain(train_loader)
-                test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
-                val_acc, F1 = AllInOneEva(val_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
-            elif self.prompt_type in ['GPF', 'GPF-plus']:
-                loss = self.GPFTrain(train_loader)
-                test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
-                val_acc = GPFEva(val_loader, self.gnn, self.prompt, self.answering, self.device)
-            elif self.prompt_type =='Gprompt':
-                loss, center = self.GpromptTrain(train_loader)
-                test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
-                val_acc = GpromptEva(val_loader, self.gnn, self.prompt, center, self.device)
-                    
-
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
-                final_test_acc = test_acc
-            print("Epoch {:03d}/{:03d}  |  Time(s) {:.4f}| Loss {:.4f} | val Accuracy {:.4f} | test Accuracy {:.4f} ".format(epoch, self.epochs, time.time() - t0, loss, val_acc, test_acc))
-            
-        print(f'Final Test: {final_test_acc:.4f}')
         
-        print("Graph Task completed")
+        for i in range(1, 6):
+           
+            idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+            print('idx_train',idx_train)
+            train_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+            print("true",i,train_lbls)
+
+            idx_test = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+            test_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+        
+            train_dataset = self.dataset[idx_train]
+            test_dataset = self.dataset[idx_test]
+            train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+            test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
+            print("prepare data is finished!")
+  
+            patience = 20
+            best = 1e9
+            cnt_wait = 0
+            test_accs = []
+
+
+            for epoch in range(1, self.epochs + 1):
+                t0 = time.time()
+
+                if self.prompt_type == 'None':
+                    loss = self.Train(train_loader)
+                elif self.prompt_type == 'All-in-one':
+                    loss = self.AllInOneTrain(train_loader)
+                elif self.prompt_type in ['GPF', 'GPF-plus']:
+                    loss = self.GPFTrain(train_loader)
+                elif self.prompt_type =='Gprompt':
+                    loss, center = self.GpromptTrain(train_loader)
+                           
+                if loss < best:
+                    best = loss
+                    # best_t = epoch
+                    cnt_wait = 0
+                    # torch.save(model.state_dict(), args.save_name)
+                else:
+                    cnt_wait += 1
+                    if cnt_wait == patience:
+                            print('-' * 100)
+                            print('Early stopping at '+str(epoch) +' eopch!')
+                            break
+                print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
+
+                
+                if self.prompt_type == 'None':
+                   test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)
+                elif self.prompt_type == 'All-in-one':
+                    test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+                elif self.prompt_type in ['GPF', 'GPF-plus']:
+                    test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
+                elif self.prompt_type =='Gprompt':
+                    test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+
+                print("test accuracy {:.4f} ".format(test_acc))                        
+                test_accs.append(test_acc)
+               
+
+                mean_test_acc = np.mean(test_accs)
+                std_test_acc = np.std(test_accs)    
+                print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
+                
+            print("Graph Task completed")
 
         
 
