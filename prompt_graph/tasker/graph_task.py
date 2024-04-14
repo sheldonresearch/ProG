@@ -124,7 +124,7 @@ class GraphTask(BaseTask):
 
 
     def run(self):
-        
+        test_accs = []
         for i in range(1, 6):
            
             idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
@@ -144,7 +144,7 @@ class GraphTask(BaseTask):
             patience = 20
             best = 1e9
             cnt_wait = 0
-            test_accs = []
+           
 
 
             for epoch in range(1, self.epochs + 1):
@@ -173,24 +173,24 @@ class GraphTask(BaseTask):
                 print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
 
                 
-                if self.prompt_type == 'None':
-                   test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)
-                elif self.prompt_type == 'All-in-one':
-                    test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
-                elif self.prompt_type in ['GPF', 'GPF-plus']:
-                    test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
-                elif self.prompt_type =='Gprompt':
-                    test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+            if self.prompt_type == 'None':
+                test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)
+            elif self.prompt_type == 'All-in-one':
+                test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+            elif self.prompt_type in ['GPF', 'GPF-plus']:
+                test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
+            elif self.prompt_type =='Gprompt':
+                test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
 
-                print("test accuracy {:.4f} ".format(test_acc))                        
-                test_accs.append(test_acc)
-               
+            print("test accuracy {:.4f} ".format(test_acc))                        
+            test_accs.append(test_acc)
+        
 
-                mean_test_acc = np.mean(test_accs)
-                std_test_acc = np.std(test_accs)    
-                print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
-                
-            print("Graph Task completed")
+        mean_test_acc = np.mean(test_accs)
+        std_test_acc = np.std(test_accs)    
+        print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
+        
+        print("Graph Task completed")
 
         
 

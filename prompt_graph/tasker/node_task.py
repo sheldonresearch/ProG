@@ -195,7 +195,7 @@ class NodeTask(BaseTask):
             return total_loss / len(train_loader), mean_centers
       
       def run(self):
-
+            test_accs = []
             if self.prompt_type == 'MultiGprompt':    
                   for i in range(1, 6):
                         self.dataset_name ='Cora'
@@ -231,7 +231,7 @@ class NodeTask(BaseTask):
                         patience = 20
                         best = 1e9
                         cnt_wait = 0
-                        test_accs = []
+                       
 
 
                         for epoch in range(1, self.epochs):
