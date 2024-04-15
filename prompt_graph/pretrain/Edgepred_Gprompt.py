@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 from prompt_graph.utils import Gprompt_link_loss
 from prompt_graph.utils import edge_index_to_sparse_matrix, prepare_structured_data
-from prompt_graph.data import load4link_prediction_single_graph
+from prompt_graph.data import load4link_prediction_single_graph,load4link_prediction_multi_graph
 import time
 from .base import PreTrain
 
@@ -15,18 +15,25 @@ class Edgepred_Gprompt(PreTrain):
         self.initialize_gnn(self.input_dim, self.hid_dim) 
         self.graph_pred_linear = torch.nn.Linear(self.hid_dim, self.output_dim).to(self.device)  
 
-
     def generate_loader_data(self):    
-        self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_single_graph(self.dataset_name)
-        self.adj = edge_index_to_sparse_matrix(self.data.edge_index, self.data.x.shape[0]).to(self.device)
-        data = prepare_structured_data(self.data)
-        return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
+        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora', 'Computers', 'Photo']:            
+            self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_single_graph(self.dataset_name)
+            self.adj = edge_index_to_sparse_matrix(self.data.edge_index, self.data.x.shape[0]).to(self.device)
+            data = prepare_structured_data(self.data)
+            return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
+        
+        elif self.dataset_name in  ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+            self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)          
+            self.adj = edge_index_to_sparse_matrix(self.data.edge_index, self.data.x.shape[0]).to(self.device)
+            data = prepare_structured_data(self.data)
+            return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
     
     def pretrain_one_epoch(self):
         accum_loss, total_step = 0, 0
         device = self.device
         self.gnn.train()
-        for step, batch in enumerate(self.dataloader):
+        for step, batch in enumerate(self.dataloader): 
+            
             self.optimizer.zero_grad()
 
             batch = batch[0]
@@ -52,7 +59,6 @@ class Edgepred_Gprompt(PreTrain):
 
         return accum_loss / total_step
  
-
     def pretrain(self):
         num_epoch = self.epochs
         train_loss_min = 1000000
