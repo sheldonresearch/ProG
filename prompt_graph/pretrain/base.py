@@ -11,8 +11,6 @@ class PreTrain(torch.nn.Module):
         self.num_layer = gln
         self.epochs = num_epoch
         self.hid_dim =hid_dim
-       
-        
     
     def initialize_gnn(self, input_dim, hid_dim):
         if self.gnn_type == 'GAT':

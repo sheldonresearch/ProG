@@ -11,14 +11,13 @@ import os
 from.base import PreTrain
 
 class GraphCL(PreTrain):
-    def __init__(self, *args, hid_dim = 16, **kwargs):    # hid_dim=16
+    def __init__(self, *args, **kwargs):    # hid_dim=16
         super().__init__(*args, **kwargs)
         self.load_graph_data()
-        self.initialize_gnn(self.input_dim, hid_dim)  
-        self.hid_dim = hid_dim 
-        self.projection_head = torch.nn.Sequential(torch.nn.Linear(hid_dim, hid_dim),
+        self.initialize_gnn(self.input_dim, self.hid_dim)   
+        self.projection_head = torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.hid_dim),
                                                    torch.nn.ReLU(inplace=True),
-                                                   torch.nn.Linear(hid_dim, hid_dim)).to(self.device)
+                                                   torch.nn.Linear(self.hid_dim, self.hid_dim)).to(self.device)
     def load_graph_data(self):
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
             self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
