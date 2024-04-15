@@ -77,7 +77,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None):
         :obj:`batch`, which maps each node to its respective graph identifier.
         """
 
-    if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC']:
+    if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name)
         
         torch.manual_seed(12345)
@@ -108,7 +108,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None):
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
 
-        return input_dim, out_dim, dataset
+        return input_dim, out_dim, graph_list
 
 
 
