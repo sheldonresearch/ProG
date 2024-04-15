@@ -69,7 +69,7 @@ def graph_sample_and_save(dataset, k, folder, num_classes):
     train_labels = labels[train_indices]
     torch.save(train_labels, os.path.join(folder, 'train_labels.pt'))
 
-def load4graph(dataset_name, shot_num= 10, num_parts=None):
+def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
     r"""A plain old python object modeling a batch of graphs as one big
         (dicconnected) graph. With :class:`torch_geometric.data.Data` being the
         base class, all its methods can also be used here.
@@ -108,7 +108,10 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None):
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
 
-        return input_dim, out_dim, graph_list
+        if(pretrained==True):
+            return input_dim, out_dim, graph_list
+        else:
+            return input_dim, out_dim, dataset
 
 
 
