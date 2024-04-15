@@ -14,19 +14,19 @@ class PreTrain(torch.nn.Module):
        
         
     
-    def initialize_gnn(self, input_dim, out_dim):
+    def initialize_gnn(self, input_dim, hid_dim):
         if self.gnn_type == 'GAT':
-                self.gnn = GAT(input_dim = input_dim, out_dim = out_dim, num_layer = self.num_layer)
+                self.gnn = GAT(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
         elif self.gnn_type == 'GCN':
-                self.gnn = GCN(input_dim = input_dim, out_dim = out_dim, num_layer = self.num_layer)
+                self.gnn = GCN(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
         elif self.gnn_type == 'GraphSAGE':
-                self.gnn = GraphSAGE(input_dim = input_dim, out_dim = out_dim, num_layer = self.num_layer)
+                self.gnn = GraphSAGE(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
         elif self.gnn_type == 'GIN':
-                self.gnn = GIN(input_dim = input_dim, out_dim = out_dim, num_layer = self.num_layer)
+                self.gnn = GIN(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
         elif self.gnn_type == 'GCov':
-                self.gnn = GCov(input_dim = input_dim, out_dim = out_dim, num_layer = self.num_layer)
+                self.gnn = GCov(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
         elif self.gnn_type == 'GraphTransformer':
-                self.gnn = GraphTransformer(input_dim = input_dim, out_dim = out_dim, num_layer = self.num_layer)
+                self.gnn = GraphTransformer(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
         else:
                 raise ValueError(f"Unsupported GNN type: {self.gnn_type}")
         self.gnn.to(self.device)
