@@ -28,7 +28,7 @@ class GCN(torch.nn.Module):
         JK-net: https://arxiv.org/abs/1806.03536
         """
         GraphConv = GCNConv
-  
+        
         if hid_dim is None:
             hid_dim = int(0.618 * input_dim)  # "golden cut"
         if out_dim is None:

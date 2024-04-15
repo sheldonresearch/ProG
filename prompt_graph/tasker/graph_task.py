@@ -55,8 +55,8 @@ class GraphTask(BaseTask):
         
         answer_epoch = 1  # 50
         prompt_epoch = 1  # 50
-        # answer_epoch = 5  # 50
-        # prompt_epoch = 1  # 50        
+        # answer_epoch = 5  # 50  #PROTEINS # COX2
+        # prompt_epoch = 1  # 50
         
         # tune task head
         self.answering.train()
