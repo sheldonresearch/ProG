@@ -199,7 +199,7 @@ class PrePrompt(nn.Module):
                 best_t = epoch
                 cnt_wait = 0
                 torch.save(self.state_dict(),
-                           "./ProG/multigprompt_model/{}.{}.{}.{}.pth".format(self.dataset_name, 'multigprompt', 'GCL', str(self.hid_dim) + 'hidden_dim'))
+                           "./ProG/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'multigprompt', 'GCL', str(self.hid_dim) + 'hidden_dim'))
                 print("+++model saved ! {}.{}.{}.{}.pth".format(self.dataset_name, 'multigprompt', 'GCL', str(self.hid_dim) + 'hidden_dim'))
 
             else:
