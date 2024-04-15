@@ -24,24 +24,13 @@ class Edgepred_GPPT(PreTrain):
             data = TensorDataset(edge_label, edge_index)
             return DataLoader(data, batch_size=64, shuffle=True)
         
-        elif self.dataset_name in  ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC']:
-            graph_list, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name) 
-              # 多图数据集的处理逻辑
+        elif self.dataset_name in  ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+            self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)          
+            self.data.to(self.device) 
+            edge_index = edge_index.transpose(0, 1)
+            data = TensorDataset(edge_label, edge_index)
+            return DataLoader(data, batch_size=64, shuffle=True)
       
-            # 对每个图进行处理，创建一个列表来保存处理后的图
-            processed_data_list = []
-            for data, edge_label, edge_index in graph_list:
-                edge_index = edge_index.transpose(0, 1)  # 转置边索引以匹配TensorDataset的期望格式
-                # 对于每个图，创建一个TensorDataset
-                processed_data = TensorDataset(edge_label, edge_index)
-                processed_data_list.append(processed_data)
-            # 使用ConcatDataset来合并所有图的数据集，然后通过DataLoader进行批处理加载
-            # 注意：这里假设每个图都被视为一个独立的批次，如果需要不同的处理，可以相应地调整
-            concatenated_dataset = torch.utils.data.ConcatDataset(processed_data_list)
-            return DataLoader(concatenated_dataset, batch_size=1, shuffle=True)  # 每个'批次'包含一个图
-
-      
-
     def pretrain_one_epoch(self):
         accum_loss, total_step = 0, 0
         device = self.device
