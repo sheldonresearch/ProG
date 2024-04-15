@@ -7,7 +7,7 @@ import random
 from prompt_graph.utils import mkdir, graph_views
 from prompt_graph.data import load4node, load4graph, NodePretrain
 from torch.optim import Adam
-import time
+import os
 from.base import PreTrain
 
 class GraphCL(PreTrain):
@@ -110,6 +110,10 @@ class GraphCL(PreTrain):
 
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
+                folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
+                if not os.path.exists(folder_path):
+                    os.makedirs(folder_path)
+
                 torch.save(self.gnn.state_dict(),
-                           "../ProG/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+                           "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
                 print("+++model saved ! {}.{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))

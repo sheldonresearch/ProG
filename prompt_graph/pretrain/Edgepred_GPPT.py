@@ -7,7 +7,7 @@ from prompt_graph.data import load4link_prediction_multi_graph, load4link_predic
 from torch.optim import Adam
 import time
 from .base import PreTrain
-
+import os
 
 class Edgepred_GPPT(PreTrain):
     def __init__(self, *args, **kwargs):    
@@ -70,8 +70,12 @@ class Edgepred_GPPT(PreTrain):
             
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
+                folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
+                if not os.path.exists(folder_path):
+                    os.makedirs(folder_path)
+                    
                 torch.save(self.gnn.state_dict(),
-                           "../ProG/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_GPPT', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+                           "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_GPPT', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
                 
                 print("+++model saved ! {}.{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_GPPT', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
 
