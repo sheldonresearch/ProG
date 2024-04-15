@@ -203,7 +203,7 @@ class PrePrompt(nn.Module):
                 if not os.path.exists(folder_path):
                     os.makedirs(folder_path)
                 torch.save(self.state_dict(),
-                           "./ProG/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'multigprompt', 'GCL', str(self.hid_dim) + 'hidden_dim'))
+                           "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'multigprompt', 'GCL', str(self.hid_dim) + 'hidden_dim'))
                 print("+++model saved ! {}.{}.{}.{}.pth".format(self.dataset_name, 'multigprompt', 'GCL', str(self.hid_dim) + 'hidden_dim'))
 
             else:
