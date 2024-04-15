@@ -25,7 +25,7 @@ def AllInOneEva(loader, prompt, gnn, answering, num_class, device):
         ma_f1 = macro_f1.compute()
         # print("Final True Acc: {:.4f} | Macro-F1: {:.4f}".format(acc.item(), ma_f1.item()))
 
-        return acc, ma_f1  
+        return acc.item(), ma_f1.item()
 
 def AllInOneEvaWithoutAnswer(loader, prompt, gnn, num_class, device):
         prompt.eval()

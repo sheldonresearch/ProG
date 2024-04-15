@@ -33,7 +33,7 @@ class GraphTask(BaseTask):
                         print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
     def load_data(self):
-        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC']:
+        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
             self.input_dim, self.output_dim, self.dataset= load4graph(self.dataset_name, self.shot_num)
 
     def Train(self, train_loader):
@@ -185,7 +185,6 @@ class GraphTask(BaseTask):
             print("test accuracy {:.4f} ".format(test_acc))                        
             test_accs.append(test_acc)
         
-
         mean_test_acc = np.mean(test_accs)
         std_test_acc = np.std(test_accs)    
         print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
