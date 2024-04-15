@@ -29,6 +29,7 @@ class PreTrain(torch.nn.Module):
                 self.gnn = GraphTransformer(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
         else:
                 raise ValueError(f"Unsupported GNN type: {self.gnn_type}")
+        print(self.gnn)
         self.gnn.to(self.device)
         self.optimizer = Adam(self.gnn.parameters(), lr=0.001, weight_decay=0.00005)
 
