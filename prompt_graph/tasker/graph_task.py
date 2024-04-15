@@ -50,11 +50,11 @@ class GraphTask(BaseTask):
             total_loss += loss.item()  
         return total_loss / len(train_loader)  
         
-    def AllInOneTrain(self, train_loader):
+    def AllInOneTrain(self, train_loader, answer_epoch=1, prompt_epoch=1):
         #we update answering and prompt alternately.
         
-        answer_epoch = 1  # 50
-        prompt_epoch = 1  # 50
+        # answer_epoch = 1  # 50
+        # prompt_epoch = 1  # 50
         # answer_epoch = 5  # 50  #PROTEINS # COX2
         # prompt_epoch = 1  # 50
         
@@ -145,7 +145,10 @@ class GraphTask(BaseTask):
             best = 1e9
             cnt_wait = 0
            
-
+            if self.prompt_type == 'All-in-one':
+                self.answer_epoch = 1
+                self.prompt_epoch = 1
+                self.epochs = int(self.epochs/self.answer_epoch)
 
             for epoch in range(1, self.epochs + 1):
                 t0 = time.time()
@@ -153,7 +156,7 @@ class GraphTask(BaseTask):
                 if self.prompt_type == 'None':
                     loss = self.Train(train_loader)
                 elif self.prompt_type == 'All-in-one':
-                    loss = self.AllInOneTrain(train_loader)
+                    loss = self.AllInOneTrain(train_loader,self.answer_epoch,self.prompt_epoch)
                 elif self.prompt_type in ['GPF', 'GPF-plus']:
                     loss = self.GPFTrain(train_loader)
                 elif self.prompt_type =='Gprompt':
