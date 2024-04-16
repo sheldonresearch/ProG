@@ -146,7 +146,7 @@ class GraphTask(BaseTask):
             cnt_wait = 0
            
             if self.prompt_type == 'All-in-one':
-                self.answer_epoch = 1
+                self.answer_epoch = 5
                 self.prompt_epoch = 1
                 self.epochs = int(self.epochs/self.answer_epoch)
 
