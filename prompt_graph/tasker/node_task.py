@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 class NodeTask(BaseTask):
       def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            
+            self.task_type = 'NodeTask'
             if self.prompt_type == 'MultiGprompt':
                   self.load_multigprompt_data()
             else:
@@ -25,7 +25,7 @@ class NodeTask(BaseTask):
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
-            # self.create_few_data_folder()         
+            self.create_few_data_folder()         
             self.initialize_gnn()
             self.initialize_prompt()
             self.initialize_optimizer()
@@ -34,7 +34,7 @@ class NodeTask(BaseTask):
       def create_few_data_folder(self):
             # 创建文件夹并保存数据
             for k in range(1, 11):
-                  k_shot_folder = './Experiment/sample_data/Node/'+ self.dataset_name +'/' + str(k) +'_shot'
+                  k_shot_folder = './Experiment/sample_data/Node/Node/'+ self.dataset_name +'/' + str(k) +'_shot'
                   os.makedirs(k_shot_folder, exist_ok=True)
                   
                   for i in range(1, 6):
@@ -199,13 +199,13 @@ class NodeTask(BaseTask):
             if self.prompt_type == 'MultiGprompt':    
                   for i in range(1, 6):
                         self.dataset_name ='Cora'
-                        idx_train = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                        idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                         print('idx_train',idx_train)
-                        train_lbls = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+                        train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
                         print("true",i,train_lbls)
 
-                        idx_test = torch.load("./Experiment/sample_data/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-                        test_lbls = torch.load("./Experiment/sample_data/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+                        idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                        test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
                         
                         # for all-in-one and Gprompt we use k-hop subgraph
                         if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
@@ -303,13 +303,13 @@ class NodeTask(BaseTask):
                         # train_lbls = torch.load("./data/fewshot_cora/{}-shot_cora/{}/labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().cuda()
                         # print("true",i,train_lbls)
                         self.dataset_name ='Cora'
-                        idx_train = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
+                        idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
                         print('idx_train',idx_train)
-                        train_lbls = torch.load("./Experiment/sample_data/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
+                        train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
                         print("true",i,train_lbls)
 
-                        idx_test = torch.load("./Experiment/sample_data/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
-                        test_lbls = torch.load("./Experiment/sample_data/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
+                        idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
+                        test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
                         
                         test_embs = embeds[0, idx_test]
                         best = 1e9

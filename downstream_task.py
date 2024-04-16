@@ -6,7 +6,7 @@ from prompt_graph.utils import  get_args
 
 args = get_args()
 seed_everything(args.seed)
-args.task = 'GraphTask'
+# args.task = 'GraphTask'
 # args.prompt_type = 'Gprompt'
 args.shot_num =10
 # args.dataset_name = 'PROTEINS'

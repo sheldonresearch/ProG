@@ -50,10 +50,13 @@ class BaseTask:
         if self.prompt_type == 'None':
             self.prompt = None
         elif self.prompt_type == 'GPPT':
-            self.prompt = GPPTPrompt(self.hid_dim, self.output_dim, self.output_dim, device = self.device)
-            train_ids = torch.nonzero(self.data.train_mask, as_tuple=False).squeeze()
-            node_embedding = self.gnn(self.data.x, self.data.edge_index)
-            self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, train_ids)
+            if(self.task_type=='NodeTask'):
+                self.prompt = GPPTPrompt(self.hid_dim, self.output_dim, self.output_dim, device = self.device)
+                train_ids = torch.nonzero(self.data.train_mask, as_tuple=False).squeeze()
+                node_embedding = self.gnn(self.data.x, self.data.edge_index)
+                self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, train_ids)
+            elif(self.task_type=='GraphTask'):
+                self.prompt = GPPTPrompt(self.hid_dim, self.output_dim, self.output_dim, device = self.device)                
         elif self.prompt_type =='All-in-one':
             lr, wd = 0.001, 0.00001
             # self.prompt = LightPrompt(token_dim=self.input_dim, token_num_per_group=100, group_num=self.output_dim, inner_prune=0.01).to(self.device)

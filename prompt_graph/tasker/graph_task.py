@@ -4,7 +4,7 @@ from torch_geometric.loader import DataLoader
 import torch.nn.functional as F
 from .task import BaseTask
 from prompt_graph.utils import center_embedding, Gprompt_tuning_loss,constraint
-from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva
+from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva, GPPTGraphEva
 import time
 import os 
 import numpy as np
@@ -12,6 +12,7 @@ import numpy as np
 class GraphTask(BaseTask):
     def __init__(self, *args, **kwargs):    
         super().__init__(*args, **kwargs)
+        self.task_type = 'GraphTask'
         self.load_data()
         # self.create_few_data_folder()
         self.initialize_gnn()
@@ -123,24 +124,20 @@ class GraphTask(BaseTask):
             return total_loss / len(train_loader), mean_centers
 
     def GPPTtrain(self, train_loader):
-        from torch_geometric.data import Batch 
         self.prompt.train()
-        import pdb
-        pdb.set_trace()
         for batch in train_loader:
             temp_loss=torch.tensor(0.0,requires_grad=True).to(self.device)
-            graph_list = Batch.to_graph_list(batch)
+            graph_list = batch.to_data_list()
             for graph in graph_list:
+                graph=graph.to(self.device)              
                 node_embedding = self.gnn(graph.x,graph.edge_index)
                 out = self.prompt(node_embedding, graph.edge_index)
-                loss = self.criterion(out, graph.y)
+                loss = self.criterion(out, torch.full((1,graph.x.shape[0]), graph.y.item()).reshape(-1).to(self.device))
                 temp_loss += loss + 0.001 * constraint(self.device, self.prompt.get_TaskToken())
             self.pg_opi.zero_grad()
             temp_loss.backward()
             self.pg_opi.step()
             self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
-        import pdb
-        pdb.set_trace()
         return temp_loss.item()
 
     def run(self):
@@ -169,6 +166,32 @@ class GraphTask(BaseTask):
                 self.answer_epoch = 5
                 self.prompt_epoch = 1
                 self.epochs = int(self.epochs/self.answer_epoch)
+            elif self.prompt_type == 'GPPT':
+                train_node_ids = torch.arange(0,train_dataset.x.shape[0]).squeeze().to(self.device)
+                self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)
+                for i, batch in enumerate(self.gppt_loader):
+                    if(i==0):
+                        node_for_graph_labels = torch.full((1,batch.x.shape[0]), batch.y.item())
+                    else:                   
+                        node_for_graph_labels = torch.concat([node_for_graph_labels,torch.full((1,batch.x.shape[0]), batch.y.item())],dim=1)
+                node_embedding = self.gnn(self.dataset.x.to(self.device), self.dataset.edge_index.to(self.device))
+                node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)             
+                self.prompt.weigth_init(node_embedding,self.dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
+
+                test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+
+                # from torch_geometric.nn import global_mean_pool
+                # self.gppt_pool = global_mean_pool
+                # train_ids = torch.nonzero(idx_train, as_tuple=False).squeeze()
+                # self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)          
+                # for i, batch in enumerate(self.gppt_loader):
+                #     batch.to(self.device)
+                #     node_embedding = self.gnn(batch.x, batch.edge_index)
+                #     if(i==0):
+                #         graph_embedding = self.gppt_pool(node_embedding,batch.batch.long())
+                #     else:
+                #         graph_embedding = torch.concat([graph_embedding,self.gppt_pool(node_embedding,batch.batch.long())],dim=0)
+                
 
             for epoch in range(1, self.epochs + 1):
                 t0 = time.time()
@@ -196,8 +219,7 @@ class GraphTask(BaseTask):
                             print('Early stopping at '+str(epoch) +' eopch!')
                             break
                 print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-
-                
+            
             if self.prompt_type == 'None':
                 test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)
             elif self.prompt_type == 'All-in-one':
@@ -206,6 +228,8 @@ class GraphTask(BaseTask):
                 test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
             elif self.prompt_type =='Gprompt':
                 test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+            elif self.prompt_type =='GPPT':
+                test_acc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.device)
 
             print("test accuracy {:.4f} ".format(test_acc))                        
             test_accs.append(test_acc)
