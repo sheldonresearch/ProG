@@ -3,7 +3,7 @@ from prompt_graph.data import load4graph, load4node, graph_sample_and_save
 from torch_geometric.loader import DataLoader
 import torch.nn.functional as F
 from .task import BaseTask
-from prompt_graph.utils import center_embedding, Gprompt_tuning_loss
+from prompt_graph.utils import center_embedding, Gprompt_tuning_loss,constraint
 from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva
 import time
 import os 
@@ -122,6 +122,26 @@ class GraphTask(BaseTask):
 
             return total_loss / len(train_loader), mean_centers
 
+    def GPPTtrain(self, train_loader):
+        from torch_geometric.data import Batch 
+        self.prompt.train()
+        import pdb
+        pdb.set_trace()
+        for batch in train_loader:
+            temp_loss=torch.tensor(0.0,requires_grad=True).to(self.device)
+            graph_list = Batch.to_graph_list(batch)
+            for graph in graph_list:
+                node_embedding = self.gnn(graph.x,graph.edge_index)
+                out = self.prompt(node_embedding, graph.edge_index)
+                loss = self.criterion(out, graph.y)
+                temp_loss += loss + 0.001 * constraint(self.device, self.prompt.get_TaskToken())
+            self.pg_opi.zero_grad()
+            temp_loss.backward()
+            self.pg_opi.step()
+            self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
+        import pdb
+        pdb.set_trace()
+        return temp_loss.item()
 
     def run(self):
         test_accs = []
@@ -161,6 +181,8 @@ class GraphTask(BaseTask):
                     loss = self.GPFTrain(train_loader)
                 elif self.prompt_type =='Gprompt':
                     loss, center = self.GpromptTrain(train_loader)
+                elif self.prompt_type =='GPPT':
+                    loss = self.GPPTtrain(train_loader)
                            
                 if loss < best:
                     best = loss
