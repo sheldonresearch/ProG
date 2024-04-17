@@ -1,0 +1,8 @@
+torch
+torch_geometric
+deprecated
+torchmetrics
+pandas
+numpy
+
+git+https://github.com/pyg-team/pyg_sphinx_theme.git
