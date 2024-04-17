@@ -45,17 +45,21 @@ class DGI(PreTrain):
     def __init__(self, *args, hid_dim = 16, **kwargs):    # hid_dim=16
         super().__init__(*args, **kwargs)
         
-        self.optimizer = Adam(self.gnn.parameters(), lr=0.01, weight_decay = 0.0001)
-        self.disc = Discriminator(hid_dim)
+        
+        self.disc = Discriminator(hid_dim).to(self.device)
         self.loss = nn.BCEWithLogitsLoss()
-        self.load_graph_data()
+        self.graph_data = self.load_data()
         self.initialize_gnn(self.input_dim, hid_dim)  
+        self.optimizer = Adam(self.gnn.parameters(), lr=0.01, weight_decay = 0.0001)
 
-    def load_graph_data(self):
+    def load_data(self):
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
-            self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
-        else:
-            self.input_dim, _, _, _, _, self.graph_list= load4graph(self.dataset_name)
+            data, dataset = load4node(self.dataset_name)
+            self.input_dim = dataset.num_features
+        return data
+        #     self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
+        # else:
+        #     self.input_dim, _, self.graph_list= load4graph(self.dataset_name, pretrained=True)
 
     def generate_loader_data(self):
         loader1 = self.graph_data
@@ -76,7 +80,7 @@ class DGI(PreTrain):
         pos_z = self.gnn(graph_original.x, graph_original.edge_index)
         neg_z = self.gnn(graph_corrupted.x, graph_corrupted.edge_index)
 
-        s = torch.sigmoid(torch.mean(pos_z, dim=0))
+        s = torch.sigmoid(torch.mean(pos_z, dim=0)).to(device)
         # print(pos_z.shape, neg_z.shape, s.shape)
 
         logits = self.disc(s, pos_z, neg_z)
@@ -95,13 +99,14 @@ class DGI(PreTrain):
 
 
     def pretrain(self):
-
+        train_loss_min = 1000000
         for epoch in range(1, self.epochs + 1):
             time0 = time.time()
             self.optimizer.zero_grad()
             train_loss = self.pretrain_one_epoch()
             print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, self.epochs , train_loss))
 
+            
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
                 folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
