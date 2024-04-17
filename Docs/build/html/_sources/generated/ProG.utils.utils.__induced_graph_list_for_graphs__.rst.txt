@@ -1,6 +1,0 @@
-﻿ProG.utils.utils.\_\_induced\_graph\_list\_for\_graphs\_\_
-==========================================================
-
-.. currentmodule:: ProG.utils.utils
-
-.. autofunction:: __induced_graph_list_for_graphs__
