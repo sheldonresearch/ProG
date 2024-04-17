@@ -8,6 +8,7 @@ from torch import nn
 import time
 from prompt_graph.utils import generate_corrupted_graph
 from prompt_graph.data import load4node, load4graph, NodePretrain
+import os
 
 class Discriminator(nn.Module):
     def __init__(self, n_h):
@@ -40,7 +41,7 @@ class Discriminator(nn.Module):
         return logits
 
 
-class DgiPretrain(PreTrain):
+class DGI(PreTrain):
     def __init__(self, *args, hid_dim = 16, **kwargs):    # hid_dim=16
         super().__init__(*args, **kwargs)
         
@@ -96,9 +97,16 @@ class DgiPretrain(PreTrain):
     def pretrain(self):
 
         for epoch in range(1, self.epochs + 1):
-            st_time = time.time()
+            time0 = time.time()
             self.optimizer.zero_grad()
             train_loss = self.pretrain_one_epoch()
+            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, self.epochs , train_loss))
 
-            print(f"[Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {train_loss:.5f} | "
-                  f"Cost Time {time.time()-st_time:.3}s")
+            if train_loss_min > train_loss:
+                train_loss_min = train_loss
+                folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
+                if not os.path.exists(folder_path):
+                    os.makedirs(folder_path)
+                torch.save(self.gnn.state_dict(),
+                           "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+                print("+++model saved ! {}.{}.{}.{}.pth".format(self.dataset_name, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
