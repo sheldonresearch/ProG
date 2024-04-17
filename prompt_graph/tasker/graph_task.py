@@ -167,6 +167,7 @@ class GraphTask(BaseTask):
                 self.prompt_epoch = 1
                 self.epochs = int(self.epochs/self.answer_epoch)
             elif self.prompt_type == 'GPPT':
+                # initialize the GPPT hyperparametes via graph data
                 train_node_ids = torch.arange(0,train_dataset.x.shape[0]).squeeze().to(self.device)
                 self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)
                 for i, batch in enumerate(self.gppt_loader):
