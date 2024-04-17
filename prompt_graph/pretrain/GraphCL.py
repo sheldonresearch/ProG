@@ -102,6 +102,8 @@ class GraphCL(PreTrain):
         optimizer = Adam(self.parameters(), lr=lr, weight_decay=decay)
 
         train_loss_min = 1000000
+        patience = 10
+        cnt_wait = 0
         for epoch in range(1, epochs + 1):  # 1..100
             train_loss = self.train_graphcl(loader1, loader2, optimizer)
 
@@ -109,10 +111,19 @@ class GraphCL(PreTrain):
 
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
-                folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
-                if not os.path.exists(folder_path):
-                    os.makedirs(folder_path)
+                cnt_wait = 0
+            else:
+                cnt_wait += 1
+                if cnt_wait == patience:
+                    print('-' * 100)
+                    print('Early stopping at '+str(epoch) +' eopch!')
+                    break
+            print(cnt_wait)
 
-                torch.save(self.gnn.state_dict(),
-                           "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
-                print("+++model saved ! {}.{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+        folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        torch.save(self.gnn.state_dict(),
+                    "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+        print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))

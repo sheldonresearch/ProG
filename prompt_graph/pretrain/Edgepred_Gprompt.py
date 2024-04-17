@@ -63,21 +63,32 @@ class Edgepred_Gprompt(PreTrain):
     def pretrain(self):
         num_epoch = self.epochs
         train_loss_min = 1000000
+        patience = 10
+        cnt_wait = 0
+
         for epoch in range(1, num_epoch + 1):
             st_time = time.time()
             train_loss = self.pretrain_one_epoch()
 
-            print(f"[Pretrain] Epoch {epoch}/{num_epoch} | Train Loss {train_loss:.5f} | "
+            print(f"Edgepred_Gprompt [Pretrain] Epoch {epoch}/{num_epoch} | Train Loss {train_loss:.5f} | "
                   f"Cost Time {time.time() - st_time:.3}s")
             
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
+                cnt_wait = 0
+            else:
+                cnt_wait += 1
+                if cnt_wait == patience:
+                    print('-' * 100)
+                    print('Early stopping at '+str(epoch) +' eopch!')
+                    break
+            print(cnt_wait)
 
-                folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
-                if not os.path.exists(folder_path):
-                    os.makedirs(folder_path)
+        folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
 
-                torch.save(self.gnn.state_dict(),
-                           "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_Gprompt', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
-                
-                print("+++model saved ! {}.{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_Gprompt', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+        torch.save(self.gnn.state_dict(),
+                    "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_Gprompt', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+        
+        print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'Edgepred_Gprompt', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
