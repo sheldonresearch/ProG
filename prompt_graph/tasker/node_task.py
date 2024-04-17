@@ -196,168 +196,168 @@ class NodeTask(BaseTask):
       
       def run(self):
             test_accs = []
-            if self.prompt_type == 'MultiGprompt':    
-                  for i in range(1, 6):
-                        self.dataset_name ='Cora'
-                        idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-                        print('idx_train',idx_train)
-                        train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
-                        print("true",i,train_lbls)
+            # if self.prompt_type == 'MultiGprompt':    
+            for i in range(1, 6):
+                  self.dataset_name ='Cora'
+                  idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                  print('idx_train',idx_train)
+                  train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+                  print("true",i,train_lbls)
 
-                        idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-                        test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
-                        
-                        # for all-in-one and Gprompt we use k-hop subgraph
-                        if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-                              graphs_list = self.load_induced_graph()
-                              train_graphs = []
-                              test_graphs = []
-                              
-                              for graph in graphs_list:                              
-                                    if graph.index in idx_train:
-                                          train_graphs.append(graph)
-                                    elif graph.index in idx_test:
-                                          test_graphs.append(graph)
-
-                              train_loader = DataLoader(train_graphs, batch_size=16, shuffle=True)
-                              test_loader = DataLoader(test_graphs, batch_size=16, shuffle=False)
-                              print("prepare induce graph data is finished!")
-
-                        if self.prompt_type == 'MultiGprompt':
-                              embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
-                              pretrain_embs = embeds[0, idx_train]
-                              test_embs = embeds[0, idx_test]
-
-                        patience = 20
-                        best = 1e9
-                        cnt_wait = 0
-                       
-
-
-                        for epoch in range(1, self.epochs):
-                              t0 = time.time()
-                              if self.prompt_type == 'None':
-                                    loss = self.train(self.data, idx_train)                             
-                              elif self.prompt_type == 'GPPT':
-                                    loss = self.GPPTtrain(self.data, idx_train)                
-                              elif self.prompt_type == 'All-in-one':
-                                    loss = self.AllInOneTrain(train_loader)                           
-                              elif self.prompt_type in ['GPF', 'GPF-plus']:
-                                    loss = self.GPFTrain(train_loader)                                                          
-                              elif self.prompt_type =='Gprompt':
-                                    loss, center = self.GpromptTrain(train_loader)
-                              elif self.prompt_type == 'MultiGprompt':
-                                    loss = self.MultiGpromptTrain(pretrain_embs, train_lbls, idx_train)
-
-
-                              if loss < best:
-                                    best = loss
-                                    # best_t = epoch
-                                    cnt_wait = 0
-                                    # torch.save(model.state_dict(), args.save_name)
-                              else:
-                                    cnt_wait += 1
-                                    if cnt_wait == patience:
-                                          print('-' * 100)
-                                          print('Early stopping at '+str(epoch) +' eopch!')
-                                          break
-                              print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-                 
-                        if self.prompt_type == 'None':
-                              test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
-                        elif self.prompt_type == 'GPPT':
-                              test_acc = GPPTEva(self.data, idx_test, self.gnn, self.prompt)                
-                        elif self.prompt_type == 'All-in-one':
-                              test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)                                           
-                        elif self.prompt_type in ['GPF', 'GPF-plus']:
-                              test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)                                                         
-                        elif self.prompt_type =='Gprompt':
-                              test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
-                        elif self.prompt_type == 'MultiGprompt':
-                              prompt_feature = self.feature_prompt(self.features)
-                              test_acc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj)
-
-                        print("test accuracy {:.4f} ".format(test_acc))                        
-                        test_accs.append(test_acc)
-               
-
-                  mean_test_acc = np.mean(test_accs)
-                  std_test_acc = np.std(test_accs)    
-                  print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
+                  idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                  test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
                   
-            elif self.prompt_type != 'MultiGprompt':
-                  # embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
-                  embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
-
-                  
-                  test_lbls = torch.argmax(self.labels[0, self.idx_test], dim=1).cuda()
-                  tot = torch.zeros(1)
-                  tot = tot.cuda()
-                  accs = []
-                  patience = 20
-                  print('-' * 100)
-                  cnt_wait = 0
-                  for i in range(1,6):
-                        # idx_train = torch.load("./data/fewshot_cora/{}-shot_cora/{}/idx.pt".format(self.shot_num,i)).type(torch.long).cuda()
-                        # print('idx_train',idx_train)
-                        # train_lbls = torch.load("./data/fewshot_cora/{}-shot_cora/{}/labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().cuda()
-                        # print("true",i,train_lbls)
-                        self.dataset_name ='Cora'
-                        idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
-                        print('idx_train',idx_train)
-                        train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
-                        print("true",i,train_lbls)
-
-                        idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
-                        test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
+                  # for all-in-one and Gprompt we use k-hop subgraph
+                  if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
+                        graphs_list = self.load_induced_graph()
+                        train_graphs = []
+                        test_graphs = []
                         
-                        test_embs = embeds[0, idx_test]
-                        best = 1e9
-                        pat_steps = 0
-                        best_acc = torch.zeros(1)
-                        best_acc = best_acc.cuda()
+                        for graph in graphs_list:                              
+                              if graph.index in idx_train:
+                                    train_graphs.append(graph)
+                              elif graph.index in idx_test:
+                                    test_graphs.append(graph)
+
+                        train_loader = DataLoader(train_graphs, batch_size=16, shuffle=True)
+                        test_loader = DataLoader(test_graphs, batch_size=16, shuffle=False)
+                        print("prepare induce graph data is finished!")
+
+                  if self.prompt_type == 'MultiGprompt':
+                        embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
                         pretrain_embs = embeds[0, idx_train]
-                        for _ in range(50):
-                              self.DownPrompt.train()
-                              self.optimizer.zero_grad()
-                              prompt_feature = self.feature_prompt(self.features)
-                              # prompt_feature = self.feature_prompt(self.data.x)
-                              # embeds1 = self.gnn(prompt_feature, self.data.edge_index)
-                              embeds1= self.Preprompt.gcn(prompt_feature, self.sp_adj , True, False)
-                              pretrain_embs1 = embeds1[0, idx_train]
-                              logits = self.DownPrompt(pretrain_embs,pretrain_embs1, train_lbls,1).float().cuda()
-                              loss = self.criterion(logits, train_lbls)
-                              if loss < best:
-                                    best = loss
-                                    cnt_wait = 0
-                              else:
-                                    cnt_wait += 1
-                                    if cnt_wait == patience:
-                                          print('Early stopping at '+str(_) +' eopch!')
-                                          break
-                              
-                              loss.backward(retain_graph=True)
-                              self.optimizer.step()
+                        test_embs = embeds[0, idx_test]
 
+                  patience = 20
+                  best = 1e9
+                  cnt_wait = 0
+                 
+
+
+                  for epoch in range(1, self.epochs):
+                        t0 = time.time()
+                        if self.prompt_type == 'None':
+                              loss = self.train(self.data, idx_train)                             
+                        elif self.prompt_type == 'GPPT':
+                              loss = self.GPPTtrain(self.data, idx_train)                
+                        elif self.prompt_type == 'All-in-one':
+                              loss = self.AllInOneTrain(train_loader)                           
+                        elif self.prompt_type in ['GPF', 'GPF-plus']:
+                              loss = self.GPFTrain(train_loader)                                                          
+                        elif self.prompt_type =='Gprompt':
+                              loss, center = self.GpromptTrain(train_loader)
+                        elif self.prompt_type == 'MultiGprompt':
+                              loss = self.MultiGpromptTrain(pretrain_embs, train_lbls, idx_train)
+
+
+                        if loss < best:
+                              best = loss
+                              # best_t = epoch
+                              cnt_wait = 0
+                              # torch.save(model.state_dict(), args.save_name)
+                        else:
+                              cnt_wait += 1
+                              if cnt_wait == patience:
+                                    print('-' * 100)
+                                    print('Early stopping at '+str(epoch) +' eopch!')
+                                    break
+                        print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
+           
+                  if self.prompt_type == 'None':
+                        test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
+                  elif self.prompt_type == 'GPPT':
+                        test_acc = GPPTEva(self.data, idx_test, self.gnn, self.prompt)                
+                  elif self.prompt_type == 'All-in-one':
+                        test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)                                           
+                  elif self.prompt_type in ['GPF', 'GPF-plus']:
+                        test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)                                                         
+                  elif self.prompt_type =='Gprompt':
+                        test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+                  elif self.prompt_type == 'MultiGprompt':
                         prompt_feature = self.feature_prompt(self.features)
-                        embeds1, _ = self.Preprompt.embed(prompt_feature, self.sp_adj, True, None, False)
-                        test_embs1 = embeds1[0, idx_test]
-                        print('idx_test', idx_test)
-                        logits = self.DownPrompt(test_embs, test_embs1, train_lbls)
-                        preds = torch.argmax(logits, dim=1)
-                        acc = torch.sum(preds == test_lbls).float() / test_lbls.shape[0]
-                        accs.append(acc * 100)
-                        print('acc:[{:.4f}]'.format(acc))
-                        tot += acc
+                        test_acc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj)
 
-                  print('-' * 100)
-                  print('Average accuracy:[{:.4f}]'.format(tot.item() / 10))
-                  accs = torch.stack(accs)
-                  print('Mean:[{:.4f}]'.format(accs.mean().item()))
-                  print('Std :[{:.4f}]'.format(accs.std().item()))
-                  print('-' * 100)
+                  print("test accuracy {:.4f} ".format(test_acc))                        
+                  test_accs.append(test_acc)
+         
+
+            mean_test_acc = np.mean(test_accs)
+            std_test_acc = np.std(test_accs)    
+            print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
+                  
+            # elif self.prompt_type != 'MultiGprompt':
+            #       # embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
+            #       embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
+
+                  
+            #       test_lbls = torch.argmax(self.labels[0, self.idx_test], dim=1).cuda()
+            #       tot = torch.zeros(1)
+            #       tot = tot.cuda()
+            #       accs = []
+            #       patience = 20
+            #       print('-' * 100)
+            #       cnt_wait = 0
+            #       for i in range(1,6):
+            #             # idx_train = torch.load("./data/fewshot_cora/{}-shot_cora/{}/idx.pt".format(self.shot_num,i)).type(torch.long).cuda()
+            #             # print('idx_train',idx_train)
+            #             # train_lbls = torch.load("./data/fewshot_cora/{}-shot_cora/{}/labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().cuda()
+            #             # print("true",i,train_lbls)
+            #             self.dataset_name ='Cora'
+            #             idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
+            #             print('idx_train',idx_train)
+            #             train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
+            #             print("true",i,train_lbls)
+
+            #             idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
+            #             test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
+                        
+            #             test_embs = embeds[0, idx_test]
+            #             best = 1e9
+            #             pat_steps = 0
+            #             best_acc = torch.zeros(1)
+            #             best_acc = best_acc.cuda()
+            #             pretrain_embs = embeds[0, idx_train]
+            #             for _ in range(50):
+            #                   self.DownPrompt.train()
+            #                   self.optimizer.zero_grad()
+            #                   prompt_feature = self.feature_prompt(self.features)
+            #                   # prompt_feature = self.feature_prompt(self.data.x)
+            #                   # embeds1 = self.gnn(prompt_feature, self.data.edge_index)
+            #                   embeds1= self.Preprompt.gcn(prompt_feature, self.sp_adj , True, False)
+            #                   pretrain_embs1 = embeds1[0, idx_train]
+            #                   logits = self.DownPrompt(pretrain_embs,pretrain_embs1, train_lbls,1).float().cuda()
+            #                   loss = self.criterion(logits, train_lbls)
+            #                   if loss < best:
+            #                         best = loss
+            #                         cnt_wait = 0
+            #                   else:
+            #                         cnt_wait += 1
+            #                         if cnt_wait == patience:
+            #                               print('Early stopping at '+str(_) +' eopch!')
+            #                               break
+                              
+            #                   loss.backward(retain_graph=True)
+            #                   self.optimizer.step()
+
+            #             prompt_feature = self.feature_prompt(self.features)
+            #             embeds1, _ = self.Preprompt.embed(prompt_feature, self.sp_adj, True, None, False)
+            #             test_embs1 = embeds1[0, idx_test]
+            #             print('idx_test', idx_test)
+            #             logits = self.DownPrompt(test_embs, test_embs1, train_lbls)
+            #             preds = torch.argmax(logits, dim=1)
+            #             acc = torch.sum(preds == test_lbls).float() / test_lbls.shape[0]
+            #             accs.append(acc * 100)
+            #             print('acc:[{:.4f}]'.format(acc))
+            #             tot += acc
+
+            #       print('-' * 100)
+            #       print('Average accuracy:[{:.4f}]'.format(tot.item() / 10))
+            #       accs = torch.stack(accs)
+            #       print('Mean:[{:.4f}]'.format(accs.mean().item()))
+            #       print('Std :[{:.4f}]'.format(accs.std().item()))
+            #       print('-' * 100)
                   
             
-            print("Node Task completed")
+            # print("Node Task completed")
 
 
