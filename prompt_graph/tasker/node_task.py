@@ -25,7 +25,7 @@ class NodeTask(BaseTask):
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
-            self.create_few_data_folder()         
+            # self.create_few_data_folder()         
             self.initialize_gnn()
             self.initialize_prompt()
             self.initialize_optimizer()
@@ -62,13 +62,18 @@ class NodeTask(BaseTask):
             # self.data.to('cpu')
             self.input_dim = self.dataset.num_features
             self.output_dim = self.dataset.num_classes
-            file_path = './Experiment/induced_graph/' + self.dataset_name + '/induced_graph.pkl'
+
+            folder_path = './Experiment/induced_graph/' + self.dataset_name
+            if not os.path.exists(folder_path):
+                  os.makedirs(folder_path)
+
+            file_path = folder_path + '/induced_graph.pkl'
             if os.path.exists(file_path):
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
             else:
                   print('Begin split_induced_graphs.')
-                  split_induced_graphs(self.dataset_name, self.data, smallest_size=10, largest_size=30)
+                  split_induced_graphs(self.data, folder_path, smallest_size=10, largest_size=30)
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
             return graphs_list
@@ -147,7 +152,7 @@ class NodeTask(BaseTask):
       def AllInOneTrain(self, train_loader):
             #we update answering and prompt alternately.
             
-            answer_epoch = 1  # 50
+            answer_epoch = 5  # 50
             prompt_epoch = 1  # 50
             
             # tune task head
@@ -198,7 +203,6 @@ class NodeTask(BaseTask):
             test_accs = []
             # if self.prompt_type == 'MultiGprompt':    
             for i in range(1, 6):
-                  self.dataset_name ='Cora'
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
                   train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
@@ -283,7 +287,7 @@ class NodeTask(BaseTask):
 
             mean_test_acc = np.mean(test_accs)
             std_test_acc = np.std(test_accs)    
-            print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
+            print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))         
                   
             # elif self.prompt_type != 'MultiGprompt':
             #       # embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)

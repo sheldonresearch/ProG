@@ -100,6 +100,7 @@ class BaseTask:
         else:
             raise ValueError(f"Unsupported GNN type: {self.gnn_type}")
         self.gnn.to(self.device)
+        print(self.gnn)
 
         if self.pre_train_model_path != 'None' and self.prompt_type != 'MultiGprompt':
             if self.gnn_type not in self.pre_train_model_path :

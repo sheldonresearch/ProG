@@ -53,7 +53,7 @@ def induced_graphs(data, smallest_size=10, largest_size=30):
 
 
 
-def split_induced_graphs(name, data, smallest_size=10, largest_size=30):
+def split_induced_graphs(data, dir_path, smallest_size=10, largest_size=30):
 
     induced_graph_list = []
     
@@ -89,7 +89,7 @@ def split_induced_graphs(name, data, smallest_size=10, largest_size=30):
         if index%50 == 0:
             print(index)
 
-    dir_path = f'./induced_graph/{name}'
+
     if not os.path.exists(dir_path):
         os.makedirs(dir_path) 
 
