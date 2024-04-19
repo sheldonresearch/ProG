@@ -53,9 +53,9 @@ class DGI(PreTrain):
         self.optimizer = Adam(self.gnn.parameters(), lr=0.01, weight_decay = 0.0001)
 
     def load_data(self):
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
-            data, dataset = load4node(self.dataset_name)
-            self.input_dim = dataset.num_features
+        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv']:
+            data, input_dim, _ = load4node(self.dataset_name)
+            self.input_dim = input_dim
         return data
         #     self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
         # else:

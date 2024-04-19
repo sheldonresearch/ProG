@@ -10,6 +10,7 @@ from torch_geometric.loader.cluster import ClusterData
 from torch_geometric.data import Data,Batch
 from torch_geometric.utils import negative_sampling
 import os
+from ogb.nodeproppred import DglNodePropPredDataset
 
 def node_sample_and_save(data, k, folder, num_classes):
     # 获取标签
@@ -133,87 +134,105 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
 
         return input_dim, out_dim, None, None, None, graph_list
     
-def load4node(dataname, shot_num= 10):
+def load4node(dataname):
     print(dataname)
     if dataname in ['PubMed', 'CiteSeer', 'Cora']:
         dataset = Planetoid(root='data/Planetoid', name=dataname, transform=NormalizeFeatures())
+        data = dataset[0]
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
     elif dataname in ['Computers', 'Photo']:
         dataset = Amazon(root='data/amazon', name=dataname)
+        data = dataset[0]
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
     elif dataname == 'Reddit':
         dataset = Reddit(root='data/Reddit')
+        data = dataset[0]
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
     elif dataname == 'WikiCS':
         dataset = WikiCS(root='data/WikiCS')
+        data = dataset[0]
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
     elif dataname == 'Flickr':
         dataset = Flickr(root='data/Flickr')
-    print()
-    print(f'Dataset: {dataset}:')
-    print('======================')
-    print(f'Number of graphs: {len(dataset)}')
-    print(f'Number of features: {dataset.num_features}')
-    print(f'Number of classes: {dataset.num_classes}')
+        data = dataset[0]
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
+    elif dataname == 'ogbn-arxiv':
+        dataset = DglNodePropPredDataset(name='ogbn-arxiv', root='./dataset')
+        graph, labels = dataset[0]
+        edge_index = torch.stack(graph.edges())
+        x = graph.ndata['feat']
+        y = labels
+        data = Data(x=x, edge_index = edge_index, y = y)
+        input_dim = x.shape[1]
+        out_dim = dataset.num_classes
 
-    data = dataset[0]  # Get the first graph object.
+    return data, input_dim, out_dim
 
-    print()
-    print(data)
-    print('===========================================================================================================')
 
-    # Gather some statistics about the graph.
-    print(f'Number of nodes: {data.num_nodes}')
-    print(f'Number of edges: {data.num_edges}')
-    print(f'Average node degree: {data.num_edges / data.num_nodes:.2f}')
-    print(f'Has isolated nodes: {data.has_isolated_nodes()}')
-    print(f'Has self-loops: {data.has_self_loops()}')
-    print(f'Is undirected: {data.is_undirected()}')
+    # print()
+    # print(f'Dataset: {dataset}:')
+    # print('======================')
+    # print(f'Number of graphs: {len(dataset)}')
+    # print(f'Number of features: {dataset.num_features}')
+    # print(f'Number of classes: {dataset.num_classes}')
 
-     # 根据 shot_num 更新训练掩码
-    class_counts = {}  # 统计每个类别的节点数
-    for label in data.y:
-        label = label.item()
-        class_counts[label] = class_counts.get(label, 0) + 1
+    # data = dataset[0]  # Get the first graph object.
+
+    # print()
+    # print(data)
+    # print('===========================================================================================================')
+
+    # # Gather some statistics about the graph.
+    # print(f'Number of nodes: {data.num_nodes}')
+    # print(f'Number of edges: {data.num_edges}')
+    # print(f'Average node degree: {data.num_edges / data.num_nodes:.2f}')
+    # print(f'Has isolated nodes: {data.has_isolated_nodes()}')
+    # print(f'Has self-loops: {data.has_self_loops()}')
+    # print(f'Is undirected: {data.is_undirected()}')
+
+    #  # 根据 shot_num 更新训练掩码
+    # class_counts = {}  # 统计每个类别的节点数
+    # for label in data.y:
+    #     label = label.item()
+    #     class_counts[label] = class_counts.get(label, 0) + 1
 
     
-    train_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
-    test_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
-    # val_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
+    # train_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
+    # test_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
+    # # val_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
 
     
-    for label in data.y.unique():
-        label_indices = (data.y == label).nonzero(as_tuple=False).view(-1)
+    # for label in data.y.unique():
+    #     label_indices = (data.y == label).nonzero(as_tuple=False).view(-1)
 
-        # if len(label_indices) < 3 * shot_num:
-        #     raise ValueError(f"类别 {label.item()} 的样本数不足以分配到训练集、测试集和验证集。")
+    #     # if len(label_indices) < 3 * shot_num:
+    #     #     raise ValueError(f"类别 {label.item()} 的样本数不足以分配到训练集、测试集和验证集。")
 
-        label_indices = label_indices[torch.randperm(len(label_indices))]
-        train_indices = label_indices[:shot_num]
-        train_mask[train_indices] = True       
-        remaining_indices = label_indices[100:]
-        # split_point = int(len(remaining_indices) * 0.1)  # 验证集占剩余的10%
+    #     label_indices = label_indices[torch.randperm(len(label_indices))]
+    #     train_indices = label_indices[:shot_num]
+    #     train_mask[train_indices] = True       
+    #     remaining_indices = label_indices[100:]
+    #     # split_point = int(len(remaining_indices) * 0.1)  # 验证集占剩余的10%
         
-        # val_indices = remaining_indices[:split_point]
-        test_indices = remaining_indices
+    #     # val_indices = remaining_indices[:split_point]
+    #     test_indices = remaining_indices
 
-        # val_mask[val_indices] = True
-        test_mask[test_indices] = True
+    #     # val_mask[val_indices] = True
+    #     test_mask[test_indices] = True
 
-    data.train_mask = train_mask
-    data.test_mask = test_mask
-    # data.val_mask = val_mask
+    # data.train_mask = train_mask
+    # data.test_mask = test_mask
+    # # data.val_mask = val_mask
 
-    return data,dataset
 
 def load4link_prediction_single_graph(dataname, num_per_samples=1):
-    if dataname in ['PubMed', 'CiteSeer', 'Cora']:
-        dataset = Planetoid(root='data/Planetoid', name=dataname, transform=NormalizeFeatures())
-    elif dataname in ['Computers', 'Photo']:
-        dataset = Amazon(root='data/amazon', name=dataname)
-    elif dataname == 'Reddit':
-        dataset = Reddit(root='data/Reddit')
-    elif dataname == 'WikiCS':
-        dataset = WikiCS(root='data/WikiCS')
-    data = dataset[0]
-    input_dim = dataset.num_features
-    output_dim = dataset.num_classes
+    data, input_dim, output_dim = load4node(dataname)
+
     
     r"""Perform negative sampling to generate negative neighbor samples"""
     if data.is_directed():
@@ -262,23 +281,12 @@ def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
 
 # used in pre_train.py
 def NodePretrain(dataname='CiteSeer', num_parts=200):
-    if dataname in ['PubMed', 'CiteSeer', 'Cora']:
-        dataset = Planetoid(root='data/Planetoid', name=dataname, transform=NormalizeFeatures())
-    elif dataname in ['Computers', 'Photo']:
-        dataset = Amazon(root='data/amazon', name=dataname)
-    elif dataname == 'Reddit':
-        dataset = Reddit(root='data/Reddit')
-    elif dataname == 'WikiCS':
-        dataset = WikiCS(root='data/WikiCS')
-    elif dataname == 'Flickr':
-        dataset = Flickr(root='data/Flickr')
-    data = dataset[0]
+    data, input_dim, _ = load4node(dataname)
 
     x = data.x.detach()
     edge_index = data.edge_index
     edge_index = to_undirected(edge_index)
     data = Data(x=x, edge_index=edge_index)
-    input_dim = data.x.shape[1]
     graph_list = list(ClusterData(data=data, num_parts=num_parts))
 
     return graph_list, input_dim

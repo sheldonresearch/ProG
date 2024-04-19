@@ -17,7 +17,7 @@ class Edgepred_Gprompt(PreTrain):
         self.graph_pred_linear = torch.nn.Linear(self.hid_dim, self.output_dim).to(self.device)  
 
     def generate_loader_data(self):    
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora', 'Computers', 'Photo']:            
+        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora', 'Computers', 'Photo','ogbn-arxiv', 'Flickr']:            
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_single_graph(self.dataset_name)
             self.adj = edge_index_to_sparse_matrix(self.data.edge_index, self.data.x.shape[0]).to(self.device)
             data = prepare_structured_data(self.data)

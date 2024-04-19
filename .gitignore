@@ -6,6 +6,7 @@
 *.pyc
 .DS_Store
 /data
+/dataset
 /pre_trained_gnn
 /Experiment
 /pre_trained_model
