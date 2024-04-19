@@ -163,7 +163,7 @@ class GraphTask(BaseTask):
             cnt_wait = 0
            
             if self.prompt_type == 'All-in-one':
-                self.answer_epoch = 5
+                self.answer_epoch = 1
                 self.prompt_epoch = 1
                 self.epochs = int(self.epochs/self.answer_epoch)
             elif self.prompt_type == 'GPPT':
@@ -237,7 +237,7 @@ class GraphTask(BaseTask):
         
         mean_test_acc = np.mean(test_accs)
         std_test_acc = np.std(test_accs)    
-        print(" Final best | test Accuracy {:.4f} | std {:.4f} ".format(mean_test_acc, std_test_acc))         
+        print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))         
         
         print("Graph Task completed")
 
