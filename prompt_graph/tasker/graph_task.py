@@ -237,7 +237,20 @@ class GraphTask(BaseTask):
         
         mean_test_acc = np.mean(test_accs)
         std_test_acc = np.std(test_accs)    
-        print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))         
+        print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
+
+        file_name = self.gnn_type +'_'+ self.prompt_type + '_'+ str(self.shot_num) +"shot_results.txt"
+        file_path = os.path.join('./Experiment/Graph_Task/'+self.dataset_name, file_name)
+
+        with open(file_path, 'w') as f:
+                f.write("Test Accuracy Results:\n")
+                for test_acc in test_accs:
+                    f.write("{:.4f}\n".format(test_acc))
+                f.write("\nMean Test Accuracy: {:.4f}\n".format(mean_test_acc))
+                f.write("Std Test Accuracy: {:.4f}\n".format(std_test_acc))
+                f.write(" Final best | test Accuracy {:.4f}±{:.4f}\n".format(mean_test_acc, std_test_acc))
+
+        print(f"Results saved to {file_path}")      
         
         print("Graph Task completed")
 
