@@ -11,6 +11,7 @@ import numpy as np
 class BaseTask:
     def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv', hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='GPF', epochs=100, shot_num=10, device : int = 5):
         self.pre_train_model_path = pre_train_model_path
+        self.pre_train_type = self.return_pre_train_type(pre_train_model_path)
         self.device = torch.device('cuda:'+ str(device) if torch.cuda.is_available() else 'cpu')
         self.hid_dim = hid_dim
         self.num_layer = num_layer
@@ -110,6 +111,13 @@ class BaseTask:
 
             self.gnn.load_state_dict(torch.load(self.pre_train_model_path, map_location=self.device))
             print("Successfully loaded pre-trained weights!")
+
+    def return_pre_train_type(self, pre_train_model_path):
+        names = ['GraphCL', 'SimGRACE','Edgepred_GPPT', 'Edgepred_Gprompt', 'DGI', 'None']
+        for name in names:
+            if name  in  pre_train_model_path:
+                return name
+
 
          
       

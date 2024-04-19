@@ -239,9 +239,9 @@ class GraphTask(BaseTask):
         std_test_acc = np.std(test_accs)    
         print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
 
-        file_name = self.gnn_type +'_'+ self.prompt_type + '_'+ str(self.shot_num) +"shot_results.txt"
-        file_path = os.path.join('./Experiment/Graph_Task/'+self.dataset_name, file_name)
-
+        file_name = self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type + "_results.txt"
+        file_path = os.path.join('./Experiment/Results/Graph_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, 'w') as f:
                 f.write("Test Accuracy Results:\n")
                 for test_acc in test_accs:
@@ -250,9 +250,17 @@ class GraphTask(BaseTask):
                 f.write("Std Test Accuracy: {:.4f}\n".format(std_test_acc))
                 f.write(" Final best | test Accuracy {:.4f}±{:.4f}\n".format(mean_test_acc, std_test_acc))
 
-        print(f"Results saved to {file_path}")      
+        print(f"Results saved to {file_path}") 
+
         
-        print("Graph Task completed")
+        file_name2 = self.gnn_type +"_total_results.txt"
+        file_path2 = os.path.join('./Experiment/Results/Graph_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name2)
+        os.makedirs(os.path.dirname(file_path2), exist_ok=True)
+        with open(file_path2, 'a') as f:
+                
+                f.write(" {}_{}_{} Final best | test Accuracy {:.4f}±{:.4f}\n".format(self.pre_train_type, self.gnn_type, self.prompt_type,mean_test_acc, std_test_acc))
+
+        print(f"Results saved to {file_path2}") 
 
         
 
