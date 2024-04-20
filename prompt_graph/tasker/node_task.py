@@ -58,11 +58,7 @@ class NodeTask(BaseTask):
             self.idx_test = torch.LongTensor(idx_test)
 
       def load_induced_graph(self):
-            self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
-            # self.data.to('cpu')
-            self.input_dim = self.dataset.num_features
-            self.output_dim = self.dataset.num_classes
-
+        
             folder_path = './Experiment/induced_graph/' + self.dataset_name
             if not os.path.exists(folder_path):
                   os.makedirs(folder_path)
@@ -80,10 +76,9 @@ class NodeTask(BaseTask):
 
       
       def load_data(self):
-            self.data, self.dataset = load4node(self.dataset_name, shot_num = self.shot_num)
+            self.data, self.input_dim, self.output_dim = load4node(self.dataset_name)
             self.data.to(self.device)
-            self.input_dim = self.dataset.num_features
-            self.output_dim = self.dataset.num_classes
+ 
       
       def train(self, data, train_idx):
             self.gnn.train()
@@ -211,6 +206,11 @@ class NodeTask(BaseTask):
                   idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
                   
+                  #GPPT prompt initialtion
+                  if self.prompt_type == 'GPPT':
+                        node_embedding = self.gnn(self.data.x, self.data.edge_index)
+                        self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, idx_train)
+                        
                   # for all-in-one and Gprompt we use k-hop subgraph
                   if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
                         graphs_list = self.load_induced_graph()

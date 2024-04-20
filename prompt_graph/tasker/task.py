@@ -53,9 +53,6 @@ class BaseTask:
         elif self.prompt_type == 'GPPT':
             if(self.task_type=='NodeTask'):
                 self.prompt = GPPTPrompt(self.hid_dim, self.output_dim, self.output_dim, device = self.device)
-                train_ids = torch.nonzero(self.data.train_mask, as_tuple=False).squeeze()
-                node_embedding = self.gnn(self.data.x, self.data.edge_index)
-                self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, train_ids)
             elif(self.task_type=='GraphTask'):
                 self.prompt = GPPTPrompt(self.hid_dim, self.output_dim, self.output_dim, device = self.device)                
         elif self.prompt_type =='All-in-one':
