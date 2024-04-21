@@ -21,7 +21,7 @@ class SimGRACE(PreTrain):
                                                    torch.nn.Linear(self.hid_dim, self.hid_dim)).to(self.device)
         
     def load_graph_data(self):
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr']:
+        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr','ogbn-arxiv']:
             self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
         else:
             self.input_dim, self.out_dim, self.graph_list= load4graph(self.dataset_name,pretrained=True)

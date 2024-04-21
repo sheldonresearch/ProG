@@ -25,7 +25,7 @@ class NodeTask(BaseTask):
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
-            # self.create_few_data_folder()         
+            self.create_few_data_folder()         
             self.initialize_gnn()
             self.initialize_prompt()
             self.initialize_optimizer()
@@ -34,7 +34,7 @@ class NodeTask(BaseTask):
       def create_few_data_folder(self):
             # 创建文件夹并保存数据
             for k in range(1, 11):
-                  k_shot_folder = './Experiment/sample_data/Node/Node/'+ self.dataset_name +'/' + str(k) +'_shot'
+                  k_shot_folder = './Experiment/sample_data/Node/'+ self.dataset_name +'/' + str(k) +'_shot'
                   os.makedirs(k_shot_folder, exist_ok=True)
                   
                   for i in range(1, 6):
