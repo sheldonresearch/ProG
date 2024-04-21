@@ -10,7 +10,7 @@ from torch_geometric.loader.cluster import ClusterData
 from torch_geometric.data import Data,Batch
 from torch_geometric.utils import negative_sampling
 import os
-from ogb.nodeproppred import DglNodePropPredDataset
+from ogb.nodeproppred import PygNodePropPredDataset
 
 def node_sample_and_save(data, k, folder, num_classes):
     # 获取标签
