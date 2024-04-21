@@ -39,9 +39,10 @@ class NodeTask(BaseTask):
                   
                   for i in range(1, 6):
                         folder = os.path.join(k_shot_folder, str(i))
-                        os.makedirs(folder, exist_ok=True)
-                        node_sample_and_save(self.data, k, folder, self.output_dim)
-                        print(str(k) + ' shot ' + str(i) + ' th is saved!!')
+                        if not os.path.exists(folder):
+                              os.makedirs(folder)
+                              node_sample_and_save(self.data, k, folder, self.output_dim)
+                              print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
       def load_multigprompt_data(self):
             adj, features, labels, idx_train, idx_val, idx_test = process.load_data(self.dataset_name)  
@@ -69,7 +70,7 @@ class NodeTask(BaseTask):
                         graphs_list = pickle.load(f)
             else:
                   print('Begin split_induced_graphs.')
-                  split_induced_graphs(self.data, folder_path, smallest_size=10, largest_size=30)
+                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=10, largest_size=30)
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
             return graphs_list

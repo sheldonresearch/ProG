@@ -53,7 +53,7 @@ def induced_graphs(data, smallest_size=10, largest_size=30):
 
 
 
-def split_induced_graphs(data, dir_path, smallest_size=10, largest_size=30):
+def split_induced_graphs(data, dir_path, device, smallest_size=10, largest_size=30):
 
     induced_graph_list = []
     
@@ -63,6 +63,9 @@ def split_induced_graphs(data, dir_path, smallest_size=10, largest_size=30):
         current_hop = 2
         subset, _, _, _ = k_hop_subgraph(node_idx=index, num_hops=current_hop,
                                             edge_index=data.edge_index, relabel_nodes=True)
+        subset = subset
+
+
         
         while len(subset) < smallest_size and current_hop < 5:
             current_hop += 1
@@ -71,22 +74,26 @@ def split_induced_graphs(data, dir_path, smallest_size=10, largest_size=30):
             
         if len(subset) < smallest_size:
             need_node_num = smallest_size - len(subset)
-            pos_nodes = torch.argwhere(data.y == int(current_label)) 
+            pos_nodes = torch.argwhere(data.y == int(current_label))
+            pos_nodes = pos_nodes.to('cpu')
+            subset = subset.to('cpu')
             candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
             candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][0:need_node_num]
             subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
 
         if len(subset) > largest_size:
             subset = subset[torch.randperm(subset.shape[0])][0:largest_size - 1]
-            subset = torch.unique(torch.cat([torch.LongTensor([index]), torch.flatten(subset)]))
+            subset = torch.unique(torch.cat([torch.LongTensor([index]).to(device), torch.flatten(subset)]))
 
+        subset = subset.to(device)
         sub_edge_index, _ = subgraph(subset, data.edge_index, relabel_nodes=True)
+        sub_edge_index = sub_edge_index.to(device)
 
         x = data.x[subset]
 
         induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label, index = index)
         induced_graph_list.append(induced_graph)
-        if index%50 == 0:
+        if index%500 == 0:
             print(index)
 
 
@@ -97,5 +104,6 @@ def split_induced_graphs(data, dir_path, smallest_size=10, largest_size=30):
     with open(file_path, 'wb') as f:
         # Assuming 'data' is what you want to pickle
         pickle.dump(induced_graph_list, f) 
+        print("induced graph data has been write into " + file_path)
 
 

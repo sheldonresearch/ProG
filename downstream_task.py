@@ -6,15 +6,15 @@ from prompt_graph.utils import  get_args
 
 args = get_args()
 seed_everything(args.seed)
-args.task = 'NodeTask'
-# args.prompt_type = 'All-in-one'
-args.shot_num =10
-args.dataset_name = 'Photo'
-# args.task = 'NodeTask'
-# args.epochs = 10
-# args.dataset_name = 'CiteSeer'
 
-args.prompt_type = 'Gprompt'
+# args.prompt_type = 'All-in-one'
+# # args.shot_num =10
+# # args.dataset_name = 'Flickr'
+# args.task = 'NodeTask'
+# # # args.epochs = 10
+# args.dataset_name = 'ogbn-arxiv'
+
+# args.prompt_type = 'None'
 # args.pre_train_model_path = './multigprompt_model/cora.multigprompt.GCL.128hidden_dim.pth'
 
 

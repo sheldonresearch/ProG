@@ -166,7 +166,7 @@ def load4node(dataname):
         graph, labels = dataset[0]
         edge_index = torch.stack(graph.edges())
         x = graph.ndata['feat']
-        y = labels
+        y = labels.squeeze()
         data = Data(x=x, edge_index = edge_index, y = y)
         input_dim = x.shape[1]
         out_dim = dataset.num_classes
