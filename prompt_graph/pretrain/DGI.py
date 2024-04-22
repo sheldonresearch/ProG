@@ -9,6 +9,8 @@ import time
 from prompt_graph.utils import generate_corrupted_graph
 from prompt_graph.data import load4node, load4graph, NodePretrain
 import os
+import numpy as np
+import copy
 
 class Discriminator(nn.Module):
     def __init__(self, n_h):
@@ -42,15 +44,15 @@ class Discriminator(nn.Module):
 
 
 class DGI(PreTrain):
-    def __init__(self, *args, hid_dim = 16, **kwargs):    # hid_dim=16
+    def __init__(self, *args, **kwargs):    # hid_dim=16
         super().__init__(*args, **kwargs)
         
-        
-        self.disc = Discriminator(hid_dim).to(self.device)
-        self.loss = nn.BCEWithLogitsLoss()
+      
+        self.disc = Discriminator(self.hid_dim).to(self.device)
+        self.loss_fn = nn.BCEWithLogitsLoss()
         self.graph_data = self.load_data()
-        self.initialize_gnn(self.input_dim, hid_dim)  
-        self.optimizer = Adam(self.gnn.parameters(), lr=0.01, weight_decay = 0.0005)
+        self.initialize_gnn(self.input_dim, self.hid_dim)  
+        self.optimizer = Adam(self.gnn.parameters(), lr=0.001, weight_decay = 0.0)
 
     def load_data(self):
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv']:
@@ -63,19 +65,17 @@ class DGI(PreTrain):
             data= Data(x=graph_data_batch.x, edge_index=graph_data_batch.edge_index)
         return data
 
-    def generate_loader_data(self):
-        loader1 = self.graph_data
-
-        # only perturb node indices in transductive setup
-        loader2 = generate_corrupted_graph(self.graph_data, "shuffleX")
-        return loader1, loader2
 
     def pretrain_one_epoch(self):
         self.gnn.train()
-
+        self.optimizer.zero_grad()
         device = self.device
 
-        graph_original, graph_corrupted = self.generate_loader_data()
+        graph_original = self.graph_data
+        graph_corrupted = copy.deepcopy(graph_original)
+        idx_perm = np.random.permutation(graph_original.x.size(0))
+        graph_corrupted.x = graph_original.x[idx_perm].to(self.device)
+
         graph_original.to(device)
         graph_corrupted.to(device)
 
@@ -83,7 +83,9 @@ class DGI(PreTrain):
         neg_z = self.gnn(graph_corrupted.x, graph_corrupted.edge_index)
 
         s = torch.sigmoid(torch.mean(pos_z, dim=0)).to(device)
-        # print(pos_z.shape, neg_z.shape, s.shape)
+        print(pos_z.shape, neg_z.shape, s.shape)
+        s = torch.mean(pos_z, dim=0)
+
 
         logits = self.disc(s, pos_z, neg_z)
 
@@ -91,23 +93,22 @@ class DGI(PreTrain):
         lbl_2 = torch.zeros((neg_z.shape[0], 1))
         lbl = torch.cat((lbl_1, lbl_2), 1).to(device)
 
-        l = self.loss(logits, lbl)
-        l.backward()
+        loss = self.loss_fn(logits, lbl)
+        loss.backward()
         self.optimizer.step()
 
-        accum_loss = float(l.detach().cpu().item())
+        accum_loss = float(loss.detach().cpu().item())
         return accum_loss
             
 
 
     def pretrain(self):
         train_loss_min = 1000000
-        patience = 10
+        patience = 20
         cnt_wait = 0
 
         for epoch in range(1, self.epochs + 1):
             time0 = time.time()
-            self.optimizer.zero_grad()
             train_loss = self.pretrain_one_epoch()
             print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, self.epochs , train_loss))
 
