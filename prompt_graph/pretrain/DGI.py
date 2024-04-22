@@ -83,9 +83,7 @@ class DGI(PreTrain):
         neg_z = self.gnn(graph_corrupted.x, graph_corrupted.edge_index)
 
         s = torch.sigmoid(torch.mean(pos_z, dim=0)).to(device)
-        print(pos_z.shape, neg_z.shape, s.shape)
-        s = torch.mean(pos_z, dim=0)
-
+        
 
         logits = self.disc(s, pos_z, neg_z)
 
