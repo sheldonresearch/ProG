@@ -9,7 +9,10 @@ from prompt_graph.utils import Gprompt_tuning_loss
 import numpy as np
 
 class BaseTask:
-    def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv', hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='GPF', epochs=100, shot_num=10, device : int = 5):
+    def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv',
+                 hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='None', epochs=100, shot_num=10, device : int = 5, lr =0.001, wd = 5e-4,
+                 batch_size = 16):
+        
         self.pre_train_model_path = pre_train_model_path
         self.pre_train_type = self.return_pre_train_type(pre_train_model_path)
         self.device = torch.device('cuda:'+ str(device) if torch.cuda.is_available() else 'cpu')
@@ -20,33 +23,35 @@ class BaseTask:
         self.gnn_type = gnn_type
         self.prompt_type = prompt_type
         self.epochs = epochs
+        self.lr = lr
+        self.wd = wd
+        self.batch_size = batch_size
         self.initialize_lossfn()
+
+    def initialize_lossfn(self):
+        self.criterion = torch.nn.CrossEntropyLoss()
+        if self.prompt_type == 'Gprompt':
+            self.criterion = Gprompt_tuning_loss()
 
     def initialize_optimizer(self):
         if self.prompt_type == 'None':
             model_param_group = []
             model_param_group.append({"params": self.gnn.parameters()})
             model_param_group.append({"params": self.answering.parameters()})
-            self.optimizer = optim.Adam(model_param_group, lr=0.005, weight_decay=5e-4)
+            self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
         elif self.prompt_type == 'All-in-one':
-            self.pg_opi = optim.Adam(filter(lambda p: p.requires_grad, self.prompt.parameters()), lr=0.001, weight_decay= 0.00001)
-            self.answer_opi = optim.Adam(filter(lambda p: p.requires_grad, self.answering.parameters()), lr=0.001, weight_decay= 0.00001)
+            self.pg_opi = optim.Adam(filter(lambda p: p.requires_grad, self.prompt.parameters()), lr=self.lr, weight_decay= self.wd)
+            self.answer_opi = optim.Adam(filter(lambda p: p.requires_grad, self.answering.parameters()), lr=self.lr, weight_decay= self.wd)
         elif self.prompt_type in ['GPF', 'GPF-plus']:
             model_param_group = []
             model_param_group.append({"params": self.prompt.parameters()})
             model_param_group.append({"params": self.answering.parameters()})
-            self.optimizer = optim.Adam(model_param_group, lr=0.005, weight_decay=5e-4)
+            self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
         elif self.prompt_type in ['Gprompt', 'GPPT']:
-            self.pg_opi = optim.Adam(self.prompt.parameters(), lr=0.01, weight_decay=5e-4)
+            self.pg_opi = optim.Adam(self.prompt.parameters(), lr=self.lr, weight_decay=self.wd)
         elif self.prompt_type == 'MultiGprompt':
-            self.optimizer = torch.optim.Adam([*self.DownPrompt.parameters(),*self.feature_prompt.parameters()], lr=0.001)
+            self.optimizer = optim.Adam([*self.DownPrompt.parameters(),*self.feature_prompt.parameters()], lr=self.lr)
 
-
-    def initialize_lossfn(self):
-        self.criterion = torch.nn.CrossEntropyLoss()
-        if self.prompt_type == 'Gprompt':
-            self.criterion = Gprompt_tuning_loss()
-            
     def initialize_prompt(self):
         if self.prompt_type == 'None':
             self.prompt = None
@@ -56,17 +61,17 @@ class BaseTask:
             elif(self.task_type=='GraphTask'):
                 self.prompt = GPPTPrompt(self.hid_dim, self.output_dim, self.output_dim, device = self.device)                
         elif self.prompt_type =='All-in-one':
-            lr, wd = 0.001, 0.00001
+            # lr, wd = 0.001, 0.00001
             # self.prompt = LightPrompt(token_dim=self.input_dim, token_num_per_group=100, group_num=self.output_dim, inner_prune=0.01).to(self.device)
             self.prompt = HeavyPrompt(token_dim=self.input_dim, token_num=10, cross_prune=0.1, inner_prune=0.3).to(self.device)
         elif self.prompt_type == 'GPF':
             self.prompt = GPF(self.input_dim).to(self.device)
         elif self.prompt_type == 'GPF-plus':
             self.prompt = GPF_plus(self.input_dim, 20).to(self.device)
-        elif self.prompt_type == 'sagpool':
-            self.prompt = SAGPoolPrompt(self.input_dim , num_clusters=5, ratio=0.5).to(self.device)
-        elif self.prompt_type == 'diffpool':
-            self.prompt = DiffPoolPrompt(self.input_dim, num_clusters=5 ).to(self.device)
+        # elif self.prompt_type == 'sagpool':
+        #     self.prompt = SAGPoolPrompt(self.input_dim , num_clusters=5, ratio=0.5).to(self.device)
+        # elif self.prompt_type == 'diffpool':
+        #     self.prompt = DiffPoolPrompt(self.input_dim, num_clusters=5 ).to(self.device)
         elif self.prompt_type == 'Gprompt':
             self.prompt = Gprompt(self.hid_dim).to(self.device)
         elif self.prompt_type == 'MultiGprompt':

@@ -145,11 +145,8 @@ class NodeTask(BaseTask):
                   total_loss += loss.item()  
             return total_loss / len(train_loader) 
 
-      def AllInOneTrain(self, train_loader):
+      def AllInOneTrain(self, train_loader, answer_epoch=1, prompt_epoch=1):
             #we update answering and prompt alternately.
-            
-            answer_epoch = 5  # 50
-            prompt_epoch = 1  # 50
             
             # tune task head
             self.answering.train()
@@ -224,8 +221,8 @@ class NodeTask(BaseTask):
                               elif graph.index in idx_test:
                                     test_graphs.append(graph)
 
-                        train_loader = DataLoader(train_graphs, batch_size=16, shuffle=True)
-                        test_loader = DataLoader(test_graphs, batch_size=16, shuffle=False)
+                        train_loader = DataLoader(train_graphs, batch_size = self.batch_size, shuffle=True)
+                        test_loader = DataLoader(test_graphs, batch_size = self.batch_size, shuffle=False)
                         print("prepare induce graph data is finished!")
 
                   if self.prompt_type == 'MultiGprompt':
@@ -237,7 +234,10 @@ class NodeTask(BaseTask):
                   best = 1e9
                   cnt_wait = 0
                  
-
+                  if self.prompt_type == 'All-in-one':
+                        self.answer_epoch = 1
+                        self.prompt_epoch = 1
+                        self.epochs = int(self.epochs/self.answer_epoch)
 
                   for epoch in range(1, self.epochs):
                         t0 = time.time()
