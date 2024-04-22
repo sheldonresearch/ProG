@@ -1,5 +1,5 @@
 from .base import PreTrain
-from torch_geometric.data import Data
+from torch_geometric.data import Data, Batch
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn.inits import reset, uniform
 from torch.optim import Adam
@@ -56,10 +56,12 @@ class DGI(PreTrain):
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv']:
             data, input_dim, _ = load4node(self.dataset_name)
             self.input_dim = input_dim
+        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+            input_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True)
+            self.input_dim = input_dim
+            graph_data_batch = Batch.from_data_list(graph_list)
+            data= Data(x=graph_data_batch.x, edge_index=graph_data_batch.edge_index)
         return data
-        #     self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
-        # else:
-        #     self.input_dim, _, self.graph_list= load4graph(self.dataset_name, pretrained=True)
 
     def generate_loader_data(self):
         loader1 = self.graph_data
