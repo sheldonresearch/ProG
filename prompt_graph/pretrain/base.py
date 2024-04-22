@@ -11,6 +11,8 @@ class PreTrain(torch.nn.Module):
         self.num_layer = gln
         self.epochs = num_epoch
         self.hid_dim =hid_dim
+        self.learning_rate = 0.001
+        self.weight_decay = 0.00005
     
     def initialize_gnn(self, input_dim, hid_dim):
         if self.gnn_type == 'GAT':
@@ -29,7 +31,7 @@ class PreTrain(torch.nn.Module):
                 raise ValueError(f"Unsupported GNN type: {self.gnn_type}")
         print(self.gnn)
         self.gnn.to(self.device)
-        self.optimizer = Adam(self.gnn.parameters(), lr=0.001, weight_decay=0.00005)
+        self.optimizer = Adam(self.gnn.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
 
 
         

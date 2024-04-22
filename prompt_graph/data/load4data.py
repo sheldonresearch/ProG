@@ -162,7 +162,7 @@ def load4node(dataname):
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname == 'ogbn-arxiv':
-        dataset = DglNodePropPredDataset(name='ogbn-arxiv', root='./dataset')
+        dataset = PygNodePropPredDataset(name='ogbn-arxiv', root='./dataset')
         graph, labels = dataset[0]
         edge_index = torch.stack(graph.edges())
         x = graph.ndata['feat']

@@ -50,7 +50,7 @@ class DGI(PreTrain):
         self.loss = nn.BCEWithLogitsLoss()
         self.graph_data = self.load_data()
         self.initialize_gnn(self.input_dim, hid_dim)  
-        self.optimizer = Adam(self.gnn.parameters(), lr=0.01, weight_decay = 0.0001)
+        self.optimizer = Adam(self.gnn.parameters(), lr=0.01, weight_decay = 0.0005)
 
     def load_data(self):
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv']:
