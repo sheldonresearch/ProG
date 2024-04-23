@@ -283,10 +283,14 @@ def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
 def NodePretrain(dataname='CiteSeer', num_parts=200):
     data, input_dim, _ = load4node(dataname)
 
+    if(dataname=='Cora'):
+        num_parts=220
+
     x = data.x.detach()
     edge_index = data.edge_index
     edge_index = to_undirected(edge_index)
     data = Data(x=x, edge_index=edge_index)
+    
     graph_list = list(ClusterData(data=data, num_parts=num_parts))
 
     return graph_list, input_dim

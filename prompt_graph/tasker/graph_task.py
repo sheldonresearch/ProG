@@ -163,8 +163,10 @@ class GraphTask(BaseTask):
             cnt_wait = 0
            
             if self.prompt_type == 'All-in-one':
+                # self.answer_epoch = 5 MUTAG Graph MAE / GraphCL
+                # self.prompt_epoch = 1
                 self.answer_epoch = 1
-                self.prompt_epoch = 1
+                self.prompt_epoch = 1                
                 self.epochs = int(self.epochs/self.answer_epoch)
             elif self.prompt_type == 'GPPT':
                 # initialize the GPPT hyperparametes via graph data

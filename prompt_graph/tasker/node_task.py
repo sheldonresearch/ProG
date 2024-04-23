@@ -25,7 +25,7 @@ class NodeTask(BaseTask):
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
-            self.create_few_data_folder()         
+            # self.create_few_data_folder()
             self.initialize_gnn()
             self.initialize_prompt()
             self.initialize_optimizer()
@@ -73,6 +73,7 @@ class NodeTask(BaseTask):
                   split_induced_graphs(self.data, folder_path, self.device, smallest_size=10, largest_size=30)
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
+            graphs_list = [graph.to(self.device) for graph in graphs_list]
             return graphs_list
 
       
@@ -147,10 +148,10 @@ class NodeTask(BaseTask):
 
       def AllInOneTrain(self, train_loader, answer_epoch=1, prompt_epoch=1):
             #we update answering and prompt alternately.
-            
             # tune task head
             self.answering.train()
             self.prompt.eval()
+            self.gnn.eval()
             for epoch in range(1, answer_epoch + 1):
                   answer_loss = self.prompt.Tune(train_loader, self.gnn,  self.answering, self.criterion, self.answer_opi, self.device)
                   print(("frozen gnn | frozen prompt | *tune answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, answer_loss)))
@@ -160,9 +161,10 @@ class NodeTask(BaseTask):
             self.prompt.train()
             for epoch in range(1, prompt_epoch + 1):
                   pg_loss = self.prompt.Tune( train_loader,  self.gnn, self.answering, self.criterion, self.pg_opi, self.device)
-                  print(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, pg_loss)))
+                  print(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, prompt_epoch, pg_loss)))
             
-            return pg_loss
+            # return pg_loss
+            return answer_loss
       
       def GpromptTrain(self, train_loader):
             self.prompt.train()
@@ -196,6 +198,7 @@ class NodeTask(BaseTask):
             test_accs = []
             # if self.prompt_type == 'MultiGprompt':    
             for i in range(1, 6):
+             
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
                   train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
@@ -238,6 +241,10 @@ class NodeTask(BaseTask):
                         self.answer_epoch = 1
                         self.prompt_epoch = 1
                         self.epochs = int(self.epochs/self.answer_epoch)
+                        for param_group in self.pg_opi.param_groups:
+                              param_group['lr'] = 1e-5
+                        for param_group in self.answer_opi.param_groups:
+                              param_group['lr'] = 1e-2
 
                   for epoch in range(1, self.epochs):
                         t0 = time.time()
@@ -246,7 +253,7 @@ class NodeTask(BaseTask):
                         elif self.prompt_type == 'GPPT':
                               loss = self.GPPTtrain(self.data, idx_train)                
                         elif self.prompt_type == 'All-in-one':
-                              loss = self.AllInOneTrain(train_loader)                           
+                              loss = self.AllInOneTrain(train_loader,self.answer_epoch,self.prompt_epoch)                           
                         elif self.prompt_type in ['GPF', 'GPF-plus']:
                               loss = self.GPFTrain(train_loader)                                                          
                         elif self.prompt_type =='Gprompt':
