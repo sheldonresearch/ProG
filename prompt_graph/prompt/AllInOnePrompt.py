@@ -100,7 +100,8 @@ class HeavyPrompt(LightPrompt):
 
     def Tune(self, train_loader, gnn, answering, lossfn, opi, device):
         running_loss = 0.
-        for batch_id, train_batch in enumerate(train_loader):  
+        for batch_id, train_batch in enumerate(train_loader): 
+            opi.zero_grad() 
             # print(train_batch)
             train_batch = train_batch.to(device)
             prompted_graph = self.forward(train_batch)
@@ -109,11 +110,11 @@ class HeavyPrompt(LightPrompt):
             graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
             pre = answering(graph_emb)
             train_loss = lossfn(pre, train_batch.y)
-
-            opi.zero_grad()
             train_loss.backward()
             opi.step()
             running_loss += train_loss.item()
+       
+            print(' batch {}/{} | loss: {:.8f}'.format( batch_id, len(train_loader), train_loss))
 
         return running_loss / len(train_loader)
     
