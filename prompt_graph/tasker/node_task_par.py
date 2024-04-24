@@ -13,8 +13,13 @@ import pickle
 import os
 from prompt_graph.utils import process
 warnings.filterwarnings("ignore")
+enable_wandb = True
+if enable_wandb:
+    import wandb
+    from prompt_graph.utils import embedding_to_wandb
 
-class NodeTask(BaseTask):
+
+class NodeTask_PAR(BaseTask):
       def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.task_type = 'NodeTask'
@@ -25,7 +30,7 @@ class NodeTask(BaseTask):
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
-            # self.create_few_data_folder()
+            self.create_few_data_folder()         
             self.initialize_gnn()
             self.initialize_prompt()
             self.initialize_optimizer()
@@ -73,7 +78,6 @@ class NodeTask(BaseTask):
                   split_induced_graphs(self.data, folder_path, self.device, smallest_size=10, largest_size=30)
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
-            graphs_list = [graph.to(self.device) for graph in graphs_list]
             return graphs_list
 
       
@@ -148,10 +152,10 @@ class NodeTask(BaseTask):
 
       def AllInOneTrain(self, train_loader, answer_epoch=1, prompt_epoch=1):
             #we update answering and prompt alternately.
+            
             # tune task head
             self.answering.train()
             self.prompt.eval()
-            self.gnn.eval()
             for epoch in range(1, answer_epoch + 1):
                   answer_loss = self.prompt.Tune(train_loader, self.gnn,  self.answering, self.criterion, self.answer_opi, self.device)
                   print(("frozen gnn | frozen prompt | *tune answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, answer_loss)))
@@ -161,10 +165,9 @@ class NodeTask(BaseTask):
             self.prompt.train()
             for epoch in range(1, prompt_epoch + 1):
                   pg_loss = self.prompt.Tune( train_loader,  self.gnn, self.answering, self.criterion, self.pg_opi, self.device)
-                  print(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, prompt_epoch, pg_loss)))
+                  print(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, pg_loss)))
             
-            # return pg_loss
-            return answer_loss
+            return pg_loss
       
       def GpromptTrain(self, train_loader):
             self.prompt.train()
@@ -195,9 +198,13 @@ class NodeTask(BaseTask):
             return total_loss / len(train_loader), mean_centers
       
       def run(self):
+            if enable_wandb:
+                  wandb.init()
+                  wandb.watch(self.gnn)
+                  self.optimizer = torch.optim.Adam(self.gnn.parameters(), lr=wandb.config.lr, weight_decay=wandb.config.weight_decay)
+
             test_accs = []
             for i in range(1, 6):
-             
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
                   train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
@@ -239,10 +246,6 @@ class NodeTask(BaseTask):
                         self.answer_epoch = 1
                         self.prompt_epoch = 1
                         self.epochs = int(self.epochs/self.answer_epoch)
-                        for param_group in self.pg_opi.param_groups:
-                              param_group['lr'] = 1e-6
-                        for param_group in self.answer_opi.param_groups:
-                              param_group['lr'] = 1e-3
 
                   for epoch in range(1, self.epochs):
                         t0 = time.time()
@@ -252,7 +255,7 @@ class NodeTask(BaseTask):
                         elif self.prompt_type == 'GPPT':
                               loss = self.GPPTtrain(self.data, idx_train)                
                         elif self.prompt_type == 'All-in-one':
-                              loss = self.AllInOneTrain(train_loader,self.answer_epoch,self.prompt_epoch)                           
+                              loss = self.AllInOneTrain(train_loader)                           
                         elif self.prompt_type in ['GPF', 'GPF-plus']:
                               loss = self.GPFTrain(train_loader)                                                          
                         elif self.prompt_type =='Gprompt':
@@ -272,7 +275,8 @@ class NodeTask(BaseTask):
                                     print('-' * 100)
                                     print('Early stopping at '+str(epoch) +' eopch!')
                                     break
-     
+                        if enable_wandb:
+                              wandb.log({self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type +"/loss": loss})
                         print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
            
                   if self.prompt_type == 'None':
@@ -296,6 +300,11 @@ class NodeTask(BaseTask):
             mean_test_acc = np.mean(test_accs)
             std_test_acc = np.std(test_accs)    
             print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))  
+            if enable_wandb:
+                  wandb.log({self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type +"/accuracy" : mean_test_acc})
+                  wandb.log({self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type +"/std" : std_test_acc})
+
+        
 
             file_name = self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type + "_results.txt"
             file_path = os.path.join('./Experiment/Results/Node_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name)
@@ -321,7 +330,9 @@ class NodeTask(BaseTask):
             print(f"Results saved to {file_path2}") 
 
             print("Node Task completed")
-      
+            if enable_wandb:
+                  wandb.finish()
+                  
                   
             # elif self.prompt_type != 'MultiGprompt':
             #       # embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)

@@ -2,7 +2,7 @@ import torch
 import pickle as pk
 from random import shuffle
 import random
-from torch_geometric.datasets import Planetoid, Amazon, Reddit, WikiCS, Flickr
+from torch_geometric.datasets import Planetoid, Amazon, Reddit, WikiCS, Flickr, WebKB, Actor
 from torch_geometric.datasets import TUDataset
 from torch_geometric.transforms import NormalizeFeatures
 from torch_geometric.utils import to_undirected
@@ -179,6 +179,16 @@ def load4node(dataname):
         out_dim = dataset.num_classes
     elif dataname == 'Flickr':
         dataset = Flickr(root='data/Flickr')
+        data = dataset[0]
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
+    elif data name in ['Wisconsin', 'Texas']:
+        dataset = WebKB(root='data/'+dataname, name=dataname)
+        data = dataset[0]
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
+    elif dataname == 'Actor':
+        dataset = Actor(root='data/Actor')
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes

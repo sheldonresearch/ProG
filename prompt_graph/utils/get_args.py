@@ -22,8 +22,8 @@ def get_args():
                         help='Learning rate (default: 0.0001)')
     parser.add_argument('--decay', type=float, default=0,
                         help='Weight decay (default: 0)')
-    parser.add_argument('--num_layer', type=int, default=3,
-                        help='Number of GNN message passing layers (default: 3).')
+    parser.add_argument('--num_layer', type=int, default=2,
+                        help='Number of GNN message passing layers (default: 2).')
 
     parser.add_argument('--dropout_ratio', type=float, default=0.5,
                         help='Dropout ratio (default: 0.5)')

@@ -7,10 +7,14 @@ from prompt_graph.utils import  get_args
 args = get_args()
 seed_everything(args.seed)
 
-# args.prompt_type = 'All-in-one'
-# # args.shot_num =10
-# # args.dataset_name = 'Flickr'
-# args.task = 'NodeTask'
+args.prompt_type = 'All-in-one'
+args.shot_num =10
+args.dataset_name = 'Cora'
+args.pre_train_model_path = './Experiment/pre_trained_model/Cora/GraphCL.GCN.128hidden_dim.pth'
+
+
+args.task = 'NodeTask'
+args.batch_size = 10
 # # # args.epochs = 10
 # args.dataset_name = 'ogbn-arxiv'
 
@@ -21,7 +25,9 @@ seed_everything(args.seed)
 
 if args.task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
-                    dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, prompt_type = args.prompt_type, epochs = args.epochs, shot_num = args.shot_num, device=args.device)
+                    dataset_name = args.dataset_name, num_layer = args.num_layer,
+                    gnn_type = args.gnn_type, prompt_type = args.prompt_type,
+                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, batch_size = args.batch_size)
     
     tasker.run()
 
