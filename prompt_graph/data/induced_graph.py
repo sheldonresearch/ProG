@@ -56,6 +56,8 @@ def induced_graphs(data, smallest_size=10, largest_size=30):
 def split_induced_graphs(data, dir_path, device, smallest_size=10, largest_size=30):
 
     induced_graph_list = []
+    saved_graph_list = []
+    from copy import deepcopy
     
     for index in range(data.x.size(0)):
         current_label = data.y[index].item()
@@ -92,6 +94,7 @@ def split_induced_graphs(data, dir_path, device, smallest_size=10, largest_size=
         x = data.x[subset]
 
         induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label, index = index)
+        saved_graph_list.append(deepcopy(induced_graph).to('cpu'))
         induced_graph_list.append(induced_graph)
         if index%500 == 0:
             print(index)
@@ -103,7 +106,8 @@ def split_induced_graphs(data, dir_path, device, smallest_size=10, largest_size=
     file_path = os.path.join(dir_path, 'induced_graph.pkl')
     with open(file_path, 'wb') as f:
         # Assuming 'data' is what you want to pickle
-        pickle.dump(induced_graph_list, f) 
+        # pickle.dump(induced_graph_list, f) 
+        pickle.dump(saved_graph_list, f)
         print("induced graph data has been write into " + file_path)
 
 

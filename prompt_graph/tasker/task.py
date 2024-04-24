@@ -63,7 +63,10 @@ class BaseTask:
         elif self.prompt_type =='All-in-one':
             # lr, wd = 0.001, 0.00001
             # self.prompt = LightPrompt(token_dim=self.input_dim, token_num_per_group=100, group_num=self.output_dim, inner_prune=0.01).to(self.device)
-            self.prompt = HeavyPrompt(token_dim=self.input_dim, token_num=10, cross_prune=0.1, inner_prune=0.3).to(self.device)
+            if(self.task_type=='NodeTask'):
+                self.prompt = HeavyPrompt(token_dim=self.input_dim, token_num=10, cross_prune=0.1, inner_prune=0.3).to(self.device)
+            elif(self.task_type=='GraphTask'):
+                self.prompt = HeavyPrompt(token_dim=self.input_dim, token_num=10, cross_prune=0.1, inner_prune=0.3).to(self.device)
         elif self.prompt_type == 'GPF':
             self.prompt = GPF(self.input_dim).to(self.device)
         elif self.prompt_type == 'GPF-plus':
@@ -111,7 +114,8 @@ class BaseTask:
             if self.dataset_name not in self.pre_train_model_path :
                 raise ValueError(f"the Downstream dataset '{self.dataset_name}' does not match the pre-train dataset")
 
-            self.gnn.load_state_dict(torch.load(self.pre_train_model_path, map_location=self.device))
+            self.gnn.load_state_dict(torch.load(self.pre_train_model_path, map_location='cpu'))
+            self.gnn.to(self.device)       
             print("Successfully loaded pre-trained weights!")
 
     def return_pre_train_type(self, pre_train_model_path):
