@@ -242,9 +242,9 @@ class NodeTask(BaseTask):
                         self.prompt_epoch = 1
                         self.epochs = int(self.epochs/self.answer_epoch)
                         for param_group in self.pg_opi.param_groups:
-                              param_group['lr'] = 1e-5
+                              param_group['lr'] = 1e-6
                         for param_group in self.answer_opi.param_groups:
-                              param_group['lr'] = 1e-2
+                              param_group['lr'] = 1e-3
 
                   for epoch in range(1, self.epochs):
                         t0 = time.time()
