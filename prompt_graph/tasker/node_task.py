@@ -194,21 +194,19 @@ class NodeTask(BaseTask):
       
       def run(self):
             test_accs = []
-            # if self.prompt_type == 'MultiGprompt':    
             for i in range(1, 6):
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
                   train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
                   print("true",i,train_lbls)
-
                   idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
-                  
-                  #GPPT prompt initialtion
+
+                  # GPPT prompt initialtion
                   if self.prompt_type == 'GPPT':
                         node_embedding = self.gnn(self.data.x, self.data.edge_index)
                         self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, idx_train)
-                        
+
                   # for all-in-one and Gprompt we use k-hop subgraph
                   if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
                         graphs_list = self.load_induced_graph()
@@ -241,6 +239,7 @@ class NodeTask(BaseTask):
 
                   for epoch in range(1, self.epochs):
                         t0 = time.time()
+
                         if self.prompt_type == 'None':
                               loss = self.train(self.data, idx_train)                             
                         elif self.prompt_type == 'GPPT':
@@ -266,6 +265,7 @@ class NodeTask(BaseTask):
                                     print('-' * 100)
                                     print('Early stopping at '+str(epoch) +' eopch!')
                                     break
+     
                         print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
            
                   if self.prompt_type == 'None':
@@ -289,7 +289,6 @@ class NodeTask(BaseTask):
             mean_test_acc = np.mean(test_accs)
             std_test_acc = np.std(test_accs)    
             print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))  
-        
 
             file_name = self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type + "_results.txt"
             file_path = os.path.join('./Experiment/Results/Node_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name)
@@ -315,7 +314,7 @@ class NodeTask(BaseTask):
             print(f"Results saved to {file_path2}") 
 
             print("Node Task completed")
-                  
+      
                   
             # elif self.prompt_type != 'MultiGprompt':
             #       # embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
