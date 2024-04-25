@@ -220,13 +220,13 @@ class GraphMAE(PreTrain):
             loss_metric.reset()
             
             for step, batch in enumerate(self.graph_dataloader):
-                
+
                 self.optimizer.zero_grad()
 
                 batch = batch.to(self.device)
        
-                loss, loss_item, x_hidden = self.loss.forward(batch)
-                    
+                loss, loss_item, x_hidden = self.loss.forward(batch)              
+
                 loss.backward()
                 self.optimizer.step()
                 

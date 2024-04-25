@@ -25,13 +25,20 @@ class Edgepred_GPPT(PreTrain):
             return DataLoader(data, batch_size=64, shuffle=True)
         
         elif self.dataset_name in  ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
-            self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)          
-            self.data.to(self.device) 
+            self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)
+            self.data.to(self.device)
             edge_index = edge_index.transpose(0, 1)
             data = TensorDataset(edge_label, edge_index)
+            
+            # Batch图太大，向前传播的时候分开操作
+            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+                self.batch_dataloader = DataLoader(self.data.to_data_list(),batch_size=256,shuffle=False)
+                return DataLoader(data, batch_size=512000, shuffle=True)
+
             return DataLoader(data, batch_size=64, shuffle=True)
       
     def pretrain_one_epoch(self):
+
         accum_loss, total_step = 0, 0
         device = self.device
 
@@ -43,8 +50,19 @@ class Edgepred_GPPT(PreTrain):
 
             batch_edge_label = batch_edge_label.to(device)
             batch_edge_index = batch_edge_index.to(device)
+
+            # 如果graph datasets经过Batch图太大了，那就分开操作
+            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+                for batch_id, batch_graph in enumerate(self.batch_dataloader):
+                    batch_graph.to(device)
+                    if(batch_id==0):
+                        out = self.gnn(batch_graph.x, batch_graph.edge_index)
+                    else:
+                        out = torch.concatenate([out, self.gnn(batch_graph.x, batch_graph.edge_index)],dim=0)
+            else:
+                out = self.gnn(self.data.x, self.data.edge_index)
+                
             
-            out = self.gnn(self.data.x, self.data.edge_index)
             node_emb = self.graph_pred_linear(out)
           
             batch_edge_index = batch_edge_index.transpose(0,1)
@@ -56,6 +74,8 @@ class Edgepred_GPPT(PreTrain):
 
             accum_loss += float(loss.detach().cpu().item())
             total_step += 1
+            
+            # print('第{}次反向传播过程'.format(step))
 
         return accum_loss / total_step
 

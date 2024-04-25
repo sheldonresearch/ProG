@@ -70,6 +70,22 @@ def graph_sample_and_save(dataset, k, folder, num_classes):
     train_labels = labels[train_indices]
     torch.save(train_labels, os.path.join(folder, 'train_labels.pt'))
 
+def node_degree_as_features(data_list):
+    from torch_geometric.utils import degree
+    for data in data_list:
+        # 计算所有节点的度数，这将返回一个张量
+        deg = degree(data.edge_index[0], dtype=torch.long)
+
+        # 将度数张量变形为[nodes, 1]以便与其他特征拼接
+        deg = deg.view(-1, 1).float()
+        
+        # 如果原始数据没有节点特征，可以直接使用度数作为特征
+        if data.x is None:
+            data.x = deg
+        else:
+            # 将度数特征拼接到现有的节点特征上
+            data.x = torch.cat([data.x, deg], dim=1)
+
 def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
     r"""A plain old python object modeling a batch of graphs as one big
         (dicconnected) graph. With :class:`torch_geometric.data.Data` being the
@@ -80,10 +96,17 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
 
     if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name)
-        
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
+
         torch.manual_seed(12345)
         dataset = dataset.shuffle()
         graph_list = [data for data in dataset]
+
+        if dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+            graph_list = [g for g in graph_list]
+            node_degree_as_features(graph_list)
+            input_dim = graph_list[0].x.size(1)        
 
         # # 分类并选择每个类别的图
         # class_datasets = {}
@@ -106,8 +129,6 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         # val_dataset = remaining_data[:val_dataset_size]
         # test_dataset = remaining_data[val_dataset_size:]
         
-        input_dim = dataset.num_features
-        out_dim = dataset.num_classes
 
         if(pretrained==True):
             return input_dim, out_dim, graph_list
@@ -261,9 +282,15 @@ def load4link_prediction_single_graph(dataname, num_per_samples=1):
 def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
     if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name)
-
+    
     input_dim = dataset.num_features
     output_dim = 2 # link prediction的输出维度应该是2，0代表无边，1代表右边
+
+    if dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+        dataset = [g for g in dataset]
+        node_degree_as_features(dataset)
+        input_dim = dataset[0].x.size(1)
+
     data = Batch.from_data_list(dataset)
     
     r"""Perform negative sampling to generate negative neighbor samples"""
@@ -286,21 +313,51 @@ def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
     return data, edge_label, edge_index, input_dim, output_dim
 
 # used in pre_train.py
-def NodePretrain(dataname='CiteSeer', num_parts=200):
+def NodePretrain(dataname='CiteSeer', num_parts=200, split_method='Random Walk'):
+
     data, input_dim, _ = load4node(dataname)
 
+<<<<<<< HEAD
     if(dataname=='Cora'):
         num_parts=220
     elif(dataname=='Texas'):
         num_parts=20
+=======
+    if(split_method=='Cluster'):
+>>>>>>> 57c8a0ecb23a422dda9f0d08a97a3ca08a899f38
 
-    x = data.x.detach()
-    edge_index = data.edge_index
-    edge_index = to_undirected(edge_index)
-    data = Data(x=x, edge_index=edge_index)
+        x = data.x.detach()
+        edge_index = data.edge_index
+        edge_index = to_undirected(edge_index)
+        data = Data(x=x, edge_index=edge_index)
+        
+        graph_list = list(ClusterData(data=data, num_parts=num_parts))
+    elif(split_method=='Random Walk'):
+        from torch_cluster import random_walk
+        split_ratio = 0.1
+        walk_length = 30
+        all_random_node_list = torch.randperm(data.num_nodes)
+        selected_node_num_for_random_walk = int(split_ratio * data.num_nodes)
+        random_node_list = all_random_node_list[:selected_node_num_for_random_walk]
+        walk_list = random_walk(data.edge_index[0], data.edge_index[1], random_node_list, walk_length=walk_length)
+
+        graph_list = [] 
+        skip_num = 0        
+        for walk in walk_list:   
+            subgraph_nodes = torch.unique(walk)
+            if(len(subgraph_nodes)<5):
+                skip_num+=1
+                continue
+            subgraph_data = data.subgraph(subgraph_nodes)
+
+            graph_list.append(subgraph_data)
+
+        print(f"Total {len(graph_list)} random walk subgraphs with nodes more than 5, and there are {skip_num} skipped subgraphs with nodes less than 5.")
+
+    else:
+        print('None split method!')
+        exit()
     
-    graph_list = list(ClusterData(data=data, num_parts=num_parts))
-
     return graph_list, input_dim
 
 

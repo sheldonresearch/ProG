@@ -79,11 +79,18 @@ class SimGRACE(PreTrain):
             optimizer.step()
             train_loss_accum += float(loss.detach().cpu().item())
             total_step = total_step + 1
+            # print("第{}次gnn batch传播，loss是{}".format(step,train_loss_accum))
 
         return train_loss_accum / total_step
 
     def pretrain(self, batch_size=10, lr=0.01,decay=0.0001):
+<<<<<<< HEAD
         epochs = self.epochs
+=======
+        if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+            batch_size = 512
+
+>>>>>>> 57c8a0ecb23a422dda9f0d08a97a3ca08a899f38
         loader = self.get_loader(self.graph_list, batch_size)
         print('start training {} | {} | {}...'.format(self.dataset_name, 'SimGRACE', self.gnn_type))
         optimizer = optim.Adam(self.gnn.parameters(), lr=lr, weight_decay=decay)
@@ -91,10 +98,11 @@ class SimGRACE(PreTrain):
         train_loss_min = 1000000
         patience = 10
         cnt_wait = 0
-        for epoch in range(1, epochs + 1):  # 1..100
+        for epoch in range(1, self.epochs + 1):  # 1..100
+
             train_loss = self.train_simgrace(loader, optimizer)
 
-            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, epochs, train_loss))
+            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, self.epochs, train_loss))
 
             if train_loss_min > train_loss:
                 train_loss_min = train_loss

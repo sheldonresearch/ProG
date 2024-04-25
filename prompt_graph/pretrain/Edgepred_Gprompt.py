@@ -27,7 +27,13 @@ class Edgepred_Gprompt(PreTrain):
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)          
             self.adj = edge_index_to_sparse_matrix(self.data.edge_index, self.data.x.shape[0]).to(self.device)
             data = prepare_structured_data(self.data)
-            return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
+
+            if self.dataset_name in  ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+                from torch_geometric import loader
+                self.batch_dataloader = loader.DataLoader(self.data.to_data_list(),batch_size=256,shuffle=False)
+                return DataLoader(TensorDataset(data), batch_size=5120000, shuffle=True)
+            else:
+                return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
     
     def pretrain_one_epoch(self):
         accum_loss, total_step = 0, 0
@@ -40,8 +46,18 @@ class Edgepred_Gprompt(PreTrain):
             batch = batch[0]
             batch = batch.to(device)
 
-            out = self.gnn(self.data.x.to(device), self.data.edge_index.to(device))
-                        
+            # 如果graph datasets经过Batch图太大了，那就分开操作
+            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+
+                for batch_id, batch_graph in enumerate(self.batch_dataloader):
+                    batch_graph.to(device)
+                    if(batch_id==0):
+                        out = self.gnn(batch_graph.x, batch_graph.edge_index)
+                    else:
+                        out = torch.concatenate([out, self.gnn(batch_graph.x, batch_graph.edge_index)],dim=0)
+            else:
+                out = self.gnn(self.data.x.to(device), self.data.edge_index.to(device))
+               
             all_node_emb = self.graph_pred_linear(out)
 
             # TODO: GraphPrompt customized node embedding computation
@@ -57,6 +73,8 @@ class Edgepred_Gprompt(PreTrain):
 
             accum_loss += float(loss.detach().cpu().item())
             total_step += 1
+            
+            print('第{}次反向传播过程'.format(step))
 
         return accum_loss / total_step
  
