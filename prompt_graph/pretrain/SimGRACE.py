@@ -84,13 +84,9 @@ class SimGRACE(PreTrain):
         return train_loss_accum / total_step
 
     def pretrain(self, batch_size=10, lr=0.01,decay=0.0001):
-<<<<<<< HEAD
         epochs = self.epochs
-=======
         if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
             batch_size = 512
-
->>>>>>> 57c8a0ecb23a422dda9f0d08a97a3ca08a899f38
         loader = self.get_loader(self.graph_list, batch_size)
         print('start training {} | {} | {}...'.format(self.dataset_name, 'SimGRACE', self.gnn_type))
         optimizer = optim.Adam(self.gnn.parameters(), lr=lr, weight_decay=decay)

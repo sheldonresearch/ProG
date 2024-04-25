@@ -194,7 +194,7 @@ class NodeTask(BaseTask):
 
             return total_loss / len(train_loader), mean_centers
       
-      def run(self):
+      def run(self, params):
             test_accs = []
             for i in range(1, 6):
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
@@ -277,8 +277,7 @@ class NodeTask(BaseTask):
 
                   batch_best_loss.append(best)
                   mean_best = np.mean(batch_best_loss)
-                  if mean_best < best_loss:
-                        best_loss = mean_best
+
             
 
 
@@ -328,6 +327,8 @@ class NodeTask(BaseTask):
             print(f"Results saved to {file_path2}") 
 
             print("Node Task completed")
+
+            return  mean_best, mean_test_acc, std_test_acc
       
                   
             # elif self.prompt_type != 'MultiGprompt':
