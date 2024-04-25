@@ -101,7 +101,8 @@ class NodeTask(BaseTask):
             self.pg_opi.zero_grad()
             loss.backward()
             self.pg_opi.step()
-            self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
+            mid_h = self.prompt.get_mid_h()
+            self.prompt.update_StructureToken_weight(mid_h)
             return loss.item()
       
       def MultiGpromptTrain(self, pretrain_embs, train_lbls, train_idx):
@@ -239,10 +240,7 @@ class NodeTask(BaseTask):
                         self.answer_epoch = 1
                         self.prompt_epoch = 1
                         self.epochs = int(self.epochs/self.answer_epoch)
-                        for param_group in self.pg_opi.param_groups:
-                              param_group['lr'] = 1e-6
-                        for param_group in self.answer_opi.param_groups:
-                              param_group['lr'] = 1e-3
+
 
                   for epoch in range(1, self.epochs):
                         t0 = time.time()
@@ -278,9 +276,6 @@ class NodeTask(BaseTask):
                   batch_best_loss.append(best)
                   mean_best = np.mean(batch_best_loss)
 
-            
-
-
                   if self.prompt_type == 'None':
                         test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
                   elif self.prompt_type == 'GPPT':
@@ -303,28 +298,20 @@ class NodeTask(BaseTask):
             std_test_acc = np.std(test_accs)    
             print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))  
 
-            file_name = self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type + "_results.txt"
-            file_path = os.path.join('./Experiment/Results/Node_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name)
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(file_path, 'w') as f:
-                  f.write("Test Accuracy Results:\n")
-                  for test_acc in test_accs:
-                        f.write("{:.4f}\n".format(test_acc))
-                  f.write("\nMean Test Accuracy: {:.4f}\n".format(mean_test_acc))
-                  f.write("Std Test Accuracy: {:.4f}\n".format(std_test_acc))
-                  f.write(" Final best | test Accuracy {:.4f}±{:.4f}\n".format(mean_test_acc, std_test_acc))
+            # file_name = self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type + "_results.txt"
+            # file_path = os.path.join('./Experiment/Results/Node_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name)
+            # os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            # with open(file_path, 'w') as f:
+            #       f.write("Test Accuracy Results:\n")
+            #       for test_acc in test_accs:
+            #             f.write("{:.4f}\n".format(test_acc))
+            #       f.write("\nMean Test Accuracy: {:.4f}\n".format(mean_test_acc))
+            #       f.write("Std Test Accuracy: {:.4f}\n".format(std_test_acc))
+            #       f.write(" Final best | test Accuracy {:.4f}±{:.4f}\n".format(mean_test_acc, std_test_acc))
 
-            print(f"Results saved to {file_path}") 
+            # print(f"Results saved to {file_path}") 
 
-            
-            file_name2 = self.gnn_type +"_total_results.txt"
-            file_path2 = os.path.join('./Experiment/Results/Node_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name2)
-            os.makedirs(os.path.dirname(file_path2), exist_ok=True)
-            with open(file_path2, 'a') as f:
-                  
-                  f.write(" {}_{}_{} Final best | test Accuracy {:.4f}±{:.4f}\n".format(self.pre_train_type, self.gnn_type, self.prompt_type,mean_test_acc, std_test_acc))
 
-            print(f"Results saved to {file_path2}") 
 
             print("Node Task completed")
 
