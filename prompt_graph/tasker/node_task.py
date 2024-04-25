@@ -25,7 +25,7 @@ class NodeTask(BaseTask):
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
-            # self.create_few_data_folder()
+            self.create_few_data_folder()
             self.initialize_gnn()
             self.initialize_prompt()
             self.initialize_optimizer()
@@ -70,7 +70,7 @@ class NodeTask(BaseTask):
                         graphs_list = pickle.load(f)
             else:
                   print('Begin split_induced_graphs.')
-                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=10, largest_size=30)
+                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=150, largest_size=250)
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
             graphs_list = [graph.to(self.device) for graph in graphs_list]
@@ -197,7 +197,6 @@ class NodeTask(BaseTask):
       def run(self):
             test_accs = []
             for i in range(1, 6):
-             
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
                   train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
@@ -234,7 +233,8 @@ class NodeTask(BaseTask):
                   patience = 20
                   best = 1e9
                   cnt_wait = 0
-                 
+                  batch_best_loss = []
+                  best_loss = 1e9
                   if self.prompt_type == 'All-in-one':
                         self.answer_epoch = 1
                         self.prompt_epoch = 1
@@ -274,7 +274,14 @@ class NodeTask(BaseTask):
                                     break
      
                         print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-           
+
+                  batch_best_loss.append(best)
+                  mean_best = np.mean(batch_best_loss)
+                  if mean_best < best_loss:
+                        best_loss = mean_best
+            
+
+
                   if self.prompt_type == 'None':
                         test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
                   elif self.prompt_type == 'GPPT':

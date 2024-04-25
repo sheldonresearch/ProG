@@ -39,7 +39,7 @@ seed_everything(args.seed)
 tasker = NodeTask_PAR(pre_train_model_path = args.pre_train_model_path, 
                 dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, prompt_type = args.prompt_type, epochs = args.epochs, shot_num = args.shot_num, device=args.device)
 
-sweep_id = wandb.sweep(sweep_config, project=tasker.pre_train_type+'+' + tasker.gnn_type +'+'+ tasker.prompt_type +" node-classification")
+sweep_id = wandb.sweep(sweep_config, project=tasker.pre_train_type+'+' + tasker.gnn_type +'+'+ tasker.prompt_type)
 
 pprint(sweep_config)
-wandb.agent(sweep_id, project=tasker.pre_train_type+'+' + tasker.gnn_type +'+'+ tasker.prompt_type +" node-classification", function=tasker.run, count=10)
+wandb.agent(sweep_id, project=tasker.pre_train_type+'+' + tasker.gnn_type +'+'+ tasker.prompt_type, function=tasker.run, count=10)

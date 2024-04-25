@@ -205,6 +205,7 @@ class NodeTask_PAR(BaseTask):
 
             test_accs = []
             for i in range(1, 6):
+
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
                   train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
@@ -241,6 +242,7 @@ class NodeTask_PAR(BaseTask):
                   patience = 20
                   best = 1e9
                   cnt_wait = 0
+                  best_loss = []
                  
                   if self.prompt_type == 'All-in-one':
                         self.answer_epoch = 1
@@ -275,10 +277,13 @@ class NodeTask_PAR(BaseTask):
                                     print('-' * 100)
                                     print('Early stopping at '+str(epoch) +' eopch!')
                                     break
-                        if enable_wandb:
-                              wandb.log({self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type +"/loss": loss})
+                        # if enable_wandb:
+                              # wandb.log({self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type +"/loss": loss})
+                              # wandb.log({self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type +"/best_loss": best})
                         print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-           
+                       
+                  best_loss.append(best)
+
                   if self.prompt_type == 'None':
                         test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
                   elif self.prompt_type == 'GPPT':
@@ -299,8 +304,12 @@ class NodeTask_PAR(BaseTask):
 
             mean_test_acc = np.mean(test_accs)
             std_test_acc = np.std(test_accs)    
-            print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))  
+            print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc)) 
+            mean_best = np.mean(best_loss)
+       
+ 
             if enable_wandb:
+                  wandb.log({self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type +"/best_loss": mean_best})
                   wandb.log({self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type +"/accuracy" : mean_test_acc})
                   wandb.log({self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type +"/std" : std_test_acc})
 

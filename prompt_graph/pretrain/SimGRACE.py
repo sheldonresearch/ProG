@@ -21,7 +21,7 @@ class SimGRACE(PreTrain):
                                                    torch.nn.Linear(self.hid_dim, self.hid_dim)).to(self.device)
         
     def load_graph_data(self):
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr','ogbn-arxiv']:
+        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr','ogbn-arxiv', 'Actor', 'Texas', 'Wisconsin']:
             self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
         else:
             self.input_dim, self.out_dim, self.graph_list= load4graph(self.dataset_name,pretrained=True)
@@ -82,8 +82,8 @@ class SimGRACE(PreTrain):
 
         return train_loss_accum / total_step
 
-    def pretrain(self, batch_size=10, lr=0.01,decay=0.0001, epochs=100):
-
+    def pretrain(self, batch_size=10, lr=0.01,decay=0.0001):
+        epochs = self.epochs
         loader = self.get_loader(self.graph_list, batch_size)
         print('start training {} | {} | {}...'.format(self.dataset_name, 'SimGRACE', self.gnn_type))
         optimizer = optim.Adam(self.gnn.parameters(), lr=lr, weight_decay=decay)

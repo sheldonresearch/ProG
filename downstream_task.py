@@ -8,9 +8,9 @@ args = get_args()
 seed_everything(args.seed)
 
 args.prompt_type = 'All-in-one'
-args.shot_num =10
-args.dataset_name = 'Cora'
-args.pre_train_model_path = './Experiment/pre_trained_model/Cora/GraphCL.GCN.128hidden_dim.pth'
+
+args.dataset_name = 'CiteSeer'
+args.pre_train_model_path = './Experiment/pre_trained_model/CiteSeer/GraphCL.GCN.128hidden_dim.pth'
 
 
 args.task = 'NodeTask'

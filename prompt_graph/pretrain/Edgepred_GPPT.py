@@ -17,7 +17,7 @@ class Edgepred_GPPT(PreTrain):
         self.graph_pred_linear = torch.nn.Linear(self.hid_dim, self.output_dim).to(self.device)  
 
     def generate_loader_data(self):
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora', 'Computers', 'Photo','ogbn-arxiv', 'Flickr']:
+        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora', 'Computers', 'Photo','ogbn-arxiv', 'Flickr', 'Actor', 'Texas', 'Wisconsin']:
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_single_graph(self.dataset_name)  
             self.data.to(self.device) 
             edge_index = edge_index.transpose(0, 1)

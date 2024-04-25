@@ -161,7 +161,7 @@ def load4node(dataname):
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
-    elif data name in ['Wisconsin', 'Texas']:
+    elif dataname in ['Wisconsin', 'Texas']:
         dataset = WebKB(root='data/'+dataname, name=dataname)
         data = dataset[0]
         input_dim = dataset.num_features
@@ -173,12 +173,8 @@ def load4node(dataname):
         out_dim = dataset.num_classes
     elif dataname == 'ogbn-arxiv':
         dataset = PygNodePropPredDataset(name='ogbn-arxiv', root='./dataset')
-        graph, labels = dataset[0]
-        edge_index = torch.stack(graph.edges())
-        x = graph.ndata['feat']
-        y = labels.squeeze()
-        data = Data(x=x, edge_index = edge_index, y = y)
-        input_dim = x.shape[1]
+        data = dataset[0]
+        input_dim = data.x.shape[1]
         out_dim = dataset.num_classes
 
     return data, input_dim, out_dim
@@ -295,6 +291,8 @@ def NodePretrain(dataname='CiteSeer', num_parts=200):
 
     if(dataname=='Cora'):
         num_parts=220
+    elif(dataname=='Texas'):
+        num_parts=20
 
     x = data.x.detach()
     edge_index = data.edge_index
