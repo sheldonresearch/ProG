@@ -317,15 +317,11 @@ def NodePretrain(dataname='CiteSeer', num_parts=200, split_method='Random Walk')
 
     data, input_dim, _ = load4node(dataname)
 
-<<<<<<< HEAD
     if(dataname=='Cora'):
         num_parts=220
     elif(dataname=='Texas'):
         num_parts=20
-=======
     if(split_method=='Cluster'):
->>>>>>> 57c8a0ecb23a422dda9f0d08a97a3ca08a899f38
-
         x = data.x.detach()
         edge_index = data.edge_index
         edge_index = to_undirected(edge_index)
