@@ -194,7 +194,7 @@ class NodeTask(BaseTask):
 
             return total_loss / len(train_loader), mean_centers
       
-      def run(self, params):
+      def run(self):
             test_accs = []
             for i in range(1, 6):
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
