@@ -7,11 +7,9 @@ from prompt_graph.utils import  get_args
 args = get_args()
 seed_everything(args.seed)
 
-<<<<<<< HEAD
 args.prompt_type = 'GPPT'
-=======
+
 # args.prompt_type = 'All-in-one'
->>>>>>> f5b7e53324ece313a26584359d387e62f00b640d
 
 # args.dataset_name = 'CiteSeer'
 # args.pre_train_model_path = './Experiment/pre_trained_model/CiteSeer/GraphCL.GCN.128hidden_dim.pth'
