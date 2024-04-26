@@ -107,7 +107,7 @@ class DGI(PreTrain):
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv','Actor', 'Texas', 'Wisconsin']:
             data, input_dim, _ = load4node(self.dataset_name)
             self.input_dim = input_dim
-        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa']:
             input_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True) # need graph list not dataset object, so the pretrained = True
             self.input_dim = input_dim
 
@@ -148,7 +148,7 @@ class DGI(PreTrain):
             self.optimizer.step()
 
             accum_loss = float(loss.detach().cpu().item())            
-        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa']:
             accum_loss = torch.tensor(0.0)
             for batch_id, batch_graph in enumerate(self.batch_dataloader):
                 graph_original = batch_graph.to(device)

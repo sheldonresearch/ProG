@@ -11,6 +11,7 @@ from torch_geometric.data import Data,Batch
 from torch_geometric.utils import negative_sampling
 import os
 from ogb.nodeproppred import PygNodePropPredDataset
+from ogb.graphproppred import PygGraphPropPredDataset
 
 def node_sample_and_save(data, k, folder, num_classes):
     # 获取标签
@@ -134,6 +135,24 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
             return input_dim, out_dim, graph_list
         else:
             return input_dim, out_dim, dataset
+        
+    if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
+        dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
+
+        torch.manual_seed(12345)
+        dataset = dataset.shuffle()
+        graph_list = [data for data in dataset]
+
+        graph_list = [g for g in graph_list]
+        node_degree_as_features(graph_list)
+        input_dim = graph_list[0].x.size(1)        
+
+        if(pretrained==True):
+            return input_dim, out_dim, graph_list
+        else:
+            return input_dim, out_dim, dataset        
 
 
 
@@ -282,11 +301,14 @@ def load4link_prediction_single_graph(dataname, num_per_samples=1):
 def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
     if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name)
+
+    if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
+        dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')
     
     input_dim = dataset.num_features
     output_dim = 2 # link prediction的输出维度应该是2，0代表无边，1代表右边
 
-    if dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+    if dataset_name in ['ogbg-ppa', 'COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
         dataset = [g for g in dataset]
         node_degree_as_features(dataset)
         input_dim = dataset[0].x.size(1)
