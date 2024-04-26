@@ -24,6 +24,8 @@ best_params = None
 best_loss = float('inf')
 
 args.task = 'NodeTask'
+# args.prompt_type = 'GPPT'
+# args.dataset_name = 'Cora'
 args.shot_num = 1
 
 final_acc = 0

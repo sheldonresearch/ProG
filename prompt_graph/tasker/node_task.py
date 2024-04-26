@@ -197,6 +197,9 @@ class NodeTask(BaseTask):
       
       def run(self):
             test_accs = []
+            # for all-in-one and Gprompt we use k-hop subgraph
+            if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
+                  graphs_list = self.load_induced_graph()
             for i in range(1, 6):
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
@@ -210,9 +213,8 @@ class NodeTask(BaseTask):
                         node_embedding = self.gnn(self.data.x, self.data.edge_index)
                         self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, idx_train)
 
-                  # for all-in-one and Gprompt we use k-hop subgraph
+                  
                   if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-                        graphs_list = self.load_induced_graph()
                         train_graphs = []
                         test_graphs = []
                         
