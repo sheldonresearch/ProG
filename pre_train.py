@@ -5,7 +5,8 @@ from prompt_graph.utils import mkdir, get_args
 
 args = get_args()
 seed_everything(args.seed)
-
+args.task = 'Edgepred_GPPT'
+args.dataset_name = 'Flickr'
 
 if args.task == 'SimGRACE':
     pt = SimGRACE(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device)

@@ -22,7 +22,10 @@ class Edgepred_GPPT(PreTrain):
             self.data.to(self.device) 
             edge_index = edge_index.transpose(0, 1)
             data = TensorDataset(edge_label, edge_index)
-            return DataLoader(data, batch_size=64, shuffle=True)
+            if self.dataset_name in['ogbn-arxiv', 'Flickr']:
+                return DataLoader(data, batch_size = 1024, shuffle=True)
+            else:
+                return DataLoader(data, batch_size=64, shuffle=True)
         
         elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa']:
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)
