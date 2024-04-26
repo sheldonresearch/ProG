@@ -85,7 +85,7 @@ class SimGRACE(PreTrain):
 
     def pretrain(self, batch_size=10, lr=0.01,decay=0.0001):
         epochs = self.epochs
-        if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+        if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
             batch_size = 512
         loader = self.get_loader(self.graph_list, batch_size)
         print('start training {} | {} | {}...'.format(self.dataset_name, 'SimGRACE', self.gnn_type))

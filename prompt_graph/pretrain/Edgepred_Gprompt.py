@@ -23,12 +23,12 @@ class Edgepred_Gprompt(PreTrain):
             data = prepare_structured_data(self.data)
             return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
         
-        elif self.dataset_name in  ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa']:
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)          
             self.adj = edge_index_to_sparse_matrix(self.data.edge_index, self.data.x.shape[0]).to(self.device)
             data = prepare_structured_data(self.data)
 
-            if self.dataset_name in  ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+            if self.dataset_name in  ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
                 from torch_geometric import loader
                 self.batch_dataloader = loader.DataLoader(self.data.to_data_list(),batch_size=256,shuffle=False)
                 return DataLoader(TensorDataset(data), batch_size=5120000, shuffle=True)
@@ -47,7 +47,7 @@ class Edgepred_Gprompt(PreTrain):
             batch = batch.to(device)
 
             # 如果graph datasets经过Batch图太大了，那就分开操作
-            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
 
                 for batch_id, batch_graph in enumerate(self.batch_dataloader):
                     batch_graph.to(device)

@@ -14,7 +14,7 @@ class GraphTask(BaseTask):
         super().__init__(*args, **kwargs)
         self.task_type = 'GraphTask'
         self.load_data()
-        # self.create_few_data_folder()
+        self.create_few_data_folder()
         self.initialize_gnn()
         self.initialize_prompt()
         self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
@@ -34,7 +34,7 @@ class GraphTask(BaseTask):
                         print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
     def load_data(self):
-        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa']:
             self.input_dim, self.output_dim, self.dataset= load4graph(self.dataset_name, self.shot_num)
 
     def node_degree_as_features(self, data_list):
@@ -172,7 +172,7 @@ class GraphTask(BaseTask):
             train_dataset = self.dataset[idx_train]
             test_dataset = self.dataset[idx_test]
 
-            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
                 from torch_geometric.data import Batch
                 train_dataset = [train_g for train_g in train_dataset]
                 test_dataset = [test_g for test_g in test_dataset]
@@ -199,7 +199,7 @@ class GraphTask(BaseTask):
                 self.epochs = int(self.epochs/self.answer_epoch)
             elif self.prompt_type == 'GPPT':
                 # initialize the GPPT hyperparametes via graph data
-                if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+                if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
                     # total_num_nodes = sum([data.num_nodes for data in train_dataset])
                     # train_node_ids = torch.arange(0,total_num_nodes).squeeze().to(self.device)
                     # self.gppt_loader = DataLoader(processed_dataset, batch_size=1, shuffle=True)
