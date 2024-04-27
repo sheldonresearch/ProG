@@ -19,13 +19,13 @@ param_grid = {
 }
 
 
-num_iter=10
+num_iter=50
 best_params = None
 best_loss = float('inf')
 
 args.task = 'NodeTask'
-# args.prompt_type = 'GPPT'
-# args.dataset_name = 'Cora'
+# args.prompt_type = 'None'
+args.dataset_name = 'Cora'
 args.shot_num = 1
 
 final_acc = 0
@@ -40,6 +40,8 @@ for _ in range(num_iter):
                         gnn_type = args.gnn_type, prompt_type = args.prompt_type,
                         epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
                         batch_size = int(params['batch_size']))
+        if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
+            tasker.load_induced_graph()
 
     if args.task == 'GraphTask':
         tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 

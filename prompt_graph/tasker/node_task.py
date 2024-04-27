@@ -26,10 +26,6 @@ class NodeTask(BaseTask):
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
             self.create_few_data_folder()
-            self.initialize_gnn()
-            self.initialize_prompt()
-            self.initialize_optimizer()
-      
 
       def create_few_data_folder(self):
             # 创建文件夹并保存数据
@@ -64,17 +60,17 @@ class NodeTask(BaseTask):
             if not os.path.exists(folder_path):
                   os.makedirs(folder_path)
 
-            file_path = folder_path + '/induced_graph.pkl'
+            file_path = folder_path + '/induced_graph_min100_max300.pkl'
             if os.path.exists(file_path):
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
             else:
                   print('Begin split_induced_graphs.')
-                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=150, largest_size=250)
+                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=100, largest_size=300)
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
-            graphs_list = [graph.to(self.device) for graph in graphs_list]
-            return graphs_list
+            self.graphs_list = [graph.to(self.device) for graph in graphs_list]
+            
 
       
       def load_data(self):
@@ -197,10 +193,13 @@ class NodeTask(BaseTask):
       
       def run(self):
             test_accs = []
-            # for all-in-one and Gprompt we use k-hop subgraph
-            if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-                  graphs_list = self.load_induced_graph()
+            # for all-in-one and Gprompt we use k-hop subgraph, but when wo search for best parameter, we load inducedd graph once cause it costs too much time
+            if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
+                  self.load_induced_graph()
             for i in range(1, 6):
+                  self.initialize_gnn()
+                  self.initialize_prompt()
+                  self.initialize_optimizer()
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
                   train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
@@ -218,7 +217,7 @@ class NodeTask(BaseTask):
                         train_graphs = []
                         test_graphs = []
                         
-                        for graph in graphs_list:                              
+                        for graph in self.graphs_list:                              
                               if graph.index in idx_train:
                                     train_graphs.append(graph)
                               elif graph.index in idx_test:

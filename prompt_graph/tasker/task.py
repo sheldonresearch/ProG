@@ -11,7 +11,7 @@ import numpy as np
 class BaseTask:
     def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv',
                  hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='None', epochs=100, shot_num=10, device : int = 5, lr =0.001, wd = 5e-4,
-                 batch_size = 16):
+                 batch_size = 16, search = False):
         
         self.pre_train_model_path = pre_train_model_path
         self.pre_train_type = self.return_pre_train_type(pre_train_model_path)
@@ -26,6 +26,7 @@ class BaseTask:
         self.lr = lr
         self.wd = wd
         self.batch_size = batch_size
+        self.search = search
         self.initialize_lossfn()
 
     def initialize_lossfn(self):
