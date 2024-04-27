@@ -193,6 +193,7 @@ class NodeTask(BaseTask):
       
       def run(self):
             test_accs = []
+            batch_best_loss = []
             # for all-in-one and Gprompt we use k-hop subgraph, but when wo search for best parameter, we load inducedd graph once cause it costs too much time
             if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
                   self.load_induced_graph()
@@ -235,7 +236,6 @@ class NodeTask(BaseTask):
                   patience = 20
                   best = 1e9
                   cnt_wait = 0
-                  batch_best_loss = []
                   best_loss = 1e9
                   if self.prompt_type == 'All-in-one':
                         self.answer_epoch = 1
@@ -271,11 +271,11 @@ class NodeTask(BaseTask):
                                     print('-' * 100)
                                     print('Early stopping at '+str(epoch) +' eopch!')
                                     break
-     
+                        
                         print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-
+                        
                   batch_best_loss.append(best)
-                  mean_best = np.mean(batch_best_loss)
+                  
 
                   if self.prompt_type == 'None':
                         test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
@@ -291,7 +291,9 @@ class NodeTask(BaseTask):
                         prompt_feature = self.feature_prompt(self.features)
                         test_acc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj)
 
-                  print("test accuracy {:.4f} ".format(test_acc))                        
+                  print("test accuracy {:.4f} ".format(test_acc))   
+                  print("best_loss",  batch_best_loss)     
+                                
                   test_accs.append(test_acc)
          
 
@@ -315,6 +317,7 @@ class NodeTask(BaseTask):
 
 
             print("Node Task completed")
+            mean_best = np.mean(batch_best_loss)
 
             return  mean_best, mean_test_acc, std_test_acc
       

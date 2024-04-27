@@ -25,7 +25,7 @@ best_loss = float('inf')
 
 args.task = 'NodeTask'
 # args.prompt_type = 'None'
-args.dataset_name = 'Cora'
+# args.dataset_name = 'Cora'
 args.shot_num = 1
 
 final_acc = 0
@@ -69,6 +69,8 @@ with open(file_path2, 'a') as f:
 
 print(f"Results saved to {file_path2}") 
 print("After searching, Final Accuracy {:.4f}±{:.4f}(std)".format(final_acc, final_std)) 
+print('best_params ', best_params)
+print('best_loss ',best_loss)
 
 
 
