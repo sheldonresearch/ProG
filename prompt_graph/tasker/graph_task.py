@@ -160,6 +160,7 @@ class GraphTask(BaseTask):
 
     def run(self):
         test_accs = []
+        batch_best_loss = []
         for i in range(1, 6):
             idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
             print('idx_train',idx_train)
@@ -183,8 +184,8 @@ class GraphTask(BaseTask):
                 processed_dataset = Batch.from_data_list([g for g in processed_dataset])
                 self.input_dim = train_dataset[0].x.size(1)
 
-            train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
-            test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
+            train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
+            test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
             print("prepare data is finished!")
   
             patience = 20
@@ -284,6 +285,7 @@ class GraphTask(BaseTask):
                             print('Early stopping at '+str(epoch) +' eopch!')
                             break
                 print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
+                batch_best_loss.append(loss)
             
             if self.prompt_type == 'None':
                 test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)
@@ -303,28 +305,10 @@ class GraphTask(BaseTask):
         std_test_acc = np.std(test_accs)    
         print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
 
-        file_name = self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type + "_results.txt"
-        file_path = os.path.join('./Experiment/Results/Graph_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name)
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, 'w') as f:
-                f.write("Test Accuracy Results:\n")
-                for test_acc in test_accs:
-                    f.write("{:.4f}\n".format(test_acc))
-                f.write("\nMean Test Accuracy: {:.4f}\n".format(mean_test_acc))
-                f.write("Std Test Accuracy: {:.4f}\n".format(std_test_acc))
-                f.write(" Final best | test Accuracy {:.4f}±{:.4f}\n".format(mean_test_acc, std_test_acc))
+        print("Graph Task completed")
+        mean_best = np.mean(batch_best_loss)
 
-        print(f"Results saved to {file_path}") 
-
-        
-        file_name2 = self.gnn_type +"_total_results.txt"
-        file_path2 = os.path.join('./Experiment/Results/Graph_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name2)
-        os.makedirs(os.path.dirname(file_path2), exist_ok=True)
-        with open(file_path2, 'a') as f:
-                
-                f.write(" {}_{}_{} Final best | test Accuracy {:.4f}±{:.4f}\n".format(self.pre_train_type, self.gnn_type, self.prompt_type,mean_test_acc, std_test_acc))
-
-        print(f"Results saved to {file_path2}") 
+        return  mean_best, mean_test_acc, std_test_acc
 
         
 
