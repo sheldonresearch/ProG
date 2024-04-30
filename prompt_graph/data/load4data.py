@@ -96,7 +96,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         :obj:`batch`, which maps each node to its respective graph identifier.
         """
 
-    if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+    if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'DD']:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name)
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
@@ -147,7 +147,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         graph_list = [data for data in dataset]
 
         graph_list = [g for g in graph_list]
-        node_degree_as_features(graph_list)
+        # node_degree_as_features(graph_list)
         input_dim = graph_list[0].x.size(1)
 
         for g in graph_list:
@@ -303,7 +303,7 @@ def load4link_prediction_single_graph(dataname, num_per_samples=1):
     return data, edge_label, edge_index, input_dim, output_dim
 
 def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
-    if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+    if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'DD']:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name)
 
     if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:

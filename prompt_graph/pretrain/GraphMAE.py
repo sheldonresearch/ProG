@@ -199,7 +199,7 @@ class GraphMAE(PreTrain):
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv', 'Actor', 'Texas', 'Wisconsin']:
             graph_list, in_node_feat_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
             # data = Batch.from_data_list(graph_list)
-        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa']:
+        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
             in_node_feat_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True)
             # data = Batch.from_data_list()
         self.input_dim = in_node_feat_dim
