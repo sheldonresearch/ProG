@@ -43,6 +43,7 @@ def graph_sample_and_save(dataset, k, folder, num_classes):
     # 计算测试集的数量（例如90%的图作为测试集）
     num_graphs = len(dataset)
     num_test = int(0.8 * num_graphs)
+
     labels = torch.tensor([graph.y.item() for graph in dataset])
 
     # 随机选择测试集的图索引
@@ -147,7 +148,10 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
 
         graph_list = [g for g in graph_list]
         node_degree_as_features(graph_list)
-        input_dim = graph_list[0].x.size(1)        
+        input_dim = graph_list[0].x.size(1)
+
+        for g in graph_list:
+            g.y = g.y.squeeze(0)
 
         if(pretrained==True):
             return input_dim, out_dim, graph_list
@@ -308,10 +312,17 @@ def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
     input_dim = dataset.num_features
     output_dim = 2 # link prediction的输出维度应该是2，0代表无边，1代表右边
 
-    if dataset_name in ['ogbg-ppa', 'COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+    if dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
         dataset = [g for g in dataset]
         node_degree_as_features(dataset)
         input_dim = dataset[0].x.size(1)
+
+    elif dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
+        dataset = [g for g in dataset]
+        node_degree_as_features(dataset)
+        input_dim = dataset[0].x.size(1)
+        for g in dataset:
+            g.y = g.y.squeeze(1)
 
     data = Batch.from_data_list(dataset)
     
@@ -331,6 +342,55 @@ def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
 
     edge_index = torch.cat([data.edge_index, neg_edge_index], dim=-1)
     edge_label = torch.cat([torch.ones(data.num_edges), torch.zeros(neg_edge_index.size(1))], dim=0)
+    
+    return data, edge_label, edge_index, input_dim, output_dim
+
+# 未完待续，需要重写一个能够对large-scale图分类数据集的划分代码，避免node-level和edge-level的预训练算法或prompt方法显存溢出的问题
+def load4link_prediction_multi_large_scale_graph(dataset_name, num_per_samples=1):
+    if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
+        dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')
+    
+    input_dim = dataset.num_features
+    output_dim = 2 # link prediction的输出维度应该是2，0代表无边，1代表右边
+
+    dataset = [g for g in dataset]
+    node_degree_as_features(dataset)
+    input_dim = dataset[0].x.size(1)
+    for g in dataset:
+        g.y = g.y.squeeze(1)
+
+    batch_graph_num = 20000
+    split_num = int(len(dataset)/batch_graph_num)
+    data_list = []
+    edge_label_list = []
+    edge_index_list = []
+    for i in range(split_num+1):
+        if(i==0):
+            data = Batch.from_data_list(dataset[0:batch_graph_num])
+        elif(i<=split_num):
+            data = Batch.from_data_list(dataset[i*batch_graph_num:(i+1)*batch_graph_num])
+        elif len(dataset)>((i-1)*batch_graph_num):
+            data = Batch.from_data_list(dataset[i*batch_graph_num:(i+1)*batch_graph_num])
+        
+
+        data_list.append(data)
+        
+        r"""Perform negative sampling to generate negative neighbor samples"""
+        if data.is_directed():
+            row, col = data.edge_index
+            row, col = torch.cat([row, col], dim=0), torch.cat([col, row], dim=0)
+            edge_index = torch.stack([row, col], dim=0)
+        else:
+            edge_index = data.edge_index
+            
+        neg_edge_index = negative_sampling(
+            edge_index=edge_index,
+            num_nodes=data.num_nodes,
+            num_neg_samples=data.num_edges * num_per_samples,
+        )
+
+        edge_index = torch.cat([data.edge_index, neg_edge_index], dim=-1)
+        edge_label = torch.cat([torch.ones(data.num_edges), torch.zeros(neg_edge_index.size(1))], dim=0)
     
     return data, edge_label, edge_index, input_dim, output_dim
 
