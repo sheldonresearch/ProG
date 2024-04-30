@@ -34,7 +34,7 @@ class GraphTask(BaseTask):
                         print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
     def load_data(self):
-        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa']:
+        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa','DD']:
             self.input_dim, self.output_dim, self.dataset= load4graph(self.dataset_name, self.shot_num)
 
     def node_degree_as_features(self, data_list):
