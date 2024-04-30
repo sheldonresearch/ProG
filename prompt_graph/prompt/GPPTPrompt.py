@@ -2,6 +2,7 @@ import torch
 from sklearn.cluster import KMeans
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
+from kmeans_pytorch import kmeans
 
 class SimpleMeanConv(MessagePassing):
     def __init__(self):
@@ -43,10 +44,13 @@ class GPPTPrompt(torch.nn.Module):
         
         features=h[index]
         labels=label[index.long()]
-        cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(features.detach().cpu())
+        cluster_ids, cluster_centers = kmeans(X=features.detach(), num_clusters=self.center_num, distance='euclidean', device=self.device)
+        cluster_centers = cluster_centers.to(self.device)
+        self.StructureToken.weight.data = cluster_centers.clone().detach()
+        # cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(features.detach().cpu())
         
-        temp=torch.FloatTensor(cluster.cluster_centers_).to(self.device)
-        self.StructureToken.weight.data = temp.clone().detach()
+        # temp=torch.FloatTensor(cluster.cluster_centers_).to(self.device)
+        # self.StructureToken.weight.data = temp.clone().detach()
         
 
         p=[]
@@ -58,9 +62,12 @@ class GPPTPrompt(torch.nn.Module):
         
     
     def update_StructureToken_weight(self,h):
-        cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(h.detach().cpu())
-        temp = torch.FloatTensor(cluster.cluster_centers_).to(self.device)
-        self.StructureToken.weight.data = temp.clone().detach()
+        cluster_ids, cluster_centers = kmeans(X=h.detach(), num_clusters=self.center_num, distance='euclidean', device=self.device)
+        cluster_centers = cluster_centers.to(self.device)
+        self.StructureToken.weight.data = cluster_centers.clone().detach()
+        # cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(h.detach().cpu())
+        # temp = torch.FloatTensor(cluster.cluster_centers_).to(self.device)
+        # self.StructureToken.weight.data = temp.clone().detach()
 
     def get_TaskToken(self):
         pros=[]

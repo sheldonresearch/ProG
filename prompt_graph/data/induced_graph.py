@@ -103,7 +103,7 @@ def split_induced_graphs(data, dir_path, device, smallest_size=10, largest_size=
     if not os.path.exists(dir_path):
         os.makedirs(dir_path) 
 
-    file_path = os.path.join(dir_path, 'induced_graph.pkl')
+    file_path = os.path.join(dir_path, 'induced_graph_min'+ str(smallest_size) +'_max'+str(largest_size)+'.pkl')
     with open(file_path, 'wb') as f:
         # Assuming 'data' is what you want to pickle
         # pickle.dump(induced_graph_list, f) 

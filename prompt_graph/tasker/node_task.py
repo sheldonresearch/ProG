@@ -26,10 +26,6 @@ class NodeTask(BaseTask):
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
             self.create_few_data_folder()
-            self.initialize_gnn()
-            self.initialize_prompt()
-            self.initialize_optimizer()
-      
 
       def create_few_data_folder(self):
             # 创建文件夹并保存数据
@@ -64,17 +60,17 @@ class NodeTask(BaseTask):
             if not os.path.exists(folder_path):
                   os.makedirs(folder_path)
 
-            file_path = folder_path + '/induced_graph.pkl'
+            file_path = folder_path + '/induced_graph_min100_max300.pkl'
             if os.path.exists(file_path):
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
             else:
                   print('Begin split_induced_graphs.')
-                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=150, largest_size=250)
+                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=100, largest_size=300)
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
-            graphs_list = [graph.to(self.device) for graph in graphs_list]
-            return graphs_list
+            self.graphs_list = [graph.to(self.device) for graph in graphs_list]
+            
 
       
       def load_data(self):
@@ -101,7 +97,8 @@ class NodeTask(BaseTask):
             self.pg_opi.zero_grad()
             loss.backward()
             self.pg_opi.step()
-            self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
+            mid_h = self.prompt.get_mid_h()
+            self.prompt.update_StructureToken_weight(mid_h)
             return loss.item()
       
       def MultiGpromptTrain(self, pretrain_embs, train_lbls, train_idx):
@@ -196,7 +193,14 @@ class NodeTask(BaseTask):
       
       def run(self):
             test_accs = []
+            batch_best_loss = []
+            # for all-in-one and Gprompt we use k-hop subgraph, but when wo search for best parameter, we load inducedd graph once cause it costs too much time
+            if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
+                  self.load_induced_graph()
             for i in range(1, 6):
+                  self.initialize_gnn()
+                  self.initialize_prompt()
+                  self.initialize_optimizer()
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
                   train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
@@ -209,13 +213,12 @@ class NodeTask(BaseTask):
                         node_embedding = self.gnn(self.data.x, self.data.edge_index)
                         self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, idx_train)
 
-                  # for all-in-one and Gprompt we use k-hop subgraph
+                  
                   if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-                        graphs_list = self.load_induced_graph()
                         train_graphs = []
                         test_graphs = []
                         
-                        for graph in graphs_list:                              
+                        for graph in self.graphs_list:                              
                               if graph.index in idx_train:
                                     train_graphs.append(graph)
                               elif graph.index in idx_test:
@@ -233,16 +236,12 @@ class NodeTask(BaseTask):
                   patience = 20
                   best = 1e9
                   cnt_wait = 0
-                  batch_best_loss = []
                   best_loss = 1e9
                   if self.prompt_type == 'All-in-one':
                         self.answer_epoch = 1
                         self.prompt_epoch = 1
                         self.epochs = int(self.epochs/self.answer_epoch)
-                        for param_group in self.pg_opi.param_groups:
-                              param_group['lr'] = 1e-6
-                        for param_group in self.answer_opi.param_groups:
-                              param_group['lr'] = 1e-3
+
 
                   for epoch in range(1, self.epochs):
                         t0 = time.time()
@@ -272,14 +271,11 @@ class NodeTask(BaseTask):
                                     print('-' * 100)
                                     print('Early stopping at '+str(epoch) +' eopch!')
                                     break
-     
+                        
                         print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-
-                  batch_best_loss.append(best)
-                  mean_best = np.mean(batch_best_loss)
-
-            
-
+                        
+                  batch_best_loss.append(loss)
+                  
 
                   if self.prompt_type == 'None':
                         test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
@@ -295,7 +291,9 @@ class NodeTask(BaseTask):
                         prompt_feature = self.feature_prompt(self.features)
                         test_acc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj)
 
-                  print("test accuracy {:.4f} ".format(test_acc))                        
+                  print("test accuracy {:.4f} ".format(test_acc))   
+                  print("best_loss",  batch_best_loss)     
+                                
                   test_accs.append(test_acc)
          
 
@@ -303,30 +301,8 @@ class NodeTask(BaseTask):
             std_test_acc = np.std(test_accs)    
             print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))  
 
-            file_name = self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type + "_results.txt"
-            file_path = os.path.join('./Experiment/Results/Node_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name)
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(file_path, 'w') as f:
-                  f.write("Test Accuracy Results:\n")
-                  for test_acc in test_accs:
-                        f.write("{:.4f}\n".format(test_acc))
-                  f.write("\nMean Test Accuracy: {:.4f}\n".format(mean_test_acc))
-                  f.write("Std Test Accuracy: {:.4f}\n".format(std_test_acc))
-                  f.write(" Final best | test Accuracy {:.4f}±{:.4f}\n".format(mean_test_acc, std_test_acc))
-
-            print(f"Results saved to {file_path}") 
-
-            
-            file_name2 = self.gnn_type +"_total_results.txt"
-            file_path2 = os.path.join('./Experiment/Results/Node_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name2)
-            os.makedirs(os.path.dirname(file_path2), exist_ok=True)
-            with open(file_path2, 'a') as f:
-                  
-                  f.write(" {}_{}_{} Final best | test Accuracy {:.4f}±{:.4f}\n".format(self.pre_train_type, self.gnn_type, self.prompt_type,mean_test_acc, std_test_acc))
-
-            print(f"Results saved to {file_path2}") 
-
             print("Node Task completed")
+            mean_best = np.mean(batch_best_loss)
 
             return  mean_best, mean_test_acc, std_test_acc
       

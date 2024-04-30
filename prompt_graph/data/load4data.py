@@ -40,7 +40,7 @@ def node_sample_and_save(data, k, folder, num_classes):
 
 def graph_sample_and_save(dataset, k, folder, num_classes):
 
-    # 计算测试集的数量（例如90%的图作为测试集）
+    # 计算测试集的数量（例如80%的图作为测试集）
     num_graphs = len(dataset)
     num_test = int(0.8 * num_graphs)
 

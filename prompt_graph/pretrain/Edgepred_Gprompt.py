@@ -21,7 +21,10 @@ class Edgepred_Gprompt(PreTrain):
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_single_graph(self.dataset_name)
             self.adj = edge_index_to_sparse_matrix(self.data.edge_index, self.data.x.shape[0]).to(self.device)
             data = prepare_structured_data(self.data)
-            return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
+            if self.dataset_name in['ogbn-arxiv', 'Flickr']:
+                return DataLoader(TensorDataset(data), batch_size = 1024, shuffle=True)
+            else:
+                return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
         
         elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa']:
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)          
@@ -40,7 +43,6 @@ class Edgepred_Gprompt(PreTrain):
         device = self.device
         self.gnn.train()
         for step, batch in enumerate(self.dataloader): 
-            
             self.optimizer.zero_grad()
 
             batch = batch[0]
@@ -74,7 +76,7 @@ class Edgepred_Gprompt(PreTrain):
             accum_loss += float(loss.detach().cpu().item())
             total_step += 1
             
-            print('第{}次反向传播过程'.format(step))
+            # print('第{}次反向传播过程'.format(step))
 
         return accum_loss / total_step
  
