@@ -14,20 +14,27 @@ param_grid = {
     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
     'batch_size': np.linspace(5, 20, 1),
-    # 'hidden_dim': [16, 32, 64, 128, 256],
-    # 'dropout_rate': [0, 0.25, 0.5]
 }
+if args.dataset_name in ['PubMed']:
+     param_grid = {
+    'learning_rate': 10 ** np.linspace(-3, -1, 1000),
+    'weight_decay':  10 ** np.linspace(-5, -6, 1000),
+    'batch_size': np.linspace(100, 500, 1),
+    }
+     
 
 
 num_iter=50
+if args.prompt_type == 'GPPT':
+    num_iter = 1
 best_params = None
 best_loss = float('inf')
 
-args.task = 'NodeTask'
-# args.prompt_type = 'None'
+# args.task = 'NodeTask'
+# args.prompt_type = 'GPPT'
 # args.dataset_name = 'Cora'
-args.shot_num = 1
-
+# args.shot_num = 1
+# args.pre_train_model_path='./Experiment/pre_trained_model/Cora/Edgepred_Gprompt.GCN.128hidden_dim.pth' 
 final_acc = 0
 final_std = 0
 for _ in range(num_iter):
@@ -51,7 +58,7 @@ for _ in range(num_iter):
 
 
     avg_best_loss, acc ,std = tasker.run()
-    print(f"Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
+    print(f"For {_}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
 
     if avg_best_loss < best_loss:
         best_loss = avg_best_loss

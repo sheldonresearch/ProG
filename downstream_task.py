@@ -11,11 +11,11 @@ args.prompt_type = 'GPPT'
 
 # args.prompt_type = 'All-in-one'
 
-# args.dataset_name = 'CiteSeer'
-# args.pre_train_model_path = './Experiment/pre_trained_model/CiteSeer/GraphCL.GCN.128hidden_dim.pth'
+args.dataset_name = 'CiteSeer'
+args.pre_train_model_path = './Experiment/pre_trained_model/CiteSeer/Edgepred_GPPT.GCN.128hidden_dim.pth'
 
 
-# args.task = 'NodeTask'
+args.task = 'NodeTask'
 # args.batch_size = 10
 # # # args.epochs = 10
 # args.dataset_name = 'ogbn-arxiv'
@@ -29,7 +29,7 @@ if args.task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer,
                     gnn_type = args.gnn_type, prompt_type = args.prompt_type,
-                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, batch_size = args.batch_size)
+                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, batch_size = args.batch_size, lr =0.01)
     
     tasker.run()
 

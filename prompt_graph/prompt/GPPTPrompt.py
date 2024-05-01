@@ -3,6 +3,8 @@ from sklearn.cluster import KMeans
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 from kmeans_pytorch import kmeans
+from concurrent.futures import ProcessPoolExecutor, TimeoutError
+# from torch_kmeans import KMeans
 
 class SimpleMeanConv(MessagePassing):
     def __init__(self):
@@ -21,6 +23,11 @@ class SimpleMeanConv(MessagePassing):
     def message(self, x_j):
         # x_j 表示邻居节点的特征，这里直接返回，因为我们使用的是 'mean' 聚合
         return x_j
+    
+def perform_kmeans(h, num_clusters, device):
+    # gpu kmeans
+    cluster_ids, cluster_centers = kmeans(X=h, num_clusters=num_clusters, distance='euclidean', device=device)
+    return cluster_centers
 
 class GPPTPrompt(torch.nn.Module):
     def __init__(self, n_hidden, center_num, n_classes, device):
@@ -44,13 +51,15 @@ class GPPTPrompt(torch.nn.Module):
         
         features=h[index]
         labels=label[index.long()]
-        cluster_ids, cluster_centers = kmeans(X=features.detach(), num_clusters=self.center_num, distance='euclidean', device=self.device)
-        cluster_centers = cluster_centers.to(self.device)
-        self.StructureToken.weight.data = cluster_centers.clone().detach()
-        # cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(features.detach().cpu())
-        
-        # temp=torch.FloatTensor(cluster.cluster_centers_).to(self.device)
-        # self.StructureToken.weight.data = temp.clone().detach()
+
+
+        # cluster_ids, cluster_centers = kmeans(X=features, num_clusters=self.center_num, distance='euclidean', device=self.device)
+        # # cluster_centers = cluster_centers.to(self.device)
+        # self.StructureToken.weight.data = cluster_centers.clone()
+
+        cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(features.detach().cpu())
+        temp=torch.FloatTensor(cluster.cluster_centers_).to(self.device)
+        self.StructureToken.weight.data = temp.clone().detach()
         
 
         p=[]
@@ -60,14 +69,28 @@ class GPPTPrompt(torch.nn.Module):
         for i in range(self.center_num):
             self.TaskToken[i].weight.data = temp.clone().detach()
         
+
     
-    def update_StructureToken_weight(self,h):
-        cluster_ids, cluster_centers = kmeans(X=h.detach(), num_clusters=self.center_num, distance='euclidean', device=self.device)
-        cluster_centers = cluster_centers.to(self.device)
-        self.StructureToken.weight.data = cluster_centers.clone().detach()
-        # cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(h.detach().cpu())
-        # temp = torch.FloatTensor(cluster.cluster_centers_).to(self.device)
-        # self.StructureToken.weight.data = temp.clone().detach()
+    def update_StructureToken_weight(self, h):
+        # with ProcessPoolExecutor() as executor:
+        #     future = executor.submit(perform_kmeans, h, self.center_num, self.device)
+        #     try:
+        #         cluster_centers = future.result(timeout=2)  # 设置超时为2秒
+        #         self.StructureToken.weight.data = cluster_centers.clone()
+        #     except TimeoutError:
+        #         print("kmeans运算超时，将执行备用方案")
+        #         executor.shutdown(wait=False)  # 立即关闭进程池
+        #         cluster = KMeans(n_clusters=self.center_num, random_state=0).fit(h.detach().cpu())
+        #         temp = torch.FloatTensor(cluster.cluster_centers_).to(self.device)
+        #         self.StructureToken.weight.data = temp.clone().detach()
+        #         print('赋值完成')
+
+
+
+        # torch.cuda.empty_cache() 
+        cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(h.detach().cpu())
+        temp = torch.FloatTensor(cluster.cluster_centers_).to(self.device)
+        self.StructureToken.weight.data = temp.clone().detach()
 
     def get_TaskToken(self):
         pros=[]

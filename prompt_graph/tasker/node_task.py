@@ -80,6 +80,7 @@ class NodeTask(BaseTask):
       
       def train(self, data, train_idx):
             self.gnn.train()
+            self.answering.train()
             self.optimizer.zero_grad() 
             out = self.gnn(data.x, data.edge_index, batch=None) 
             out = self.answering(out)
@@ -274,7 +275,7 @@ class NodeTask(BaseTask):
                         
                         print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
                         
-                  batch_best_loss.append(best)
+                  batch_best_loss.append(loss)
                   
 
                   if self.prompt_type == 'None':

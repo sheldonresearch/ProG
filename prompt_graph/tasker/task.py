@@ -48,8 +48,10 @@ class BaseTask:
             model_param_group.append({"params": self.prompt.parameters()})
             model_param_group.append({"params": self.answering.parameters()})
             self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
-        elif self.prompt_type in ['Gprompt', 'GPPT']:
+        elif self.prompt_type in ['Gprompt']:
             self.pg_opi = optim.Adam(self.prompt.parameters(), lr=self.lr, weight_decay=self.wd)
+        elif self.prompt_type in ['GPPT']:
+            self.pg_opi = optim.Adam(self.prompt.parameters(), lr=2e-3, weight_decay=5e-4)
         elif self.prompt_type == 'MultiGprompt':
             self.optimizer = optim.Adam([*self.DownPrompt.parameters(),*self.feature_prompt.parameters()], lr=self.lr)
 
