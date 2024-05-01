@@ -302,21 +302,6 @@ class NodeTask(BaseTask):
             std_test_acc = np.std(test_accs)    
             print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))  
 
-            # file_name = self.pre_train_type + '+' + self.gnn_type +'+'+ self.prompt_type + "_results.txt"
-            # file_path = os.path.join('./Experiment/Results/Node_Task/'+str(self.shot_num)+'shot/'+ self.dataset_name +'/', file_name)
-            # os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            # with open(file_path, 'w') as f:
-            #       f.write("Test Accuracy Results:\n")
-            #       for test_acc in test_accs:
-            #             f.write("{:.4f}\n".format(test_acc))
-            #       f.write("\nMean Test Accuracy: {:.4f}\n".format(mean_test_acc))
-            #       f.write("Std Test Accuracy: {:.4f}\n".format(std_test_acc))
-            #       f.write(" Final best | test Accuracy {:.4f}±{:.4f}\n".format(mean_test_acc, std_test_acc))
-
-            # print(f"Results saved to {file_path}") 
-
-
-
             print("Node Task completed")
             mean_best = np.mean(batch_best_loss)
 

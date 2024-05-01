@@ -27,14 +27,14 @@ class Edgepred_GPPT(PreTrain):
             else:
                 return DataLoader(data, batch_size=64, shuffle=True)
         
-        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa']:
+        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)
             self.data.to(self.device)
             edge_index = edge_index.transpose(0, 1)
             data = TensorDataset(edge_label, edge_index)
             
             # Batch图太大，向前传播的时候分开操作
-            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
+            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa', 'DD']:
                 self.batch_dataloader = DataLoader(self.data.to_data_list(),batch_size=256,shuffle=False)
                 return DataLoader(data, batch_size=512000, shuffle=True)
 
@@ -55,7 +55,7 @@ class Edgepred_GPPT(PreTrain):
             batch_edge_index = batch_edge_index.to(device)
 
             # 如果graph datasets经过Batch图太大了，那就分开操作
-            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
+            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa', 'DD']:
                 for batch_id, batch_graph in enumerate(self.batch_dataloader):
                     batch_graph.to(device)
                     if(batch_id==0):
