@@ -298,14 +298,15 @@ class GraphTask(BaseTask):
             elif self.prompt_type =='GPPT':
                 test_acc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.device)
 
-            print("test accuracy {:.4f} ".format(test_acc))                        
+            print("test accuracy {:.4f} ".format(test_acc)) 
+            print("best_loss",  batch_best_loss)                        
             test_accs.append(test_acc)
         
         mean_test_acc = np.mean(test_accs)
         std_test_acc = np.std(test_accs)    
         print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
 
-        print("Graph Task completed")
+        print(self.pre_train_type, self.gnn_type, self.prompt_type, " Graph Task completed")
         mean_best = np.mean(batch_best_loss)
 
         return  mean_best, mean_test_acc, std_test_acc

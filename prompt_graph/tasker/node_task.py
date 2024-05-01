@@ -302,7 +302,7 @@ class NodeTask(BaseTask):
             std_test_acc = np.std(test_accs)    
             print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))  
 
-            print("Node Task completed")
+            print(self.pre_train_type, self.gnn_type, self.prompt_type," Node Task completed")
             mean_best = np.mean(batch_best_loss)
 
             return  mean_best, mean_test_acc, std_test_acc
