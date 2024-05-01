@@ -285,7 +285,7 @@ class GraphTask(BaseTask):
                             print('Early stopping at '+str(epoch) +' eopch!')
                             break
                 print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-                batch_best_loss.append(loss)
+            batch_best_loss.append(loss)
             
             if self.prompt_type == 'None':
                 test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)

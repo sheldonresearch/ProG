@@ -2,8 +2,8 @@ import torch
 from sklearn.cluster import KMeans
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
-from kmeans_pytorch import kmeans
-from concurrent.futures import ProcessPoolExecutor, TimeoutError
+# from kmeans_pytorch import kmeans
+# from concurrent.futures import ProcessPoolExecutor, TimeoutError
 # from torch_kmeans import KMeans
 
 class SimpleMeanConv(MessagePassing):
@@ -24,10 +24,10 @@ class SimpleMeanConv(MessagePassing):
         # x_j 表示邻居节点的特征，这里直接返回，因为我们使用的是 'mean' 聚合
         return x_j
     
-def perform_kmeans(h, num_clusters, device):
-    # gpu kmeans
-    cluster_ids, cluster_centers = kmeans(X=h, num_clusters=num_clusters, distance='euclidean', device=device)
-    return cluster_centers
+# def perform_kmeans(h, num_clusters, device):
+#     # gpu kmeans
+#     cluster_ids, cluster_centers = kmeans(X=h, num_clusters=num_clusters, distance='euclidean', device=device)
+#     return cluster_centers
 
 class GPPTPrompt(torch.nn.Module):
     def __init__(self, n_hidden, center_num, n_classes, device):
