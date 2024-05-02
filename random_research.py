@@ -15,13 +15,13 @@ param_grid = {
     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
     'batch_size': np.linspace(5, 20, 1),
 }
-if args.dataset_name in ['PubMed']:
+if args.dataset_name in ['PubMed','ogbn-ppa']:
      param_grid = {
     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
     'batch_size': np.linspace(100, 500, 1),
     }
-     
+
 
 
 num_iter=50
@@ -32,9 +32,10 @@ best_loss = float('inf')
 
 # args.task = 'NodeTask'
 # args.prompt_type = 'GPPT'
-# args.dataset_name = 'Cora'
-# args.shot_num = 1
-# args.pre_train_model_path='./Experiment/pre_trained_model/Cora/Edgepred_Gprompt.GCN.128hidden_dim.pth' 
+# args.dataset_name = 'Texas'
+# # args.dataset_name = 'Cora'
+# # args.shot_num = 1
+# args.pre_train_model_path='./Experiment/pre_trained_model/Texas/SimGRACE.GCN.128hidden_dim.pth' 
 final_acc = 0
 final_std = 0
 for _ in range(num_iter):
@@ -44,7 +45,7 @@ for _ in range(num_iter):
     if args.task == 'NodeTask':
         tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
                         dataset_name = args.dataset_name, num_layer = args.num_layer,
-                        gnn_type = args.gnn_type, prompt_type = args.prompt_type,
+                        gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
                         epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
                         batch_size = int(params['batch_size']))
         if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
@@ -52,9 +53,9 @@ for _ in range(num_iter):
 
     if args.task == 'GraphTask':
         tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
-                        dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, prompt_type = args.prompt_type, epochs = args.epochs,
+                        dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
                         shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
-                        batch_size = params['batch_size'])
+                        batch_size = int(params['batch_size']))
 
 
     avg_best_loss, acc ,std = tasker.run()

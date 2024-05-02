@@ -12,6 +12,7 @@ import os
 import torch.nn.functional as F
 from itertools import chain
 from functools import partial
+import numpy as np
 from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 
 def sce_loss(x, y, alpha=3):
@@ -203,7 +204,10 @@ class GraphMAE(PreTrain):
             in_node_feat_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True)
             # data = Batch.from_data_list()
         self.input_dim = in_node_feat_dim
-        return DataLoader(graph_list, batch_size=64, shuffle=True), in_node_feat_dim
+        if self.dataset_name == 'ogbg-ppa':
+             return DataLoader(graph_list, batch_size=256, shuffle=True), in_node_feat_dim
+        else:
+            return DataLoader(graph_list, batch_size=64, shuffle=True), in_node_feat_dim
     
     def pretrain(self):
         from torchmetrics import MeanMetric
@@ -220,16 +224,11 @@ class GraphMAE(PreTrain):
             loss_metric.reset()
             
             for step, batch in enumerate(self.graph_dataloader):
-
                 self.optimizer.zero_grad()
-
                 batch = batch.to(self.device)
-       
                 loss, loss_item, x_hidden = self.loss.forward(batch)              
-
                 loss.backward()
-                self.optimizer.step()
-                
+                self.optimizer.step() 
                 loss_metric.update(loss.item(), batch.size(0))
 
             print(f"GraphMAE [Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {loss_metric.compute():.5f} | "

@@ -56,7 +56,6 @@ class GPPTPrompt(torch.nn.Module):
         # cluster_ids, cluster_centers = kmeans(X=features, num_clusters=self.center_num, distance='euclidean', device=self.device)
         # # cluster_centers = cluster_centers.to(self.device)
         # self.StructureToken.weight.data = cluster_centers.clone()
-
         cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(features.detach().cpu())
         temp=torch.FloatTensor(cluster.cluster_centers_).to(self.device)
         self.StructureToken.weight.data = temp.clone().detach()

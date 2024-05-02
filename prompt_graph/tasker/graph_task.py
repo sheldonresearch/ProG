@@ -29,9 +29,10 @@ class GraphTask(BaseTask):
                   
                   for i in range(1, 6):
                         folder = os.path.join(k_shot_folder, str(i))
-                        os.makedirs(folder, exist_ok=True)
-                        graph_sample_and_save(self.dataset, k, folder, self.output_dim)
-                        print(str(k) + ' shot ' + str(i) + ' th is saved!!')
+                        if not os.path.exists(folder):
+                            os.makedirs(folder, exist_ok=True)
+                            graph_sample_and_save(self.dataset, k, folder, self.output_dim)
+                            print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
     def load_data(self):
         if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa','DD']:

@@ -19,10 +19,12 @@ def node_sample_and_save(data, k, folder, num_classes):
     
     # 随机选择90%的数据作为测试集
     num_test = int(0.9 * data.num_nodes)
+    if num_test < 1000:
+        num_test = int(0.7 * data.num_nodes)
     test_idx = torch.randperm(data.num_nodes)[:num_test]
     test_labels = labels[test_idx]
     
-    # 剩下的10%作为候选训练集
+    # 剩下的作为候选训练集
     remaining_idx = torch.randperm(data.num_nodes)[num_test:]
     remaining_labels = labels[remaining_idx]
     
@@ -147,7 +149,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         graph_list = [data for data in dataset]
 
         graph_list = [g for g in graph_list]
-        # node_degree_as_features(graph_list)
+        node_degree_as_features(graph_list)
         input_dim = graph_list[0].x.size(1)
 
         for g in graph_list:
