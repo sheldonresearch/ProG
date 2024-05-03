@@ -69,7 +69,7 @@ for _ in range(num_iter):
         
             
 file_name2 = tasker.gnn_type +"_total_results.txt"
-file_path2 = os.path.join('./Experiment/Results/Node_Task/'+str(tasker.shot_num)+'shot/'+ tasker.dataset_name +'/', file_name2)
+file_path2 = os.path.join('./Experiment/Results/'+args.task+'/'+str(tasker.shot_num)+'shot/'+ tasker.dataset_name +'/', file_name2)
 os.makedirs(os.path.dirname(file_path2), exist_ok=True)
 with open(file_path2, 'a') as f:
         
