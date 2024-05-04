@@ -15,13 +15,16 @@ from prompt_graph.utils import process
 warnings.filterwarnings("ignore")
 
 class NodeTask(BaseTask):
-      def __init__(self, *args, **kwargs):
+      def __init__(self, data, input_dim, output_dim, graphs_list = None, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.task_type = 'NodeTask'
             if self.prompt_type == 'MultiGprompt':
                   self.load_multigprompt_data()
             else:
-                  self.load_data()
+                  self.data = data.to(self.device)
+                  self.input_dim = input_dim
+                  self.output_dim = output_dim
+                  self.graphs_list = graphs_list
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
@@ -196,8 +199,8 @@ class NodeTask(BaseTask):
             test_accs = []
             batch_best_loss = []
             # for all-in-one and Gprompt we use k-hop subgraph, but when wo search for best parameter, we load inducedd graph once cause it costs too much time
-            if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
-                  self.load_induced_graph()
+            # if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
+            #       self.load_induced_graph()
             for i in range(1, 6):
                   self.initialize_gnn()
                   self.initialize_prompt()

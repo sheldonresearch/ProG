@@ -10,10 +10,13 @@ import os
 import numpy as np
 
 class GraphTask(BaseTask):
-    def __init__(self, *args, **kwargs):    
+    def __init__(input_dim, output_dim, dataset, self, *args, **kwargs):    
         super().__init__(*args, **kwargs)
         self.task_type = 'GraphTask'
-        self.load_data()
+        # self.load_data()
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.dataset = dataset
         self.create_few_data_folder()
         self.initialize_gnn()
         self.initialize_prompt()
