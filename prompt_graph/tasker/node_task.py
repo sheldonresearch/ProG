@@ -57,22 +57,22 @@ class NodeTask(BaseTask):
             self.idx_val = torch.LongTensor(idx_val)
             self.idx_test = torch.LongTensor(idx_test)
 
-      def load_induced_graph(self):
+      # def load_induced_graph(self):
         
-            folder_path = './Experiment/induced_graph/' + self.dataset_name
-            if not os.path.exists(folder_path):
-                  os.makedirs(folder_path)
+      #       folder_path = './Experiment/induced_graph/' + self.dataset_name
+      #       if not os.path.exists(folder_path):
+      #             os.makedirs(folder_path)
 
-            file_path = folder_path + '/induced_graph_min100_max300.pkl'
-            if os.path.exists(file_path):
-                  with open(file_path, 'rb') as f:
-                        graphs_list = pickle.load(f)
-            else:
-                  print('Begin split_induced_graphs.')
-                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=100, largest_size=300)
-                  with open(file_path, 'rb') as f:
-                        graphs_list = pickle.load(f)
-            self.graphs_list = [graph.to(self.device) for graph in graphs_list]
+      #       file_path = folder_path + '/induced_graph_min100_max300.pkl'
+      #       if os.path.exists(file_path):
+      #             with open(file_path, 'rb') as f:
+      #                   graphs_list = pickle.load(f)
+      #       else:
+      #             print('Begin split_induced_graphs.')
+      #             split_induced_graphs(self.data, folder_path, self.device, smallest_size=100, largest_size=300)
+      #             with open(file_path, 'rb') as f:
+      #                   graphs_list = pickle.load(f)
+      #       self.graphs_list = [graph.to(self.device) for graph in graphs_list]
             
 
       
