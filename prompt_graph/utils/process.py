@@ -106,19 +106,25 @@ def sample_mask(idx, l):
 
 def load_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
     """Load data."""
+    if dataset_str == 'Cora':
+        dataset_str1 = 'cora'
+    if dataset_str == 'CiteSeer':
+        dataset_str1 = 'citeseer'
+    if dataset_str == 'PubMed':
+        dataset_str1 = 'pubmed'
     current_path = os.path.dirname(__file__)
     names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
     objects = []
     for i in range(len(names)):
-        with open("./data/Planetoid/Cora/raw/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
+        with open("./data/Planetoid/"+ dataset_str +"/raw/ind.{}.{}".format(dataset_str1, names[i]), 'rb') as f:
             objects.append(pkl.load(f, encoding='latin1'))
         
 
     x, y, tx, ty, allx, ally, graph = tuple(objects)
-    test_idx_reorder = parse_index_file("./data/Planetoid/Cora/raw/ind.{}.test.index".format(dataset_str))
+    test_idx_reorder = parse_index_file("./data/Planetoid/"+ dataset_str +"/raw/ind.{}.test.index".format(dataset_str1))
     test_idx_range = np.sort(test_idx_reorder)
 
-    if dataset_str == 'citeseer':
+    if dataset_str1 == 'citeseer':
         # Fix citeseer dataset (there are some isolated nodes in the graph)
         # Find isolated nodes, add them as zero-vecs into the right position
         test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
@@ -136,11 +142,7 @@ def load_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
     labels = np.vstack((ally, ty))
     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
-    idx_test = test_idx_range.tolist()
-    idx_train = range(len(y))
-    idx_val = range(len(y), len(y)+500)
-
-    return adj, features, labels, idx_train, idx_val, idx_test
+    return adj, features, labels
 
 def sparse_to_tuple(sparse_mx, insert_batch=False):
     """Convert sparse matrix to tuple representation."""

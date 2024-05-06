@@ -301,33 +301,20 @@ class DGI(nn.Module):
         super(DGI, self).__init__()
         # self.gcn = GCN(n_in, n_h, activation)
         self.read = AvgReadout()
-
         self.sigm = nn.Sigmoid()
-
         self.disc = Discriminator(n_h)
-
         self.prompt = nn.Parameter(torch.FloatTensor(1, n_h), requires_grad=True)
-
         self.reset_parameters()
 
     def forward(self, gcn, seq1, seq2, adj, sparse, msk, samp_bias1, samp_bias2):
         h_1 = gcn(seq1, adj, sparse)
-
-
         # print("h_1",h_1.shape)
-
         h_3 = h_1 * self.prompt
-
         c = self.read(h_1, msk)
         c = self.sigm(c)
-
         h_2 = gcn(seq2, adj, sparse)
-
         h_4 = h_2 * self.prompt
-
-        ret = self.disc(c, h_3, h_4
-                        , samp_bias1, samp_bias2)
-
+        ret = self.disc(c, h_3, h_4, samp_bias1, samp_bias2)
         return ret
 
     def reset_parameters(self):
@@ -338,34 +325,19 @@ class DGIprompt(nn.Module):
         super(DGIprompt, self).__init__()
         # self.gcn = GCN(n_in, n_h, activation)
         self.read = AvgReadout()
-
         self.sigm = nn.Sigmoid()
-
         self.disc = Discriminator(n_h)
-
         self.prompt = nn.Parameter(torch.FloatTensor(1, n_in), requires_grad=True)
-
         self.reset_parameters()
 
     def forward(self, gcn, seq1, seq2, adj, sparse, msk, samp_bias1, samp_bias2):
-        
-        
         seq1 = seq1 * self.prompt
         h_1 = gcn(seq1, adj, sparse)
-
-
-        # print("h_1",h_1.shape)
-
         c = self.read(h_1, msk)
         c = self.sigm(c)
-
         seq2 = seq2 * self.prompt
         h_2 = gcn(seq2, adj, sparse)
-
-
-        ret = self.disc(c, h_1, h_2
-                        , samp_bias1, samp_bias2)
-
+        ret = self.disc(c, h_1, h_2, samp_bias1, samp_bias2)
         return ret
 
     def reset_parameters(self):
@@ -509,22 +481,13 @@ class Lp(nn.Module):
         super(Lp, self).__init__()
         self.sigm = nn.ELU()
         self.act=torch.nn.LeakyReLU()
-        # self.dropout=torch.nn.Dropout(p=config["dropout"])
         self.prompt = nn.Parameter(torch.FloatTensor(1, n_h), requires_grad=True)
-
         self.reset_parameters()
-
-
 
     def forward(self,gcn,seq,adj,sparse):
         h_1 = gcn(seq,adj,sparse,True)
-        # ret = h_1
         ret = h_1 * self.prompt
-        # ret = h_1 
-        # print("ret1",ret)
         ret = self.sigm(ret.squeeze(dim=0))
-                # print("ret2",ret)
-        # ret = ret.squeeze(dim=0)
         return ret
 
     def reset_parameters(self):
@@ -535,24 +498,15 @@ class Lpprompt(nn.Module):
         super(Lpprompt, self).__init__()
         self.sigm = nn.ELU()
         self.act=torch.nn.LeakyReLU()
-        # self.dropout=torch.nn.Dropout(p=config["dropout"])
         self.prompt = nn.Parameter(torch.FloatTensor(1, n_in), requires_grad=True)
-
         self.reset_parameters()
-
-
 
     def forward(self,gcn,seq,adj,sparse):
         
         seq = seq * self.prompt
         h_1 = gcn(seq,adj,sparse,True)
         ret = h_1
-        # ret = h_1 * self.prompt
-        # ret = h_1 
-        # print("ret1",ret)
         ret = self.sigm(ret.squeeze(dim=0))
-                # print("ret2",ret)
-        # ret = ret.squeeze(dim=0)
         return ret
 
     def reset_parameters(self):

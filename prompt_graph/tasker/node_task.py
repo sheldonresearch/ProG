@@ -44,18 +44,15 @@ class NodeTask(BaseTask):
                               print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
       def load_multigprompt_data(self):
-            adj, features, labels, idx_train, idx_val, idx_test = process.load_data(self.dataset_name)  
+            adj, features, labels = process.load_data(self.dataset_name)  
             self.input_dim = features.shape[1]
             features, _ = process.preprocess_features(features)
             self.sp_adj = process.sparse_mx_to_torch_sparse_tensor(adj).to(self.device)
             self.labels = torch.FloatTensor(labels[np.newaxis])
             self.features = torch.FloatTensor(features[np.newaxis]).to(self.device)
-            self.idx_train = torch.LongTensor(idx_train)
             # print("labels",labels)
             print("adj",self.sp_adj.shape)
             print("feature",features.shape)
-            self.idx_val = torch.LongTensor(idx_val)
-            self.idx_test = torch.LongTensor(idx_test)
 
       # def load_induced_graph(self):
         

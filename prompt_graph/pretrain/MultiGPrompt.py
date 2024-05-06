@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from prompt_graph.prompt import DGI,GraphCL,Lp,AvgReadout, DGIprompt,GraphCLprompt,Lpprompt, GcnLayers
-# from prompt_graph.model import GCN
 import tqdm
 import scipy.sparse as sp
 import numpy as np
@@ -18,13 +17,9 @@ class PrePrompt(nn.Module):
         self.dgi = DGI(n_in, n_h, activation)
         self.graphcledge = GraphCL(n_in, n_h, activation)
         self.lp = Lp(n_in, n_h)
-
         self.gcn = GcnLayers(n_in, n_h, num_layers_num, dropout)
-        # self.gcn = GCN(n_in, n_h, n_h, num_layers_num, drop_ratio=dropout)
         self.read = AvgReadout()
-
         self.weighted_feature=weighted_feature(a1,a2,a3)
-
         self.a1 = a1
         self.a2 = a2
         self.a3 = a3
@@ -38,7 +33,7 @@ class PrePrompt(nn.Module):
         self.act = nn.ELU()
 
     def load_data(self):
-        self.adj, features, self.labels, self.idx_train, self.idx_val, self.idx_test = process.load_data(self.dataset_name)  
+        self.adj, features, self.labels = process.load_data(self.dataset_name)  
         self.features, _ = process.preprocess_features(features)
         self.negetive_sample = prompt_pretrain_sample(self.adj,200)
         # prompt_pretrain_sample为图中的每个节点提供了一个正样本和多个负样本的索引
@@ -48,8 +43,7 @@ class PrePrompt(nn.Module):
         return ft_size, nb_nodes
 
     def forward(self, seq1, seq2, seq3, seq4, seq5, seq6, adj, aug_adj1edge, aug_adj2edge, aug_adj1mask, aug_adj2mask,
-                sparse, msk, samp_bias1, samp_bias2,
-                lbl):
+                sparse, msk, samp_bias1, samp_bias2, lbl):
         seq1 = torch.squeeze(seq1,0)
         seq2 = torch.squeeze(seq2,0)
         seq3 = torch.squeeze(seq3,0)
@@ -139,12 +133,9 @@ class PrePrompt(nn.Module):
         sp_aug_adj2mask = process.sparse_mx_to_torch_sparse_tensor(aug_adj2mask)
 
         labels = torch.FloatTensor(self.labels[np.newaxis])
-        idx_train = torch.LongTensor(self.idx_train)
         # print("labels",labels)
         print("adj",sp_adj.shape)
         print("feature",features.shape)
-        idx_val = torch.LongTensor(self.idx_val)
-        idx_test = torch.LongTensor(self.idx_test)
         LP = False
         print("")
         lr=0.0001
@@ -167,9 +158,7 @@ class PrePrompt(nn.Module):
             sp_aug_adj2mask = sp_aug_adj2mask.cuda()
 
             labels = labels.cuda()
-            idx_train = idx_train.cuda()
-            idx_val = idx_val.cuda()
-            idx_test = idx_test.cuda()
+  
     
         cnt_wait = 0
         best = 1e9
@@ -193,26 +182,29 @@ class PrePrompt(nn.Module):
                         sp_aug_adj1mask if sparse else aug_adj1mask,
                         sp_aug_adj2mask if sparse else aug_adj2mask,
                         sparse, None, None, None, lbl=lbl)
-            print('Loss:[{:.4f}]'.format(loss.item()))
-            
+            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, nb_epochs, loss.item()))
+            loss.backward()
+            optimizer.step()
+
             if loss < best:
                 best = loss
                 best_t = epoch
                 cnt_wait = 0
-                folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
-                if not os.path.exists(folder_path):
-                    os.makedirs(folder_path)
-                torch.save(self.state_dict(),
-                           "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'multigprompt', 'GCL', str(self.hid_dim) + 'hidden_dim'))
-                print("+++model saved ! {}.{}.{}.{}.pth".format(self.dataset_name, 'multigprompt', 'GCL', str(self.hid_dim) + 'hidden_dim'))
-
             else:
                 cnt_wait += 1
             if cnt_wait == patience:
-                print('Early stopping!')
+                print('-' * 100)
+                print('Early stopping at '+str(epoch) +' eopch!')
                 break
-            loss.backward()
-            optimizer.step()
+
+        folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        torch.save(self.state_dict(),
+                    "./Experiment/pre_trained_model/{}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
+        print("+++model saved ! {}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
+
 
 
 def mygather(feature, index): 

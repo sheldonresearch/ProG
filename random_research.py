@@ -50,11 +50,11 @@ best_params = None
 best_loss = float('inf')
 
 # args.task = 'NodeTask'
-# args.prompt_type = 'GPPT'
-# args.dataset_name = 'Texas'
-# # args.dataset_name = 'Cora'
-# # args.shot_num = 1
-# args.pre_train_model_path='./Experiment/pre_trained_model/Texas/SimGRACE.GCN.128hidden_dim.pth' 
+# args.prompt_type = 'MultiGprompt'
+# # args.dataset_name = 'Texas'
+# args.dataset_name = 'Cora'
+# # # args.shot_num = 1
+# args.pre_train_model_path='./Experiment/pre_trained_model/cora/multigprompt.GCL.128hidden_dim.pth' 
 final_acc = 0
 final_std = 0
 
