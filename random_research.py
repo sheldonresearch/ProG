@@ -44,7 +44,7 @@ if args.dataset_name in ['PubMed','ogbn-ppa']:
     }
 
 num_iter=50
-if args.prompt_type == 'GPPT':
+if args.prompt_type in['GPPT', 'MultiGprompt']:
     num_iter = 1
 best_params = None
 best_loss = float('inf')
