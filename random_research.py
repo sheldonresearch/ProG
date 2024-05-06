@@ -43,7 +43,7 @@ if args.dataset_name in ['PubMed','ogbn-ppa']:
     'batch_size': np.linspace(100, 500, 1),
     }
 
-num_iter=50
+num_iter=10
 if args.prompt_type in['GPPT', 'MultiGprompt']:
     num_iter = 1
 best_params = None
