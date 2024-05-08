@@ -35,31 +35,23 @@ class downprompt(nn.Module):
         rawret1 = weight * seq
         rawret2 = self.downprompt(seq)
         rawret4 = seq1
-        # rawret3 = rawret1 + rawret2
         rawret3 = self.dffprompt(rawret1 ,rawret2)
-        # # print("a4",self.a4,"a5",self.a5)
-
         rawret =rawret3 +self.a4 * rawret4
-
-        # rawret = seq
         rawret = rawret.to(self.device)
-        # rawret = torch.stack((rawret,rawret,rawret,rawret,rawret,rawret))
         if train == 1:
             self.ave = averageemb(labels=labels, rawret=rawret,nb_class=self.nb_classes).to(self.device)
 
         ret = torch.FloatTensor(seq.shape[0],self.nb_classes).to(self.device)
-        # print("avesize",self.ave.size(),"ave",self.ave)
-        # print("rawret=", rawret[1])
-        # print("aveemb", self.ave)
         for x in range(0,seq.shape[0]):
             ret[x][0] = torch.cosine_similarity(rawret[x], self.ave[0], dim=0)
             ret[x][1] = torch.cosine_similarity(rawret[x], self.ave[1], dim=0)
             ret[x][2] = torch.cosine_similarity(rawret[x], self.ave[2], dim=0)
-            ret[x][3] = torch.cosine_similarity(rawret[x], self.ave[3], dim=0)
-            ret[x][4] = torch.cosine_similarity(rawret[x], self.ave[4], dim=0)
-            ret[x][5] = torch.cosine_similarity(rawret[x], self.ave[5], dim=0)
-            if self.nb_classes == 7:
-                ret[x][6] = torch.cosine_similarity(rawret[x], self.ave[6], dim=0)
+            if self.nb_classes >3 :
+                ret[x][3] = torch.cosine_similarity(rawret[x], self.ave[3], dim=0)
+                ret[x][4] = torch.cosine_similarity(rawret[x], self.ave[4], dim=0)
+                ret[x][5] = torch.cosine_similarity(rawret[x], self.ave[5], dim=0)
+                if self.nb_classes == 7:
+                    ret[x][6] = torch.cosine_similarity(rawret[x], self.ave[6], dim=0)
 
         ret = F.softmax(ret, dim=1)
 

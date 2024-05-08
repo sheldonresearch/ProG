@@ -92,7 +92,7 @@ class BaseTask:
             dgiprompt = self.Preprompt.dgi.prompt  
             graphcledgeprompt = self.Preprompt.graphcledge.prompt
             lpprompt = self.Preprompt.lp.prompt
-            self.DownPrompt = downprompt(dgiprompt, graphcledgeprompt, lpprompt, 0.001, self.hid_dim, 7, self.device).to(self.device)
+            self.DownPrompt = downprompt(dgiprompt, graphcledgeprompt, lpprompt, 0.001, self.hid_dim, self.output_dim, self.device).to(self.device)
         else:
             raise KeyError(" We don't support this kind of prompt.")
 

@@ -46,6 +46,8 @@ class NodeTask(BaseTask):
       def load_multigprompt_data(self):
             adj, features, labels = process.load_data(self.dataset_name)  
             self.input_dim = features.shape[1]
+            self.output_dim = labels.shape[1]
+            print('a',self.output_dim)
             features, _ = process.preprocess_features(features)
             self.sp_adj = process.sparse_mx_to_torch_sparse_tensor(adj).to(self.device)
             self.labels = torch.FloatTensor(labels[np.newaxis])
