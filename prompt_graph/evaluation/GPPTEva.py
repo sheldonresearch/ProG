@@ -1,16 +1,36 @@
-def GPPTEva(data, idx_test, gnn, prompt):
+import torchmetrics
+import torch
+
+
+
+def GPPTEva(data, idx_test, gnn, prompt, num_class, device):
     # gnn.eval()
     prompt.eval()
+    accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class).to(device)
+    macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro").to(device)
+    auroc = torchmetrics.classification.AUROC(task="multiclass", num_classes=num_class).to(device)
+    accuracy.reset()
+    macro_f1.reset()
+    auroc.reset()
+
     node_embedding = gnn(data.x, data.edge_index)
     out = prompt(node_embedding, data.edge_index)
     pred = out.argmax(dim=1)  
-    correct = pred[idx_test] == data.y[idx_test]  
-    acc = int(correct.sum()) / len(idx_test)  
-    return acc
+    
+    acc = accuracy(pred[idx_test], data.y[idx_test])
+    f1 = macro_f1(pred[idx_test], data.y[idx_test])
+    roc = auroc(out[idx_test], data.y[idx_test]) 
+    return acc.item(), f1.item(), roc.item()
 
-def GPPTGraphEva(loader, gnn, prompt, device):
+def GPPTGraphEva(loader, gnn, prompt, num_class, device):
     # batch must be 1
     prompt.eval()
+    accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class).to(device)
+    macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro").to(device)
+    auroc = torchmetrics.classification.AUROC(task="multiclass", num_classes=num_class).to(device)
+    accuracy.reset()
+    macro_f1.reset()
+    auroc.reset()
     correct = 0
     for batch in loader: 
         batch=batch.to(device)              
@@ -24,8 +44,14 @@ def GPPTGraphEva(loader, gnn, prompt, device):
         votes = predicted_classes.bincount(minlength=out.shape[1])
 
         # 找出票数最多的类别
-        final_class = votes.argmax().item()
+        pred = votes.argmax().item()
 
-        correct += int((final_class == batch.y).sum())  
-    acc = correct / len(loader.dataset)
-    return acc  
+        # correct += int((pred == batch.y).sum())  
+        acc = accuracy(pred, batch.y)
+        ma_f1 = macro_f1(pred, batch.y)
+        roc = auroc(out, batch.y)
+    acc = accuracy.compute()
+    ma_f1 = macro_f1.compute()
+    roc = auroc.compute()
+       
+    return acc.item(), ma_f1.item(), roc.item()

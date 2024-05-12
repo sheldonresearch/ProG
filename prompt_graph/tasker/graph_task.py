@@ -166,6 +166,8 @@ class GraphTask(BaseTask):
 
     def run(self):
         test_accs = []
+        f1s = []
+        rocs = []
         batch_best_loss = []
         for i in range(1, 6):
             idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
@@ -294,28 +296,37 @@ class GraphTask(BaseTask):
             batch_best_loss.append(loss)
             
             if self.prompt_type == 'None':
-                test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)
-            elif self.prompt_type == 'All-in-one':
-                test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
-            elif self.prompt_type in ['GPF', 'GPF-plus']:
-                test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
-            elif self.prompt_type =='Gprompt':
-                test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+                test_acc, f1, roc = GNNGraphEva(test_loader, self.gnn, self.answering, self.output_dim, self.device)
             elif self.prompt_type =='GPPT':
-                test_acc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.device)
+                test_acc, f1, roc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.output_dim, self.device)
+            elif self.prompt_type == 'All-in-one':
+                test_acc, f1, roc = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+            elif self.prompt_type in ['GPF', 'GPF-plus']:
+                test_acc, f1, roc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)
+            elif self.prompt_type =='Gprompt':
+                test_acc, f1, roc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
 
-            print("test accuracy {:.4f} ".format(test_acc)) 
+
+            print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f}")
             print("best_loss",  batch_best_loss)                        
             test_accs.append(test_acc)
+            f1s.append(f1)
+            rocs.append(roc)
         
         mean_test_acc = np.mean(test_accs)
         std_test_acc = np.std(test_accs)    
+        mean_f1 = np.mean(f1s)
+        std_f1 = np.std(f1s)   
+        mean_roc = np.mean(rocs)
+        std_roc = np.std(rocs)   
         print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
+        print(" Final best | test F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1))   
+        print(" Final best | AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc))   
 
         print(self.pre_train_type, self.gnn_type, self.prompt_type, " Graph Task completed")
         mean_best = np.mean(batch_best_loss)
 
-        return  mean_best, mean_test_acc, std_test_acc
+        return  mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc
 
         
 

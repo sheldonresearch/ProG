@@ -196,6 +196,8 @@ class NodeTask(BaseTask):
       
       def run(self):
             test_accs = []
+            f1s = []
+            rocs = []
             batch_best_loss = []
             # for all-in-one and Gprompt we use k-hop subgraph, but when wo search for best parameter, we load inducedd graph once cause it costs too much time
             # if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
@@ -281,33 +283,40 @@ class NodeTask(BaseTask):
                   
 
                   if self.prompt_type == 'None':
-                        test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
+                        test_acc, f1, roc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering,self.output_dim, self.device)                           
                   elif self.prompt_type == 'GPPT':
-                        test_acc = GPPTEva(self.data, idx_test, self.gnn, self.prompt)                
+                        test_acc, f1, roc = GPPTEva(self.data, idx_test, self.gnn, self.output_dim, self.prompt)                
                   elif self.prompt_type == 'All-in-one':
-                        test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)                                           
+                        test_acc, f1, roc = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)                                           
                   elif self.prompt_type in ['GPF', 'GPF-plus']:
-                        test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)                                                         
+                        test_acc, f1, roc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)                                                         
                   elif self.prompt_type =='Gprompt':
-                        test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+                        test_acc, f1, roc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
                   elif self.prompt_type == 'MultiGprompt':
                         prompt_feature = self.feature_prompt(self.features)
-                        test_acc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj)
+                        test_acc, f1, roc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj)
 
-                  print("test accuracy {:.4f} ".format(test_acc))   
+                  print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f}")  
                   print("best_loss",  batch_best_loss)     
                                 
                   test_accs.append(test_acc)
-         
-
+                  f1s.append(f1)
+                  rocs.append(roc)
+        
             mean_test_acc = np.mean(test_accs)
             std_test_acc = np.std(test_accs)    
-            print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))  
+            mean_f1 = np.mean(f1s)
+            std_f1 = np.std(f1s)   
+            mean_roc = np.mean(rocs)
+            std_roc = np.std(rocs)   
+            print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
+            print(" Final best | test F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1))   
+            print(" Final best | AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc))    
 
             print(self.pre_train_type, self.gnn_type, self.prompt_type," Node Task completed")
             mean_best = np.mean(batch_best_loss)
 
-            return  mean_best, mean_test_acc, std_test_acc
+            return  mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc
       
                   
             # elif self.prompt_type != 'MultiGprompt':

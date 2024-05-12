@@ -125,7 +125,7 @@ class BaseTask:
             print("Successfully loaded pre-trained weights!")
 
     def return_pre_train_type(self, pre_train_model_path):
-        names = ['GraphCL', 'SimGRACE','Edgepred_GPPT', 'Edgepred_Gprompt', 'DGI', 'GraphMAE','None']
+        names = ['None', 'DGI', 'GraphMAE','Edgepred_GPPT', 'Edgepred_Gprompt','GraphCL', 'SimGRACE']
         for name in names:
             if name  in  pre_train_model_path:
                 return name
