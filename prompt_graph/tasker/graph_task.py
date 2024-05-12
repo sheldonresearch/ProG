@@ -67,6 +67,8 @@ class GraphTask(BaseTask):
             out = self.gnn(batch.x, batch.edge_index, batch.batch)
             out = self.answering(out)
             loss = self.criterion(out, batch.y)  
+
+            
             loss.backward()  
             self.optimizer.step()  
             total_loss += loss.item()  
