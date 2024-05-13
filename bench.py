@@ -65,13 +65,8 @@ final_roc_std = 0
 
 
 if args.task == 'NodeTask':
-<<<<<<< HEAD
     data, input_dim, output_dim = load4node(args.dataset_name)   
     data = data.to(args.device)
-=======
-    data, input_dim, output_dim = load4node(args.dataset_name) 
-    data = data.to(args.device)  
->>>>>>> 5ae47ac85e089112ec678deaea023b831ec50b7a
     if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
         graphs_list = load_induced_graph(args.dataset_name, data, args.device) 
     else:
