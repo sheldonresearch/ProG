@@ -44,7 +44,7 @@ if args.dataset_name in ['PubMed','Flickr']:
     }
 
 num_iter=10
-if args.prompt_type in['MultiGprompt']:
+if args.prompt_type in['MultiGprompt','GPPT']:
     num_iter = 1
 best_params = None
 best_loss = float('inf')
@@ -117,6 +117,7 @@ file_path = os.path.join('./Experiment/ExcelResults/Node/'+str(args.shot_num)+'s
 data = pd.read_excel(file_path, index_col=0)
 
 col_name = f"{pre_train_type}+{args.prompt_type}"
+print('col_name', col_name)
 data.at['Final Accuracy', col_name] = f"{final_acc_mean:.4f}±{final_acc_std:.4f}"
 data.at['Final F1', col_name] = f"{final_f1_mean:.4f}±{final_f1_std:.4f}"
 data.at['Final AUROC', col_name] = f"{final_roc_mean:.4f}±{final_roc_std:.4f}"
