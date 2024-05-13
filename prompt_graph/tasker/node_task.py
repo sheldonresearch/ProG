@@ -22,6 +22,8 @@ class NodeTask(BaseTask):
                   self.load_multigprompt_data()
             else:
                   self.data = data.to(self.device)
+                  if self.dataset_name == 'ogbn-arxiv':
+                        self.data.y = self.data.y.squeeze()
                   self.input_dim = input_dim
                   self.output_dim = output_dim
                   self.graphs_list = graphs_list
