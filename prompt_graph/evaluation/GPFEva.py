@@ -1,5 +1,5 @@
 import torchmetrics
-
+import torch
 def GPFEva(loader, gnn, prompt, answering, num_class, device):
     prompt.eval()
     if answering:
@@ -10,19 +10,19 @@ def GPFEva(loader, gnn, prompt, answering, num_class, device):
     accuracy.reset()
     macro_f1.reset()
     auroc.reset()
+    with torch.no_grad(): 
+        for batch in loader: 
+            batch = batch.to(device) 
+            batch.x = prompt.add(batch.x)
+            out = gnn(batch.x, batch.edge_index, batch.batch)
+            if answering:
+                out = answering(out)  
+            pred = out.argmax(dim=1)  
 
-    for batch in loader: 
-        batch = batch.to(device) 
-        batch.x = prompt.add(batch.x)
-        out = gnn(batch.x, batch.edge_index, batch.batch)
-        if answering:
-            out = answering(out)  
-        pred = out.argmax(dim=1)  
-
-        acc = accuracy(pred, batch.y)
-        ma_f1 = macro_f1(pred, batch.y)
-        roc = auroc(out, batch.y) 
-        # print(acc)
+            acc = accuracy(pred, batch.y)
+            ma_f1 = macro_f1(pred, batch.y)
+            roc = auroc(out, batch.y) 
+            # print(acc)
     acc = accuracy.compute()
     ma_f1 = macro_f1.compute()
     roc = auroc.compute()

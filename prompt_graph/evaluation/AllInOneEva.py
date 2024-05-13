@@ -10,18 +10,19 @@ def AllInOneEva(loader, prompt, gnn, answering, num_class, device):
         accuracy.reset()
         macro_f1.reset()
         auroc.reset()
-        for batch in loader: 
-            batch = batch.to(device) 
-            prompted_graph = prompt(batch)
-            graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
-            # print(graph_emb)
-            pre = answering(graph_emb)
-            pred = pre.argmax(dim=1)  
-            
-            acc = accuracy(pred, batch.y)
-            f1 = macro_f1(pred, batch.y)
-            roc = auroc(pre, batch.y) 
-            # print(acc)
+        with torch.no_grad(): 
+            for batch in loader: 
+                batch = batch.to(device) 
+                prompted_graph = prompt(batch)
+                graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
+                # print(graph_emb)
+                pre = answering(graph_emb)
+                pred = pre.argmax(dim=1)  
+                
+                acc = accuracy(pred, batch.y)
+                f1 = macro_f1(pred, batch.y)
+                roc = auroc(pre, batch.y) 
+                # print(acc)
         acc = accuracy.compute()
         ma_f1 = macro_f1.compute()
         roc = auroc.compute()

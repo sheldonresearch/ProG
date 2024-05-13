@@ -3,7 +3,6 @@ import torch
 
 def GNNNodeEva(data, idx_test,  gnn, answering, num_class, device):
     gnn.eval()
-
     accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class).to(device)
     macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro").to(device)
     auroc = torchmetrics.classification.AUROC(task="multiclass", num_classes=num_class).to(device)
@@ -30,16 +29,17 @@ def GNNGraphEva(loader, gnn, answering, num_class, device):
     auroc.reset()
     if answering:
         answering.eval()
-    for index, batch in enumerate(loader): 
-        batch = batch.to(device) 
-        out = gnn(batch.x, batch.edge_index, batch.batch)
-        if answering:
-            out = answering(out)  
-        pred = out.argmax(dim=1)  
-        acc = accuracy(pred, batch.y)
-        ma_f1 = macro_f1(pred, batch.y)
-        roc = auroc(out, batch.y) 
-        # print(acc)
+    with torch.no_grad(): 
+        for index, batch in enumerate(loader): 
+            batch = batch.to(device) 
+            out = gnn(batch.x, batch.edge_index, batch.batch)
+            if answering:
+                out = answering(out)  
+            pred = out.argmax(dim=1)  
+            acc = accuracy(pred, batch.y)
+            ma_f1 = macro_f1(pred, batch.y)
+            roc = auroc(out, batch.y) 
+            # print(acc)
     acc = accuracy.compute()
     ma_f1 = macro_f1.compute()
     roc = auroc.compute()
