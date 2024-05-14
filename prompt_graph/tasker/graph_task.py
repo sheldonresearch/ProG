@@ -17,7 +17,8 @@ class GraphTask(BaseTask):
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.dataset = dataset
-        self.create_few_data_folder()
+        if self.shot_num > 0:
+            self.create_few_data_folder()
         self.initialize_gnn()
         self.initialize_prompt()
         self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
@@ -170,17 +171,19 @@ class GraphTask(BaseTask):
         rocs = []
         batch_best_loss = []
         for i in range(1, 6):
-            idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-            print('idx_train',idx_train)
-            train_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
-            print("true",i,train_lbls)
+            if self.shot_num > 0:
+                idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                print('idx_train',idx_train)
+                train_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+                print("true",i,train_lbls)
 
-            idx_test = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-            test_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
-        
-            train_dataset = self.dataset[idx_train]
-            test_dataset = self.dataset[idx_test]
-
+                idx_test = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                test_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+            
+                train_dataset = self.dataset[idx_train]
+                test_dataset = self.dataset[idx_test]
+            else:
+                train_dataset, test_dataset = self.dataset
             if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
                 from torch_geometric.data import Batch
                 train_dataset = [train_g for train_g in train_dataset]
@@ -296,15 +299,15 @@ class GraphTask(BaseTask):
             batch_best_loss.append(loss)
             
             if self.prompt_type == 'None':
-                test_acc, f1, roc = GNNGraphEva(test_loader, self.gnn, self.answering, self.output_dim, self.device)
+                test_acc, f1, roc, prc = GNNGraphEva(test_loader, self.gnn, self.answering, self.output_dim, self.device)
             elif self.prompt_type =='GPPT':
-                test_acc, f1, roc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.output_dim, self.device)
+                test_acc, f1, roc, prc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.output_dim, self.device)
             elif self.prompt_type == 'All-in-one':
-                test_acc, f1, roc = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+                test_acc, f1, roc, prc = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
             elif self.prompt_type in ['GPF', 'GPF-plus']:
-                test_acc, f1, roc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)
+                test_acc, f1, roc, prc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)
             elif self.prompt_type =='Gprompt':
-                test_acc, f1, roc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
+                test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
 
 
             print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f}")
