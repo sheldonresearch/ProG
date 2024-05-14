@@ -12,6 +12,7 @@ from torch_geometric.utils import negative_sampling
 import os
 
 def node_sample_and_save(data, k, folder, num_classes):
+    r"""split the nodes into training and testing sets."""
     # 获取标签
     labels = data.y.to('cpu')
     
@@ -37,7 +38,7 @@ def node_sample_and_save(data, k, folder, num_classes):
     torch.save(test_labels, os.path.join(folder, 'test_labels.pt'))
 
 def graph_sample_and_save(dataset, k, folder, num_classes):
-
+    r"""split the graphs into training and testing sets."""
     # 计算测试集的数量（例如90%的图作为测试集）
     num_graphs = len(dataset)
     num_test = int(0.8 * num_graphs)
@@ -134,6 +135,10 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         return input_dim, out_dim, None, None, None, graph_list
     
 def load4node(dataname, shot_num= 10):
+    r"""Load and preprocess the given data set and 
+    create masks for the training set and test set based on shot_num.
+    With :class:`torch_geometric.data.Data` being the
+    base class, all its methods can also be used here."""
     print(dataname)
     if dataname in ['PubMed', 'CiteSeer', 'Cora']:
         dataset = Planetoid(root='data/Planetoid', name=dataname, transform=NormalizeFeatures())
@@ -203,6 +208,8 @@ def load4node(dataname, shot_num= 10):
     return data,dataset
 
 def load4link_prediction_single_graph(dataname, num_per_samples=1):
+    r"""Load a single graph dataset for link prediction 
+    and generate negative neighbor samples"""
     if dataname in ['PubMed', 'CiteSeer', 'Cora']:
         dataset = Planetoid(root='data/Planetoid', name=dataname, transform=NormalizeFeatures())
     elif dataname in ['Computers', 'Photo']:
@@ -234,6 +241,8 @@ def load4link_prediction_single_graph(dataname, num_per_samples=1):
     return data, edge_label, edge_index, input_dim, output_dim
 
 def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
+    r"""Load multiple graphs for link prediction 
+    and generate negative neighbor samples"""
     if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name)
 
@@ -262,6 +271,8 @@ def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
 
 # used in pre_train.py
 def NodePretrain(dataname='CiteSeer', num_parts=200):
+    r"""Load different datasets, 
+    get the number of node features and divide data into multiple clusters."""
     if dataname in ['PubMed', 'CiteSeer', 'Cora']:
         dataset = Planetoid(root='data/Planetoid', name=dataname, transform=NormalizeFeatures())
     elif dataname in ['Computers', 'Photo']:
