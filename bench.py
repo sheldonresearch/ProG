@@ -121,7 +121,10 @@ for _ in range(num_iter):
 # prompt_types = ['None', 'GPPT', 'All-in-one', 'Gprompt', 'GPF', 'GPF-plus']
 
 file_name = args.gnn_type +"_total_results.xlsx"
-file_path = os.path.join('./Experiment/ExcelResults/Node/'+str(args.shot_num)+'shot/'+ args.dataset_name +'/', file_name)
+if args.task == 'NodeTask':
+    file_path = os.path.join('./Experiment/ExcelResults/Node/'+str(args.shot_num)+'shot/'+ args.dataset_name +'/', file_name)
+if args.task == 'GraphTask':
+    file_path = os.path.join('./Experiment/ExcelResults/Graph/'+str(args.shot_num)+'shot/'+ args.dataset_name +'/', file_name)
 data = pd.read_excel(file_path, index_col=0)
 
 col_name = f"{pre_train_type}+{args.prompt_type}"
