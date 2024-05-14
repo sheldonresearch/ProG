@@ -36,12 +36,19 @@ param_grid = {
     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
     'batch_size': np.linspace(32, 64, 32),
 }
-if args.dataset_name in ['PubMed','Flickr']:
-     param_grid = {
-    'learning_rate': 10 ** np.linspace(-3, -1, 1000),
-    'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-    'batch_size': np.linspace(128, 512, 200),
-    }
+# if args.dataset_name in ['PubMed']:
+#      param_grid = {
+#     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
+#     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
+#     'batch_size': np.linspace(128, 512, 200),
+#     }
+# if args.dataset_name in ['ogbn-arxiv','Flickr']:
+#      param_grid = {
+#     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
+#     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
+#     'batch_size': np.linspace(512, 512, 200),
+#     }
+
 
 num_iter=10
 if args.prompt_type in['MultiGprompt','GPPT']:
@@ -78,6 +85,7 @@ if args.task == 'GraphTask':
     
 for _ in range(num_iter):
     params = {k: random.choice(v) for k, v in param_grid.items()}
+    print(params)
     
     if args.task == 'NodeTask':
         tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
