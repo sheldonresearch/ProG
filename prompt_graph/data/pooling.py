@@ -16,6 +16,7 @@ def topk(
     min_score: Optional[float] = None,
     tol: float = 1e-7,
 ) -> Tensor:
+    r"""Pooling is performed on the first K elements that meet the condition"""
     if min_score is not None:
         # Make sure that we do not drop all nodes in a graph.
         scores_max = scatter(x, batch, reduce='max')[batch] - tol
@@ -77,6 +78,8 @@ def filter_adj(
     perm: Tensor,
     num_nodes: Optional[int] = None,
 ) -> Tuple[Tensor, Optional[Tensor]]:
+    r"""According to a given node index arrangement perm to filter and rearrange 
+    edge_attr and edge_index"""
     num_nodes = maybe_num_nodes(edge_index, num_nodes)
 
     mask = perm.new_full((num_nodes, ), -1)
@@ -165,6 +168,7 @@ class TopKPooling(torch.nn.Module):
         return x, edge_index, edge_attr, batch, perm, score[perm]
 
     def __repr__(self) -> str:
+        r"""return string representation"""
         if self.min_score is None:
             ratio = f'ratio={self.ratio}'
         else:
@@ -238,6 +242,7 @@ class SAGPooling(torch.nn.Module):
         return x, edge_index, edge_attr, batch, perm, score[perm]
 
     def __repr__(self) -> str:
+        r"""return string representation"""
         if self.min_score is None:
             ratio = f'ratio={self.ratio}'
         else:
