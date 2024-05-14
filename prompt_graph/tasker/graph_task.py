@@ -169,6 +169,7 @@ class GraphTask(BaseTask):
         test_accs = []
         f1s = []
         rocs = []
+        prcs = []
         batch_best_loss = []
         for i in range(1, 6):
             if self.shot_num > 0:
@@ -310,11 +311,12 @@ class GraphTask(BaseTask):
                 test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
 
 
-            print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f}")
+            print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}" )
             print("best_loss",  batch_best_loss)                        
             test_accs.append(test_acc)
             f1s.append(f1)
             rocs.append(roc)
+            prcs.append(prc)
         
         mean_test_acc = np.mean(test_accs)
         std_test_acc = np.std(test_accs)    
@@ -322,14 +324,17 @@ class GraphTask(BaseTask):
         std_f1 = np.std(f1s)   
         mean_roc = np.mean(rocs)
         std_roc = np.std(rocs)   
+        mean_prc = np.mean(prcs)
+        std_prc = np.std(prcs) 
         print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
         print(" Final best | test F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1))   
         print(" Final best | AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc))   
+        print(" Final best | AUPRC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc))   
 
         print(self.pre_train_type, self.gnn_type, self.prompt_type, " Graph Task completed")
         mean_best = np.mean(batch_best_loss)
 
-        return  mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc
+        return  mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc
 
         
 
