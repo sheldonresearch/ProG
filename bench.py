@@ -103,7 +103,7 @@ for _ in range(num_iter):
     pre_train_type = tasker.pre_train_type
 
     # 返回平均损失
-    avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc = tasker.run()
+    avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, _, _= tasker.run()
     print(f"For {_}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
 
     if avg_best_loss < best_loss:

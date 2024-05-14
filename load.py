@@ -86,6 +86,7 @@ for i in range(len(train_graphs)):
         train_graph_list.append(g)
 
 test_graph_list = []
+test_induced_graph_list = []
 for i in range(len(test_graphs)):
     dgl_graph, label = test_graphs[i], test_labels[i]
 
@@ -99,7 +100,7 @@ for i in range(len(test_graphs)):
     induced_graph_list = induced_graphs(pyg_graph)
     test_graph_list.append(graph)
     for g in induced_graph_list:
-        test_graph_list.append(g)
+        test_induced_graph_list.append(g)
 
 
 
@@ -138,7 +139,8 @@ final_f1_mean = 0
 final_f1_std = 0
 final_roc_mean = 0
 final_roc_std = 0
-
+final_prc_mean = 0
+final_prc_std = 0
 
 args.task = 'GraphTask'
 args.prompt_type = 'All-in-one'
@@ -147,6 +149,7 @@ args.epochs = 10
 input_dim=14
 output_dim=2
 dataset = train_graph_list, test_graph_list
+dataset2 = train_graph_list, test_induced_graph_list
     
 for _ in range(num_iter):
     params = {k: random.choice(v) for k, v in param_grid.items()}
@@ -159,7 +162,7 @@ for _ in range(num_iter):
     pre_train_type = tasker.pre_train_type
 
     # 返回平均损失
-    avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc = tasker.run()
+    avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc = tasker.run()
     print(f"For {_}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
 
     if avg_best_loss < best_loss:
@@ -171,26 +174,8 @@ for _ in range(num_iter):
         final_f1_std = std_f1
         final_roc_mean = mean_roc
         final_roc_std = std_roc
-
-
-# pre_train_types = ['None', 'DGI', 'GraphMAE', 'Edgepred_GPPT', 'Edgepred_Gprompt', 'GraphCL', 'SimGRACE']
-# prompt_types = ['None', 'GPPT', 'All-in-one', 'Gprompt', 'GPF', 'GPF-plus']
-
-file_name = args.gnn_type +"_total_results.xlsx"
-if args.task == 'NodeTask':
-    file_path = os.path.join('./Experiment/ExcelResults/Node/'+str(args.shot_num)+'shot/'+ args.dataset_name +'/', file_name)
-if args.task == 'GraphTask':
-    file_path = os.path.join('./Experiment/ExcelResults/Graph/'+str(args.shot_num)+'shot/'+ args.dataset_name +'/', file_name)
-data = pd.read_excel(file_path, index_col=0)
-
-col_name = f"{pre_train_type}+{args.prompt_type}"
-print('col_name', col_name)
-data.at['Final Accuracy', col_name] = f"{final_acc_mean:.4f}±{final_acc_std:.4f}"
-data.at['Final F1', col_name] = f"{final_f1_mean:.4f}±{final_f1_std:.4f}"
-data.at['Final AUROC', col_name] = f"{final_roc_mean:.4f}±{final_roc_std:.4f}"
-data.to_excel(file_path)
-
-print("Data saved to "+file_path+" successfully.")
+        final_prc_mean = mean_prc
+        final_prc_std = std_prc
 
 print("After searching, Final Accuracy {:.4f}±{:.4f}(std)".format(final_acc_mean, final_acc_std)) 
 print("After searching, Final F1 {:.4f}±{:.4f}(std)".format(final_f1_mean, final_f1_std)) 
@@ -201,3 +186,34 @@ print('best_loss ',best_loss)
 
 
 
+for _ in range(num_iter):
+    params = {k: random.choice(v) for k, v in param_grid.items()}
+    
+
+    tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
+                        dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
+                        shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
+                        batch_size = int(params['batch_size']), dataset = dataset2, input_dim = input_dim, output_dim = output_dim,)
+    pre_train_type = tasker.pre_train_type
+
+    # 返回平均损失
+    avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc = tasker.run()
+    print(f"For {_}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
+
+    if avg_best_loss < best_loss:
+        best_loss = avg_best_loss
+        best_params = params
+        final_acc_mean = mean_test_acc
+        final_acc_std = std_test_acc
+        final_f1_mean = mean_f1
+        final_f1_std = std_f1
+        final_roc_mean = mean_roc
+        final_roc_std = std_roc
+        final_prc_mean = mean_prc
+        final_prc_std = std_prc
+
+print("After searching, Final Accuracy {:.4f}±{:.4f}(std)".format(final_acc_mean, final_acc_std)) 
+print("After searching, Final F1 {:.4f}±{:.4f}(std)".format(final_f1_mean, final_f1_std)) 
+print("After searching, Final AUROC {:.4f}±{:.4f}(std)".format(final_roc_mean, final_roc_std)) 
+print('best_params ', best_params)
+print('best_loss ',best_loss)
