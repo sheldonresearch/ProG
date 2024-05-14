@@ -55,13 +55,13 @@ final_f1_std = 0
 final_roc_mean = 0
 final_roc_std = 0
 
-# args.task = 'NodeTask'
-# # # args.prompt_type = 'MultiGprompt'
-# args.dataset_name = 'ogbn-arxiv'
-# args.dataset_name = 'Cora'
-# num_iter = 1
+# args.task = 'GraphTask'
+# # # # args.prompt_type = 'MultiGprompt'
+# args.dataset_name = 'DD'
+# # args.dataset_name = 'Cora'
+# # num_iter = 1
 # args.shot_num = 1
-# args.pre_train_model_path='./Experiment/pre_trained_model/CiteSeer/MultiGprompt.pth' 
+# args.pre_train_model_path='./Experiment/pre_trained_model/DD/DGI.GCN.128hidden_dim.pth' 
 
 
 if args.task == 'NodeTask':

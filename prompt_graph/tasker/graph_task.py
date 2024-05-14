@@ -304,7 +304,7 @@ class GraphTask(BaseTask):
             elif self.prompt_type in ['GPF', 'GPF-plus']:
                 test_acc, f1, roc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)
             elif self.prompt_type =='Gprompt':
-                test_acc, f1, roc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+                test_acc, f1, roc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
 
 
             print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f}")
