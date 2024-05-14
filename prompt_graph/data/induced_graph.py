@@ -16,7 +16,8 @@ import numpy as np
 import pickle
 
 def induced_graphs(data, smallest_size=10, largest_size=30):
-
+    r"""Generate an appropriately sized (between smallest size and largest size) induce graph 
+    and add it to the induced graph list to return this list"""
     induced_graph_list = []
 
     for index in range(data.x.size(0)):
@@ -54,6 +55,9 @@ def induced_graphs(data, smallest_size=10, largest_size=30):
 
 
 def split_induced_graphs(name, data, smallest_size=10, largest_size=30):
+    r"""Generate an appropriately sized (between smallest size and largest size) induce graph 
+    and add it to the induced graph list to return this list.
+    The resulting induced graph is stored in a specific directory"""
 
     induced_graph_list = []
     
