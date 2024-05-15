@@ -200,6 +200,7 @@ class NodeTask(BaseTask):
             test_accs = []
             f1s = []
             rocs = []
+            prcs = []
             batch_best_loss = []
             # for all-in-one and Gprompt we use k-hop subgraph, but when wo search for best parameter, we load inducedd graph once cause it costs too much time
             # if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
