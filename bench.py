@@ -63,8 +63,8 @@ final_roc_mean = 0
 final_roc_std = 0
 
 # args.task = 'GraphTask'
-# # # # args.prompt_type = 'MultiGprompt'
-# args.dataset_name = 'DD'
+# # # # # args.prompt_type = 'MultiGprompt'
+# args.dataset_name = 'COLLAB'
 # # args.dataset_name = 'Cora'
 # # num_iter = 1
 # args.shot_num = 1

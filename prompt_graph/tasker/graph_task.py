@@ -189,11 +189,12 @@ class GraphTask(BaseTask):
                 from torch_geometric.data import Batch
                 train_dataset = [train_g for train_g in train_dataset]
                 test_dataset = [test_g for test_g in test_dataset]
-                processed_dataset = [g for g in self.dataset]
                 self.node_degree_as_features(train_dataset)
                 self.node_degree_as_features(test_dataset)
-                self.node_degree_as_features(processed_dataset)
-                processed_dataset = Batch.from_data_list([g for g in processed_dataset])
+                if self.prompt_type == 'GPPT':
+                    processed_dataset = [g for g in self.dataset]
+                    self.node_degree_as_features(processed_dataset)
+                    processed_dataset = Batch.from_data_list([g for g in processed_dataset])
                 self.input_dim = train_dataset[0].x.size(1)
 
             train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
