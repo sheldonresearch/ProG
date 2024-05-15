@@ -62,9 +62,9 @@ final_f1_std = 0
 final_roc_mean = 0
 final_roc_std = 0
 
-# args.task = 'GraphTask'
+args.task = 'GraphTask'
 # # # # # args.prompt_type = 'MultiGprompt'
-# args.dataset_name = 'COLLAB'
+args.dataset_name = 'COLLAB'
 # # args.dataset_name = 'Cora'
 # # num_iter = 1
 # args.shot_num = 1
@@ -83,7 +83,7 @@ if args.task == 'NodeTask':
 if args.task == 'GraphTask':
     input_dim, output_dim, dataset = load4graph(args.dataset_name)
     
-for _ in range(num_iter):
+for a in range(num_iter):
     params = {k: random.choice(v) for k, v in param_grid.items()}
     print(params)
     
@@ -104,7 +104,7 @@ for _ in range(num_iter):
 
     # 返回平均损失
     avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, _, _= tasker.run()
-    print(f"For {_}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
+    print(f"For {a}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
 
     if avg_best_loss < best_loss:
         best_loss = avg_best_loss
