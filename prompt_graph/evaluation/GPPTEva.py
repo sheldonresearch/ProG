@@ -1,6 +1,6 @@
 import torchmetrics
 import torch
-
+from tqdm import tqdm
 def GPPTEva(data, idx_test, gnn, prompt, num_class, device):
     # gnn.eval()
     prompt.eval()
@@ -38,7 +38,7 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
     auroc.reset()
     auprc.reset()
     with torch.no_grad(): 
-        for batch in loader: 
+        for batch in tqdm(loader): 
             batch=batch.to(device)              
             node_embedding = gnn(batch.x,batch.edge_index)
             out = prompt(node_embedding, batch.edge_index)

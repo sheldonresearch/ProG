@@ -1,6 +1,6 @@
 import torchmetrics
 import torch
-
+from tqdm import tqdm
 def GPFEva(loader, gnn, prompt, answering, num_class, device):
     prompt.eval()
     if answering:
@@ -15,7 +15,7 @@ def GPFEva(loader, gnn, prompt, answering, num_class, device):
     auroc.reset()
     auprc.reset()
     with torch.no_grad(): 
-        for batch in loader: 
+        for batch in tqdm(loader): 
             batch = batch.to(device) 
             batch.x = prompt.add(batch.x)
             out = gnn(batch.x, batch.edge_index, batch.batch)

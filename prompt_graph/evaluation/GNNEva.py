@@ -1,6 +1,6 @@
 import torchmetrics
 import torch
-
+from tqdm import tqdm
 def GNNNodeEva(data, idx_test,  gnn, answering, num_class, device):
     gnn.eval()
     accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class).to(device)
@@ -37,7 +37,7 @@ def GNNGraphEva(loader, gnn, answering, num_class, device):
     if answering:
         answering.eval()
     with torch.no_grad(): 
-        for index, batch in enumerate(loader): 
+        for index, batch in tqdm(enumerate(loader)): 
             batch = batch.to(device) 
             out = gnn(batch.x, batch.edge_index, batch.batch)
             if answering:

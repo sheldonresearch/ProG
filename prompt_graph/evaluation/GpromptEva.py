@@ -1,6 +1,7 @@
 import torch.nn.functional as F
 import torchmetrics
 import torch
+from tqdm import tqdm
 def GpromptEva(loader, gnn, prompt, center_embedding, num_class, device):
     prompt.eval()
     accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class).to(device)
@@ -13,7 +14,7 @@ def GpromptEva(loader, gnn, prompt, center_embedding, num_class, device):
     auroc.reset()
     auprc.reset()
     with torch.no_grad(): 
-        for batch in loader: 
+        for batch in tqdm(loader): 
             batch = batch.to(device) 
             out = gnn(batch.x, batch.edge_index, batch.batch, prompt, 'Gprompt')
             similarity_matrix = F.cosine_similarity(out.unsqueeze(1), center_embedding.unsqueeze(0), dim=-1)

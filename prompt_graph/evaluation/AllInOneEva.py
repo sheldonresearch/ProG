@@ -1,6 +1,6 @@
 import torchmetrics
 import torch
-
+from tqdm import tqdm
 def AllInOneEva(loader, prompt, gnn, answering, num_class, device):
     prompt.eval()
     answering.eval()
@@ -16,7 +16,7 @@ def AllInOneEva(loader, prompt, gnn, answering, num_class, device):
     auprc.reset()
 
     with torch.no_grad():
-        for batch in loader:
+        for batch in tqdm(loader):
             batch = batch.to(device)
             prompted_graph = prompt(batch)
             graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
