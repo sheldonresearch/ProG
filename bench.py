@@ -22,10 +22,10 @@ def load_induced_graph(dataset_name, data, device):
                 graphs_list = pickle.load(f)
                 print('Done!!!')
     else:
-            print('Begin split_induced_graphs.')
-            split_induced_graphs(data, folder_path, device, smallest_size=100, largest_size=300)
-            with open(file_path, 'rb') as f:
-                graphs_list = pickle.load(f)
+        print('Begin split_induced_graphs.')
+        split_induced_graphs(data, folder_path, device, smallest_size=100, largest_size=300)
+        with open(file_path, 'rb') as f:
+            graphs_list = pickle.load(f)
     graphs_list = [graph.to(device) for graph in graphs_list]
     return graphs_list
 
