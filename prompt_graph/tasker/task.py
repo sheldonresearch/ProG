@@ -61,7 +61,7 @@ class BaseTask:
         elif self.prompt_type == 'GPPT':
             if(self.task_type=='NodeTask'):
                 if self.dataset_name == 'Texas':
-                    self.prompt = GPPTPrompt(self.hid_dim, 4, self.output_dim, device = self.device)
+                    self.prompt = GPPTPrompt(self.hid_dim, 5, self.output_dim, device = self.device)
                 else:
                     self.prompt = GPPTPrompt(self.hid_dim, self.output_dim, self.output_dim, device = self.device)
             elif(self.task_type=='GraphTask'):

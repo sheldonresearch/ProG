@@ -31,8 +31,6 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
     macro_f1 = torchmetrics.classification.F1Score(task="multiclass", num_classes=num_class, average="macro").to(device)
     auroc = torchmetrics.classification.AUROC(task="multiclass", num_classes=num_class).to(device)
     auprc = torchmetrics.classification.AveragePrecision(task="multiclass", num_classes=num_class).to(device)
-
-    
     accuracy.reset()
     macro_f1.reset()
     auroc.reset()
@@ -46,17 +44,18 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
             # 找到每个预测中概率最大的索引（类别）
             predicted_classes = out.argmax(dim=1)
 
-            # 统计每个类别获得的票数
+            # # 统计每个类别获得的票数
             votes = predicted_classes.bincount(minlength=out.shape[1])
 
-            # 找出票数最多的类别
-            pred = votes.argmax().item()
+            # # 找出票数最多的类别
+            pred = votes.argmax()
+            pred = pred.unsqueeze(dim=-1)
 
             # correct += int((pred == batch.y).sum())  
             acc = accuracy(pred, batch.y)
             ma_f1 = macro_f1(pred, batch.y)
-            roc = auroc(out, batch.y)
-            prc = auprc(out, batch.y)
+            roc = auroc(votes, batch.y)
+            prc = auprc(votes, batch.y)
             if len(loader) > 20:
                 print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
 
