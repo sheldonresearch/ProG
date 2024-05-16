@@ -37,7 +37,7 @@ def GNNGraphEva(loader, gnn, answering, num_class, device):
     if answering:
         answering.eval()
     with torch.no_grad(): 
-        for batch in enumerate(loader): 
+        for batch_id, batch in enumerate(loader): 
             batch = batch.to(device) 
             out = gnn(batch.x, batch.edge_index, batch.batch)
             if answering:

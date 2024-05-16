@@ -46,16 +46,19 @@ param_grid = {
 #     }
 if args.dataset_name in ['ogbn-arxiv','Flickr']:
      param_grid = {
-    'learning_rate': 10 ** np.linspace(-3, -1, 1000),
-    'weight_decay':  10 ** np.linspace(-5, -6, 1000),
+    'learning_rate': 10 ** np.linspace(-3, -1, 1),
+    'weight_decay':  10 ** np.linspace(-5, -6, 1),
     'batch_size': np.linspace(512, 512, 200),
     }
 
 
 num_iter=10
+print('args.dataset_name', args.dataset_name)
 if args.prompt_type in['MultiGprompt','GPPT']:
+    print('num_iter = 1')
     num_iter = 1
-if args.dataset_name in ['ogbn-arxiv, Flickr']:
+if args.dataset_name in ['ogbn-arxiv','Flickr']:
+    print('num_iter = 1')
     num_iter = 1
 best_params = None
 best_loss = float('inf')
@@ -87,6 +90,7 @@ if args.task == 'NodeTask':
 if args.task == 'GraphTask':
     input_dim, output_dim, dataset = load4graph(args.dataset_name)
     
+print('num_iter',num_iter)
 for a in range(num_iter):
     params = {k: random.choice(v) for k, v in param_grid.items()}
     print(params)

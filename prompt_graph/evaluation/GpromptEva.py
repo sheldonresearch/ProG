@@ -14,7 +14,7 @@ def GpromptEva(loader, gnn, prompt, center_embedding, num_class, device):
     auroc.reset()
     auprc.reset()
     with torch.no_grad(): 
-        for batch in enumerate(loader): 
+        for batch_id, batch in enumerate(loader): 
             batch = batch.to(device) 
             out = gnn(batch.x, batch.edge_index, batch.batch, prompt, 'Gprompt')
             similarity_matrix = F.cosine_similarity(out.unsqueeze(1), center_embedding.unsqueeze(0), dim=-1)

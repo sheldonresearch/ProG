@@ -15,7 +15,7 @@ def GPFEva(loader, gnn, prompt, answering, num_class, device):
     auroc.reset()
     auprc.reset()
     with torch.no_grad(): 
-        for batch in enumerate(loader): 
+        for batch_id, batch in enumerate(loader): 
             batch = batch.to(device) 
             batch.x = prompt.add(batch.x)
             out = gnn(batch.x, batch.edge_index, batch.batch)

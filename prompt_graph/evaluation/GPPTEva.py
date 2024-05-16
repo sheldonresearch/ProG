@@ -38,7 +38,7 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
     auroc.reset()
     auprc.reset()
     with torch.no_grad(): 
-        for batch in enumerate(loader): 
+        for batch_id, batch in enumerate(loader): 
             batch=batch.to(device)              
             node_embedding = gnn(batch.x,batch.edge_index)
             out = prompt(node_embedding, batch.edge_index)
