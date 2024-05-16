@@ -7,7 +7,7 @@ from .task import BaseTask
 import time
 import warnings
 import numpy as np
-from prompt_graph.data import load4node, induced_graphs, graph_split, split_induced_graphs, node_sample_and_save
+from prompt_graph.data import load4node, induced_graphs, graph_split, split_induced_graphs, node_sample_and_save,GraphDataset
 from prompt_graph.evaluation import GpromptEva, AllInOneEva
 import pickle
 import os
@@ -232,8 +232,12 @@ class NodeTask(BaseTask):
                                     test_graphs.append(graph)
                         print('Done!!!')
 
-                        train_loader = DataLoader(train_graphs, batch_size = self.batch_size, shuffle=True)
-                        test_loader = DataLoader(test_graphs, batch_size = self.batch_size, shuffle=False)
+                        train_dataset = GraphDataset(train_graphs)
+                        test_dataset = GraphDataset(test_graphs)
+
+                        # 创建数据加载器
+                        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
+                        test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
                         print("prepare induce graph data is finished!")
 
                   if self.prompt_type == 'MultiGprompt':
