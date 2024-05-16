@@ -38,7 +38,7 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
     auroc.reset()
     auprc.reset()
     with torch.no_grad(): 
-        for batch in tqdm(loader): 
+        for batch in enumerate(loader): 
             batch=batch.to(device)              
             node_embedding = gnn(batch.x,batch.edge_index)
             out = prompt(node_embedding, batch.edge_index)
@@ -56,7 +56,10 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
             acc = accuracy(pred, batch.y)
             ma_f1 = macro_f1(pred, batch.y)
             roc = auroc(out, batch.y)
-            auprc(out, batch.y)
+            prc = auprc(out, batch.y)
+            if len(loader) > 20:
+                print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
+
     acc = accuracy.compute()
     ma_f1 = macro_f1.compute()
     roc = auroc.compute()

@@ -15,7 +15,7 @@ def GPFEva(loader, gnn, prompt, answering, num_class, device):
     auroc.reset()
     auprc.reset()
     with torch.no_grad(): 
-        for batch in tqdm(loader): 
+        for batch in enumerate(loader): 
             batch = batch.to(device) 
             batch.x = prompt.add(batch.x)
             out = gnn(batch.x, batch.edge_index, batch.batch)
@@ -25,8 +25,11 @@ def GPFEva(loader, gnn, prompt, answering, num_class, device):
 
             acc = accuracy(pred, batch.y)
             ma_f1 = macro_f1(pred, batch.y)
-            roc = auroc(out, batch.y) 
-            auprc(out,batch.y)
+            roc = auroc(out, batch.y)
+            prc = auprc(out, batch.y)
+            if len(loader) > 20:
+                print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
+
             # print(acc)
     acc = accuracy.compute()
     ma_f1 = macro_f1.compute()

@@ -21,7 +21,7 @@ class NodeTask(BaseTask):
             if self.prompt_type == 'MultiGprompt':
                   self.load_multigprompt_data()
             else:
-                  self.data = data.to(self.device)
+                  self.data = data
                   if self.dataset_name == 'ogbn-arxiv':
                         self.data.y = self.data.y.squeeze()
                   self.input_dim = input_dim
@@ -79,9 +79,7 @@ class NodeTask(BaseTask):
       
       def load_data(self):
             self.data, self.input_dim, self.output_dim = load4node(self.dataset_name)
-            self.data.to(self.device)
- 
-      
+
       def train(self, data, train_idx):
             self.gnn.train()
             self.answering.train()
@@ -225,12 +223,14 @@ class NodeTask(BaseTask):
                   if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
                         train_graphs = []
                         test_graphs = []
-                        
+                        # self.graphs_list.to(self.device)
+                        print('distinguishing the train dataset and test dataset...')
                         for graph in self.graphs_list:                              
                               if graph.index in idx_train:
                                     train_graphs.append(graph)
                               elif graph.index in idx_test:
                                     test_graphs.append(graph)
+                        print('Done!!!')
 
                         train_loader = DataLoader(train_graphs, batch_size = self.batch_size, shuffle=True)
                         test_loader = DataLoader(test_graphs, batch_size = self.batch_size, shuffle=False)

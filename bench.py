@@ -18,7 +18,9 @@ def load_induced_graph(dataset_name, data, device):
     file_path = folder_path + '/induced_graph_min100_max300.pkl'
     if os.path.exists(file_path):
             with open(file_path, 'rb') as f:
+                print('loading induced graph...')
                 graphs_list = pickle.load(f)
+                print('Done!!!')
     else:
             print('Begin split_induced_graphs.')
             split_induced_graphs(data, folder_path, device, smallest_size=100, largest_size=300)
@@ -42,16 +44,18 @@ param_grid = {
 #     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
 #     'batch_size': np.linspace(128, 512, 200),
 #     }
-# if args.dataset_name in ['ogbn-arxiv','Flickr']:
-#      param_grid = {
-#     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
-#     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-#     'batch_size': np.linspace(512, 512, 200),
-#     }
+if args.dataset_name in ['ogbn-arxiv','Flickr']:
+     param_grid = {
+    'learning_rate': 10 ** np.linspace(-3, -1, 1000),
+    'weight_decay':  10 ** np.linspace(-5, -6, 1000),
+    'batch_size': np.linspace(512, 512, 200),
+    }
 
 
 num_iter=10
 if args.prompt_type in['MultiGprompt','GPPT']:
+    num_iter = 1
+if args.dataset_name in ['ogbn-arxiv, Flickr']:
     num_iter = 1
 best_params = None
 best_loss = float('inf')

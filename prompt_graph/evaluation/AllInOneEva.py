@@ -16,17 +16,19 @@ def AllInOneEva(loader, prompt, gnn, answering, num_class, device):
     auprc.reset()
 
     with torch.no_grad():
-        for batch in tqdm(loader):
+        for batch_id, batch in enumerate(loader):
             batch = batch.to(device)
             prompted_graph = prompt(batch)
             graph_emb = gnn(prompted_graph.x, prompted_graph.edge_index, prompted_graph.batch)
             pre = answering(graph_emb)
             pred = pre.argmax(dim=1)
 
-            accuracy(pred, batch.y)
-            macro_f1(pred, batch.y)
-            auroc(pre, batch.y)
-            auprc(pre, batch.y)
+            acc = accuracy(pred, batch.y)
+            ma_f1 = macro_f1(pred, batch.y)
+            roc = auroc(pre, batch.y)
+            prc = auprc(pre, batch.y)
+            if len(loader) > 20:
+                print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
 
     acc = accuracy.compute()
     ma_f1 = macro_f1.compute()

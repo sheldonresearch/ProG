@@ -37,16 +37,19 @@ def GNNGraphEva(loader, gnn, answering, num_class, device):
     if answering:
         answering.eval()
     with torch.no_grad(): 
-        for batch in tqdm(loader): 
+        for batch in enumerate(loader): 
             batch = batch.to(device) 
             out = gnn(batch.x, batch.edge_index, batch.batch)
             if answering:
                 out = answering(out)  
             pred = out.argmax(dim=1)  
-            accuracy(pred, batch.y)
-            macro_f1(pred, batch.y)
-            auroc(out, batch.y) 
-            auprc(out, batch.y)
+            acc = accuracy(pred, batch.y)
+            ma_f1 = macro_f1(pred, batch.y)
+            roc = auroc(out, batch.y)
+            prc = auprc(out, batch.y)
+            if len(loader) > 20:
+                print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
+
             # print(acc)
     acc = accuracy.compute()
     ma_f1 = macro_f1.compute()
