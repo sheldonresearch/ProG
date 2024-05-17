@@ -105,45 +105,45 @@ def sample_mask(idx, l):
     mask[idx] = 1
     return np.array(mask, dtype=np.bool)
 
-def load_pyg_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
-    """Load data."""
-    if dataset_str == 'Cora':
-        dataset_str1 = 'cora'
-    if dataset_str == 'CiteSeer':
-        dataset_str1 = 'citeseer'
-    if dataset_str == 'PubMed':
-        dataset_str1 = 'pubmed'
-    current_path = os.path.dirname(__file__)
-    names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
-    objects = []
-    for i in range(len(names)):
-        with open("./data/Planetoid/"+ dataset_str +"/raw/ind.{}.{}".format(dataset_str1, names[i]), 'rb') as f:
-            objects.append(pkl.load(f, encoding='latin1'))
+# def load_pyg_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
+#     """Load data."""
+#     if dataset_str == 'Cora':
+#         dataset_str1 = 'cora'
+#     if dataset_str == 'CiteSeer':
+#         dataset_str1 = 'citeseer'
+#     if dataset_str == 'PubMed':
+#         dataset_str1 = 'pubmed'
+#     current_path = os.path.dirname(__file__)
+#     names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
+#     objects = []
+#     for i in range(len(names)):
+#         with open("./data/Planetoid/"+ dataset_str +"/raw/ind.{}.{}".format(dataset_str1, names[i]), 'rb') as f:
+#             objects.append(pkl.load(f, encoding='latin1'))
         
 
-    x, y, tx, ty, allx, ally, graph = tuple(objects)
-    test_idx_reorder = parse_index_file("./data/Planetoid/"+ dataset_str +"/raw/ind.{}.test.index".format(dataset_str1))
-    test_idx_range = np.sort(test_idx_reorder)
+#     x, y, tx, ty, allx, ally, graph = tuple(objects)
+#     test_idx_reorder = parse_index_file("./data/Planetoid/"+ dataset_str +"/raw/ind.{}.test.index".format(dataset_str1))
+#     test_idx_range = np.sort(test_idx_reorder)
 
-    if dataset_str1 == 'citeseer':
-        # Fix citeseer dataset (there are some isolated nodes in the graph)
-        # Find isolated nodes, add them as zero-vecs into the right position
-        test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
-        tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
-        tx_extended[test_idx_range-min(test_idx_range), :] = tx
-        tx = tx_extended
-        ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
-        ty_extended[test_idx_range-min(test_idx_range), :] = ty
-        ty = ty_extended
+#     if dataset_str1 == 'citeseer':
+#         # Fix citeseer dataset (there are some isolated nodes in the graph)
+#         # Find isolated nodes, add them as zero-vecs into the right position
+#         test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
+#         tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
+#         tx_extended[test_idx_range-min(test_idx_range), :] = tx
+#         tx = tx_extended
+#         ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
+#         ty_extended[test_idx_range-min(test_idx_range), :] = ty
+#         ty = ty_extended
 
-    features = sp.vstack((allx, tx)).tolil()
-    features[test_idx_reorder, :] = features[test_idx_range, :]
-    adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
+#     features = sp.vstack((allx, tx)).tolil()
+#     features[test_idx_reorder, :] = features[test_idx_range, :]
+#     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
 
-    labels = np.vstack((ally, ty))
-    labels[test_idx_reorder, :] = labels[test_idx_range, :]
+#     labels = np.vstack((ally, ty))
+#     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
-    return adj, features, labels
+#     return adj, features, labels
 
 
 from torch_geometric.utils import to_scipy_sparse_matrix

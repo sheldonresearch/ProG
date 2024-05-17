@@ -46,7 +46,8 @@ class NodeTask(BaseTask):
                               print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
       def load_multigprompt_data(self):
-            adj, features, labels = process.load_data(self.dataset_name)  
+            adj, features, labels = process.load_data(self.dataset_name)
+            # adj, features, labels = process.load_data(self.dataset_name)  
             self.input_dim = features.shape[1]
             self.output_dim = labels.shape[1]
             print('a',self.output_dim)
@@ -301,7 +302,7 @@ class NodeTask(BaseTask):
                               test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
                         elif self.prompt_type == 'MultiGprompt':
                               prompt_feature = self.feature_prompt(self.features)
-                              test_acc, f1, roc, prc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj)
+                              test_acc, f1, roc, prc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj, self.output_dim, self.device)
 
                         print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}" )
                         print("best_loss",  batch_best_loss)     

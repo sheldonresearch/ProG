@@ -39,19 +39,13 @@ class downprompt(nn.Module):
         rawret =rawret3 +self.a4 * rawret4
         rawret = rawret.to(self.device)
         if train == 1:
-            self.ave = averageemb(labels=labels, rawret=rawret,nb_class=self.nb_classes).to(self.device)
+            self.ave = averageemb(labels, rawret, self.nb_classes).to(self.device)
 
         ret = torch.FloatTensor(seq.shape[0],self.nb_classes).to(self.device)
-        for x in range(0,seq.shape[0]):
-            ret[x][0] = torch.cosine_similarity(rawret[x], self.ave[0], dim=0)
-            ret[x][1] = torch.cosine_similarity(rawret[x], self.ave[1], dim=0)
-            ret[x][2] = torch.cosine_similarity(rawret[x], self.ave[2], dim=0)
-            if self.nb_classes >3 :
-                ret[x][3] = torch.cosine_similarity(rawret[x], self.ave[3], dim=0)
-                ret[x][4] = torch.cosine_similarity(rawret[x], self.ave[4], dim=0)
-                ret[x][5] = torch.cosine_similarity(rawret[x], self.ave[5], dim=0)
-                if self.nb_classes == 7:
-                    ret[x][6] = torch.cosine_similarity(rawret[x], self.ave[6], dim=0)
+        for x in range(seq.shape[0]):
+            for i in range(self.nb_classes):
+                ret[x][i] = torch.cosine_similarity(rawret[x], self.ave[i], dim=0)
+
 
         ret = F.softmax(ret, dim=1)
 
@@ -67,40 +61,44 @@ class downprompt(nn.Module):
                 m.bias.data.fill_(0.0)
 
 
-def averageemb(labels,rawret,nb_class):
-    retlabel = torch.FloatTensor(nb_class,int(rawret.shape[0]/nb_class),int(rawret.shape[1]))
-    cnt1 = 0
-    cnt2 = 0
-    cnt3 = 0
-    cnt4 = 0
-    cnt5 = 0
-    cnt6 = 0
-    cnt7 = 0
-    # print("labels",labels)
-    for x in range(0,rawret.shape[0]):
-        if labels[x].item() == 0:
-            retlabel[0][cnt1] = rawret[x]
-            cnt1 = cnt1 + 1
-        if labels[x].item() == 1:
-            retlabel[1][cnt2]= rawret[x]
-            cnt2 = cnt2 + 1
-        if labels[x].item() == 2:
-            retlabel[2][cnt3] = rawret[x]
-            cnt3 = cnt3 + 1
-        if labels[x].item() == 3:
-            retlabel[3][cnt4] = rawret[x]
-            cnt4 = cnt4 + 1
-        if labels[x].item() == 4:
-            retlabel[4][cnt5] = rawret[x]
-            cnt5 = cnt5 + 1
-        if labels[x].item() == 5:
-            retlabel[5][cnt6] = rawret[x]
-            cnt6 = cnt6 + 1
-        if labels[x].item() == 6:
-            retlabel[6][cnt7] = rawret[x]
-            cnt7 = cnt7 + 1
-    retlabel = torch.mean(retlabel,dim=1)
-    return retlabel
+# def averageemb(labels, rawret, nb_class):
+#     # 初始化 retlabel 张量
+#     retlabel = torch.FloatTensor(nb_class, int(rawret.shape[0] / nb_class), int(rawret.shape[1]))
+    
+#     # 初始化计数器字典
+#     counters = {i: 0 for i in range(nb_class)}
+    
+#     # 遍历 rawret，按类别填充 retlabel
+#     for x in range(rawret.shape[0]):
+#         label = labels[x].item()
+#         if label < nb_class:
+#             retlabel[label][counters[label]] = rawret[x]
+#             counters[label] += 1
+    
+#     # 计算 retlabel 的平均值
+#     retlabel = torch.mean(retlabel, dim=1)
+    
+#     return retlabel
+import torch
+
+# ours
+def averageemb(index, input, label_num):
+    device=input.device
+    c = torch.zeros(label_num, input.size(1)).to(device)
+    c = c.scatter_add_(dim=0, index=index.unsqueeze(1).expand(-1, input.size(1)), src=input)
+    class_counts = torch.bincount(index, minlength=label_num).unsqueeze(1).to(dtype=input.dtype, device=device)
+
+    # Take the average embeddings for each class
+    # If directly divided the variable 'c', maybe encountering zero values in 'class_counts', such as the class_counts=[[0.],[4.]]
+    # So we need to judge every value in 'class_counts' one by one, and seperately divided them.
+    # output_c = c/class_counts
+    for i in range(label_num):
+        if(class_counts[i].item()==0):
+            continue
+        else:
+            c[i] /= class_counts[i]
+
+    return c
 
 class weighted_prompt(nn.Module):
     def __init__(self,weightednum):
