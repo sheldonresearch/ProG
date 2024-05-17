@@ -40,7 +40,7 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
             batch=batch.to(device)              
             node_embedding = gnn(batch.x,batch.edge_index)
             out = prompt(node_embedding, batch.edge_index)
-            average_out = out.mean(dim=0).unsqueeze(dim=0)
+            
 
             # 找到每个预测中概率最大的索引（类别）
             predicted_classes = out.argmax(dim=1)
@@ -51,6 +51,7 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
             # # 找出票数最多的类别
             pred = votes.argmax()
             pred = pred.unsqueeze(dim=-1)
+            average_out = torch.nn.functional.softmax(votes.float(), dim=0).unsqueeze(dim=0)
 
             # correct += int((pred == batch.y).sum())  
             acc = accuracy(pred, batch.y)
