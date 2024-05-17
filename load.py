@@ -154,69 +154,69 @@ dataset2 = train_graph_list, test_induced_graph_list
 
 for args.prompt_type in['All-in-one', 'Gprompt']:
 
-for _ in range(num_iter):
-    params = {k: random.choice(v) for k, v in param_grid.items()}
-    
+    for _ in range(num_iter):
+        params = {k: random.choice(v) for k, v in param_grid.items()}
+        
 
-    tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
-                        dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
-                        shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
-                        batch_size = int(params['batch_size']), dataset = dataset, input_dim = input_dim, output_dim = output_dim,)
-    pre_train_type = tasker.pre_train_type
+        tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
+                            dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
+                            shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
+                            batch_size = int(params['batch_size']), dataset = dataset, input_dim = input_dim, output_dim = output_dim,)
+        pre_train_type = tasker.pre_train_type
 
-    # 返回平均损失
-    avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc = tasker.run()
-    print(f"For {_}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
+        # 返回平均损失
+        avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc = tasker.run()
+        print(f"For {_}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
 
-    if avg_best_loss < best_loss:
-        best_loss = avg_best_loss
-        best_params = params
-        final_acc_mean = mean_test_acc
-        final_acc_std = std_test_acc
-        final_f1_mean = mean_f1
-        final_f1_std = std_f1
-        final_roc_mean = mean_roc
-        final_roc_std = std_roc
-        final_prc_mean = mean_prc
-        final_prc_std = std_prc
+        if avg_best_loss < best_loss:
+            best_loss = avg_best_loss
+            best_params = params
+            final_acc_mean = mean_test_acc
+            final_acc_std = std_test_acc
+            final_f1_mean = mean_f1
+            final_f1_std = std_f1
+            final_roc_mean = mean_roc
+            final_roc_std = std_roc
+            final_prc_mean = mean_prc
+            final_prc_std = std_prc
 
-print("After searching, Final Accuracy {:.4f}±{:.4f}(std)".format(final_acc_mean, final_acc_std)) 
-print("After searching, Final F1 {:.4f}±{:.4f}(std)".format(final_f1_mean, final_f1_std)) 
-print("After searching, Final AUROC {:.4f}±{:.4f}(std)".format(final_roc_mean, final_roc_std)) 
-print('best_params ', best_params)
-print('best_loss ',best_loss)
-
-
+    print("After searching, Final Accuracy {:.4f}±{:.4f}(std)".format(final_acc_mean, final_acc_std)) 
+    print("After searching, Final F1 {:.4f}±{:.4f}(std)".format(final_f1_mean, final_f1_std)) 
+    print("After searching, Final AUROC {:.4f}±{:.4f}(std)".format(final_roc_mean, final_roc_std)) 
+    print('best_params ', best_params)
+    print('best_loss ',best_loss)
 
 
-for _ in range(num_iter):
-    params = {k: random.choice(v) for k, v in param_grid.items()}
-    
 
-    tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
-                        dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
-                        shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
-                        batch_size = int(params['batch_size']), dataset = dataset2, input_dim = input_dim, output_dim = output_dim,)
-    pre_train_type = tasker.pre_train_type
 
-    # 返回平均损失
-    avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc = tasker.run()
-    print(f"For {_}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
+    for _ in range(num_iter):
+        params = {k: random.choice(v) for k, v in param_grid.items()}
+        
 
-    if avg_best_loss < best_loss:
-        best_loss = avg_best_loss
-        best_params = params
-        final_acc_mean = mean_test_acc
-        final_acc_std = std_test_acc
-        final_f1_mean = mean_f1
-        final_f1_std = std_f1
-        final_roc_mean = mean_roc
-        final_roc_std = std_roc
-        final_prc_mean = mean_prc
-        final_prc_std = std_prc
+        tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
+                            dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
+                            shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
+                            batch_size = int(params['batch_size']), dataset = dataset2, input_dim = input_dim, output_dim = output_dim,)
+        pre_train_type = tasker.pre_train_type
 
-print("After searching, Final Accuracy {:.4f}±{:.4f}(std)".format(final_acc_mean, final_acc_std)) 
-print("After searching, Final F1 {:.4f}±{:.4f}(std)".format(final_f1_mean, final_f1_std)) 
-print("After searching, Final AUROC {:.4f}±{:.4f}(std)".format(final_roc_mean, final_roc_std)) 
-print('best_params ', best_params)
-print('best_loss ',best_loss)
+        # 返回平均损失
+        avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc = tasker.run()
+        print(f"For {_}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
+
+        if avg_best_loss < best_loss:
+            best_loss = avg_best_loss
+            best_params = params
+            final_acc_mean = mean_test_acc
+            final_acc_std = std_test_acc
+            final_f1_mean = mean_f1
+            final_f1_std = std_f1
+            final_roc_mean = mean_roc
+            final_roc_std = std_roc
+            final_prc_mean = mean_prc
+            final_prc_std = std_prc
+
+    print("After searching, Final Accuracy {:.4f}±{:.4f}(std)".format(final_acc_mean, final_acc_std)) 
+    print("After searching, Final F1 {:.4f}±{:.4f}(std)".format(final_f1_mean, final_f1_std)) 
+    print("After searching, Final AUROC {:.4f}±{:.4f}(std)".format(final_roc_mean, final_roc_std)) 
+    print('best_params ', best_params)
+    print('best_loss ',best_loss)
