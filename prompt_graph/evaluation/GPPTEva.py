@@ -40,6 +40,7 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
             batch=batch.to(device)              
             node_embedding = gnn(batch.x,batch.edge_index)
             out = prompt(node_embedding, batch.edge_index)
+            average_out = out.mean(dim=0).unsqueeze(dim=0)
 
             # 找到每个预测中概率最大的索引（类别）
             predicted_classes = out.argmax(dim=1)
@@ -54,8 +55,8 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
             # correct += int((pred == batch.y).sum())  
             acc = accuracy(pred, batch.y)
             ma_f1 = macro_f1(pred, batch.y)
-            roc = auroc(votes, batch.y)
-            prc = auprc(votes, batch.y)
+            roc = auroc(average_out, batch.y)
+            prc = auprc(average_out, batch.y)
             if len(loader) > 20:
                 print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
 

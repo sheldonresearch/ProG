@@ -33,9 +33,14 @@ class PrePrompt(nn.Module):
         self.act = nn.ELU()
 
     def load_data(self):
-        self.adj, features, self.labels = process.load_data(self.dataset_name)  
+        self.adj, features, self.labels = process.load_data(self.dataset_name)
+        # self.adj, features, self.labels = process.load_data(self.dataset_name)  
         self.features, _ = process.preprocess_features(features)
-        self.negetive_sample = prompt_pretrain_sample(self.adj,200)
+        
+        if self.dataset_name in ['Texas','Wisconsin']:
+            self.negetive_sample = prompt_pretrain_sample(self.adj,50)
+        else:
+            self.negetive_sample = prompt_pretrain_sample(self.adj,200)
         # prompt_pretrain_sample为图中的每个节点提供了一个正样本和多个负样本的索引
         nb_nodes = self.features.shape[0]  # node number
         ft_size = self.features.shape[1]  # node features dim

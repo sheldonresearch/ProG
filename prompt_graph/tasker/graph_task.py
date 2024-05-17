@@ -298,7 +298,9 @@ class GraphTask(BaseTask):
                             print('Early stopping at '+str(epoch) +' eopch!')
                             break
                 print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-            batch_best_loss.append(loss)
+            import math
+            if not math.isnan(loss):
+                batch_best_loss.append(loss)
             print('Bengin to evaluate')
             
             if self.prompt_type == 'None':
