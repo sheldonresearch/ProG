@@ -8,6 +8,7 @@ from scipy.sparse.linalg import eigsh
 import sys
 import torch
 import torch.nn as nn
+from prompt_graph.data import load4node
 
 def parse_skipgram(fname):
     with open(fname) as f:
@@ -104,7 +105,7 @@ def sample_mask(idx, l):
     mask[idx] = 1
     return np.array(mask, dtype=np.bool)
 
-def load_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
+def load_pyg_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
     """Load data."""
     if dataset_str == 'Cora':
         dataset_str1 = 'cora'
@@ -141,6 +142,21 @@ def load_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
 
     labels = np.vstack((ally, ty))
     labels[test_idx_reorder, :] = labels[test_idx_range, :]
+
+    return adj, features, labels
+
+
+from torch_geometric.utils import to_scipy_sparse_matrix
+def load_data(dataset):
+    data,_ ,_ = load4node(dataset)
+    adj = to_scipy_sparse_matrix(data.edge_index).tocsr()
+
+    # Convert features to dense format and then to scipy sparse matrix in lil format
+    features = sp.lil_matrix(data.x.numpy())
+
+    # Convert labels to one-hot encoding
+    labels = np.zeros((data.num_nodes, data.y.max().item() + 1))
+    labels[np.arange(data.num_nodes), data.y.numpy()] = 1
 
     return adj, features, labels
 
