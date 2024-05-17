@@ -150,7 +150,10 @@ input_dim=14
 output_dim=2
 dataset = train_graph_list, test_graph_list
 dataset2 = train_graph_list, test_induced_graph_list
-    
+
+
+for args.prompt_type in['All-in-one', 'Gprompt']:
+
 for _ in range(num_iter):
     params = {k: random.choice(v) for k, v in param_grid.items()}
     
