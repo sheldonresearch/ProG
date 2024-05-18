@@ -2,9 +2,7 @@ import torch
 from sklearn.cluster import KMeans
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
-# from kmeans_pytorch import kmeans
-# from concurrent.futures import ProcessPoolExecutor, TimeoutError
-# from torch_kmeans import KMeans
+
 
 class SimpleMeanConv(MessagePassing):
     def __init__(self):
@@ -52,15 +50,7 @@ class GPPTPrompt(torch.nn.Module):
         features=h[index]
         labels=label[index.long()]
 
-
-        # cluster_ids, cluster_centers = kmeans(X=features, num_clusters=self.center_num, distance='euclidean', device=self.device)
-        # # cluster_centers = cluster_centers.to(self.device)
-        # self.StructureToken.weight.data = cluster_centers.clone()
-        if features.size(1)>20000:
-            cluster = MiniBatchKMeans(n_clusters=self.center_num, random_state=0, batch_size=10000).fit(features.detach().cpu())
-        else:
-            cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(features.detach().cpu())
-        # cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(features.detach().cpu())
+        cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(features.detach().cpu())
         temp=torch.FloatTensor(cluster.cluster_centers_).to(self.device)
         self.StructureToken.weight.data = temp.clone().detach()
         
@@ -75,29 +65,14 @@ class GPPTPrompt(torch.nn.Module):
 
     
     def update_StructureToken_weight(self, h):
-        # with ProcessPoolExecutor() as executor:
-        #     future = executor.submit(perform_kmeans, h, self.center_num, self.device)
-        #     try:
-        #         cluster_centers = future.result(timeout=2)  # 设置超时为2秒
-        #         self.StructureToken.weight.data = cluster_centers.clone()
-        #     except TimeoutError:
-        #         print("kmeans运算超时，将执行备用方案")
-        #         executor.shutdown(wait=False)  # 立即关闭进程池
-        #         cluster = KMeans(n_clusters=self.center_num, random_state=0).fit(h.detach().cpu())
-        #         temp = torch.FloatTensor(cluster.cluster_centers_).to(self.device)
-        #         self.StructureToken.weight.data = temp.clone().detach()
-        #         print('赋值完成')
 
-
-
-        # torch.cuda.empty_cache() 
-        # if h.size(1)>20000:
-        #     cluster = MiniBatchKMeans(n_clusters=self.center_num, random_state=0, batch_size=10000).fit(h.detach().cpu())
-        # else:
-        #     cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(h.detach().cpu())
-        cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(h.detach().cpu())
-        temp = torch.FloatTensor(cluster.cluster_centers_).to(self.device)
-        self.StructureToken.weight.data = temp.clone().detach()
+        if h.size(0)>20000:
+            cluster_ids_x, cluster_centers = kmeans(X=h, num_clusters=self.center_num, distance='euclidean', device=self.device)
+            self.StructureToken.weight.data = cluster_centers.clone()
+        else:
+            cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(h.detach().cpu())
+            temp = torch.FloatTensor(cluster.cluster_centers_).to(self.device)
+            self.StructureToken.weight.data = temp.clone()
 
     def get_TaskToken(self):
         pros=[]
@@ -129,3 +104,62 @@ class GPPTPrompt(torch.nn.Module):
             out[index==i]=self.TaskToken[i](h[index==i])
         return out
     
+
+def kmeans(X, num_clusters, distance='euclidean', device='cuda', max_iter=100, tol=1e-4):
+    """
+    Perform KMeans clustering on the input data X.
+
+    Parameters:
+    X : torch.Tensor
+        Input data, shape [n_samples, n_features]
+    num_clusters : int
+        Number of clusters
+    distance : str
+        Distance metric ('euclidean' is currently supported)
+    device : str
+        Device to use ('cuda' or 'cpu')
+    max_iter : int
+        Maximum number of iterations
+    tol : float
+        Tolerance for convergence
+
+    Returns:
+    cluster_ids_x : torch.Tensor
+        Cluster assignment for each sample
+    cluster_centers : torch.Tensor
+        Cluster centers
+    """
+
+    if distance != 'euclidean':
+        raise NotImplementedError("Currently only 'euclidean' distance is supported.")
+
+    X = X.to(device)
+    n_samples, n_features = X.shape
+
+    # Randomly initialize cluster centers
+    random_indices = torch.randperm(n_samples)[:num_clusters]
+    cluster_centers = X[random_indices]
+
+    for i in range(max_iter):
+        # Compute distances and assign clusters
+        distances = torch.cdist(X, cluster_centers)
+        cluster_ids_x = torch.argmin(distances, dim=1)
+
+        # Compute new cluster centers
+        new_cluster_centers = torch.zeros_like(cluster_centers)
+        for k in range(num_clusters):
+            cluster_k = X[cluster_ids_x == k]
+            if len(cluster_k) > 0:
+                new_cluster_centers[k] = cluster_k.mean(dim=0)
+
+        # Check for convergence
+        if torch.norm(new_cluster_centers - cluster_centers) < tol:
+            break
+
+        cluster_centers = new_cluster_centers
+
+    return cluster_ids_x, cluster_centers
+
+# # Example usage
+# h = torch.randn(160000, 128).to('cuda')
+# cluster_ids_x, cluster_centers = kmeans(X=h, num_clusters=10, distance='euclidean', device='cuda')
