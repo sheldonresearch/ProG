@@ -51,19 +51,62 @@ def induced_graphs(data, smallest_size=1, largest_size=10):
     return induced_graph_list
 
 
-
+                          
 
 # 定义文件路径
-file_path = 'UGAD_lyq/datasets-graph/mutag0'
+# file_path = 'UGAD_lyq/datasets-graph/mutag0'
+# input_dim=14
+# output_dim=2
+# dataset_name = 'mutag'
 
-# 加载图数据
+file_path = 'UGAD_lyq/datasets-graph/bm_mn_dgl'
+input_dim=1
+output_dim=2
+dataset_name = 'bm_mn'                                                                                         
+
+# file_path = 'UGAD_lyq/datasets-graph/bm_ms_dgl'
+# input_dim=1
+# output_dim=2
+# dataset_name = 'bm_ms'    
+
+# file_path = 'UGAD_lyq/datasets-graph/bm_mt_dgl'
+# input_dim=1
+# output_dim=2
+dataset_name = 'bm_mt'    
+
+# file_path = 'UGAD_lyq/datasets-graph/mnist0'
+# input_dim=5
+# output_dim=2
+# dataset_name = 'mnist0'
+
+# file_path = 'UGAD_lyq/datasets-graph/minist1'
+# input_dim=5
+# output_dim=2
+# dataset_name = 'mnist1'
+
 graphs, labels = dgl.load_graphs(file_path)
+
+pretrain_graph_list = []
+for i in range(len(graphs)):
+    dgl_graph= graphs[i]
+
+    edge_index = torch.tensor([dgl_graph.edges()[0].numpy(), dgl_graph.edges()[1].numpy()], dtype=torch.long)
+    x = torch.tensor(dgl_graph.ndata['feature'].numpy(), dtype=torch.float) 
+
+    graph = Data(x=x, edge_index=edge_index, dtype=torch.long)
+    graph.cuda()
+    pretrain_graph_list.append(graph)
+
+from prompt_graph.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE, PrePrompt, DGI, GraphMAE
+pt = GraphMAE(pretrain_graph_list, input_dim, gnn_type = 'GCN', dataset_name = dataset_name, hid_dim = 128, gln = 2, num_epoch=1000,
+                  mask_rate=0.75, drop_edge_rate=0.0, replace_rate=0.1, loss_fn='sce', alpha_l=2)
+pt.pretrain()
 
 # 将labels转换为列表
 labels = labels['glabel'].tolist()
 
 # 使用 train_test_split 按照6:4比例划分数据
-train_graphs, test_graphs, train_labels, test_labels = train_test_split(graphs, labels, test_size=0.4, random_state=42)
+train_graphs, test_graphs, train_labels, test_labels = train_test_split(graphs, labels, test_size=0.6, random_state=42)
 
 print('Number of training graphs:', len(train_graphs))
 print('Number of testing graphs:', len(test_graphs))
@@ -76,13 +119,16 @@ for i in range(len(train_graphs)):
     edge_index = torch.tensor([dgl_graph.edges()[0].numpy(), dgl_graph.edges()[1].numpy()], dtype=torch.long)
     x = torch.tensor(dgl_graph.ndata['feature'].numpy(), dtype=torch.float) 
     y = torch.tensor([label], dtype=torch.long)
+    # print(x.shape,y.shape)
     node_labels = torch.tensor(dgl_graph.ndata['node_label'].numpy(), dtype=torch.long) 
 
     pyg_graph = Data(x=x, edge_index=edge_index, y=torch.tensor([label], dtype=torch.long), node_labels=node_labels)
     graph = Data(x=x, edge_index=edge_index, y=torch.tensor([label], dtype=torch.long))
     induced_graph_list = induced_graphs(pyg_graph)
+    graph.cuda()
     train_graph_list.append(graph)
     for g in induced_graph_list:
+        g.cuda()
         train_graph_list.append(g)
 
 test_graph_list = []
@@ -97,9 +143,11 @@ for i in range(len(test_graphs)):
 
     pyg_graph = Data(x=x, edge_index=edge_index, y=torch.tensor([label], dtype=torch.long), node_labels=node_labels)
     graph = Data(x=x, edge_index=edge_index, y=torch.tensor([label], dtype=torch.long))
+    graph.cuda()
     induced_graph_list = induced_graphs(pyg_graph)
     test_graph_list.append(graph)
     for g in induced_graph_list:
+        g.cuda()
         test_induced_graph_list.append(g)
 
 
@@ -110,8 +158,6 @@ from prompt_graph.utils import seed_everything
 from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
 from prompt_graph.utils import  get_args
-from prompt_graph.data import load4node,load4graph, split_induced_graphs
-import pickle
 import random
 import numpy as np
 import os
@@ -124,7 +170,7 @@ seed_everything(args.seed)
 param_grid = {
     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-    'batch_size': np.linspace(4096, 4096, 1),
+    'batch_size': np.linspace(8192, 4096, 1),
 }
 
 
@@ -146,8 +192,7 @@ args.task = 'GraphTask'
 args.prompt_type = 'All-in-one'
 args.shot_num = 0
 args.epochs = 10
-input_dim=14
-output_dim=2
+
 dataset = train_graph_list, test_graph_list
 dataset2 = train_graph_list, test_induced_graph_list
 
@@ -171,7 +216,7 @@ for args.prompt_type in['All-in-one', 'Gprompt']:
             print("After searching, Final Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc)) 
             print("After searching, Final F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1)) 
             print("After searching, Final AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc)) 
-            print("After searching, Final AUROC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc)) 
+            print("After searching, Final AUPRC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc)) 
             print('best_params ', best_params)
             print('best_loss ',best_loss)
 

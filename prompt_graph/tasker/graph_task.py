@@ -198,7 +198,7 @@ class GraphTask(BaseTask):
                 self.input_dim = train_dataset[0].x.size(1)
 
             train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
-            test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=64)
+            test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
             print("prepare data is finished!")
   
             patience = 20
