@@ -1,7 +1,6 @@
 import dgl
 from sklearn.model_selection import train_test_split
 import networkx as nx
-import matplotlib.pyplot as plt
 import torch
 from torch_geometric.data import Data
 from torch_geometric.utils import subgraph, k_hop_subgraph
@@ -53,14 +52,14 @@ def split_graph(data, split_ratio=0.5):
 
     return data1, data2
 
-def induced_graphs(data, smallest_size=1, largest_size=10):
+def induced_graphs(data, device, smallest_size=1, largest_size=5):
 
     induced_graph_list = []
 
     for index in range(data.x.size(0)):
         current_label = data.y[index].item()
 
-        current_hop = 2
+        current_hop = 1
 
         max_node_idx = torch.max(edge_index)
         if max_node_idx > index:
@@ -85,10 +84,10 @@ def induced_graphs(data, smallest_size=1, largest_size=10):
 
             if len(subset) > largest_size:
                 subset = subset[torch.randperm(subset.shape[0])][0:largest_size - 1]
-                subset = torch.unique(torch.cat([torch.LongTensor([index]).cuda(), torch.flatten(subset)]))
-            subset = subset.cuda()
+                subset = torch.unique(torch.cat([torch.LongTensor([index]).to(device), torch.flatten(subset)]))
+            subset = subset.to(device)
             sub_edge_index, _ = subgraph(subset, data.edge_index, relabel_nodes=True)
-            sub_edge_index = sub_edge_index.cuda()
+            sub_edge_index = sub_edge_index.to(device)
             x = data.x[subset]
 
             induced_graph = Data(x=x, edge_index=sub_edge_index, y=torch.tensor([current_label], dtype=torch.long))
@@ -99,7 +98,7 @@ def induced_graphs(data, smallest_size=1, largest_size=10):
     return induced_graph_list
 
 
-def induced_graphs_from_edges(data, smallest_size=1, largest_size=10):
+def induced_graphs_from_edges(data, device, smallest_size=1, largest_size=5):
     induced_graph_list = []
 
     edge_index = data.edge_index
@@ -110,7 +109,7 @@ def induced_graphs_from_edges(data, smallest_size=1, largest_size=10):
         tgt_node = edge_index[1, edge_id].item()
         current_label = edge_labels[edge_id].item()
 
-        current_hop = 2
+        current_hop = 1
 
         subset, _, _, _ = k_hop_subgraph(node_idx=src_node, num_hops=current_hop,
                                          edge_index=edge_index, relabel_nodes=True)
@@ -134,7 +133,7 @@ def induced_graphs_from_edges(data, smallest_size=1, largest_size=10):
 
         if len(subset) > largest_size:
             subset = subset[torch.randperm(subset.shape[0])][0:largest_size]
-            subset = torch.unique(torch.cat([torch.LongTensor([src_node, tgt_node]).cuda(), subset]))
+            subset = torch.unique(torch.cat([torch.LongTensor([src_node, tgt_node]).to(device), subset]))
 
         sub_edge_index, _ = subgraph(subset, edge_index, relabel_nodes=True)
         x = data.x[subset]
@@ -145,7 +144,10 @@ def induced_graphs_from_edges(data, smallest_size=1, largest_size=10):
             print(edge_id)
     return induced_graph_list
 
-# 定义文件路径
+a=4
+device  = torch.device('cuda:'+str(a))
+
+
 # file_path = 'UGAD_lyq/datasets-edge/amazon-els'
 # input_dim=25
 # output_dim=2
@@ -156,17 +158,33 @@ def induced_graphs_from_edges(data, smallest_size=1, largest_size=10):
 # output_dim=2
 # dataset_name = 'questions'                                                                                         
 
-file_path = 'UGAD_lyq/datasets-edge/reddit-els'
-input_dim= 64
+# file_path = 'UGAD_lyq/datasets-edge/reddit-els'
+# input_dim= 64
+# output_dim=2
+# dataset_name = 'reddit'     
+
+
+# file_path = 'UGAD_lyq/datasets-edge/weibo-els'
+# input_dim= 400
+# output_dim=2
+# dataset_name = 'weibo'    
+
+# file_path = 'UGAD_lyq/datasets-edge/yelp-els'
+# input_dim= 32
+# output_dim=2
+# dataset_name = 'yelp'    
+
+
+file_path = 'UGAD_lyq/datasets-edge/tolokers-els'
+input_dim= 10
 output_dim=2
-dataset_name = 'reddit'     
+dataset_name = 'tolokers'    
 
 graphs, labels = dgl.load_graphs(file_path)
 
-pretrain_graph_list = []
+
 
 dgl_graph= graphs[0]
-
 edge_index = torch.tensor([dgl_graph.edges()[0].numpy(), dgl_graph.edges()[1].numpy()], dtype=torch.long)
 x = torch.tensor(dgl_graph.ndata['feature'].numpy(), dtype=torch.float) 
 edge_label = torch.tensor(dgl_graph.edata['edge_label'].numpy(), dtype=torch.float)
@@ -174,7 +192,7 @@ y = dgl_graph.ndata['node_label']
 print(x.shape)
 graph = Data(x=x, edge_index=edge_index, y = y, edge_attr=edge_label)
 
-
+pretrain_graph_list = []
 # from prompt_graph.data import NodePretrain
 # pretrain_graph_list = NodePretrain(graph, num_parts=200)
 # from prompt_graph.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE, PrePrompt, DGI, GraphMAE
@@ -187,21 +205,22 @@ graph = Data(x=x, edge_index=edge_index, y = y, edge_attr=edge_label)
 train_node_edge_graph_list = []
 # 使用 train_test_split 按照6:4比例划分数据
 train_graph, test_graph = split_graph(graph, split_ratio=0.4)
-train_graph.cuda()
-test_graph.cuda()
-train_node_graph_list = induced_graphs(train_graph)
-train_edge_graph_list = induced_graphs_from_edges(train_graph)
+train_graph.to(device)
+test_graph.to(device)
+train_node_graph_list = induced_graphs(train_graph, device)
+train_edge_graph_list = induced_graphs_from_edges(train_graph, device)
 for g in train_node_graph_list:
     train_node_edge_graph_list.append(g)
 for g in train_edge_graph_list:
     train_node_edge_graph_list.append(g)
-test_edge_graph_list = induced_graphs_from_edges(test_graph)
-test_node_graph_list = induced_graphs(test_graph)
+test_edge_graph_list = induced_graphs_from_edges(test_graph, device)
+test_node_graph_list = induced_graphs(test_graph, device)
 
 dataset1= train_node_edge_graph_list, test_node_graph_list
-dataset2 = train_edge_graph_list, test_node_graph_list
-dataset3= train_node_edge_graph_list, test_edge_graph_list
-dataset4 = train_node_graph_list, test_edge_graph_list
+dataset2= train_node_edge_graph_list, test_edge_graph_list
+dataset3 = train_node_graph_list, test_edge_graph_list
+dataset4 = train_edge_graph_list, test_node_graph_list
+
 
 
 from prompt_graph.tasker import NodeTask, GraphTask
@@ -218,12 +237,6 @@ import pandas as pd
 args = get_args()
 seed_everything(args.seed)
 
-param_grid = {
-    'learning_rate': 10 ** np.linspace(-3, -1, 1000),
-    'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-    'batch_size': np.linspace(8192, 4096, 1),
-}
-
 
 num_iter=1
 best_params = None
@@ -239,9 +252,7 @@ final_prc_std = 0
 
 args.task = 'GraphTask'
 args.shot_num = 0
-args.epochs = 10
-
-
+args.epochs = 30
 
 import pandas as pd
 import random
@@ -250,28 +261,32 @@ results = []
 data_list = [dataset1, dataset2, dataset3, dataset4]
 for args.prompt_type in ['All-in-one', 'Gprompt']:
     for idx, dataset in enumerate(data_list):
-        params = {k: random.choice(v) for k, v in param_grid.items()}
         
+        # tasker = GraphTask(
+        #     pre_train_model_path='Experiment/pre_trained_model/' + dataset_name + '/GraphMAE.GCN.128hidden_dim.pth',
+        #     dataset_name=dataset_name, num_layer=args.num_layer, gnn_type=args.gnn_type, hid_dim=args.hid_dim, 
+        #     prompt_type=args.prompt_type, epochs=args.epochs, shot_num=args.shot_num, device=3, 
+        #     lr=params['learning_rate'], wd=params['weight_decay'], batch_size=int(params['batch_size']), 
+        #     dataset=dataset, input_dim=input_dim, output_dim=output_dim
+        # )
         tasker = GraphTask(
-            pre_train_model_path='Experiment/pre_trained_model/' + dataset_name + '/GraphMAE.GCN.128hidden_dim.pth',
             dataset_name=dataset_name, num_layer=args.num_layer, gnn_type=args.gnn_type, hid_dim=args.hid_dim, 
-            prompt_type=args.prompt_type, epochs=args.epochs, shot_num=args.shot_num, device=args.device, 
-            lr=params['learning_rate'], wd=params['weight_decay'], batch_size=int(params['batch_size']), 
+            prompt_type=args.prompt_type, epochs=args.epochs, shot_num=args.shot_num, device=a, 
+            lr=0.01, wd=0, batch_size=4096, 
             dataset=dataset, input_dim=input_dim, output_dim=output_dim
         )
         pre_train_type = tasker.pre_train_type
 
-        # 返回平均损失
-        avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc = tasker.run()
+        mean_test_acc, mean_f1, mean_roc, mean_prc = tasker.run()
    
         print('prompt_type', args.prompt_type)
-        print("After searching, Final F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1)) 
-        print("After searching, Final AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc)) 
-        print("After searching, Final AUPRC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc)) 
-        print('best_params ', params)
-        print('best_loss ', avg_best_loss)
+        print("After searching, Final F1 {:.4f}".format(mean_f1)) 
+        print("After searching, Final AUROC {:.4f}".format(mean_roc) )
+        print("After searching, Final AUPRC {:.4f}".format(mean_prc))
+    
         
         results.append({
+            'dataset_name':dataset_name,
             'prompt_type': args.prompt_type,
             'dataset': 'dataset'+str(idx),
             'mean_f1': mean_f1,
@@ -281,7 +296,7 @@ for args.prompt_type in ['All-in-one', 'Gprompt']:
 
 # Save results to an Excel file
 df = pd.DataFrame(results)
-df.to_excel('results.xlsx', index=False)
+df.to_excel(dataset_name+'node_edge_results.xlsx', index=False)
 
 
 
