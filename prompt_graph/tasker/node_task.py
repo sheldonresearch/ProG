@@ -2,7 +2,7 @@ import torch
 from torch_geometric.loader import DataLoader
 from prompt_graph.utils import constraint,  center_embedding, Gprompt_tuning_loss
 from prompt_graph.evaluation import GPPTEva, GNNNodeEva, GPFEva, MultiGpromptEva
-from prompt_graph.pretrain import PrePrompt, prompt_pretrain_sample
+from prompt_graph.pretrain import GraphPrePrompt, NodePrePrompt, prompt_pretrain_sample
 from .task import BaseTask
 import time
 import warnings

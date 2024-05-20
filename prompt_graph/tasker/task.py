@@ -2,7 +2,7 @@ import torch
 from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 from prompt_graph.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt, DiffPoolPrompt, SAGPoolPrompt
 from prompt_graph.prompt import featureprompt, downprompt
-from prompt_graph.pretrain import PrePrompt
+from prompt_graph.pretrain import GraphPrePrompt, NodePrePrompt
 from torch import nn, optim
 from prompt_graph.data import load4node, load4graph
 from prompt_graph.utils import Gprompt_tuning_loss
@@ -89,7 +89,7 @@ class BaseTask:
             self.prompt = Gprompt(self.hid_dim).to(self.device)
         elif self.prompt_type == 'MultiGprompt':
             nonlinearity = 'prelu'
-            self.Preprompt = PrePrompt(self.dataset_name, self.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3).to(self.device)
+            self.Preprompt = NodePrePrompt(self.dataset_name, self.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3).to(self.device)
             self.Preprompt.load_state_dict(torch.load(self.pre_train_model_path))
             self.Preprompt.eval()
             self.feature_prompt = featureprompt(self.Preprompt.dgiprompt.prompt,self.Preprompt.graphcledgeprompt.prompt,self.Preprompt.lpprompt.prompt).to(self.device)

@@ -8,9 +8,11 @@ import numpy as np
 from prompt_graph.utils import process
 import prompt_graph.utils.aug as aug
 import os
-class PrePrompt(nn.Module):
+from torch_geometric.loader import DataLoader
+
+class NodePrePrompt(nn.Module):
     def __init__(self, dataset_name, n_h, activation,a1,a2,a3, a4, num_layers_num, dropout):
-        super(PrePrompt, self).__init__()
+        super(NodePrePrompt, self).__init__()
         self.dataset_name = dataset_name
         self.hid_dim = n_h
         n_in, self.nb_nodes = self.load_data()
@@ -210,6 +212,152 @@ class PrePrompt(nn.Module):
                     "./Experiment/pre_trained_model/{}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
         print("+++model saved ! {}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
 
+
+class GraphPrePrompt(nn.Module):
+    def __init__(self, graph, n_in, n_out, dataset_name, n_h, activation,a1,a2,a3,num_layers_num,p):
+        super(GraphPrePrompt, self).__init__()
+        self.graph_list = graph
+        self.loader = self.get_loader()
+        self.dataset_name = dataset_name
+        self.dgi = DGI(n_in, n_h, activation)
+        self.graphcledge = GraphCL(n_in, n_h, activation)
+        self.graphclmask = GraphCL(n_in, n_h, activation)
+        self.lp = Lp(n_in, n_h)
+        self.gcn = GcnLayers(n_in, n_h,num_layers_num,p)
+        self.read = AvgReadout()
+        self.input_dim = n_in
+        self.output_dim = n_out
+        self.a1 = a1
+        self.a2 = a2
+        self.a3 = a3
+
+        self.loss = nn.BCEWithLogitsLoss()
+
+    def get_loader(self):
+        loader = DataLoader(self.graph_list, batch_size = 32, shuffle=True,drop_last=True)
+        return loader
+    
+    def forward(self, seq1, seq2, seq3, seq4, adj, aug_adj1edge, aug_adj2edge, 
+                sparse, msk, samp_bias1, samp_bias2,
+                lbl,sample):
+        negative_sample = torch.tensor(sample,dtype=int).cuda()
+        seq1 = torch.squeeze(seq1,0)
+        seq2 = torch.squeeze(seq2,0)
+        seq3 = torch.squeeze(seq3,0)
+        seq4 = torch.squeeze(seq4,0)
+        logits1 = self.dgi(self.gcn, seq1, seq2, adj, sparse, msk, samp_bias1, samp_bias2)
+        logits2 = self.graphcledge(self.gcn, seq1, seq2, seq3, seq4, adj, aug_adj1edge, aug_adj2edge, sparse, msk,
+                                   samp_bias1,
+                                   samp_bias2, aug_type='edge')
+        logits3 = self.lp(self.gcn,seq1,adj,sparse)
+        dgiloss = self.loss(logits1, lbl)
+        graphcledgeloss = self.loss(logits2, lbl)
+        lploss = compareloss(logits3,negative_sample,temperature=1.5)
+        lploss.requires_grad_(True)
+        
+        ret =self.a1*dgiloss+self.a2*graphcledgeloss+self.a3*lploss
+        return ret
+
+    def embed(self, seq, adj, sparse, msk,LP):
+        h_1 = self.gcn(seq, adj, sparse,LP)
+        c = self.read(h_1, msk)
+
+        return h_1.detach(), c.detach()
+
+
+    def pretrain(self):
+        best = 1e9
+
+        for epoch in range(1000):
+            loss = 0
+            regloss = 0
+            drop_percent=0.1
+            patience = 20
+            train_bar = tqdm(self.loader) 
+            for step, batch in enumerate(self.loader):
+
+                features,adj =  process.process_tu(batch, self.output_dim, self.input_dim)
+                negetive_sample = prompt_pretrain_sample(adj,50)
+                nb_nodes = features.shape[0]  # node number
+                features = torch.FloatTensor(features[np.newaxis])
+
+                
+                aug_features1edge = features
+                aug_features2edge = features
+
+                aug_adj1edge = aug.aug_random_edge(adj, drop_percent=drop_percent)  # random drop edges
+                aug_adj2edge = aug.aug_random_edge(adj, drop_percent=drop_percent)  # random drop edges
+
+
+                adj = process.normalize_adj(adj + sp.eye(adj.shape[0]))
+                aug_adj1edge = process.normalize_adj(aug_adj1edge + sp.eye(aug_adj1edge.shape[0]))
+                aug_adj2edge = process.normalize_adj(aug_adj2edge + sp.eye(aug_adj2edge.shape[0]))
+
+                adj = (adj + sp.eye(adj.shape[0])).todense()
+                aug_adj1edge = (aug_adj1edge + sp.eye(aug_adj1edge.shape[0])).todense()
+                aug_adj2edge = (aug_adj2edge + sp.eye(aug_adj2edge.shape[0])).todense()
+
+        
+                adj = torch.FloatTensor(adj[np.newaxis])
+                aug_adj1edge = torch.FloatTensor(aug_adj1edge[np.newaxis])
+                aug_adj2edge = torch.FloatTensor(aug_adj2edge[np.newaxis])
+
+                optimiser = torch.optim.Adam(self.parameters(), lr=0.0001, weight_decay=0)
+                if torch.cuda.is_available() and step==0:
+                    print('Using CUDA')
+                    # model = torch.nn.DataParallel(model, device_ids=[0,1]).cuda()
+                    features = features.cuda()
+                    aug_features1edge = aug_features1edge.cuda()
+                    aug_features2edge = aug_features2edge.cuda()
+                    adj = adj.cuda()
+                    aug_adj1edge = aug_adj1edge.cuda()
+                    aug_adj2edge = aug_adj2edge.cuda()
+                b_xent = nn.BCEWithLogitsLoss()
+                xent = nn.CrossEntropyLoss()
+                # cnt_wait = 0
+                # # best = 1e9
+                # best_t = 0
+
+                self.train()
+                optimiser.zero_grad()
+                idx = np.random.permutation(nb_nodes)
+                shuf_fts = features[:, idx, :]
+                lbl_1 = torch.ones(1, nb_nodes)
+                lbl_2 = torch.zeros(1, nb_nodes)
+                lbl = torch.cat((lbl_1, lbl_2), 1)
+                if torch.cuda.is_available():
+                    shuf_fts = shuf_fts.cuda()
+                    lbl = lbl.cuda()
+                logit = self(features, shuf_fts, aug_features1edge, aug_features2edge,
+                            adj,
+                            aug_adj1edge,
+                            aug_adj2edge,
+                            False, None, None, None, lbl=lbl,sample=negetive_sample)
+                loss = loss + logit
+                showloss = loss/(step+1)
+            loss = loss / (step+1)
+            print('Loss:[{:.4f}]'.format(loss.item()))
+            if loss < best:
+                best = loss
+                best_t = epoch
+                cnt_wait = 0
+                # torch.save(model.state_dict(), args.save_name)
+            else:
+                cnt_wait += 1
+                print("cnt_wait",cnt_wait)
+
+            if cnt_wait == patience:
+                print('-' * 100)
+                print('Early stopping at '+str(epoch) +' eopch!')
+                break
+
+        folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        torch.save(self.state_dict(),
+                    "./Experiment/pre_trained_model/{}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
+        print("+++model saved ! {}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
 
 
 def mygather(feature, index): 

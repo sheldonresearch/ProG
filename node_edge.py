@@ -6,8 +6,8 @@ from torch_geometric.data import Data
 from torch_geometric.utils import subgraph, k_hop_subgraph
 import numpy as np
 from torch_geometric.utils import subgraph
-
-
+import pickle
+import os
 def split_graph(data, split_ratio=0.5):
     num_nodes = data.num_nodes
 
@@ -52,7 +52,7 @@ def split_graph(data, split_ratio=0.5):
 
     return data1, data2
 
-def induced_graphs(data, device, smallest_size=1, largest_size=5):
+def induced_graphs(dir, data, device, smallest_size=1, largest_size=5):
 
     induced_graph_list = []
 
@@ -95,10 +95,23 @@ def induced_graphs(data, device, smallest_size=1, largest_size=5):
             # print(index)
         if index%500 == 0:
             print(index)
+
+
+    dir_path = dir
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path) 
+
+    file_path = os.path.join(dir_path, 'induced_graph_min'+ str(smallest_size) +'_max'+str(largest_size)+'.pkl')
+    with open(file_path, 'wb') as f:
+        # Assuming 'data' is what you want to pickle
+        # pickle.dump(induced_graph_list, f) 
+        pickle.dump(induced_graph_list, f)
+        print("induced graph data has been write into " + file_path)
     return induced_graph_list
 
 
-def induced_graphs_from_edges(data, device, smallest_size=1, largest_size=5):
+
+def induced_graphs_from_edges(dir, data, device, smallest_size=1, largest_size=5):
     induced_graph_list = []
 
     edge_index = data.edge_index
@@ -142,9 +155,21 @@ def induced_graphs_from_edges(data, device, smallest_size=1, largest_size=5):
         induced_graph_list.append(induced_graph)
         if edge_id%1000==0:
             print(edge_id)
+    
+    dir_path = dir
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path) 
+
+    file_path = os.path.join(dir_path, 'induced_edge_graph_min'+ str(smallest_size) +'_max'+str(largest_size)+'.pkl')
+    with open(file_path, 'wb') as f:
+        # Assuming 'data' is what you want to pickle
+        # pickle.dump(induced_graph_list, f) 
+        pickle.dump(induced_graph_list, f)
+        print("induced graph data has been write into " + file_path)
+
     return induced_graph_list
 
-a=4
+a=0
 device  = torch.device('cuda:'+str(a))
 
 
@@ -169,16 +194,16 @@ device  = torch.device('cuda:'+str(a))
 # output_dim=2
 # dataset_name = 'weibo'    
 
-# file_path = 'UGAD_lyq/datasets-edge/yelp-els'
-# input_dim= 32
-# output_dim=2
-# dataset_name = 'yelp'    
-
-
-file_path = 'UGAD_lyq/datasets-edge/tolokers-els'
-input_dim= 10
+file_path = 'UGAD_lyq/datasets-edge/yelp-els'
+input_dim= 32
 output_dim=2
-dataset_name = 'tolokers'    
+dataset_name = 'yelp'    
+
+
+# file_path = 'UGAD_lyq/datasets-edge/tolokers-els'
+# input_dim= 10
+# output_dim=2
+# dataset_name = 'tolokers'    
 
 graphs, labels = dgl.load_graphs(file_path)
 
@@ -207,14 +232,14 @@ train_node_edge_graph_list = []
 train_graph, test_graph = split_graph(graph, split_ratio=0.4)
 train_graph.to(device)
 test_graph.to(device)
-train_node_graph_list = induced_graphs(train_graph, device)
-train_edge_graph_list = induced_graphs_from_edges(train_graph, device)
+train_node_graph_list = induced_graphs('./lyq/'+dataset_name+'train',train_graph, device)
+train_edge_graph_list = induced_graphs_from_edges('./lyq/'+dataset_name+'train',train_graph, device)
 for g in train_node_graph_list:
     train_node_edge_graph_list.append(g)
 for g in train_edge_graph_list:
     train_node_edge_graph_list.append(g)
-test_edge_graph_list = induced_graphs_from_edges(test_graph, device)
-test_node_graph_list = induced_graphs(test_graph, device)
+test_edge_graph_list = induced_graphs_from_edges('./lyq/'+dataset_name+'test',test_graph, device)
+test_node_graph_list = induced_graphs('./lyq/'+dataset_name+'test', test_graph, device)
 
 dataset1= train_node_edge_graph_list, test_node_graph_list
 dataset2= train_node_edge_graph_list, test_edge_graph_list
@@ -225,7 +250,6 @@ dataset4 = train_edge_graph_list, test_node_graph_list
 
 from prompt_graph.tasker import NodeTask, GraphTask
 from prompt_graph.utils import seed_everything
-from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
 from prompt_graph.utils import  get_args
 import random
@@ -252,7 +276,7 @@ final_prc_std = 0
 
 args.task = 'GraphTask'
 args.shot_num = 0
-args.epochs = 30
+args.epochs = 10
 
 import pandas as pd
 import random
