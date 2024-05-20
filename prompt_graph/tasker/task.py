@@ -9,7 +9,7 @@ from prompt_graph.utils import Gprompt_tuning_loss
 import numpy as np
 
 class BaseTask:
-    def __init__(self, pre_train_model_path=None, gnn_type='TransformerConv',
+    def __init__(self, pre_train_model_path='None', gnn_type='TransformerConv',
                  hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='None', epochs=100, shot_num=10, device : int = 5, lr =0.001, wd = 5e-4,
                  batch_size = 16, search = False):
         
@@ -36,10 +36,14 @@ class BaseTask:
 
     def initialize_optimizer(self):
         if self.prompt_type == 'None':
-            model_param_group = []
-            model_param_group.append({"params": self.gnn.parameters()})
-            model_param_group.append({"params": self.answering.parameters()})
-            self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
+            if self.pre_train_model_path == 'None':
+                model_param_group = []
+                model_param_group.append({"params": self.gnn.parameters()})
+                model_param_group.append({"params": self.answering.parameters()})
+                self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
+            else:
+                self.optimizer = optim.Adam(self.answering.parameters(), lr=self.lr, weight_decay=self.wd)
+
         elif self.prompt_type == 'All-in-one':
             self.pg_opi = optim.Adam( self.prompt.parameters(), lr=1e-6, weight_decay= self.wd)
             self.answer_opi = optim.Adam( self.answering.parameters(), lr=self.lr, weight_decay= self.wd)
