@@ -107,7 +107,7 @@ for a in range(num_iter):
         tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
                         dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
                         shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
-                        batch_size = int(params['batch_size']), dataset = dataset, input_dim = input_dim, output_dim = output_dim,)
+                        batch_size = int(params['batch_size']), dataset = dataset, input_dim = input_dim, output_dim = output_dim)
     pre_train_type = tasker.pre_train_type
 
     # 返回平均损失
