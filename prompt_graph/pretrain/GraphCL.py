@@ -100,7 +100,8 @@ class GraphCL(PreTrain):
 
         epochs = self.epochs
         self.to(self.device)
-                
+        if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa', 'DD']:
+            batch_size = 512
         loader1, loader2 = self.get_loader(self.graph_list, batch_size, aug1=aug1, aug2=aug2)
         print('start training {} | {} | {}...'.format(self.dataset_name, 'GraphCL', self.gnn_type))
         optimizer = Adam(self.parameters(), lr=lr, weight_decay=decay)

@@ -12,6 +12,7 @@ import os
 import torch.nn.functional as F
 from itertools import chain
 from functools import partial
+import numpy as np
 from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 
 def sce_loss(x, y, alpha=3):
@@ -182,8 +183,8 @@ class GraphMAELoss(nn.Module):
 class GraphMAE(PreTrain):
     def __init__(self, *args, hid_dim = 16,mask_rate=0.75, drop_edge_rate=0.0, replace_rate=0.1, loss_fn='sce', alpha_l=2, **kwargs):    # hid_dim=16
         super().__init__(*args, **kwargs)
-
-        self.graph_dataloader, self.graph_n_feat_dim = self.load_graph_data()
+        self.graph_n_feat_dim = self.input_dim
+        self.graph_dataloader = self.load_graph_data()
         self.initialize_gnn(self.input_dim, hid_dim)
         self.decoder = initialize_gnn_decoder(self.gnn_type,hid_dim,self.input_dim,self.num_layer,self.device)
         self.loss = GraphMAELoss(self.gnn, self.decoder, self.hid_dim, self.graph_n_feat_dim, self.hid_dim, mask_rate, drop_edge_rate, replace_rate, loss_fn, alpha_l).to(self.device)
@@ -196,14 +197,17 @@ class GraphMAE(PreTrain):
 
     def load_graph_data(self):
 
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv', 'Actor', 'Texas', 'Wisconsin']:
-            graph_list, in_node_feat_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
-            # data = Batch.from_data_list(graph_list)
-        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
-            in_node_feat_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True)
-            # data = Batch.from_data_list()
-        self.input_dim = in_node_feat_dim
-        return DataLoader(graph_list, batch_size=64, shuffle=True), in_node_feat_dim
+        # if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv', 'Actor', 'Texas', 'Wisconsin']:
+        #     graph_list, in_node_feat_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
+        #     # data = Batch.from_data_list(graph_list)
+        # elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
+        #     in_node_feat_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True)
+        #     # data = Batch.from_data_list()
+        # self.input_dim = in_node_feat_dim
+        # if self.dataset_name == 'ogbg-ppa':
+        #      return DataLoader(graph_list, batch_size=256, shuffle=True)
+        # else:
+        return DataLoader(self.graph_list, batch_size=64, shuffle=True)
     
     def pretrain(self):
         from torchmetrics import MeanMetric
@@ -220,16 +224,11 @@ class GraphMAE(PreTrain):
             loss_metric.reset()
             
             for step, batch in enumerate(self.graph_dataloader):
-
                 self.optimizer.zero_grad()
-
                 batch = batch.to(self.device)
-       
                 loss, loss_item, x_hidden = self.loss.forward(batch)              
-
                 loss.backward()
-                self.optimizer.step()
-                
+                self.optimizer.step() 
                 loss_metric.update(loss.item(), batch.size(0))
 
             print(f"GraphMAE [Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {loss_metric.compute():.5f} | "

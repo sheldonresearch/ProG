@@ -35,31 +35,17 @@ class downprompt(nn.Module):
         rawret1 = weight * seq
         rawret2 = self.downprompt(seq)
         rawret4 = seq1
-        # rawret3 = rawret1 + rawret2
         rawret3 = self.dffprompt(rawret1 ,rawret2)
-        # # print("a4",self.a4,"a5",self.a5)
-
         rawret =rawret3 +self.a4 * rawret4
-
-        # rawret = seq
         rawret = rawret.to(self.device)
-        # rawret = torch.stack((rawret,rawret,rawret,rawret,rawret,rawret))
         if train == 1:
-            self.ave = averageemb(labels=labels, rawret=rawret,nb_class=self.nb_classes).to(self.device)
+            self.ave = averageemb(labels, rawret, self.nb_classes).to(self.device)
 
         ret = torch.FloatTensor(seq.shape[0],self.nb_classes).to(self.device)
-        # print("avesize",self.ave.size(),"ave",self.ave)
-        # print("rawret=", rawret[1])
-        # print("aveemb", self.ave)
-        for x in range(0,seq.shape[0]):
-            ret[x][0] = torch.cosine_similarity(rawret[x], self.ave[0], dim=0)
-            ret[x][1] = torch.cosine_similarity(rawret[x], self.ave[1], dim=0)
-            ret[x][2] = torch.cosine_similarity(rawret[x], self.ave[2], dim=0)
-            ret[x][3] = torch.cosine_similarity(rawret[x], self.ave[3], dim=0)
-            ret[x][4] = torch.cosine_similarity(rawret[x], self.ave[4], dim=0)
-            ret[x][5] = torch.cosine_similarity(rawret[x], self.ave[5], dim=0)
-            if self.nb_classes == 7:
-                ret[x][6] = torch.cosine_similarity(rawret[x], self.ave[6], dim=0)
+        for x in range(seq.shape[0]):
+            for i in range(self.nb_classes):
+                ret[x][i] = torch.cosine_similarity(rawret[x], self.ave[i], dim=0)
+
 
         ret = F.softmax(ret, dim=1)
 
@@ -75,40 +61,44 @@ class downprompt(nn.Module):
                 m.bias.data.fill_(0.0)
 
 
-def averageemb(labels,rawret,nb_class):
-    retlabel = torch.FloatTensor(nb_class,int(rawret.shape[0]/nb_class),int(rawret.shape[1]))
-    cnt1 = 0
-    cnt2 = 0
-    cnt3 = 0
-    cnt4 = 0
-    cnt5 = 0
-    cnt6 = 0
-    cnt7 = 0
-    # print("labels",labels)
-    for x in range(0,rawret.shape[0]):
-        if labels[x].item() == 0:
-            retlabel[0][cnt1] = rawret[x]
-            cnt1 = cnt1 + 1
-        if labels[x].item() == 1:
-            retlabel[1][cnt2]= rawret[x]
-            cnt2 = cnt2 + 1
-        if labels[x].item() == 2:
-            retlabel[2][cnt3] = rawret[x]
-            cnt3 = cnt3 + 1
-        if labels[x].item() == 3:
-            retlabel[3][cnt4] = rawret[x]
-            cnt4 = cnt4 + 1
-        if labels[x].item() == 4:
-            retlabel[4][cnt5] = rawret[x]
-            cnt5 = cnt5 + 1
-        if labels[x].item() == 5:
-            retlabel[5][cnt6] = rawret[x]
-            cnt6 = cnt6 + 1
-        if labels[x].item() == 6:
-            retlabel[6][cnt7] = rawret[x]
-            cnt7 = cnt7 + 1
-    retlabel = torch.mean(retlabel,dim=1)
-    return retlabel
+# def averageemb(labels, rawret, nb_class):
+#     # 初始化 retlabel 张量
+#     retlabel = torch.FloatTensor(nb_class, int(rawret.shape[0] / nb_class), int(rawret.shape[1]))
+    
+#     # 初始化计数器字典
+#     counters = {i: 0 for i in range(nb_class)}
+    
+#     # 遍历 rawret，按类别填充 retlabel
+#     for x in range(rawret.shape[0]):
+#         label = labels[x].item()
+#         if label < nb_class:
+#             retlabel[label][counters[label]] = rawret[x]
+#             counters[label] += 1
+    
+#     # 计算 retlabel 的平均值
+#     retlabel = torch.mean(retlabel, dim=1)
+    
+#     return retlabel
+import torch
+
+# ours
+def averageemb(index, input, label_num):
+    device=input.device
+    c = torch.zeros(label_num, input.size(1)).to(device)
+    c = c.scatter_add_(dim=0, index=index.unsqueeze(1).expand(-1, input.size(1)), src=input)
+    class_counts = torch.bincount(index, minlength=label_num).unsqueeze(1).to(dtype=input.dtype, device=device)
+
+    # Take the average embeddings for each class
+    # If directly divided the variable 'c', maybe encountering zero values in 'class_counts', such as the class_counts=[[0.],[4.]]
+    # So we need to judge every value in 'class_counts' one by one, and seperately divided them.
+    # output_c = c/class_counts
+    for i in range(label_num):
+        if(class_counts[i].item()==0):
+            continue
+        else:
+            c[i] /= class_counts[i]
+
+    return c
 
 class weighted_prompt(nn.Module):
     def __init__(self,weightednum):
@@ -201,7 +191,7 @@ class GCN(nn.Module):
         if sparse:
             out = torch.spmm(adj, seq_fts)
         else:
-            out = torch.bmm(adj, seq_fts)
+            out = torch.mm(adj.squeeze(dim=0), seq_fts)
         if self.bias is not None:
             out += self.bias
 
@@ -243,7 +233,7 @@ class GcnLayers(torch.nn.Module):
         xs = []
         for i in range(self.num_layers_num):
             input=(graph_output,adj)
-            graph_output = self.convs[i](input)
+            graph_output = self.convs[i](input,sparse)
             if LP:
                 graph_output = self.bns[i](graph_output)
                 graph_output = self.dropout(graph_output)
@@ -301,33 +291,20 @@ class DGI(nn.Module):
         super(DGI, self).__init__()
         # self.gcn = GCN(n_in, n_h, activation)
         self.read = AvgReadout()
-
         self.sigm = nn.Sigmoid()
-
         self.disc = Discriminator(n_h)
-
         self.prompt = nn.Parameter(torch.FloatTensor(1, n_h), requires_grad=True)
-
         self.reset_parameters()
 
     def forward(self, gcn, seq1, seq2, adj, sparse, msk, samp_bias1, samp_bias2):
         h_1 = gcn(seq1, adj, sparse)
-
-
         # print("h_1",h_1.shape)
-
         h_3 = h_1 * self.prompt
-
         c = self.read(h_1, msk)
         c = self.sigm(c)
-
         h_2 = gcn(seq2, adj, sparse)
-
         h_4 = h_2 * self.prompt
-
-        ret = self.disc(c, h_3, h_4
-                        , samp_bias1, samp_bias2)
-
+        ret = self.disc(c, h_3, h_4, samp_bias1, samp_bias2)
         return ret
 
     def reset_parameters(self):
@@ -338,34 +315,19 @@ class DGIprompt(nn.Module):
         super(DGIprompt, self).__init__()
         # self.gcn = GCN(n_in, n_h, activation)
         self.read = AvgReadout()
-
         self.sigm = nn.Sigmoid()
-
         self.disc = Discriminator(n_h)
-
         self.prompt = nn.Parameter(torch.FloatTensor(1, n_in), requires_grad=True)
-
         self.reset_parameters()
 
     def forward(self, gcn, seq1, seq2, adj, sparse, msk, samp_bias1, samp_bias2):
-        
-        
         seq1 = seq1 * self.prompt
         h_1 = gcn(seq1, adj, sparse)
-
-
-        # print("h_1",h_1.shape)
-
         c = self.read(h_1, msk)
         c = self.sigm(c)
-
         seq2 = seq2 * self.prompt
         h_2 = gcn(seq2, adj, sparse)
-
-
-        ret = self.disc(c, h_1, h_2
-                        , samp_bias1, samp_bias2)
-
+        ret = self.disc(c, h_1, h_2, samp_bias1, samp_bias2)
         return ret
 
     def reset_parameters(self):
@@ -509,22 +471,13 @@ class Lp(nn.Module):
         super(Lp, self).__init__()
         self.sigm = nn.ELU()
         self.act=torch.nn.LeakyReLU()
-        # self.dropout=torch.nn.Dropout(p=config["dropout"])
         self.prompt = nn.Parameter(torch.FloatTensor(1, n_h), requires_grad=True)
-
         self.reset_parameters()
-
-
 
     def forward(self,gcn,seq,adj,sparse):
         h_1 = gcn(seq,adj,sparse,True)
-        # ret = h_1
         ret = h_1 * self.prompt
-        # ret = h_1 
-        # print("ret1",ret)
         ret = self.sigm(ret.squeeze(dim=0))
-                # print("ret2",ret)
-        # ret = ret.squeeze(dim=0)
         return ret
 
     def reset_parameters(self):
@@ -535,24 +488,15 @@ class Lpprompt(nn.Module):
         super(Lpprompt, self).__init__()
         self.sigm = nn.ELU()
         self.act=torch.nn.LeakyReLU()
-        # self.dropout=torch.nn.Dropout(p=config["dropout"])
         self.prompt = nn.Parameter(torch.FloatTensor(1, n_in), requires_grad=True)
-
         self.reset_parameters()
-
-
 
     def forward(self,gcn,seq,adj,sparse):
         
         seq = seq * self.prompt
         h_1 = gcn(seq,adj,sparse,True)
         ret = h_1
-        # ret = h_1 * self.prompt
-        # ret = h_1 
-        # print("ret1",ret)
         ret = self.sigm(ret.squeeze(dim=0))
-                # print("ret2",ret)
-        # ret = ret.squeeze(dim=0)
         return ret
 
     def reset_parameters(self):

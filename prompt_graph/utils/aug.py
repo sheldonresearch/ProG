@@ -23,48 +23,35 @@ def aug_random_mask(input_feature, drop_percent=0.2):
 
 
 def aug_random_edge(input_adj, drop_percent=0.2):
-
     percent = drop_percent / 2
     row_idx, col_idx = input_adj.nonzero()
 
-    index_list = []
+    edge_set = set()
     for i in range(len(row_idx)):
-        index_list.append((row_idx[i], col_idx[i]))
+        if (col_idx[i], row_idx[i]) not in edge_set:
+            edge_set.add((row_idx[i], col_idx[i]))
 
-    single_index_list = []
-    for i in list(index_list):
-        single_index_list.append(i)
-        index_list.remove((i[1], i[0]))
-    
-    
-    edge_num = int(len(row_idx) / 2)      # 9228 / 2
+    edge_num = len(edge_set)
     add_drop_num = int(edge_num * percent / 2) 
-    aug_adj = copy.deepcopy(input_adj.todense().tolist())
+    aug_adj = input_adj.todense().tolist()
 
-    edge_idx = [i for i in range(edge_num)]
-    drop_idx = random.sample(edge_idx, add_drop_num)
+    edge_list = list(edge_set)
+    drop_idx = random.sample(range(edge_num), add_drop_num)
 
-    
     for i in drop_idx:
-        aug_adj[single_index_list[i][0]][single_index_list[i][1]] = 0
-        aug_adj[single_index_list[i][1]][single_index_list[i][0]] = 0
+        aug_adj[edge_list[i][0]][edge_list[i][1]] = 0
+        aug_adj[edge_list[i][1]][edge_list[i][0]] = 0
     
-    '''
-    above finish drop edges
-    '''
     node_num = input_adj.shape[0]
-    l = [(i, j) for i in range(node_num) for j in range(i)]
-    add_list = random.sample(l, add_drop_num)
+    possible_edges = [(i, j) for i in range(node_num) for j in range(i) if aug_adj[i][j] == 0]
+    add_list = random.sample(possible_edges, add_drop_num)
 
     for i in add_list:
-        
         aug_adj[i[0]][i[1]] = 1
         aug_adj[i[1]][i[0]] = 1
     
-    aug_adj = np.matrix(aug_adj)
     aug_adj = sp.csr_matrix(aug_adj)
     return aug_adj
-
 
 def aug_drop_node(input_fea, input_adj, drop_percent=0.2):
 

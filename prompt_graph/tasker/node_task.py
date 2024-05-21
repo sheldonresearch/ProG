@@ -2,12 +2,12 @@ import torch
 from torch_geometric.loader import DataLoader
 from prompt_graph.utils import constraint,  center_embedding, Gprompt_tuning_loss
 from prompt_graph.evaluation import GPPTEva, GNNNodeEva, GPFEva, MultiGpromptEva
-from prompt_graph.pretrain import PrePrompt, prompt_pretrain_sample
+from prompt_graph.pretrain import GraphPrePrompt, NodePrePrompt, prompt_pretrain_sample
 from .task import BaseTask
 import time
 import warnings
 import numpy as np
-from prompt_graph.data import load4node, induced_graphs, graph_split, split_induced_graphs, node_sample_and_save
+from prompt_graph.data import load4node, induced_graphs, graph_split, split_induced_graphs, node_sample_and_save,GraphDataset
 from prompt_graph.evaluation import GpromptEva, AllInOneEva
 import pickle
 import os
@@ -15,13 +15,18 @@ from prompt_graph.utils import process
 warnings.filterwarnings("ignore")
 
 class NodeTask(BaseTask):
-      def __init__(self, *args, **kwargs):
+      def __init__(self, data, input_dim, output_dim, graphs_list = None, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.task_type = 'NodeTask'
             if self.prompt_type == 'MultiGprompt':
                   self.load_multigprompt_data()
             else:
-                  self.load_data()
+                  self.data = data
+                  if self.dataset_name == 'ogbn-arxiv':
+                        self.data.y = self.data.y.squeeze()
+                  self.input_dim = input_dim
+                  self.output_dim = output_dim
+                  self.graphs_list = graphs_list
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
@@ -41,45 +46,44 @@ class NodeTask(BaseTask):
                               print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
       def load_multigprompt_data(self):
-            adj, features, labels, idx_train, idx_val, idx_test = process.load_data(self.dataset_name)  
+            adj, features, labels = process.load_data(self.dataset_name)
+            # adj, features, labels = process.load_data(self.dataset_name)  
             self.input_dim = features.shape[1]
+            self.output_dim = labels.shape[1]
+            print('a',self.output_dim)
             features, _ = process.preprocess_features(features)
             self.sp_adj = process.sparse_mx_to_torch_sparse_tensor(adj).to(self.device)
             self.labels = torch.FloatTensor(labels[np.newaxis])
             self.features = torch.FloatTensor(features[np.newaxis]).to(self.device)
-            self.idx_train = torch.LongTensor(idx_train)
             # print("labels",labels)
             print("adj",self.sp_adj.shape)
             print("feature",features.shape)
-            self.idx_val = torch.LongTensor(idx_val)
-            self.idx_test = torch.LongTensor(idx_test)
 
-      def load_induced_graph(self):
+      # def load_induced_graph(self):
         
-            folder_path = './Experiment/induced_graph/' + self.dataset_name
-            if not os.path.exists(folder_path):
-                  os.makedirs(folder_path)
+      #       folder_path = './Experiment/induced_graph/' + self.dataset_name
+      #       if not os.path.exists(folder_path):
+      #             os.makedirs(folder_path)
 
-            file_path = folder_path + '/induced_graph_min100_max300.pkl'
-            if os.path.exists(file_path):
-                  with open(file_path, 'rb') as f:
-                        graphs_list = pickle.load(f)
-            else:
-                  print('Begin split_induced_graphs.')
-                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=100, largest_size=300)
-                  with open(file_path, 'rb') as f:
-                        graphs_list = pickle.load(f)
-            self.graphs_list = [graph.to(self.device) for graph in graphs_list]
+      #       file_path = folder_path + '/induced_graph_min100_max300.pkl'
+      #       if os.path.exists(file_path):
+      #             with open(file_path, 'rb') as f:
+      #                   graphs_list = pickle.load(f)
+      #       else:
+      #             print('Begin split_induced_graphs.')
+      #             split_induced_graphs(self.data, folder_path, self.device, smallest_size=100, largest_size=300)
+      #             with open(file_path, 'rb') as f:
+      #                   graphs_list = pickle.load(f)
+      #       self.graphs_list = [graph.to(self.device) for graph in graphs_list]
             
 
       
       def load_data(self):
             self.data, self.input_dim, self.output_dim = load4node(self.dataset_name)
-            self.data.to(self.device)
- 
-      
+
       def train(self, data, train_idx):
             self.gnn.train()
+            self.answering.train()
             self.optimizer.zero_grad() 
             out = self.gnn(data.x, data.edge_index, batch=None) 
             out = self.answering(out)
@@ -193,10 +197,13 @@ class NodeTask(BaseTask):
       
       def run(self):
             test_accs = []
+            f1s = []
+            rocs = []
+            prcs = []
             batch_best_loss = []
             # for all-in-one and Gprompt we use k-hop subgraph, but when wo search for best parameter, we load inducedd graph once cause it costs too much time
-            if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
-                  self.load_induced_graph()
+            # if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
+            #       self.load_induced_graph()
             for i in range(1, 6):
                   self.initialize_gnn()
                   self.initialize_prompt()
@@ -217,15 +224,21 @@ class NodeTask(BaseTask):
                   if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
                         train_graphs = []
                         test_graphs = []
-                        
+                        # self.graphs_list.to(self.device)
+                        print('distinguishing the train dataset and test dataset...')
                         for graph in self.graphs_list:                              
                               if graph.index in idx_train:
                                     train_graphs.append(graph)
                               elif graph.index in idx_test:
                                     test_graphs.append(graph)
+                        print('Done!!!')
 
-                        train_loader = DataLoader(train_graphs, batch_size = self.batch_size, shuffle=True)
-                        test_loader = DataLoader(test_graphs, batch_size = self.batch_size, shuffle=False)
+                        train_dataset = GraphDataset(train_graphs)
+                        test_dataset = GraphDataset(test_graphs)
+
+                        # 创建数据加载器
+                        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
+                        test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
                         print("prepare induce graph data is finished!")
 
                   if self.prompt_type == 'MultiGprompt':
@@ -238,8 +251,8 @@ class NodeTask(BaseTask):
                   cnt_wait = 0
                   best_loss = 1e9
                   if self.prompt_type == 'All-in-one':
-                        self.answer_epoch = 1
-                        self.prompt_epoch = 1
+                        self.answer_epoch = 20
+                        self.prompt_epoch = 20
                         self.epochs = int(self.epochs/self.answer_epoch)
 
 
@@ -273,39 +286,50 @@ class NodeTask(BaseTask):
                                     break
                         
                         print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-                        
-                  batch_best_loss.append(loss)
+                  import math
+                  if not math.isnan(loss):
+                        batch_best_loss.append(loss)
                   
+                        if self.prompt_type == 'None':
+                              test_acc, f1, roc, prc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering,self.output_dim, self.device)                           
+                        elif self.prompt_type == 'GPPT':
+                              test_acc, f1, roc, prc = GPPTEva(self.data, idx_test, self.gnn, self.prompt, self.output_dim, self.device)                
+                        elif self.prompt_type == 'All-in-one':
+                              test_acc, f1, roc, prc = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)                                           
+                        elif self.prompt_type in ['GPF', 'GPF-plus']:
+                              test_acc, f1, roc, prc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)                                                         
+                        elif self.prompt_type =='Gprompt':
+                              test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
+                        elif self.prompt_type == 'MultiGprompt':
+                              prompt_feature = self.feature_prompt(self.features)
+                              test_acc, f1, roc, prc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj, self.output_dim, self.device)
 
-                  if self.prompt_type == 'None':
-                        test_acc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering)                           
-                  elif self.prompt_type == 'GPPT':
-                        test_acc = GPPTEva(self.data, idx_test, self.gnn, self.prompt)                
-                  elif self.prompt_type == 'All-in-one':
-                        test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)                                           
-                  elif self.prompt_type in ['GPF', 'GPF-plus']:
-                        test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)                                                         
-                  elif self.prompt_type =='Gprompt':
-                        test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
-                  elif self.prompt_type == 'MultiGprompt':
-                        prompt_feature = self.feature_prompt(self.features)
-                        test_acc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj)
-
-                  print("test accuracy {:.4f} ".format(test_acc))   
-                  print("best_loss",  batch_best_loss)     
-                                
-                  test_accs.append(test_acc)
-         
-
+                        print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}" )
+                        print("best_loss",  batch_best_loss)     
+                                    
+                        test_accs.append(test_acc)
+                        f1s.append(f1)
+                        rocs.append(roc)
+                        prcs.append(prc)
+        
             mean_test_acc = np.mean(test_accs)
             std_test_acc = np.std(test_accs)    
-            print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))  
+            mean_f1 = np.mean(f1s)
+            std_f1 = np.std(f1s)   
+            mean_roc = np.mean(rocs)
+            std_roc = np.std(rocs)   
+            mean_prc = np.mean(prcs)
+            std_prc = np.std(prcs) 
+            print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
+            print(" Final best | test F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1))   
+            print(" Final best | AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc))   
+            print(" Final best | AUPRC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc))   
 
-            print("Node Task completed")
+            print(self.pre_train_type, self.gnn_type, self.prompt_type, " Graph Task completed")
             mean_best = np.mean(batch_best_loss)
 
-            return  mean_best, mean_test_acc, std_test_acc
-      
+            return  mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc
+
                   
             # elif self.prompt_type != 'MultiGprompt':
             #       # embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)

@@ -8,6 +8,7 @@ from scipy.sparse.linalg import eigsh
 import sys
 import torch
 import torch.nn as nn
+from prompt_graph.data import load4node
 
 def parse_skipgram(fname):
     with open(fname) as f:
@@ -26,26 +27,51 @@ def parse_skipgram(fname):
     return ret
 
 # Process a (subset of) a TU dataset into standard form
-def process_tu(data, nb_nodes):
-    nb_graphs = len(data)
+def process_tu(data,class_num,node_class):
+    nb_nodes = data.num_nodes
+    nb_graphs = data.num_graphs
+    # print("len",nb_graphs)
     ft_size = data.num_features
 
-    features = np.zeros((nb_graphs, nb_nodes, ft_size))
-    adjacency = np.zeros((nb_graphs, nb_nodes, nb_nodes))
-    labels = np.zeros(nb_graphs)
-    sizes = np.zeros(nb_graphs, dtype=np.int32)
-    masks = np.zeros((nb_graphs, nb_nodes))
-       
-    for g in range(nb_graphs):
-        sizes[g] = data[g].x.shape[0]
-        features[g, :sizes[g]] = data[g].x
-        labels[g] = data[g].y[0]
-        masks[g, :sizes[g]] = 1.0
-        e_ind = data[g].edge_index
-        coo = sp.coo_matrix((np.ones(e_ind.shape[1]), (e_ind[0, :], e_ind[1, :])), shape=(nb_nodes, nb_nodes))
-        adjacency[g] = coo.todense()
+    node_class_num=range(node_class)
 
-    return features, adjacency, labels, sizes, masks
+    # print("data",data)
+    labels = np.zeros((nb_graphs,class_num))
+    for g in range(nb_graphs):
+        if g == 0:
+            # sizes = data[g].x.shape[0]
+            features = data[g].x[ :,node_class_num]
+            rawlabels = data[g].y[0]
+            # masks[g, :sizes[g]] = 1.0
+            e_ind = data[g].edge_index
+            # print("e_ind",e_ind)
+            coo = sp.coo_matrix((np.ones(e_ind.shape[1]), (e_ind[0, :], e_ind[1, :])), shape=(features.shape[0], features.shape[0]))
+            # print("coo",coo)
+            adjacency = coo.todense()
+        else:
+            tmpfeature = data[g].x[ :,node_class_num]
+            features = np.row_stack((features,tmpfeature))
+            tmplabel = data[g].y[0]
+            rawlabels = np.row_stack((rawlabels,tmplabel))
+            e_ind = data[g].edge_index
+            coo = sp.coo_matrix((np.ones(e_ind.shape[1]), (e_ind[0, :], e_ind[1, :])), shape=(tmpfeature.shape[0], tmpfeature.shape[0]))
+            # print("coo",coo)
+            tmpadj = coo.todense()
+            zero = np.zeros((adjacency.shape[0], tmpfeature.shape[0]))
+            tmpadj1 = np.column_stack((adjacency,zero))
+            tmpadj2 = np.column_stack((zero.T,tmpadj))
+            adjacency = np.row_stack((tmpadj1,tmpadj2))
+
+    for x in range(nb_graphs):
+        if nb_graphs == 1:
+            labels[0][rawlabels.item()]=1
+            break
+        labels[x][rawlabels[x][0]] = 1
+    
+    adj = sp.csr_matrix(adjacency)
+
+
+    return features, adj
 
 def micro_f1(logits, labels):
     # Compute predictions
@@ -104,43 +130,60 @@ def sample_mask(idx, l):
     mask[idx] = 1
     return np.array(mask, dtype=np.bool)
 
-def load_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
-    """Load data."""
-    current_path = os.path.dirname(__file__)
-    names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
-    objects = []
-    for i in range(len(names)):
-        with open("./data/Planetoid/Cora/raw/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
-            objects.append(pkl.load(f, encoding='latin1'))
+# def load_pyg_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
+#     """Load data."""
+#     if dataset_str == 'Cora':
+#         dataset_str1 = 'cora'
+#     if dataset_str == 'CiteSeer':
+#         dataset_str1 = 'citeseer'
+#     if dataset_str == 'PubMed':
+#         dataset_str1 = 'pubmed'
+#     current_path = os.path.dirname(__file__)
+#     names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
+#     objects = []
+#     for i in range(len(names)):
+#         with open("./data/Planetoid/"+ dataset_str +"/raw/ind.{}.{}".format(dataset_str1, names[i]), 'rb') as f:
+#             objects.append(pkl.load(f, encoding='latin1'))
         
 
-    x, y, tx, ty, allx, ally, graph = tuple(objects)
-    test_idx_reorder = parse_index_file("./data/Planetoid/Cora/raw/ind.{}.test.index".format(dataset_str))
-    test_idx_range = np.sort(test_idx_reorder)
+#     x, y, tx, ty, allx, ally, graph = tuple(objects)
+#     test_idx_reorder = parse_index_file("./data/Planetoid/"+ dataset_str +"/raw/ind.{}.test.index".format(dataset_str1))
+#     test_idx_range = np.sort(test_idx_reorder)
 
-    if dataset_str == 'citeseer':
-        # Fix citeseer dataset (there are some isolated nodes in the graph)
-        # Find isolated nodes, add them as zero-vecs into the right position
-        test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
-        tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
-        tx_extended[test_idx_range-min(test_idx_range), :] = tx
-        tx = tx_extended
-        ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
-        ty_extended[test_idx_range-min(test_idx_range), :] = ty
-        ty = ty_extended
+#     if dataset_str1 == 'citeseer':
+#         # Fix citeseer dataset (there are some isolated nodes in the graph)
+#         # Find isolated nodes, add them as zero-vecs into the right position
+#         test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
+#         tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
+#         tx_extended[test_idx_range-min(test_idx_range), :] = tx
+#         tx = tx_extended
+#         ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
+#         ty_extended[test_idx_range-min(test_idx_range), :] = ty
+#         ty = ty_extended
 
-    features = sp.vstack((allx, tx)).tolil()
-    features[test_idx_reorder, :] = features[test_idx_range, :]
-    adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
+#     features = sp.vstack((allx, tx)).tolil()
+#     features[test_idx_reorder, :] = features[test_idx_range, :]
+#     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
 
-    labels = np.vstack((ally, ty))
-    labels[test_idx_reorder, :] = labels[test_idx_range, :]
+#     labels = np.vstack((ally, ty))
+#     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
-    idx_test = test_idx_range.tolist()
-    idx_train = range(len(y))
-    idx_val = range(len(y), len(y)+500)
+#     return adj, features, labels
 
-    return adj, features, labels, idx_train, idx_val, idx_test
+
+from torch_geometric.utils import to_scipy_sparse_matrix
+def load_data(dataset):
+    data,_ ,_ = load4node(dataset)
+    adj = to_scipy_sparse_matrix(data.edge_index).tocsr()
+
+    # Convert features to dense format and then to scipy sparse matrix in lil format
+    features = sp.lil_matrix(data.x.numpy())
+
+    # Convert labels to one-hot encoding
+    labels = np.zeros((data.num_nodes, data.y.max().item() + 1))
+    labels[np.arange(data.num_nodes), data.y.numpy()] = 1
+
+    return adj, features, labels
 
 def sparse_to_tuple(sparse_mx, insert_batch=False):
     """Convert sparse matrix to tuple representation."""

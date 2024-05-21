@@ -10,11 +10,11 @@ import os
 import numpy as np
 
 class GraphTask(BaseTask):
-    def __init__(self, *args, **kwargs):    
+    def __init__(self, input_dim, output_dim, dataset, *args, **kwargs):    
         super().__init__(*args, **kwargs)
         self.task_type = 'GraphTask'
         self.load_data()
-        # self.create_few_data_folder()
+        self.create_few_data_folder()
         self.initialize_gnn()
         self.initialize_prompt()
         self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
@@ -29,9 +29,10 @@ class GraphTask(BaseTask):
                   
                   for i in range(1, 6):
                         folder = os.path.join(k_shot_folder, str(i))
-                        os.makedirs(folder, exist_ok=True)
-                        graph_sample_and_save(self.dataset, k, folder, self.output_dim)
-                        print(str(k) + ' shot ' + str(i) + ' th is saved!!')
+                        if not os.path.exists(folder):
+                            os.makedirs(folder, exist_ok=True)
+                            graph_sample_and_save(self.dataset, k, folder, self.output_dim)
+                            print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
     def load_data(self):
         if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa','DD']:
@@ -63,6 +64,8 @@ class GraphTask(BaseTask):
             out = self.gnn(batch.x, batch.edge_index, batch.batch)
             out = self.answering(out)
             loss = self.criterion(out, batch.y)  
+
+            
             loss.backward()  
             self.optimizer.step()  
             total_loss += loss.item()  
@@ -160,29 +163,34 @@ class GraphTask(BaseTask):
 
     def run(self):
         test_accs = []
+        f1s = []
+        rocs = []
+        prcs = []
         batch_best_loss = []
-        for i in range(1, 6):
-            idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-            print('idx_train',idx_train)
-            train_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
-            print("true",i,train_lbls)
+        if self.shot_num > 0:
+            for i in range(1, 6):
+                idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                print('idx_train',idx_train)
+                train_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+                print("true",i,train_lbls)
 
-            idx_test = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-            test_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
-        
-            train_dataset = self.dataset[idx_train]
-            test_dataset = self.dataset[idx_test]
+                idx_test = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+                test_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+            
+                train_dataset = self.dataset[idx_train]
+                test_dataset = self.dataset[idx_test]
 
-            if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
-                from torch_geometric.data import Batch
-                train_dataset = [train_g for train_g in train_dataset]
-                test_dataset = [test_g for test_g in test_dataset]
-                processed_dataset = [g for g in self.dataset]
-                self.node_degree_as_features(train_dataset)
-                self.node_degree_as_features(test_dataset)
-                self.node_degree_as_features(processed_dataset)
-                processed_dataset = Batch.from_data_list([g for g in processed_dataset])
-                self.input_dim = train_dataset[0].x.size(1)
+                if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
+                    from torch_geometric.data import Batch
+                    train_dataset = [train_g for train_g in train_dataset]
+                    test_dataset = [test_g for test_g in test_dataset]
+                    self.node_degree_as_features(train_dataset)
+                    self.node_degree_as_features(test_dataset)
+                    if self.prompt_type == 'GPPT':
+                        processed_dataset = [g for g in self.dataset]
+                        self.node_degree_as_features(processed_dataset)
+                        processed_dataset = Batch.from_data_list([g for g in processed_dataset])
+                    self.input_dim = train_dataset[0].x.size(1)
 
             train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
             test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
@@ -198,7 +206,6 @@ class GraphTask(BaseTask):
                 self.answer_epoch = 5
                 self.prompt_epoch = 1
                 self.epochs = int(self.epochs/self.answer_epoch)
-                
             elif self.prompt_type == 'GPPT':
                 # initialize the GPPT hyperparametes via graph data
                 if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
@@ -215,51 +222,140 @@ class GraphTask(BaseTask):
                     # node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)             
                     # self.prompt.weigth_init(node_embedding,processed_dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
 
-                    # test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+                        # test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
-                    total_num_nodes = sum([data.num_nodes for data in train_dataset])
-                    train_node_ids = torch.arange(0,total_num_nodes).squeeze().to(self.device)
-                    self.gppt_loader = DataLoader(processed_dataset.to_data_list(), batch_size=1, shuffle=False)
-                    for i, batch in enumerate(self.gppt_loader):
-                        if(i==0):
-                            node_for_graph_labels = torch.full((1,batch.x.shape[0]), batch.y.item())
-                            node_embedding = self.gnn(batch.x.to(self.device), batch.edge_index.to(self.device))
-                        else:                   
-                            node_for_graph_labels = torch.concat([node_for_graph_labels,torch.full((1,batch.x.shape[0]), batch.y.item())],dim=1)
-                            node_embedding = torch.concat([node_embedding,self.gnn(batch.x.to(self.device), batch.edge_index.to(self.device))],dim=0)
+                        total_num_nodes = sum([data.num_nodes for data in train_dataset])
+                        train_node_ids = torch.arange(0,total_num_nodes).squeeze().to(self.device)
+                        self.gppt_loader = DataLoader(processed_dataset.to_data_list(), batch_size=1, shuffle=False)
+                        for i, batch in enumerate(self.gppt_loader):
+                            if(i==0):
+                                node_for_graph_labels = torch.full((1,batch.x.shape[0]), batch.y.item())
+                                node_embedding = self.gnn(batch.x.to(self.device), batch.edge_index.to(self.device))
+                            else:                   
+                                node_for_graph_labels = torch.concat([node_for_graph_labels,torch.full((1,batch.x.shape[0]), batch.y.item())],dim=1)
+                                node_embedding = torch.concat([node_embedding,self.gnn(batch.x.to(self.device), batch.edge_index.to(self.device))],dim=0)
+                        
+                        node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)
+                        self.prompt.weigth_init(node_embedding,processed_dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
+
+                        test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)                    
+                    else:
+                        train_node_ids = torch.arange(0,train_dataset.x.shape[0]).squeeze().to(self.device)
+                        self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)
+                        for i, batch in enumerate(self.gppt_loader):
+                            if(i==0):
+                                node_for_graph_labels = torch.full((1,batch.x.shape[0]), batch.y.item())
+                            else:                   
+                                node_for_graph_labels = torch.concat([node_for_graph_labels,torch.full((1,batch.x.shape[0]), batch.y.item())],dim=1)
+                        
+                        node_embedding = self.gnn(self.dataset.x.to(self.device), self.dataset.edge_index.to(self.device))
+                        node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)             
+                        self.prompt.weigth_init(node_embedding,self.dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
+
+                        test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+
+                    # from torch_geometric.nn import global_mean_pool
+                    # self.gppt_pool = global_mean_pool
+                    # train_ids = torch.nonzero(idx_train, as_tuple=False).squeeze()
+                    # self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)          
+                    # for i, batch in enumerate(self.gppt_loader):
+                    #     batch.to(self.device)
+                    #     node_embedding = self.gnn(batch.x, batch.edge_index)
+                    #     if(i==0):
+                    #         graph_embedding = self.gppt_pool(node_embedding,batch.batch.long())
+                    #     else:
+                    #         graph_embedding = torch.concat([graph_embedding,self.gppt_pool(node_embedding,batch.batch.long())],dim=0)
                     
-                    node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)
-                    self.prompt.weigth_init(node_embedding,processed_dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
 
-                    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)                    
-                else:
-                    train_node_ids = torch.arange(0,train_dataset.x.shape[0]).squeeze().to(self.device)
-                    self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)
-                    for i, batch in enumerate(self.gppt_loader):
-                        if(i==0):
-                            node_for_graph_labels = torch.full((1,batch.x.shape[0]), batch.y.item())
-                        else:                   
-                            node_for_graph_labels = torch.concat([node_for_graph_labels,torch.full((1,batch.x.shape[0]), batch.y.item())],dim=1)
-                    
-                    node_embedding = self.gnn(self.dataset.x.to(self.device), self.dataset.edge_index.to(self.device))
-                    node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)             
-                    self.prompt.weigth_init(node_embedding,self.dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
+                for epoch in range(1, self.epochs + 1):
+                    t0 = time.time()
 
-                    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
-
-                # from torch_geometric.nn import global_mean_pool
-                # self.gppt_pool = global_mean_pool
-                # train_ids = torch.nonzero(idx_train, as_tuple=False).squeeze()
-                # self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)          
-                # for i, batch in enumerate(self.gppt_loader):
-                #     batch.to(self.device)
-                #     node_embedding = self.gnn(batch.x, batch.edge_index)
-                #     if(i==0):
-                #         graph_embedding = self.gppt_pool(node_embedding,batch.batch.long())
-                #     else:
-                #         graph_embedding = torch.concat([graph_embedding,self.gppt_pool(node_embedding,batch.batch.long())],dim=0)
+                    if self.prompt_type == 'None':
+                        loss = self.Train(train_loader)
+                    elif self.prompt_type == 'All-in-one':
+                        loss = self.AllInOneTrain(train_loader,self.answer_epoch,self.prompt_epoch)
+                    elif self.prompt_type in ['GPF', 'GPF-plus']:
+                        loss = self.GPFTrain(train_loader)
+                    elif self.prompt_type =='Gprompt':
+                        loss, center = self.GpromptTrain(train_loader)
+                    elif self.prompt_type =='GPPT':
+                        loss = self.GPPTtrain(train_loader)
+                            
+                    if loss < best:
+                        best = loss
+                        # best_t = epoch
+                        cnt_wait = 0
+                        # torch.save(model.state_dict(), args.save_name)
+                    else:
+                        cnt_wait += 1
+                        if cnt_wait == patience:
+                                print('-' * 100)
+                                print('Early stopping at '+str(epoch) +' eopch!')
+                                break
+                    print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
+                import math
+                if not math.isnan(loss):
+                    batch_best_loss.append(loss)
+                print('Bengin to evaluate')
                 
+                if self.prompt_type == 'None':
+                    test_acc, f1, roc, prc = GNNGraphEva(test_loader, self.gnn, self.answering, self.output_dim, self.device)
+                elif self.prompt_type =='GPPT':
+                    test_acc, f1, roc, prc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.output_dim, self.device)
+                elif self.prompt_type == 'All-in-one':
+                    test_acc, f1, roc, prc = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+                elif self.prompt_type in ['GPF', 'GPF-plus']:
+                    test_acc, f1, roc, prc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)
+                elif self.prompt_type =='Gprompt':
+                    test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
 
+
+                print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}" )
+                print("best_loss",  batch_best_loss)                        
+                test_accs.append(test_acc)
+                f1s.append(f1)
+                rocs.append(roc)
+                prcs.append(prc)
+            
+            mean_test_acc = np.mean(test_accs)
+            std_test_acc = np.std(test_accs)    
+            mean_f1 = np.mean(f1s)
+            std_f1 = np.std(f1s)   
+            mean_roc = np.mean(rocs)
+            std_roc = np.std(rocs)   
+            mean_prc = np.mean(prcs)
+            std_prc = np.std(prcs) 
+            print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
+            print(" Final best | test F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1))   
+            print(" Final best | AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc))   
+            print(" Final best | AUPRC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc))   
+
+            print(self.pre_train_type, self.gnn_type, self.prompt_type, " Graph Task completed")
+            mean_best = np.mean(batch_best_loss)
+
+            return  mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc
+
+        
+
+        
+        else:
+            train_dataset, test_dataset = self.dataset
+              
+            train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
+            test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
+            print("prepare data is finished!")
+
+            patience = 20
+            best = 1e9
+            cnt_wait = 0
+        
+            if self.prompt_type == 'All-in-one':
+                # self.answer_epoch = 5 MUTAG Graph MAE / GraphCL
+                # self.prompt_epoch = 1
+                self.answer_epoch = 5
+                self.prompt_epoch = 1
+                self.epochs = int(self.epochs/self.answer_epoch)
+      
             for epoch in range(1, self.epochs + 1):
                 t0 = time.time()
 
@@ -273,7 +369,7 @@ class GraphTask(BaseTask):
                     loss, center = self.GpromptTrain(train_loader)
                 elif self.prompt_type =='GPPT':
                     loss = self.GPPTtrain(train_loader)
-                           
+                        
                 if loss < best:
                     best = loss
                     # best_t = epoch
@@ -286,31 +382,25 @@ class GraphTask(BaseTask):
                             print('Early stopping at '+str(epoch) +' eopch!')
                             break
                 print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
-                batch_best_loss.append(loss)
+
+            print('Bengin to evaluate')
             
             if self.prompt_type == 'None':
-                test_acc = GNNGraphEva(test_loader, self.gnn, self.answering, self.device)
-            elif self.prompt_type == 'All-in-one':
-                test_acc, F1 = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
-            elif self.prompt_type in ['GPF', 'GPF-plus']:
-                test_acc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.device)
-            elif self.prompt_type =='Gprompt':
-                test_acc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.device)
+                test_acc, f1, roc, prc = GNNGraphEva(test_loader, self.gnn, self.answering, self.output_dim, self.device)
             elif self.prompt_type =='GPPT':
-                test_acc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.device)
+                test_acc, f1, roc, prc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.output_dim, self.device)
+            elif self.prompt_type == 'All-in-one':
+                test_acc, f1, roc, prc = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+            elif self.prompt_type in ['GPF', 'GPF-plus']:
+                test_acc, f1, roc, prc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)
+            elif self.prompt_type =='Gprompt':
+                test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
 
-            print("test accuracy {:.4f} ".format(test_acc))                        
-            test_accs.append(test_acc)
-        
-        mean_test_acc = np.mean(test_accs)
-        std_test_acc = np.std(test_accs)    
-        print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
 
-        print("Graph Task completed")
-        mean_best = np.mean(batch_best_loss)
+            print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}" )
 
-        return  mean_best, mean_test_acc, std_test_acc
 
-        
+            print(self.pre_train_type, self.gnn_type, self.prompt_type, " Graph Task completed")
 
-        
+
+            return  test_acc,f1,roc,prc
