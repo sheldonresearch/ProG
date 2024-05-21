@@ -14,7 +14,7 @@ class GraphTask(BaseTask):
         super().__init__(*args, **kwargs)
         self.task_type = 'GraphTask'
         self.load_data()
-        self.create_few_data_folder()
+        # self.create_few_data_folder()
         self.initialize_gnn()
         self.initialize_prompt()
         self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
@@ -198,6 +198,7 @@ class GraphTask(BaseTask):
                 self.answer_epoch = 5
                 self.prompt_epoch = 1
                 self.epochs = int(self.epochs/self.answer_epoch)
+                
             elif self.prompt_type == 'GPPT':
                 # initialize the GPPT hyperparametes via graph data
                 if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:

@@ -7,7 +7,7 @@ from prompt_graph.utils import  get_args
 args = get_args()
 seed_everything(args.seed)
 
-args.prompt_type = 'GPPT'
+# args.prompt_type = 'GPPT'
 
 # args.prompt_type = 'All-in-one'
 
