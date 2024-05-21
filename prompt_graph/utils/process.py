@@ -27,26 +27,51 @@ def parse_skipgram(fname):
     return ret
 
 # Process a (subset of) a TU dataset into standard form
-def process_tu(data, nb_nodes):
-    nb_graphs = len(data)
+def process_tu(data,class_num,node_class):
+    nb_nodes = data.num_nodes
+    nb_graphs = data.num_graphs
+    # print("len",nb_graphs)
     ft_size = data.num_features
 
-    features = np.zeros((nb_graphs, nb_nodes, ft_size))
-    adjacency = np.zeros((nb_graphs, nb_nodes, nb_nodes))
-    labels = np.zeros(nb_graphs)
-    sizes = np.zeros(nb_graphs, dtype=np.int32)
-    masks = np.zeros((nb_graphs, nb_nodes))
-       
-    for g in range(nb_graphs):
-        sizes[g] = data[g].x.shape[0]
-        features[g, :sizes[g]] = data[g].x
-        labels[g] = data[g].y[0]
-        masks[g, :sizes[g]] = 1.0
-        e_ind = data[g].edge_index
-        coo = sp.coo_matrix((np.ones(e_ind.shape[1]), (e_ind[0, :], e_ind[1, :])), shape=(nb_nodes, nb_nodes))
-        adjacency[g] = coo.todense()
+    node_class_num=range(node_class)
 
-    return features, adjacency, labels, sizes, masks
+    # print("data",data)
+    labels = np.zeros((nb_graphs,class_num))
+    for g in range(nb_graphs):
+        if g == 0:
+            # sizes = data[g].x.shape[0]
+            features = data[g].x[ :,node_class_num]
+            rawlabels = data[g].y[0]
+            # masks[g, :sizes[g]] = 1.0
+            e_ind = data[g].edge_index
+            # print("e_ind",e_ind)
+            coo = sp.coo_matrix((np.ones(e_ind.shape[1]), (e_ind[0, :], e_ind[1, :])), shape=(features.shape[0], features.shape[0]))
+            # print("coo",coo)
+            adjacency = coo.todense()
+        else:
+            tmpfeature = data[g].x[ :,node_class_num]
+            features = np.row_stack((features,tmpfeature))
+            tmplabel = data[g].y[0]
+            rawlabels = np.row_stack((rawlabels,tmplabel))
+            e_ind = data[g].edge_index
+            coo = sp.coo_matrix((np.ones(e_ind.shape[1]), (e_ind[0, :], e_ind[1, :])), shape=(tmpfeature.shape[0], tmpfeature.shape[0]))
+            # print("coo",coo)
+            tmpadj = coo.todense()
+            zero = np.zeros((adjacency.shape[0], tmpfeature.shape[0]))
+            tmpadj1 = np.column_stack((adjacency,zero))
+            tmpadj2 = np.column_stack((zero.T,tmpadj))
+            adjacency = np.row_stack((tmpadj1,tmpadj2))
+
+    for x in range(nb_graphs):
+        if nb_graphs == 1:
+            labels[0][rawlabels.item()]=1
+            break
+        labels[x][rawlabels[x][0]] = 1
+    
+    adj = sp.csr_matrix(adjacency)
+
+
+    return features, adj
 
 def micro_f1(logits, labels):
     # Compute predictions

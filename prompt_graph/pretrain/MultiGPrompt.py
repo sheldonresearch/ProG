@@ -9,11 +9,13 @@ from prompt_graph.utils import process
 import prompt_graph.utils.aug as aug
 import os
 from torch_geometric.loader import DataLoader
+from tqdm import tqdm
 
 class NodePrePrompt(nn.Module):
-    def __init__(self, dataset_name, n_h, activation,a1,a2,a3, a4, num_layers_num, dropout):
+    def __init__(self, dataset_name, n_h, activation,a1,a2,a3, a4, num_layers_num, dropout, device):
         super(NodePrePrompt, self).__init__()
         self.dataset_name = dataset_name
+        self.device = device
         self.hid_dim = n_h
         n_in, self.nb_nodes = self.load_data()
         self.dgi = DGI(n_in, n_h, activation)
@@ -30,7 +32,7 @@ class NodePrePrompt(nn.Module):
         self.graphcledgeprompt = GraphCLprompt(n_in, n_h, activation)
         self.lpprompt = Lpprompt(n_in, n_h)
         sample = self.negetive_sample
-        self.sample = torch.tensor(sample,dtype=int).cuda()
+        self.sample = torch.tensor(sample,dtype=int).to(self.device)
         self.loss = nn.BCEWithLogitsLoss()
         self.act = nn.ELU()
 
@@ -75,7 +77,7 @@ class NodePrePrompt(nn.Module):
 
         dgiloss = self.loss(logits11, lbl)
         graphcledgeloss = self.loss(logits22, lbl)
-        lploss = compareloss(logits33,self.sample,temperature=1.5)
+        lploss = compareloss(logits33,self.sample,temperature=1.5, device = self.device)
         lploss.requires_grad_(True)
         
         ret = self.a1 * dgiloss + self.a2 * graphcledgeloss + self.a3 * lploss
@@ -151,20 +153,20 @@ class NodePrePrompt(nn.Module):
         optimizer = torch.optim.Adam(self.parameters(), lr=lr, weight_decay=l2_coef)
         if torch.cuda.is_available():
             print('Using CUDA')
-            self = self.cuda()
-            features = features.cuda()
-            aug_features1edge = aug_features1edge.cuda()
-            aug_features2edge = aug_features2edge.cuda()
-            aug_features1mask = aug_features1mask.cuda()
-            aug_features2mask = aug_features2mask.cuda()
+            self = self.to(self.device)
+            features = features.to(self.device)
+            aug_features1edge = aug_features1edge.to(self.device)
+            aug_features2edge = aug_features2edge.to(self.device)
+            aug_features1mask = aug_features1mask.to(self.device)
+            aug_features2mask = aug_features2mask.to(self.device)
      
-            sp_adj = sp_adj.cuda()
-            sp_aug_adj1edge = sp_aug_adj1edge.cuda()
-            sp_aug_adj2edge = sp_aug_adj2edge.cuda()
-            sp_aug_adj1mask = sp_aug_adj1mask.cuda()
-            sp_aug_adj2mask = sp_aug_adj2mask.cuda()
+            sp_adj = sp_adj.to(self.device)
+            sp_aug_adj1edge = sp_aug_adj1edge.to(self.device)
+            sp_aug_adj2edge = sp_aug_adj2edge.to(self.device)
+            sp_aug_adj1mask = sp_aug_adj1mask.to(self.device)
+            sp_aug_adj2mask = sp_aug_adj2mask.to(self.device)
 
-            labels = labels.cuda()
+            labels = labels.to(self.device)
   
     
         cnt_wait = 0
@@ -180,8 +182,8 @@ class NodePrePrompt(nn.Module):
             lbl_2 = torch.zeros(batch_size, self.nb_nodes)
             lbl = torch.cat((lbl_1, lbl_2), 1)
             if torch.cuda.is_available():
-                shuf_fts = shuf_fts.cuda()
-                lbl = lbl.cuda()
+                shuf_fts = shuf_fts.to(self.device)
+                lbl = lbl.to(self.device)
             loss = self(features, shuf_fts, aug_features1edge, aug_features2edge, aug_features1mask, aug_features2mask,
                         sp_adj if sparse else adj,
                         sp_aug_adj1edge if sparse else aug_adj1edge,
@@ -214,11 +216,12 @@ class NodePrePrompt(nn.Module):
 
 
 class GraphPrePrompt(nn.Module):
-    def __init__(self, graph, n_in, n_out, dataset_name, n_h, activation,a1,a2,a3,num_layers_num,p):
+    def __init__(self, graph, n_in, n_out, dataset_name, n_h, activation,a1,a2,a3,num_layers_num,p,device):
         super(GraphPrePrompt, self).__init__()
         self.graph_list = graph
         self.loader = self.get_loader()
         self.dataset_name = dataset_name
+        self.device = device
         self.dgi = DGI(n_in, n_h, activation)
         self.graphcledge = GraphCL(n_in, n_h, activation)
         self.graphclmask = GraphCL(n_in, n_h, activation)
@@ -240,7 +243,7 @@ class GraphPrePrompt(nn.Module):
     def forward(self, seq1, seq2, seq3, seq4, adj, aug_adj1edge, aug_adj2edge, 
                 sparse, msk, samp_bias1, samp_bias2,
                 lbl,sample):
-        negative_sample = torch.tensor(sample,dtype=int).cuda()
+        negative_sample = torch.tensor(sample,dtype=int).to(self.device)
         seq1 = torch.squeeze(seq1,0)
         seq2 = torch.squeeze(seq2,0)
         seq3 = torch.squeeze(seq3,0)
@@ -252,7 +255,7 @@ class GraphPrePrompt(nn.Module):
         logits3 = self.lp(self.gcn,seq1,adj,sparse)
         dgiloss = self.loss(logits1, lbl)
         graphcledgeloss = self.loss(logits2, lbl)
-        lploss = compareloss(logits3,negative_sample,temperature=1.5)
+        lploss = compareloss(logits3,negative_sample,temperature=1.5, device = self.device)
         lploss.requires_grad_(True)
         
         ret =self.a1*dgiloss+self.a2*graphcledgeloss+self.a3*lploss
@@ -267,17 +270,17 @@ class GraphPrePrompt(nn.Module):
 
     def pretrain(self):
         best = 1e9
-
+        self.to(self.device)
         for epoch in range(1000):
             loss = 0
             regloss = 0
             drop_percent=0.1
             patience = 20
-            train_bar = tqdm(self.loader) 
+            # train_bar = tqdm(self.loader) 
             for step, batch in enumerate(self.loader):
 
                 features,adj =  process.process_tu(batch, self.output_dim, self.input_dim)
-                negetive_sample = prompt_pretrain_sample(adj,50)
+                negetive_sample = tu_prompt_pretrain_sample(adj,50)
                 nb_nodes = features.shape[0]  # node number
                 features = torch.FloatTensor(features[np.newaxis])
 
@@ -303,21 +306,17 @@ class GraphPrePrompt(nn.Module):
                 aug_adj2edge = torch.FloatTensor(aug_adj2edge[np.newaxis])
 
                 optimiser = torch.optim.Adam(self.parameters(), lr=0.0001, weight_decay=0)
-                if torch.cuda.is_available() and step==0:
-                    print('Using CUDA')
-                    # model = torch.nn.DataParallel(model, device_ids=[0,1]).cuda()
-                    features = features.cuda()
-                    aug_features1edge = aug_features1edge.cuda()
-                    aug_features2edge = aug_features2edge.cuda()
-                    adj = adj.cuda()
-                    aug_adj1edge = aug_adj1edge.cuda()
-                    aug_adj2edge = aug_adj2edge.cuda()
+                if torch.cuda.is_available() :
+                    # print('Using CUDA')
+                    # model = torch.nn.DataParallel(model, device_ids=[0,1]).to(self.device)
+                    features = features.to(self.device)
+                    aug_features1edge = aug_features1edge.to(self.device)
+                    aug_features2edge = aug_features2edge.to(self.device)
+                    adj = adj.to(self.device)
+                    aug_adj1edge = aug_adj1edge.to(self.device)
+                    aug_adj2edge = aug_adj2edge.to(self.device)
                 b_xent = nn.BCEWithLogitsLoss()
                 xent = nn.CrossEntropyLoss()
-                # cnt_wait = 0
-                # # best = 1e9
-                # best_t = 0
-
                 self.train()
                 optimiser.zero_grad()
                 idx = np.random.permutation(nb_nodes)
@@ -326,17 +325,18 @@ class GraphPrePrompt(nn.Module):
                 lbl_2 = torch.zeros(1, nb_nodes)
                 lbl = torch.cat((lbl_1, lbl_2), 1)
                 if torch.cuda.is_available():
-                    shuf_fts = shuf_fts.cuda()
-                    lbl = lbl.cuda()
+                    shuf_fts = shuf_fts.to(self.device)
+                    lbl = lbl.to(self.device)
                 logit = self(features, shuf_fts, aug_features1edge, aug_features2edge,
                             adj,
                             aug_adj1edge,
                             aug_adj2edge,
                             False, None, None, None, lbl=lbl,sample=negetive_sample)
                 loss = loss + logit
+                # print(loss)
                 showloss = loss/(step+1)
             loss = loss / (step+1)
-            print('Loss:[{:.4f}]'.format(loss.item()))
+            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, 1000, loss.item()))
             if loss < best:
                 best = loss
                 best_t = epoch
@@ -344,7 +344,7 @@ class GraphPrePrompt(nn.Module):
                 # torch.save(model.state_dict(), args.save_name)
             else:
                 cnt_wait += 1
-                print("cnt_wait",cnt_wait)
+                # print("cnt_wait",cnt_wait)
 
             if cnt_wait == patience:
                 print('-' * 100)
@@ -369,13 +369,12 @@ def mygather(feature, index):
     return res.reshape(input_size,-1,feature.size(1))
 
 
-def compareloss(feature,tuples,temperature):
-
+def compareloss(feature,tuples,temperature,device):
     h_tuples=mygather(feature,tuples)
     temp = torch.arange(0, len(tuples))
     temp = temp.reshape(-1, 1)
     temp = torch.broadcast_to(temp, (temp.size(0), tuples.size(1)))
-    temp=temp.cuda()
+    temp=temp.to(device)
     h_i = mygather(feature, temp)
     sim = F.cosine_similarity(h_i, h_tuples, dim=2)
     # print("sim",sim)
@@ -399,6 +398,26 @@ def prompt_pretrain_sample(adj,n):
     print("#############")
     print("start sampling disconnected tuples")
     for i in tqdm.trange(nodenum):
+        nonzero_index_i_row=indices[indptr[i]:indptr[i+1]]
+        zero_index_i_row=np.setdiff1d(whole,nonzero_index_i_row)
+        np.random.shuffle(nonzero_index_i_row)
+        np.random.shuffle(zero_index_i_row)
+        if np.size(nonzero_index_i_row)==0:
+            res[i][0] = i
+        else:
+            res[i][0]=nonzero_index_i_row[0]
+        res[i][1:1+n]=zero_index_i_row[0:n]
+    return res.astype(int)
+
+def tu_prompt_pretrain_sample(adj,n):
+    nodenum=adj.shape[0]
+    indices=adj.indices
+    indptr=adj.indptr
+    res=np.zeros((nodenum,1+n))
+    whole=np.array(range(nodenum))
+    # print("#############")
+    # print("start sampling disconnected tuples")
+    for i in range(nodenum):
         nonzero_index_i_row=indices[indptr[i]:indptr[i+1]]
         zero_index_i_row=np.setdiff1d(whole,nonzero_index_i_row)
         np.random.shuffle(nonzero_index_i_row)

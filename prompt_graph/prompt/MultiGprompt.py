@@ -191,7 +191,7 @@ class GCN(nn.Module):
         if sparse:
             out = torch.spmm(adj, seq_fts)
         else:
-            out = torch.bmm(adj, seq_fts)
+            out = torch.mm(adj.squeeze(dim=0), seq_fts)
         if self.bias is not None:
             out += self.bias
 
@@ -233,7 +233,7 @@ class GcnLayers(torch.nn.Module):
         xs = []
         for i in range(self.num_layers_num):
             input=(graph_output,adj)
-            graph_output = self.convs[i](input)
+            graph_output = self.convs[i](input,sparse)
             if LP:
                 graph_output = self.bns[i](graph_output)
                 graph_output = self.dropout(graph_output)
