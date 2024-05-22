@@ -6,5 +6,5 @@ def print_model_parameters(model):
         if not parameter.requires_grad: continue
         param = parameter.numel()
         total_params+=param
-        print(f"{name} has {param} parameters")
+        # print(f"{name} has {param} parameters")
     print(f"Total Parameters: {total_params}")
