@@ -40,6 +40,15 @@ class GPPTPrompt(torch.nn.Module):
             self.TaskToken.append(torch.nn.Linear(2 * n_hidden, n_classes, bias=False))  #task token
         self.TaskToken = self.TaskToken.to(device)
 
+    def _initialize_weights(self, layer):
+        import torch.nn.init as init
+        if isinstance(layer, nn.Linear):
+            # You can choose any initialization method. Here, we use Xavier initialization.
+            init.xavier_uniform_(layer.weight)
+            # If you have bias, you can initialize it as well, but in this case, bias is False.
+            # if layer.bias is not None:
+            #     init.constant_(layer.bias, 0)        
+
     def weigth_init(self, h, edge_index, label, index):
         # 对于图中的每一个节点，将其特征（'h'）发送给所有邻居节点，然后每个节点会计算所有收到的邻居特征的平均值，并将这个平均值存储为自己的新特征在'neighbor'下
 
@@ -48,12 +57,11 @@ class GPPTPrompt(torch.nn.Module):
         h = conv(h, edge_index)
         
         features=h[index]
-        labels=label[index.long()]
+        labels=label[index.long()]  # labels变量的类别不全
 
         cluster = KMeans(n_clusters=self.center_num,random_state=0).fit(features.detach().cpu())
         temp=torch.FloatTensor(cluster.cluster_centers_).to(self.device)
         self.StructureToken.weight.data = temp.clone().detach()
-        
 
         p=[]
         for i in range(self.n_classes):
@@ -61,8 +69,7 @@ class GPPTPrompt(torch.nn.Module):
         temp=torch.cat(p,dim=0).to(self.device)
         for i in range(self.center_num):
             self.TaskToken[i].weight.data = temp.clone().detach()
-        
-
+            # enzymes 600张图。1-shot，6种节点类型，筛选出6张图。do.. while() --> 6张图的Batch bg，bg.y,
     
     def update_StructureToken_weight(self, h):
 
@@ -90,16 +97,15 @@ class GPPTPrompt(torch.nn.Module):
     def get_mid_h(self):
         return self.fea
 
-    def forward(self, h, edge_index):
+    def forward(self, h, edge_index):       
         device = h.device
         conv = SimpleMeanConv()
         # 使用这个层进行前向传播，得到聚合后的节点特征
         h = conv(h, edge_index)
         self.fea = h 
-
         out = self.StructureToken(h)
         index = torch.argmax(out, dim=1)
-        out = torch.FloatTensor(h.shape[0],self.n_classes).to(device)
+        out = torch.zeros(h.shape[0],self.n_classes).to(device)
         for i in range(self.center_num):
             out[index==i]=self.TaskToken[i](h[index==i])
         return out
