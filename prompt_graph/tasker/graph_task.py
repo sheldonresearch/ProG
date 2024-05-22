@@ -68,8 +68,6 @@ class GraphTask(BaseTask):
             out = self.gnn(batch.x, batch.edge_index, batch.batch)
             out = self.answering(out)
             loss = self.criterion(out, batch.y)  
-
-            
             loss.backward()  
             self.optimizer.step()  
             total_loss += loss.item()  
@@ -164,6 +162,19 @@ class GraphTask(BaseTask):
             self.pg_opi.step()
             self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
         return temp_loss.item()
+
+    def MultiGpromptTrain(self, pretrain_embs, train_lbls, train_idx):
+        self.DownPrompt.train()
+        self.optimizer.zero_grad()
+        prompt_feature = self.feature_prompt(self.features)
+  
+        embeds1= self.Preprompt.gcn(prompt_feature, self.sp_adj , True, False)
+        pretrain_embs1 = embeds1[0, train_idx]
+        logits = self.DownPrompt(pretrain_embs,pretrain_embs1, train_lbls,1).float().to(self.device)
+        loss = self.criterion(logits, train_lbls)           
+        loss.backward(retain_graph=True)
+        self.optimizer.step()
+        return loss.item()
 
     def run(self):
         test_accs = []
