@@ -120,14 +120,14 @@ for pre_train in ['DGI', 'GraphMAE', 'Edgepred_GPPT', 'Edgepred_Gprompt', 'Graph
             file_path = os.path.join('./Experiment/ExcelResults/Node/'+str(shot_num)+'shot/'+ args.dataset_name +'/', file_name)
         if args.task == 'GraphTask':
             file_path = os.path.join('./Experiment/ExcelResults/Graph/'+str(shot_num)+'shot/'+ args.dataset_name +'/', file_name)
-        data = pd.read_excel(file_path, index_col=0)
+        dataframe = pd.read_excel(file_path, index_col=0)
 
         col_name = f"{pre_train_type}+{args.prompt_type}"
         print('col_name', col_name)
-        data.at['Final Accuracy', col_name] = f"{final_acc_mean:.4f}±{final_acc_std:.4f}"
-        data.at['Final F1', col_name] = f"{final_f1_mean:.4f}±{final_f1_std:.4f}"
-        data.at['Final AUROC', col_name] = f"{final_roc_mean:.4f}±{final_roc_std:.4f}"
-        data.to_excel(file_path)
+        dataframe.at['Final Accuracy', col_name] = f"{final_acc_mean:.4f}±{final_acc_std:.4f}"
+        dataframe.at['Final F1', col_name] = f"{final_f1_mean:.4f}±{final_f1_std:.4f}"
+        dataframe.at['Final AUROC', col_name] = f"{final_roc_mean:.4f}±{final_roc_std:.4f}"
+        dataframe.to_excel(file_path)
 
         print("Data saved to "+file_path+" successfully.")
 
