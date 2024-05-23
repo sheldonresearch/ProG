@@ -9,7 +9,7 @@ seed_everything(args.seed)
 
 args.hid_dim = 256
 args.task = 'GraphCL'
-args.gnn ='GraphTransformer'
+args.gnn_type ='GraphTransformer'
 # args.device = 6
 
 # input_dim, out_dim, graph_list = load4graph(args.dataset_name, pretrained=True)
