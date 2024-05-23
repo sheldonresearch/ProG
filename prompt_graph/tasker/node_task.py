@@ -188,9 +188,11 @@ class NodeTask(BaseTask):
             rocs = []
             prcs = []
             batch_best_loss = []
-            # for all-in-one and Gprompt we use k-hop subgraph, but when wo search for best parameter, we load inducedd graph once cause it costs too much time
-            # if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
-            #       self.load_induced_graph()
+            if self.prompt_type == 'All-in-one':
+                  self.answer_epoch = 50
+                  self.prompt_epoch = 50
+                  self.epochs = int(self.epochs/self.answer_epoch)
+
             for i in range(1, 6):
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
@@ -234,11 +236,6 @@ class NodeTask(BaseTask):
                   best = 1e9
                   cnt_wait = 0
                   best_loss = 1e9
-                  if self.prompt_type == 'All-in-one':
-                        self.answer_epoch = 20
-                        self.prompt_epoch = 20
-                        self.epochs = int(self.epochs/self.answer_epoch)
-
 
                   for epoch in range(1, self.epochs):
                         t0 = time.time()
