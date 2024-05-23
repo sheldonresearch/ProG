@@ -207,11 +207,38 @@ def load4node(dataname):
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
-    elif dataname in ['Wisconsin', 'Texas']:
+    elif dataname in ['Wisconsin']:
         dataset = WebKB(root='data/'+dataname, name=dataname)
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
+    elif dataname in ['Texas']:
+        dataset = WebKB(root='data/'+dataname, name=dataname)
+        data = dataset[0]
+        out_dim = 4
+        input_dim = dataset.num_features
+        mask = data.y != 1
+
+        # 过滤节点
+        data.x = data.x[mask]
+        data.y = data.y[mask]
+
+        # 生成新旧索引的映射
+        # torch.where(mask) 会返回mask中为True的元素的索引
+        old_to_new_indices = torch.zeros(len(mask), dtype=torch.long)  # 初始化映射数组
+        old_to_new_indices[mask] = torch.arange(mask.sum())  # 被保留节点的新索引
+
+        # 过滤边
+        edge_index = data.edge_index
+        mask_edge = mask[edge_index[0]] & mask[edge_index[1]]
+        filtered_edge_index = edge_index[:, mask_edge]
+
+        # 更新边索引
+        data.edge_index = torch.stack([old_to_new_indices[filtered_edge_index[0]],
+                                    old_to_new_indices[filtered_edge_index[1]]], dim=0)
+        for index in range(data.y.size(0)):
+            if data.y[index] == 4:
+                data.y[index] = 1
     elif dataname == 'Actor':
         dataset = Actor(root='data/Actor')
         data = dataset[0]
