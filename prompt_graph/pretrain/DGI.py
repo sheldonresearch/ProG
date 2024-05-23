@@ -11,6 +11,7 @@ from prompt_graph.data import load4node, load4graph, NodePretrain
 import os
 import numpy as np
 import copy
+from torch_geometric import loader
 
 class Discriminator(nn.Module):
     def __init__(self, n_h):
@@ -61,12 +62,8 @@ class DGI(PreTrain):
         elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
             input_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True) # need graph list not dataset object, so the pretrained = True
             self.input_dim = input_dim
-
-            from torch_geometric import loader
             self.batch_dataloader = loader.DataLoader(graph_list,batch_size=512,shuffle=False)
-
             data = graph_list
-
         return data
 
     def pretrain_one_epoch(self):

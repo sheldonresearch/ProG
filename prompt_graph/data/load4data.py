@@ -424,12 +424,9 @@ def load4link_prediction_multi_large_scale_graph(dataset_name, num_per_samples=1
     return data, edge_label, edge_index, input_dim, output_dim
 
 # used in pre_train.py
-def NodePretrain(data, num_parts=200, split_method='Random Walk'):
+def NodePretrain(dataname, num_parts=200, split_method='Random Walk'):
 
-    # if(dataname=='Cora'):
-    #     num_parts=220
-    # elif(dataname=='Texas'):
-    #     num_parts=20
+    data, input_dim, _ = load4node(dataname)
     if(split_method=='Cluster'):
         x = data.x.detach()
         edge_index = data.edge_index
@@ -463,6 +460,6 @@ def NodePretrain(data, num_parts=200, split_method='Random Walk'):
         print('None split method!')
         exit()
     
-    return graph_list
+    return graph_list, input_dim
 
 
