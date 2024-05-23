@@ -81,22 +81,29 @@ class BaseTask:
             self.prompt = GPF(self.input_dim).to(self.device)
         elif self.prompt_type == 'GPF-plus':
             self.prompt = GPF_plus(self.input_dim, 20).to(self.device)
-        # elif self.prompt_type == 'sagpool':
-        #     self.prompt = SAGPoolPrompt(self.input_dim , num_clusters=5, ratio=0.5).to(self.device)
-        # elif self.prompt_type == 'diffpool':
-        #     self.prompt = DiffPoolPrompt(self.input_dim, num_clusters=5 ).to(self.device)
         elif self.prompt_type == 'Gprompt':
             self.prompt = Gprompt(self.hid_dim).to(self.device)
         elif self.prompt_type == 'MultiGprompt':
-            nonlinearity = 'prelu'
-            self.Preprompt = NodePrePrompt(self.dataset_name, self.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3).to(self.device)
-            self.Preprompt.load_state_dict(torch.load(self.pre_train_model_path))
-            self.Preprompt.eval()
-            self.feature_prompt = featureprompt(self.Preprompt.dgiprompt.prompt,self.Preprompt.graphcledgeprompt.prompt,self.Preprompt.lpprompt.prompt).to(self.device)
+            if(self.task_type=='NodeTask'):
+                nonlinearity = 'prelu'
+                self.Preprompt = NodePrePrompt(self.data, self.dataset_name, self.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3,self.device).to(self.device)
+                self.Preprompt.load_state_dict(torch.load(self.pre_train_model_path))
+                self.Preprompt.eval()
+                self.feature_prompt = featureprompt(self.Preprompt.dgiprompt.prompt,self.Preprompt.graphcledgeprompt.prompt,self.Preprompt.lpprompt.prompt).to(self.device)
+
+            if(self.task_type=='GraphTask'):
+                nonlinearity = 'prelu'
+                self.Preprompt = GraphPrePrompt(self.dataset, self.input_dim, self.out_dim, self.dataset_name, self.hid_dim, nonlinearity,0.9,0.9,0.1,1,0.3).to(self.device)
+                self.Preprompt.eval()
+                self.feature_prompt = None
+                self.Preprompt.load_state_dict(torch.load(self.pre_train_model_path))
             dgiprompt = self.Preprompt.dgi.prompt  
             graphcledgeprompt = self.Preprompt.graphcledge.prompt
             lpprompt = self.Preprompt.lp.prompt
-            self.DownPrompt = downprompt(dgiprompt, graphcledgeprompt, lpprompt, 0.001, self.hid_dim, self.output_dim, self.device).to(self.device)
+            self.DownPrompt = downprompt(dgiprompt, graphcledgeprompt, lpprompt, self.hid_dim, self.output_dim, self.device).to(self.device)
+            # self.prompt = torch.cat((self.Preprompt, self.feature_prompt, self.DownPrompt), dim=0)
+
+
         else:
             raise KeyError(" We don't support this kind of prompt.")
 

@@ -12,8 +12,9 @@ from torch_geometric.loader import DataLoader
 from tqdm import tqdm
 
 class NodePrePrompt(nn.Module):
-    def __init__(self, dataset_name, n_h, activation,a1,a2,a3, a4, num_layers_num, dropout, device):
+    def __init__(self, data, dataset_name, n_h, activation,a1,a2,a3, a4, num_layers_num, dropout, device):
         super(NodePrePrompt, self).__init__()
+        self.data = data
         self.dataset_name = dataset_name
         self.device = device
         self.hid_dim = n_h
@@ -37,7 +38,7 @@ class NodePrePrompt(nn.Module):
         self.act = nn.ELU()
 
     def load_data(self):
-        self.adj, features, self.labels = process.load_data(self.dataset_name)
+        self.adj, features, self.labels = process.load_data(self.data)
         # self.adj, features, self.labels = process.load_data(self.dataset_name)  
         self.features, _ = process.preprocess_features(features)
         
@@ -397,7 +398,7 @@ def prompt_pretrain_sample(adj,n):
     whole=np.array(range(nodenum))
     print("#############")
     print("start sampling disconnected tuples")
-    for i in tqdm.trange(nodenum):
+    for i in range(nodenum):
         nonzero_index_i_row=indices[indptr[i]:indptr[i+1]]
         zero_index_i_row=np.setdiff1d(whole,nonzero_index_i_row)
         np.random.shuffle(nonzero_index_i_row)

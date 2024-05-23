@@ -19,7 +19,12 @@ class NodeTask(BaseTask):
             super().__init__(*args, **kwargs)
             self.task_type = 'NodeTask'
             if self.prompt_type == 'MultiGprompt':
+                  self.data = data
+                  data = data.to('cpu')
+                  self.input_dim = input_dim
+                  self.output_dim = output_dim
                   self.load_multigprompt_data()
+
             else:
                   self.data = data
                   if self.dataset_name == 'ogbn-arxiv':
@@ -31,6 +36,9 @@ class NodeTask(BaseTask):
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
             
             self.create_few_data_folder()
+            self.initialize_gnn()
+            self.initialize_prompt()
+            self.initialize_optimizer()
 
       def create_few_data_folder(self):
             # 创建文件夹并保存数据
@@ -46,11 +54,8 @@ class NodeTask(BaseTask):
                               print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
       def load_multigprompt_data(self):
-            adj, features, labels = process.load_data(self.dataset_name)
+            adj, features, labels = process.load_data(self.data)
             # adj, features, labels = process.load_data(self.dataset_name)  
-            self.input_dim = features.shape[1]
-            self.output_dim = labels.shape[1]
-            print('a',self.output_dim)
             features, _ = process.preprocess_features(features)
             self.sp_adj = process.sparse_mx_to_torch_sparse_tensor(adj).to(self.device)
             self.labels = torch.FloatTensor(labels[np.newaxis])
@@ -58,24 +63,6 @@ class NodeTask(BaseTask):
             # print("labels",labels)
             print("adj",self.sp_adj.shape)
             print("feature",features.shape)
-
-      # def load_induced_graph(self):
-        
-      #       folder_path = './Experiment/induced_graph/' + self.dataset_name
-      #       if not os.path.exists(folder_path):
-      #             os.makedirs(folder_path)
-
-      #       file_path = folder_path + '/induced_graph_min100_max300.pkl'
-      #       if os.path.exists(file_path):
-      #             with open(file_path, 'rb') as f:
-      #                   graphs_list = pickle.load(f)
-      #       else:
-      #             print('Begin split_induced_graphs.')
-      #             split_induced_graphs(self.data, folder_path, self.device, smallest_size=100, largest_size=300)
-      #             with open(file_path, 'rb') as f:
-      #                   graphs_list = pickle.load(f)
-      #       self.graphs_list = [graph.to(self.device) for graph in graphs_list]
-            
 
       
       def load_data(self):
@@ -205,9 +192,6 @@ class NodeTask(BaseTask):
             # if (self.search == False) and (self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']):
             #       self.load_induced_graph()
             for i in range(1, 6):
-                  self.initialize_gnn()
-                  self.initialize_prompt()
-                  self.initialize_optimizer()
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                   print('idx_train',idx_train)
                   train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)

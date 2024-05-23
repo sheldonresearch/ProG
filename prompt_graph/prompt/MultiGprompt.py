@@ -6,11 +6,10 @@ import numpy as np
     
 
 class downprompt(nn.Module):
-    def __init__(self, prompt1, prompt2, prompt3,a4,ft_in, nb_classes, device):
+    def __init__(self, prompt1, prompt2, prompt3,ft_in, nb_classes, device):
         super(downprompt, self).__init__()
         self.downprompt = downstreamprompt(ft_in)
         self.nb_classes = nb_classes
-        self.a4 = a4
         self.leakyrelu = nn.ELU()
         self.device = device
         self.prompt = torch.cat((prompt1, prompt2, prompt3), 0)
@@ -36,7 +35,7 @@ class downprompt(nn.Module):
         rawret2 = self.downprompt(seq)
         rawret4 = seq1
         rawret3 = self.dffprompt(rawret1 ,rawret2)
-        rawret =rawret3 +self.a4 * rawret4
+        rawret =rawret3 +0.001 * rawret4
         rawret = rawret.to(self.device)
         if train == 1:
             self.ave = averageemb(labels, rawret, self.nb_classes).to(self.device)
@@ -60,26 +59,6 @@ class downprompt(nn.Module):
             if m.bias is not None:
                 m.bias.data.fill_(0.0)
 
-
-# def averageemb(labels, rawret, nb_class):
-#     # 初始化 retlabel 张量
-#     retlabel = torch.FloatTensor(nb_class, int(rawret.shape[0] / nb_class), int(rawret.shape[1]))
-    
-#     # 初始化计数器字典
-#     counters = {i: 0 for i in range(nb_class)}
-    
-#     # 遍历 rawret，按类别填充 retlabel
-#     for x in range(rawret.shape[0]):
-#         label = labels[x].item()
-#         if label < nb_class:
-#             retlabel[label][counters[label]] = rawret[x]
-#             counters[label] += 1
-    
-#     # 计算 retlabel 的平均值
-#     retlabel = torch.mean(retlabel, dim=1)
-    
-#     return retlabel
-import torch
 
 # ours
 def averageemb(index, input, label_num):
