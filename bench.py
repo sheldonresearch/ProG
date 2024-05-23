@@ -39,12 +39,7 @@ param_grid = {
     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
     'batch_size': np.linspace(32, 64, 32),
 }
-# if args.dataset_name in ['PubMed']:
-#      param_grid = {
-#     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
-#     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-#     'batch_size': np.linspace(128, 512, 200),
-#     }
+
 if args.dataset_name in ['ogbn-arxiv','Flickr']:
      param_grid = {
     'learning_rate': 10 ** np.linspace(-3, -1, 1),

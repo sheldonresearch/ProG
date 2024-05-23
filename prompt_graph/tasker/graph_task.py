@@ -183,6 +183,12 @@ class GraphTask(BaseTask):
         rocs = []
         prcs = []
         batch_best_loss = []
+        if self.prompt_type == 'All-in-one':
+            # self.answer_epoch = 5 MUTAG Graph MAE / GraphCL
+            # self.prompt_epoch = 1
+            self.answer_epoch = 50
+            self.prompt_epoch = 50
+            self.epochs = int(self.epochs/self.answer_epoch)
         if self.shot_num > 0:
             for i in range(1, 6):
                 idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
@@ -220,13 +226,8 @@ class GraphTask(BaseTask):
                 best = 1e9
                 cnt_wait = 0
             
-                if self.prompt_type == 'All-in-one':
-                    # self.answer_epoch = 5 MUTAG Graph MAE / GraphCL
-                    # self.prompt_epoch = 1
-                    self.answer_epoch = 5
-                    self.prompt_epoch = 1
-                    self.epochs = int(self.epochs/self.answer_epoch)
-                elif self.prompt_type == 'GPPT':
+
+                if self.prompt_type == 'GPPT':
                     # initialize the GPPT hyperparametes via graph data
                     if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
                         # total_num_nodes = sum([data.num_nodes for data in train_dataset])
