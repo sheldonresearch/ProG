@@ -1,10 +1,11 @@
 import torch
 from prompt_graph.data import load4graph, load4node, graph_sample_and_save
 from torch_geometric.loader import DataLoader
+from torch_geometric.utils import get_laplacian
 import torch.nn.functional as F
 from .task import BaseTask
 from prompt_graph.utils import center_embedding, Gprompt_tuning_loss,constraint
-from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva, GPPTGraphEva
+from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva, GPPTGraphEva, MultiGpromptGraphEva
 import time
 import os 
 import numpy as np
@@ -165,15 +166,17 @@ class GraphTask(BaseTask):
             self.prompt.update_StructureToken_weight(self.prompt.get_mid_h())
         return temp_loss.item()
 
-    def MultiGpromptTrain(self, pretrain_embs, train_lbls, train_idx):
+    def MultiGpromptTrain(self, train_embeds, labels, batch):
         self.DownPrompt.train()
         self.optimizer.zero_grad()
-        prompt_feature = self.feature_prompt(self.features)
-        embeds1= self.Preprompt.gcn(prompt_feature, self.sp_adj , True, False)
-        pretrain_embs1 = embeds1[0, train_idx]
-        logits = self.DownPrompt(pretrain_embs,pretrain_embs1, train_lbls,1).float().to(self.device)
-        loss = self.criterion(logits, train_lbls)           
-        loss.backward(retain_graph=True)
+        
+        graph_embeds = self.DownPrompt.graph_forward(train_embeds, batch)
+        centroids_embeds = self.DownPrompt.averageemb(labels, graph_embeds, self.DownPrompt.nb_classes)
+        ret = F.cosine_similarity(graph_embeds.unsqueeze(1), centroids_embeds.unsqueeze(0), dim=-1)
+        logits = F.log_softmax(ret, dim=1)
+        loss = self.criterion(logits, labels)
+        
+        loss.backward()
         self.optimizer.step()
         return loss.item()
 
@@ -300,18 +303,59 @@ class GraphTask(BaseTask):
 
                         test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
-                    # from torch_geometric.nn import global_mean_pool
-                    # self.gppt_pool = global_mean_pool
-                    # train_ids = torch.nonzero(idx_train, as_tuple=False).squeeze()
-                    # self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)          
-                    # for i, batch in enumerate(self.gppt_loader):
-                    #     batch.to(self.device)
-                    #     node_embedding = self.gnn(batch.x, batch.edge_index)
-                    #     if(i==0):
-                    #         graph_embedding = self.gppt_pool(node_embedding,batch.batch.long())
-                    #     else:
-                    #         graph_embedding = torch.concat([graph_embedding,self.gppt_pool(node_embedding,batch.batch.long())],dim=0)
+                elif self.prompt_type == 'MultiGprompt':
+                    # Combine all data into one single graph (follow source code)
+                    train_features, train_edge_index = [], []
+                    train_labels, train_batch = [], []
+                    for i, batch in enumerate(train_loader):
+                        train_features.append(batch.x)
+                        train_edge_index.append(batch.edge_index)
+                        train_labels.append(batch.y)
+                        train_batch.append(batch.batch + i*self.batch_size)
                     
+                    train_features = torch.concat(train_features).to(self.device)
+                    train_edge_index = torch.concat(train_edge_index, dim=1)
+                    train_labels = torch.concat(train_labels).to(self.device)
+                    train_batch = torch.concat(train_batch).to(self.device)
+                    # train_sizes = torch.concat(train_sizes).to(self.device)
+
+                    # Convert to sparse matrix
+                    num_nodes = train_features.shape[0]
+                    train_edge_index, train_edge_weight = get_laplacian(train_edge_index, normalization='sym', 
+                                                                        num_nodes=num_nodes)
+                    train_adj = torch.sparse_coo_tensor(train_edge_index, train_edge_weight, 
+                                                        [num_nodes, num_nodes], device=self.device)
+                    
+                    # Pre-calculate the train embedding
+                    with torch.no_grad():
+                        train_embeds = self.Preprompt.gcn(train_features, train_adj, True, False).squeeze()
+
+                    # For test data, preprocess
+                    test_features, test_edge_index = [], []
+                    test_labels, test_batch = [], []
+                    for i, batch in enumerate(test_loader):
+                        test_features.append(batch.x)
+                        test_edge_index.append(batch.edge_index)
+                        test_labels.append(batch.y)
+                        test_batch.append(batch.batch + i*self.batch_size)
+
+                    test_features = torch.concat(test_features).to(self.device)
+                    test_edge_index = torch.concat(test_edge_index, dim=1)
+                    test_labels = torch.concat(test_labels).to(self.device)
+                    test_batch = torch.concat(test_batch).to(self.device)
+                    # train_sizes = torch.concat(train_sizes).to(self.device)
+
+                    # Convert to sparse matrix
+                    num_nodes = test_features.shape[0]
+                    test_edge_index, test_edge_weight = get_laplacian(test_edge_index, normalization='sym', 
+                                                                        num_nodes=num_nodes)
+                    test_adj = torch.sparse_coo_tensor(test_edge_index, test_edge_weight, 
+                                                        [num_nodes, num_nodes], device=self.device)
+                    
+                    # Pre-calculate the train embedding
+                    with torch.no_grad():
+                        test_embeds = self.Preprompt.gcn(test_features, test_adj, True, False).squeeze()
+
 
                 for epoch in range(1, self.epochs + 1):
                     t0 = time.time()
@@ -326,6 +370,8 @@ class GraphTask(BaseTask):
                         loss, center = self.GpromptTrain(train_loader)
                     elif self.prompt_type =='GPPT':
                         loss = self.GPPTtrain(train_loader)
+                    elif self.prompt_type == 'MultiGprompt':
+                        loss = self.MultiGpromptTrain(train_embeds, train_labels, train_batch)
                             
                     if loss < best:
                         best = loss
@@ -354,7 +400,11 @@ class GraphTask(BaseTask):
                     test_acc, f1, roc, prc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)
                 elif self.prompt_type =='Gprompt':
                     test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
-
+                elif self.prompt_type == 'MultiGprompt':
+                    graph_embeds = self.DownPrompt.graph_forward(train_embeds, train_batch)
+                    centroids_embeds = self.DownPrompt.averageemb(train_labels, graph_embeds, self.DownPrompt.nb_classes)
+                    test_acc, f1, roc, prc = MultiGpromptGraphEva(test_embeds, test_labels, centroids_embeds, test_batch, 
+                                                                  self.DownPrompt, self.DownPrompt.nb_classes, self.device)
 
                 print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}" )
                 print("best_loss",  batch_best_loss)                        

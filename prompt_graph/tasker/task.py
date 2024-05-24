@@ -36,13 +36,13 @@ class BaseTask:
 
     def initialize_optimizer(self):
         if self.prompt_type == 'None':
-            if self.pre_train_model_path == 'None':
-                model_param_group = []
-                model_param_group.append({"params": self.gnn.parameters()})
-                model_param_group.append({"params": self.answering.parameters()})
-                self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
-            else:
-                self.optimizer = optim.Adam(self.answering.parameters(), lr=self.lr, weight_decay=self.wd)
+            # if self.pre_train_model_path == 'None':
+            #     model_param_group = []
+            #     model_param_group.append({"params": self.gnn.parameters()})
+            #     model_param_group.append({"params": self.answering.parameters()})
+            #     self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
+            # else:
+            self.optimizer = optim.Adam(self.answering.parameters(), lr=self.lr, weight_decay=self.wd)
 
         elif self.prompt_type == 'All-in-one':
             self.pg_opi = optim.Adam( self.prompt.parameters(), lr=1e-6, weight_decay= self.wd)
@@ -57,8 +57,12 @@ class BaseTask:
         elif self.prompt_type in ['GPPT']:
             self.pg_opi = optim.Adam(self.prompt.parameters(), lr=2e-3, weight_decay=5e-4)
         elif self.prompt_type == 'MultiGprompt':
-            self.optimizer = optim.Adam([*self.DownPrompt.parameters(),*self.feature_prompt.parameters()], lr=self.lr)
+            if self.task_type == 'NodeTask':
+                self.optimizer = optim.Adam([*self.DownPrompt.parameters(),*self.feature_prompt.parameters()], lr=self.lr)
+            elif self.task_type == 'GraphTask':
+                self.optimizer = optim.Adam(self.DownPrompt.parameters(), lr=self.lr)
 
+    
     def initialize_prompt(self):
         if self.prompt_type == 'None':
             self.prompt = None
@@ -84,16 +88,17 @@ class BaseTask:
         elif self.prompt_type == 'Gprompt':
             self.prompt = Gprompt(self.hid_dim).to(self.device)
         elif self.prompt_type == 'MultiGprompt':
-            if(self.task_type=='NodeTask'):
+            if self.task_type == 'NodeTask':
                 nonlinearity = 'prelu'
                 self.Preprompt = NodePrePrompt(self.data, self.dataset_name, self.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3,self.device).to(self.device)
                 self.Preprompt.load_state_dict(torch.load(self.pre_train_model_path))
                 self.Preprompt.eval()
                 self.feature_prompt = featureprompt(self.Preprompt.dgiprompt.prompt,self.Preprompt.graphcledgeprompt.prompt,self.Preprompt.lpprompt.prompt).to(self.device)
 
-            if(self.task_type=='GraphTask'):
+            if self.task_type == 'GraphTask':
                 nonlinearity = 'prelu'
-                self.Preprompt = GraphPrePrompt(self.dataset, self.input_dim, self.out_dim, self.dataset_name, self.hid_dim, nonlinearity,0.9,0.9,0.1,1,0.3).to(self.device)
+                self.Preprompt = GraphPrePrompt(self.dataset, self.input_dim, self.output_dim, self.dataset_name, self.hid_dim, nonlinearity, 
+                                                0.9, 0.9, 0.1, 1, 0.3, self.device).to(self.device)
                 self.Preprompt.eval()
                 self.feature_prompt = None
                 self.Preprompt.load_state_dict(torch.load(self.pre_train_model_path))

@@ -3,10 +3,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import tqdm
 import numpy as np
+
+from torch_geometric.nn import global_add_pool
     
 
 class downprompt(nn.Module):
-    def __init__(self, prompt1, prompt2, prompt3,ft_in, nb_classes, device):
+    def __init__(self, prompt1, prompt2, prompt3, ft_in, nb_classes, device):
         super(downprompt, self).__init__()
         self.downprompt = downstreamprompt(ft_in)
         self.nb_classes = nb_classes
@@ -15,19 +17,18 @@ class downprompt(nn.Module):
         self.prompt = torch.cat((prompt1, prompt2, prompt3), 0)
         self.nodelabelprompt = weighted_prompt(3)
         self.dffprompt = weighted_feature(2)
-        self.aveemb0 = torch.FloatTensor(ft_in, ).to(self.device)
-        self.aveemb1 = torch.FloatTensor(ft_in, ).to(self.device)
-        self.aveemb2 = torch.FloatTensor(ft_in, ).to(self.device)
-        self.aveemb3 = torch.FloatTensor(ft_in, ).to(self.device)
-        self.aveemb4 = torch.FloatTensor(ft_in, ).to(self.device)
-        self.aveemb5 = torch.FloatTensor(ft_in, ).to(self.device)
-        self.aveemb6 = torch.FloatTensor(ft_in, ).to(self.device)
-
+        # self.aveemb0 = torch.FloatTensor(ft_in, ).to(self.device)
+        # self.aveemb1 = torch.FloatTensor(ft_in, ).to(self.device)
+        # self.aveemb2 = torch.FloatTensor(ft_in, ).to(self.device)
+        # self.aveemb3 = torch.FloatTensor(ft_in, ).to(self.device)
+        # self.aveemb4 = torch.FloatTensor(ft_in, ).to(self.device)
+        # self.aveemb5 = torch.FloatTensor(ft_in, ).to(self.device)
+        # self.aveemb6 = torch.FloatTensor(ft_in, ).to(self.device)
 
         self.one = torch.ones(1,ft_in).to(self.device)
-        self.ave = torch.FloatTensor(nb_classes,ft_in).to(self.device)
+        self.ave = torch.FloatTensor(nb_classes, ft_in).to(self.device)
    
-    def forward(self,seq,seq1,labels,train=0):
+    def forward(self, seq, seq1, labels, train=0):
 
         weight = self.leakyrelu(self.nodelabelprompt(self.prompt))
         weight = self.one + weight
@@ -38,7 +39,7 @@ class downprompt(nn.Module):
         rawret =rawret3 +0.001 * rawret4
         rawret = rawret.to(self.device)
         if train == 1:
-            self.ave = averageemb(labels, rawret, self.nb_classes).to(self.device)
+            self.ave = self.averageemb(labels, rawret, self.nb_classes).to(self.device)
 
         ret = torch.FloatTensor(seq.shape[0],self.nb_classes).to(self.device)
         for x in range(seq.shape[0]):
@@ -53,6 +54,33 @@ class downprompt(nn.Module):
 
         return ret
 
+    def graph_forward(self, seq, batch):
+        # Calculate graph embedding
+        weight = self.nodelabelprompt(self.prompt)
+        weight = self.one + weight
+
+        rawret1 = weight * seq
+        
+        rawret2 = self.downprompt(seq)
+
+        rawret = self.dffprompt(rawret1 ,rawret2)
+
+        # rawret = rawret.cuda()
+        
+        graph_embedding = global_add_pool(rawret, batch)
+
+        return graph_embedding
+
+        # # Calculate centroid embedding
+        # centriod_embedding = averageemb(labels, graph_embedding, self.nb_classes)
+
+        # # Logits
+        # ret = F.cosine_similarity(graph_embedding.unsqueeze(1), centriod_embedding.unsqueeze(0), dim=-1)
+        # ret = F.log_softmax(ret, dim=1)
+
+        # return centriod_embedding, ret
+
+
     def weights_init(self, m):
         if isinstance(m, nn.Linear):
             torch.nn.init.xavier_uniform_(m.weight.data)
@@ -60,24 +88,25 @@ class downprompt(nn.Module):
                 m.bias.data.fill_(0.0)
 
 
-# ours
-def averageemb(index, input, label_num):
-    device=input.device
-    c = torch.zeros(label_num, input.size(1)).to(device)
-    c = c.scatter_add_(dim=0, index=index.unsqueeze(1).expand(-1, input.size(1)), src=input)
-    class_counts = torch.bincount(index, minlength=label_num).unsqueeze(1).to(dtype=input.dtype, device=device)
 
-    # Take the average embeddings for each class
-    # If directly divided the variable 'c', maybe encountering zero values in 'class_counts', such as the class_counts=[[0.],[4.]]
-    # So we need to judge every value in 'class_counts' one by one, and seperately divided them.
-    # output_c = c/class_counts
-    for i in range(label_num):
-        if(class_counts[i].item()==0):
-            continue
-        else:
-            c[i] /= class_counts[i]
+    # ours
+    def averageemb(self, index, input, label_num):
+        device=input.device
+        c = torch.zeros(label_num, input.size(1)).to(device)
+        c = c.scatter_add_(dim=0, index=index.unsqueeze(1).expand(-1, input.size(1)), src=input)
+        class_counts = torch.bincount(index, minlength=label_num).unsqueeze(1).to(dtype=input.dtype, device=device)
 
-    return c
+        # Take the average embeddings for each class
+        # If directly divided the variable 'c', maybe encountering zero values in 'class_counts', such as the class_counts=[[0.],[4.]]
+        # So we need to judge every value in 'class_counts' one by one, and seperately divided them.
+        # output_c = c/class_counts
+        for i in range(label_num):
+            if(class_counts[i].item()==0):
+                continue
+            else:
+                c[i] /= class_counts[i]
+
+        return c
 
 class weighted_prompt(nn.Module):
     def __init__(self,weightednum):
