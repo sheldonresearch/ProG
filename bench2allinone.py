@@ -1,8 +1,6 @@
 from prompt_graph.tasker import NodeTask, GraphTask
-from prompt_graph.utils import seed_everything
 from torchsummary import summary
-from prompt_graph.utils import print_model_parameters
-from prompt_graph.utils import  get_args
+from prompt_graph.utils import print_model_parameters, get_args,seed_everything
 from prompt_graph.data import load4node,load4graph, split_induced_graphs
 import pickle
 import random
@@ -37,15 +35,16 @@ seed_everything(args.seed)
 param_grid = {
     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-    'batch_size': np.linspace(32, 64, 32),
+    'batch_size': [32,64,128],
 }
 
 if args.dataset_name in ['ogbn-arxiv','Flickr']:
      param_grid = {
     'learning_rate': 10 ** np.linspace(-3, -1, 1),
     'weight_decay':  10 ** np.linspace(-5, -6, 1),
-    'batch_size': np.linspace(512, 512, 200),
+    'batch_size': [512,1024,2048],
     }
+
 
 num_iter=10
 print('args.dataset_name', args.dataset_name)
@@ -53,14 +52,7 @@ print('args.dataset_name', args.dataset_name)
 if args.dataset_name in ['ogbn-arxiv','Flickr']:
     print('num_iter = 1')
     num_iter = 1
-best_params = None
-best_loss = float('inf')
-final_acc_mean = 0
-final_acc_std = 0
-final_f1_mean = 0
-final_f1_std = 0
-final_roc_mean = 0
-final_roc_std = 0
+
 
 if args.task == 'NodeTask':
     data, input_dim, output_dim = load4node(args.dataset_name)   
@@ -76,8 +68,16 @@ if args.task == 'GraphTask':
     
 print('num_iter',num_iter)
 for pre_train in ['DGI', 'GraphMAE', 'Edgepred_GPPT', 'Edgepred_Gprompt', 'GraphCL', 'SimGRACE']:
-    pre_train_model_path = './Experiment/pre_trained_model/'+args.dataset_name+'/'+pre_train+'.GCN.128hidden_dim.pth'
+    pre_train_model_path = f'./Experiment/pre_trained_model/{args.dataset_name}/{pre_train}.GCN.128hidden_dim.pth'
     for shot_num in[1,3,5]:
+        best_params = None
+        best_loss = float('inf')
+        final_acc_mean = 0
+        final_acc_std = 0
+        final_f1_mean = 0
+        final_f1_std = 0
+        final_roc_mean = 0
+        final_roc_std = 0
         for a in range(num_iter):
             params = {k: random.choice(v) for k, v in param_grid.items()}
             print(params)

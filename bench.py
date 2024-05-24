@@ -1,8 +1,6 @@
 from prompt_graph.tasker import NodeTask, GraphTask
-from prompt_graph.utils import seed_everything
 from torchsummary import summary
-from prompt_graph.utils import print_model_parameters
-from prompt_graph.utils import  get_args
+from prompt_graph.utils import print_model_parameters, get_args,seed_everything
 from prompt_graph.data import load4node,load4graph, split_induced_graphs
 import pickle
 import random
@@ -37,14 +35,14 @@ seed_everything(args.seed)
 param_grid = {
     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-    'batch_size': np.linspace(32, 64, 32),
+    'batch_size': [32,64,128],
 }
 
 if args.dataset_name in ['ogbn-arxiv','Flickr']:
      param_grid = {
     'learning_rate': 10 ** np.linspace(-3, -1, 1),
     'weight_decay':  10 ** np.linspace(-5, -6, 1),
-    'batch_size': np.linspace(512, 512, 200),
+    'batch_size': [512,1024,2048],
     }
 
 
