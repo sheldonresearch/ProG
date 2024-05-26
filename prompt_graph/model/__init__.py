@@ -4,3 +4,4 @@ from.GCov import GCov
 from.GIN import GIN
 from.GraphSAGE import GraphSAGE
 from.GraphTransformer import GraphTransformer
+from .DeepGCN import DeeperGCN
