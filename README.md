@@ -35,7 +35,7 @@
   Big News！
 
 </h3>
-
+- [May 28] ``main`` branch is now under development. It may have some technical errors and bugs. As you can see in the bench/main/zcy branch, our engineers are very hard-working and the repo is updated very frequently. I can expect these issues will be well solved in the next few months. If you expect your work done before Sep 2024, I recommend you use ``ori`` branch. Thanks!
 - We are so happy to announce that we have finished most updating works from ProG to **ProG++**! (the ``main`` branch of this repository. If you wish to find the original ProG package, go to the ``ori`` branch)
 - From v0.2, the term "ProG" means ProG++ by default!
 
