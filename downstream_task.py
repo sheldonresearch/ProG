@@ -3,38 +3,76 @@ from prompt_graph.utils import seed_everything
 from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
 from prompt_graph.utils import  get_args
+from prompt_graph.data import load4node,load4graph, split_induced_graphs
+import pickle
+import random
+import numpy as np
+import os
+import pandas as pd
+def load_induced_graph(dataset_name, data, device):
+
+    folder_path = './Experiment/induced_graph/' + dataset_name
+    if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+    file_path = folder_path + '/induced_graph_min100_max300.pkl'
+    if os.path.exists(file_path):
+            with open(file_path, 'rb') as f:
+                print('loading induced graph...')
+                graphs_list = pickle.load(f)
+                print('Done!!!')
+    else:
+        print('Begin split_induced_graphs.')
+        split_induced_graphs(data, folder_path, device, smallest_size=100, largest_size=300)
+        with open(file_path, 'rb') as f:
+            graphs_list = pickle.load(f)
+    graphs_list = [graph.to(device) for graph in graphs_list]
+    return graphs_list
+
 
 args = get_args()
 seed_everything(args.seed)
 
-# args.prompt_type = 'GPPT'
 
-# args.prompt_type = 'All-in-one'
-
-# args.dataset_name = 'Texas'
-# args.pre_train_model_path = './Experiment/pre_trained_model/CiteSeer/Edgepred_GPPT.GCN.128hidden_dim.pth'
+print('dataset_name', args.dataset_name)
 
 
-# args.task = 'NodeTask'
-# args.batch_size = 10
-# # # args.epochs = 10
-# args.dataset_name = 'ogbn-arxiv'
+if args.task == 'NodeTask':
+    data, input_dim, output_dim = load4node(args.dataset_name)   
+    data = data.to(args.device)
+    if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
+        graphs_list = load_induced_graph(args.dataset_name, data, args.device) 
+    else:
+        graphs_list = None 
+         
 
-# args.prompt_type = 'None'
-# args.pre_train_model_path = './multigprompt_model/cora.multigprompt.GCL.128hidden_dim.pth'
-
-
+if args.task == 'GraphTask':
+    input_dim, output_dim, dataset = load4graph(args.dataset_name)
 
 if args.task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer,
-                    gnn_type = args.gnn_type, prompt_type = args.prompt_type,
-                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, batch_size = args.batch_size, lr =0.01)
-    
-    tasker.run()
+                    gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
+                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
+                    batch_size = int(params['batch_size']), data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
 
 
 if args.task == 'GraphTask':
     tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
-                    dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, prompt_type = args.prompt_type, epochs = args.epochs, shot_num = args.shot_num, device=args.device)
-    tasker.run()
+                    dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
+                    shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
+                    batch_size = int(params['batch_size']), dataset = dataset, input_dim = input_dim, output_dim = output_dim)
+pre_train_type = tasker.pre_train_type
+
+# 返回平均损失
+avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, _, _= tasker.run()
+
+  
+print("Final Accuracy {:.4f}±{:.4f}(std)".format(final_acc_mean, final_acc_std)) 
+print("Final F1 {:.4f}±{:.4f}(std)".format(final_f1_mean, final_f1_std)) 
+print("Final AUROC {:.4f}±{:.4f}(std)".format(final_roc_mean, final_roc_std)) 
+
+
+
+
+

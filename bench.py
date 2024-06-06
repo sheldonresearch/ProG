@@ -36,7 +36,8 @@ seed_everything(args.seed)
 param_grid = {
     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-    'batch_size': np.linspace(32, 64, 32),
+    # 'batch_size': np.linspace(32, 64, 32),
+    'batch_size': [32,64,128],
 }
 # if args.dataset_name in ['PubMed']:
 #      param_grid = {
