@@ -1,24 +1,14 @@
-<h1 align="center">
-  <img height="150" src="/Logo.jpg?sanitize=true" />
-</h1>
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/sheldonresearch/ProG">
+    <img height="150" src="Logo.jpg?sanitize=true" />
+  </a>
+</div>
 
+<h3 align="center">🌟ProG: A Unified Python Library for Graph Prompting</h3>
 
-
-
-
-<p align="left">
-
-![](https://img.shields.io/badge/Latest_version-v0.2-red)
-![Testing Status](https://img.shields.io/badge/docs-in_progress-green)
-![Testing Status](https://img.shields.io/badge/pypi_package-in_progress-green)
-![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-red)
-![Testing Status](https://img.shields.io/badge/license-MIT-blue)
-![Testing Status](https://img.shields.io/badge/python->=3.9-red)
-
-</p>
-
-
-<p align="left">
+<div align="center">
   
 | **[Quick Start](#quick-start)** 
 | **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2307.01504)**
@@ -26,67 +16,62 @@
 | **[Media Coverage](#media-coverage)**
 | **[Call For Contribution](#call-for-contributors)** |
 
+![](https://img.shields.io/badge/Latest_version-v0.2-red)
+![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-red)
+![Testing Status](https://img.shields.io/badge/license-MIT-blue)
+![Testing Status](https://img.shields.io/badge/python->=3.9-red)
 
-</p>
-
-<h3>
-
- ![](https://img.shields.io/badge/News-red)
-  Big News！
-
-</h3>
-
-- We are so happy to announce that we have finished most updating works from ProG to **ProG++**! (the ``main`` branch of this repository. If you wish to find the original ProG package, go to the ``ori`` branch)
-- From v0.2, the term "ProG" means ProG++ by default!
-
----
+</div>
 
 
-<h3 align="center">🌟ProG🌟: A Unified Python Library for Graph Prompting</h3> 
 
 **ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
-pre-trained Graph Neural Networks (GNNs). The idea is derived from the paper: Xiangguo Sun, Hong Cheng, Jia Li,
-etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (🔥  _**Best Research Paper Award**, which is the first time for Hong Kong and Mainland China_)
-
-**ProG++** (the ``main`` branch of this repository) is an extended library of the original ``ProG`` (see in the ``ori`` branch of this repository), which supports more graph prompt models. Some implemented models are as follows (_We are now implementing more related models and we will keep integrating more models to ProG++_):  
+pre-trained Graph Neural Networks (GNNs). The original idea is derived from the paper: Xiangguo Sun, Hong Cheng, Jia Li,
+etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (🔥  _**Best Research Paper Award**, which is the first time for Hong Kong and Mainland China_,  see in the ``ori`` branch of this repository). 
+Beyond ``All in One``, this library supports more graph prompt models. A part of the integrated models are as follows (keep updating):  
 
 >- [All in One] X. Sun, H. Cheng, J. Li, B. Liu, and J. Guan, “All in One: Multi-Task Prompting for Graph Neural Networks,” KDD, 2023
 >- [GPF Plus] T. Fang, Y. Zhang, Y. Yang, C. Wang, and L. Chen, “Universal Prompt Tuning for Graph Neural Networks,” NeurIPS, 2023.
 >- [GraphPrompt] Liu Z, Yu X, Fang Y, et al. Graphprompt: Unifying pre-training and downstream tasks for graph neural networks. The Web Conference, 2023.
 >- [GPPT] M. Sun, K. Zhou, X. He, Y. Wang, and X. Wang, “GPPT: Graph Pre-Training and Prompt Tuning to Generalize Graph Neural Networks,” KDD, 2022
 >- [GPF] T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
+ 
 
-**From now on (v0.2), the term "ProG" means ProG++ by default!**
+
+<h3 align="left">🌟Acknowledgement</h3>
+
+<div align="left">
+  
+- **Leader:** [Dr. Xiangguo SUN](https://xgsun.mysxl.cn)
+- **Consultants:** [Prof. Jia LI](https://sites.google.com/view/lijia), [Prof. Hong CHENG](https://www1.se.cuhk.edu.hk/~hcheng/)
+- **Developers:** [Mr. Chenyi ZI](https://barristen.github.io/), [Mr. Haihong ZHAO](https://haihongzhao.com/), [Dr. Xiangguo SUN](https://xgsun.mysxl.cn)
+- [**Clik Here to See Other Contributors**](https://github.com/sheldonresearch/ProG/graphs/contributors)  
+
+</div>
 
 <br>
 
-<h3>
-
-We released a comprehensive survey on graph prompt!
-
-</h3>
-
->Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li.
->
->Graph Prompt Learning: A Comprehensive Survey and Beyond
->
->in arXiv [https://arxiv.org/abs/2311.16534](https://arxiv.org/abs/2311.16534)
->
-
-
-In this survey, we present more details of **ProG++** and also release a [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt)🦀 for a comprehensive collection of research papers, benchmark datasets, and readily accessible code implementations. 
-
-
+<div align="left">
   
-  **The Architecture of ProG++**
-
-  <img height="350" src="/ProG_pipeline.jpg?sanitize=true" />
-  <br>
+![](https://img.shields.io/badge/Latest_News-red)
   
+</div>
 
----
+- **2024/05/28:** We are so happy to announce that we have finished most updating works for ProG! (the ``main`` branch of this repository. If you wish to find the original ProG package, go to the ``ori`` branch)
+- **2024/01/01:** A big updated version released!
+- **2023/11/28:** We released a comprehensive survey on graph prompt! 
+  - >Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. Graph Prompt Learning: A Comprehensive Survey and Beyond [https://arxiv.org/abs/2311.16534](https://arxiv.org/abs/2311.16534)
+- **2023/11/15:** We released a [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt)🦀 for a comprehensive collection of research papers, datasets, and readily accessible code implementations. 
+
+
+<br>
 
 ## Quick Start
+The Architecture of ProG is shown as follows:
+
+<img height="350" src="/ProG_pipeline.jpg?sanitize=true" />
+
+
 We have provided scripts with hyper-parameter settings to get the experimental results
 
 In the pre-train phase, you can obtain the experimental results by running the parameters you want:
@@ -104,6 +89,25 @@ In downstream_task, you can obtain the experimental results by running the param
 python downstream_task.py --pre_train_path 'None' --task GraphTask --dataset_name 'MUTAG' --gnn_type 'GCN' --prompt_type 'None' --shot_num 10 --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
 ```
 or run `GraphTask.sh` for Graph task in **MUTAG** dataset, or run run `NodeTask.sh` for Node task in **Cora** dataset.
+
+
+
+<details>
+  <summary ><strong>Table of The Following Contents</strong></summary>
+  <ol>
+    <li>
+      <a href="#pre-train-your-gnn-model">Pre-train your GNN model</a>
+    </li>
+    <li>
+      <a href="#downstream-tasks">Downstream Tasks</a>
+    </li>
+    <li><a href="#datasets">Datasets</a></li>
+    <li><a href="#prompt-class">Prompt Class</a></li>
+    <li><a href="#environment-setup">Environment Setup</a></li>
+    <li><a href="#todo-list">TODO List</a></li>
+  </ol>
+</details>
+
 
 
 
@@ -137,7 +141,7 @@ pt.pretrain()
 
 
 ```
-### Do the Downstreamtask
+### Downstream Tasks
 In ``downstreamtask.py``, we designed two tasks (Node Classification, Graph Classification). Here are some examples. 
 ```python
 import prompt_graph as ProG
@@ -165,22 +169,8 @@ if args.task == 'GraphTask':
 
 
 
-## TODO List
-
-> **Note**
-> <span style="color:blue"> Current experimental datasets: Node/Edge:Cora/Citeseer/Pubmed; Graph:MUTAG</span>
-
-- [ ] **Write a comprehensive usage document**(refer to pyG)
-- [ ] Write a tutorial, and polish data code, to make our readers feel more easily to deal with their own data. That is to: (1) provide a demo/tutorial to let our readers know how to deal with data; (2) polish data code, making it more robust, reliable, and readable.  
-- [ ] Pre_train: implementation of DGI. (Deep Graph Infomax), InfoGraph, contextpred, AttrMasking, ContextPred, GraphMAE, GraphLoG, JOAO
-- [ ] Debug Gprompt inference, All-in-one Tune，graphcl loss
-- [ ] Add Prompt: prodigy (NeurIPS'2023 Spotlight)
-- [ ] induced graph(1.better way to generate induced graph/2.simplify the 3 type of generate-func)
-- [ ] add prompt type table (prompt_type, prompt paradigm, loss function, task_type)
-- [ ] add pre_train type table
-- [ ] support deep GNN layers by adding the feature [DeepGCNLayer](https://pytorch-geometric.readthedocs.io/en/latest/generated/torch_geometric.nn.models.DeepGCNLayer.html#torch_geometric.nn.models.DeepGCNLayer)
       
-## Dataset
+## Datasets
 
 | Graphs    | Graph classes | Avg. nodes | Avg. edges | Node features | Node classes | Task (N/E/G) |
 |-----------|---------------|------------|------------|---------------|--------------|------------|
@@ -228,8 +218,27 @@ conda install pyg -c pyg
 ```
 
 
-**🌹Please cite our work if you find help for you:**
+## TODO List
 
+> **Note**
+> <span style="color:blue"> Current experimental datasets: Node/Edge:Cora/Citeseer/Pubmed; Graph:MUTAG</span>
+
+- [ ] **Write a comprehensive usage document**(refer to pyG)
+- [ ] Write a tutorial, and polish data code, to make our readers feel more easily to deal with their own data. That is to: (1) provide a demo/tutorial to let our readers know how to deal with data; (2) polish data code, making it more robust, reliable, and readable.  
+- [ ] Pre_train: implementation of DGI. (Deep Graph Infomax), InfoGraph, contextpred, AttrMasking, ContextPred, GraphMAE, GraphLoG, JOAO
+- [ ] Debug Gprompt inference, All-in-one Tune，graphcl loss
+- [ ] Add Prompt: prodigy (NeurIPS'2023 Spotlight)
+- [ ] induced graph(1.better way to generate induced graph/2.simplify the 3 type of generate-func)
+- [ ] add prompt type table (prompt_type, prompt paradigm, loss function, task_type)
+- [ ] add pre_train type table
+- [ ] support deep GNN layers by adding the feature [DeepGCNLayer](https://pytorch-geometric.readthedocs.io/en/latest/generated/torch_geometric.nn.models.DeepGCNLayer.html#torch_geometric.nn.models.DeepGCNLayer)
+
+
+---
+
+
+<h3 align="center">🌹Please Cite Our Work If Helpful:</h3>
+<p align="center"><strong>Thanks! / 谢谢! / ありがとう! / merci! / 감사! / Danke! / спасибо! / gracias! ...</strong></p>
 
 ```
 @inproceedings{sun2023all,
@@ -254,12 +263,11 @@ conda install pyg -c pyg
 }
 
 
-@article{zhao2024all,
+@inproceedings{zhao2024all,
       title={All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining}, 
       author={Haihong Zhao and Aochuan Chen and Xiangguo Sun and Hong Cheng and Jia Li},
       year={2024},
-      eprint={2402.09834},
-      archivePrefix={arXiv}
+      booktitle={Proceedings of the 27th ACM SIGKDD international conference on knowledge discovery \& data mining (KDD'24)}
 }
 
 
@@ -290,13 +298,15 @@ conda install pyg -c pyg
       journal = {arXiv:2311.12399}
 }
 
+@article{wang2024ddiprompt,
+  title={Advanced Drug Interaction Event Prediction},
+  author={Wang, Yingying and Xiong, Yun and Wu, Xixi and Sun, Xiangguo and Zhang, Jiawei},
+  journal={arXiv preprint arXiv:2402.11472},
+  year={2024}
+}
 ```
 
-
-## Contact
-
-- For More Information, Further discussion, Contact: [Website](https://graphprompt.github.io/)
-- Email: xiangguosun at cuhk dot edu dot hk
+---
 
 ## Media Coverage
 
@@ -333,6 +343,8 @@ conda install pyg -c pyg
 - [香港中文领衔港科广、复旦重磅发布：迈向通用图智能的新方法，图提示学习进展与挑战](https://mp.weixin.qq.com/s/NvfgtXLUX2MWu0U2p7RKEQ)
 - [香港中文领衔港科广、复旦重磅发布：迈向通用图智能的新方法，图提示学习进展与挑战](https://mp.weixin.qq.com/s/zSTFTgKGaOXbOC0kKT8raQ)
 - [图上如何提示？港中文等最新《图提示学习》全面综述，详述图提示分类体系](https://mp.weixin.qq.com/s/6k7ZTVM0Hj8bO4iAjOERAQ)
+
+---
 
 ## Call for Contributors!
 
