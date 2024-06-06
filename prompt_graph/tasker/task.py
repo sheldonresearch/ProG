@@ -42,7 +42,11 @@ class BaseTask:
                 model_param_group.append({"params": self.answering.parameters()})
                 self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
             else:
-                self.optimizer = optim.Adam(self.answering.parameters(), lr=self.lr, weight_decay=self.wd)
+                model_param_group = []
+                model_param_group.append({"params": self.gnn.parameters()})
+                model_param_group.append({"params": self.answering.parameters()})
+                self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
+                # self.optimizer = optim.Adam(self.answering.parameters(), lr=self.lr, weight_decay=self.wd)
 
         elif self.prompt_type == 'All-in-one':
             self.pg_opi = optim.Adam( self.prompt.parameters(), lr=1e-6, weight_decay= self.wd)
