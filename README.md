@@ -201,19 +201,22 @@ In ``downstreamtask.py``, we designed two tasks (Node Classification, Graph Clas
 import prompt_graph as ProG
 from ProG.tasker import NodeTask, LinkTask, GraphTask
 
+if args.task == 'GraphTask':
+    input_dim, output_dim, dataset = load4graph(args.dataset_name)
+
 if args.task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer,
                     gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
-                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
-                    batch_size = int(params['batch_size']), data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
+                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
+                    batch_size = args.batch_size, data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
 
 
 if args.task == 'GraphTask':
     tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
-                    shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
-                    batch_size = int(params['batch_size']), dataset = dataset, input_dim = input_dim, output_dim = output_dim)
+                    shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
+                    batch_size = args.batch_size, dataset = dataset, input_dim = input_dim, output_dim = output_dim)
 
 _, test_acc, std_test_acc, f1, std_f1, roc, std_roc, _, _= tasker.run()
 

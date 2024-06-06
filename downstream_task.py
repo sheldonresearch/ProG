@@ -9,6 +9,7 @@ import random
 import numpy as np
 import os
 import pandas as pd
+
 def load_induced_graph(dataset_name, data, device):
 
     folder_path = './Experiment/induced_graph/' + dataset_name
@@ -53,20 +54,19 @@ if args.task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer,
                     gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
-                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
-                    batch_size = int(params['batch_size']), data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
+                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
+                    batch_size = args.batch_size, data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
 
 
 if args.task == 'GraphTask':
     tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
-                    shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
-                    batch_size = int(params['batch_size']), dataset = dataset, input_dim = input_dim, output_dim = output_dim)
+                    shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
+                    batch_size = args.batch_size, dataset = dataset, input_dim = input_dim, output_dim = output_dim)
 pre_train_type = tasker.pre_train_type
 
 
 _, test_acc, std_test_acc, f1, std_f1, roc, std_roc, _, _= tasker.run()
-
   
 print("Final Accuracy {:.4f}±{:.4f}(std)".format(test_acc, std_test_acc)) 
 print("Final F1 {:.4f}±{:.4f}(std)".format(f1,std_f1)) 
