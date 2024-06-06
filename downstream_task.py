@@ -64,7 +64,7 @@ if args.task == 'GraphTask':
                     batch_size = int(params['batch_size']), dataset = dataset, input_dim = input_dim, output_dim = output_dim)
 pre_train_type = tasker.pre_train_type
 
-# 返回平均损失
+
 _, test_acc, std_test_acc, f1, std_f1, roc, std_roc, _, _= tasker.run()
 
   
