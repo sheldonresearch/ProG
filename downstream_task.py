@@ -65,12 +65,12 @@ if args.task == 'GraphTask':
 pre_train_type = tasker.pre_train_type
 
 # 返回平均损失
-avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, _, _= tasker.run()
+_, test_acc, std_test_acc, f1, std_f1, roc, std_roc, _, _= tasker.run()
 
   
-print("Final Accuracy {:.4f}±{:.4f}(std)".format(final_acc_mean, final_acc_std)) 
-print("Final F1 {:.4f}±{:.4f}(std)".format(final_f1_mean, final_f1_std)) 
-print("Final AUROC {:.4f}±{:.4f}(std)".format(final_roc_mean, final_roc_std)) 
+print("Final Accuracy {:.4f}±{:.4f}(std)".format(test_acc, std_test_acc)) 
+print("Final F1 {:.4f}±{:.4f}(std)".format(f1,std_f1)) 
+print("Final AUROC {:.4f}±{:.4f}(std)".format(roc, std_roc)) 
 
 
 
