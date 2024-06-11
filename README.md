@@ -6,7 +6,7 @@
   </a>
 </div>
 
-<h3 align="center">🌟ProG: A Unified Python Library for Graph Prompting</h3>
+<h3 align="center">🌟ProG: A Unified Python Library for Graph Prompting🌟</h3>
 
 <div align="center">
   
@@ -25,8 +25,10 @@
 
 
 
-**ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
-pre-trained Graph Neural Networks (GNNs). The original idea is derived from the paper: [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (Best Research Paper Award, which is the first time for Hong Kong and Mainland China,  see in the ``ori`` branch of this repository). Beyond ``All in One``, this library now supports more than **FIVE** graph prompt models with more than **SIX** pre-training strategies (keep updating, see [here](#supportive-list) to check the detailed supportive list). You can easily use this library to conduct various ``graph pre-training and prompting``, or just ``pre-training and fine-tuning`` workflow in your own graph learning settings.
+🌟**ProG**🌟 (Prompt Graph) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
+pre-trained Graph Neural Networks (GNNs). You can easily use this library to conduct various ![](https://img.shields.io/badge/graph_pretraining-prompting-red), or ![](https://img.shields.io/badge/graph_pretraining-finetuning-red) workflows in your graph learning tasks, covering node-level tasks and graph-level tasks. The motivation of this library is derived from our KDD23 paper [All in One](https://arxiv.org/abs/2307.01504) (Best Research Paper Award, which is the first time for Hong Kong and Mainland China).  
+
+The **``ori``** branch of this repository is the source code of ``All in One``, in which you can conduct even more kinds of tasks with more flexible graph prompts. Beyond ``All in One``, this library (the **``main``** branch of this repository) now supports more than **FIVE** graph prompt models (e.g. All-in-One, GPPT, GPF Plus, GPF, GraphPrompt, etc) with more than **SIX** pre-training strategies (e.g. DGI, GraphMAE, EdgePreGPPT, EdgePreGprompt, GraphCL, SimGRACE, etc), and have been tested on more than **FIFTEEN** graph datasets, covering both homophilic and heterophilic graphs from various domains with different scales.  Click [here](#supportive-list) to see the full and latest supportive list (backbones, pre-training strategies, graph prompts, datasets). 
 
  
 
@@ -122,11 +124,12 @@ or run `GraphTask.sh` for Graph task in **MUTAG** dataset, or run run `NodeTask.
 >- [GPF] T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
 
 
+
 **Supportive graph pre-training strategies currently (keep updating):**  
 
 - For node-level, we consider ``DGI`` and ``GraphMAE``, where ``DGI`` maximizes the mutual information between node and graph representations for informative embeddings and ``GraphMAE`` learns deep node representations by reconstructing masked features.
 - For edge-level, we introduce ``EdgePreGPPT`` and ``EdgePreGprompt``, where ``EdgePreGPPT`` calculates the dot product as the link probability of node pairs and ``EdgePreGprompt`` samples triplets from label-free graphs to increase the similarity between the contextual subgraphs of linked pairs while decreasing the similarity of unlinked pairs.
-- For graph-level, we involve ``GCL``, ``SimGRACE``, where ``GCL`` maximizes agreement between different graph augmentations to leverage structural information and ``SimGRACE`` tries to perturb the graph model parameter spaces and narrow down the gap between different perturbations for the same graph.
+- For graph-level, we involve ``GraphCL``, ``SimGRACE``, where ``GraphCL`` maximizes agreement between different graph augmentations to leverage structural information and ``SimGRACE`` tries to perturb the graph model parameter spaces and narrow down the gap between different perturbations for the same graph.
 
 
 **Supportive graph backbone models currently (keep updating):**  
