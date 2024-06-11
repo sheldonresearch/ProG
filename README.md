@@ -26,18 +26,8 @@
 
 
 **ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
-pre-trained Graph Neural Networks (GNNs). The original idea is derived from the paper: [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (Best Research Paper Award, which is the first time for Hong Kong and Mainland China,  see in the ``ori`` branch of this repository). Beyond ``All in One``, this library now supports more than **FIVE** graph prompt models with more than **SIX** pre-training strategies (keep updating, see [here]() to check the detailed supportive list).
+pre-trained Graph Neural Networks (GNNs). The original idea is derived from the paper: [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (Best Research Paper Award, which is the first time for Hong Kong and Mainland China,  see in the ``ori`` branch of this repository). Beyond ``All in One``, this library now supports more than **FIVE** graph prompt models with more than **SIX** pre-training strategies (keep updating, see [here](#supportive-list) to check the detailed supportive list). You can easily use this library to conduct various ``graph pre-training and prompting``, or just ``pre-training and fine-tuning`` workflow in your own graph learning settings.
 
-
-
-### supportive list
-A part of the integrated models are as follows (keep updating):  
-
->- [All in One] X. Sun, H. Cheng, J. Li, B. Liu, and J. Guan, “All in One: Multi-Task Prompting for Graph Neural Networks,” KDD, 2023
->- [GPF Plus] T. Fang, Y. Zhang, Y. Yang, C. Wang, and L. Chen, “Universal Prompt Tuning for Graph Neural Networks,” NeurIPS, 2023.
->- [GraphPrompt] Liu Z, Yu X, Fang Y, et al. Graphprompt: Unifying pre-training and downstream tasks for graph neural networks. The Web Conference, 2023.
->- [GPPT] M. Sun, K. Zhou, X. He, Y. Wang, and X. Wang, “GPPT: Graph Pre-Training and Prompt Tuning to Generalize Graph Neural Networks,” KDD, 2022
->- [GPF] T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
  
 
 
@@ -101,6 +91,9 @@ or run `GraphTask.sh` for Graph task in **MUTAG** dataset, or run run `NodeTask.
 <details>
   <summary ><strong>Table of The Following Contents</strong></summary>
   <ol>
+     <li>
+      <a href="#supportive-list">Supportive List</a>
+    </li>
     <li>
       <a href="#pre-train-your-gnn-model">Pre-train your GNN model</a>
     </li>
@@ -115,6 +108,35 @@ or run `GraphTask.sh` for Graph task in **MUTAG** dataset, or run run `NodeTask.
 </details>
 
 
+
+
+
+### Supportive List
+
+**Supportive graph prompt approaches currently (keep updating):**  
+
+>- [All in One] X. Sun, H. Cheng, J. Li, B. Liu, and J. Guan, “All in One: Multi-Task Prompting for Graph Neural Networks,” KDD, 2023
+>- [GPF Plus] T. Fang, Y. Zhang, Y. Yang, C. Wang, and L. Chen, “Universal Prompt Tuning for Graph Neural Networks,” NeurIPS, 2023.
+>- [GraphPrompt] Liu Z, Yu X, Fang Y, et al. Graphprompt: Unifying pre-training and downstream tasks for graph neural networks. The Web Conference, 2023.
+>- [GPPT] M. Sun, K. Zhou, X. He, Y. Wang, and X. Wang, “GPPT: Graph Pre-Training and Prompt Tuning to Generalize Graph Neural Networks,” KDD, 2022
+>- [GPF] T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
+
+
+**Supportive graph pre-training strategies currently (keep updating):**  
+
+- For node-level, we consider ``DGI`` and ``GraphMAE``, where ``DGI`` maximizes the mutual information between node and graph representations for informative embeddings and ``GraphMAE`` learns deep node representations by reconstructing masked features.
+- For edge-level, we introduce ``EdgePreGPPT`` and ``EdgePreGprompt``, where ``EdgePreGPPT`` calculates the dot product as the link probability of node pairs and ``EdgePreGprompt`` samples triplets from label-free graphs to increase the similarity between the contextual subgraphs of linked pairs while decreasing the similarity of unlinked pairs.
+- For graph-level, we involve ``GCL``, ``SimGRACE``, where ``GCL`` maximizes agreement between different graph augmentations to leverage structural information and ``SimGRACE`` tries to perturb the graph model parameter spaces and narrow down the gap between different perturbations for the same graph.
+
+
+**Supportive graph backbone models currently (keep updating):**  
+
+- Graph Convolutional Network (GCN), GraphSAGE, GAT, and Graph Transformer (GT).
+
+> Beyond the above graph backbones, you can also seamlessly integrate nearly all graph models implemented by PyG.
+
+
+**Click [here] to see more details information on these graph prompts, pre-training strategies, and graph backbones. **
 
 
 
