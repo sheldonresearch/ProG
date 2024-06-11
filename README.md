@@ -42,9 +42,10 @@ Beyond ``All in One``, this library supports more graph prompt models. A part of
 
 <div align="left">
   
-- **Leader:** [Dr. Xiangguo SUN](https://xgsun.mysxl.cn)
-- **Consultants:** [Prof. Jia LI](https://sites.google.com/view/lijia), [Prof. Hong CHENG](https://www1.se.cuhk.edu.hk/~hcheng/)
-- **Developers:** [Mr. Chenyi ZI](https://barristen.github.io/), [Mr. Haihong ZHAO](https://haihongzhao.com/), [Dr. Xiangguo SUN](https://xgsun.mysxl.cn)
+- **Leader:** [**Dr. Xiangguo SUN**](https://xgsun.mysxl.cn)
+- **Consultants:** [**Prof. Jia LI**](https://sites.google.com/view/lijia), [**Prof. Hong CHENG**](https://www1.se.cuhk.edu.hk/~hcheng/)
+- **Developers:** [**Mr. Chenyi ZI**](https://barristen.github.io/), [**Mr. Haihong ZHAO**](https://haihongzhao.com/), [**Dr. Xiangguo SUN**](https://xgsun.mysxl.cn)
+- **Insight Suggestions:** [Miss. Xixi Wu](https://wxxshirley.github.io) (who also contributes a lot to our [survey](https://arxiv.org/abs/2311.16534), [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt), etc.)
 - [**Clik Here to See Other Contributors**](https://github.com/sheldonresearch/ProG/graphs/contributors)  
 
 </div>
@@ -57,11 +58,13 @@ Beyond ``All in One``, this library supports more graph prompt models. A part of
   
 </div>
 
-- **2024/05/28:** We are so happy to announce that we have finished most updating works for ProG! (the ``main`` branch of this repository. If you wish to find the original ProG package, go to the ``ori`` branch)
+- **2024/06/08**: We use our developed ProG to extensively evaluate various graph prompts, and released our analysis report as follows:
+  - > Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. [https://arxiv.org/abs/2406.05346](https://arxiv.org/abs/2406.05346)  
+- **2024/05/28:** We are so happy to announce that we have finished most of the updating works for ProG! (the ``main`` branch of this repository. If you wish to find the original ProG package, go to the ``ori`` branch)
 - **2024/01/01:** A big updated version released!
 - **2023/11/28:** We released a comprehensive survey on graph prompt! 
   - >Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. Graph Prompt Learning: A Comprehensive Survey and Beyond [https://arxiv.org/abs/2311.16534](https://arxiv.org/abs/2311.16534)
-- **2023/11/15:** We released a [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt)🦀 for a comprehensive collection of research papers, datasets, and readily accessible code implementations. 
+- **2023/11/15:** We released a [🦀repository🦀](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, datasets, and readily accessible code implementations. 
 
 
 <br>
@@ -306,6 +309,16 @@ conda install pyg -c pyg
   url = {https://doi.org/10.1145/3580305.3599256},
   doi = {10.1145/3580305.3599256}
 }
+
+@article{zi2024prog,
+      title={ProG: A Graph Prompt Learning Benchmark}, 
+      author={Chenyi Zi and Haihong Zhao and Xiangguo Sun and Yiqing Lin and Hong Cheng and Jia Li},
+      year={2024},
+      journal = {arXiv:2406.05346}
+      eprint={2406.05346},
+      archivePrefix={arXiv}
+}
+
 
 @article{sun2023graph,
   title = {Graph Prompt Learning: A Comprehensive Survey and Beyond},
