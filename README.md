@@ -26,9 +26,12 @@
 
 
 **ProG** (_Prompt Graph_) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
-pre-trained Graph Neural Networks (GNNs). The original idea is derived from the paper: Xiangguo Sun, Hong Cheng, Jia Li,
-etc. [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (🔥  _**Best Research Paper Award**, which is the first time for Hong Kong and Mainland China_,  see in the ``ori`` branch of this repository). 
-Beyond ``All in One``, this library supports more graph prompt models. A part of the integrated models are as follows (keep updating):  
+pre-trained Graph Neural Networks (GNNs). The original idea is derived from the paper: [All in One: Multi-task Prompting for Graph Neural Networks](https://arxiv.org/abs/2307.01504). KDD2023 (Best Research Paper Award, which is the first time for Hong Kong and Mainland China,  see in the ``ori`` branch of this repository). Beyond ``All in One``, this library now supports more than **FIVE** graph prompt models with more than **SIX** pre-training strategies (keep updating, see [here]() to check the detailed supportive list).
+
+
+
+### supportive list
+A part of the integrated models are as follows (keep updating):  
 
 >- [All in One] X. Sun, H. Cheng, J. Li, B. Liu, and J. Guan, “All in One: Multi-Task Prompting for Graph Neural Networks,” KDD, 2023
 >- [GPF Plus] T. Fang, Y. Zhang, Y. Yang, C. Wang, and L. Chen, “Universal Prompt Tuning for Graph Neural Networks,” NeurIPS, 2023.
