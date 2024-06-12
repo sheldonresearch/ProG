@@ -31,8 +31,6 @@ pre-trained Graph Neural Networks (GNNs). You can easily use this library to con
 The **``ori``** branch of this repository is the source code of **All in One**, in which you can conduct even more kinds of tasks with more flexible graph prompts. Beyond **All in One**, the **``main``** branch of this this library now supports more than **5** graph prompt models (e.g. All-in-One, GPPT, GPF Plus, GPF, GraphPrompt, etc) with more than **6** pre-training strategies (e.g. DGI, GraphMAE, EdgePreGPPT, EdgePreGprompt, GraphCL, SimGRACE, etc), and have been tested on more than **15** graph datasets, covering both homophilic and heterophilic graphs from various domains with different scales.  Click [here](#supportive-list) to see the full and latest supportive list (backbones, pre-training strategies, graph prompts, and datasets). 
 
  
-The performance of **All in One** in **``ori``** branch usually is much better than that in **``main``** branch because we have to get rid of many flexible components to keep consistency with other models in a unified framework. If you are using this library for engineering concern, we recommend **``ori``** branch. If you are using this library for your research paper, we recommend **``main``** branch for you.
-
 <h3 align="left">🌟Acknowledgement</h3>
 
 <div align="left">
