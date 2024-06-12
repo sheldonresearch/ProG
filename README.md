@@ -38,7 +38,7 @@ The **``ori``** branch of this repository is the source code of **All in One**, 
 - **Leader:** [**Dr. Xiangguo SUN**](https://xgsun.mysxl.cn)
 - **Consultants:** [**Prof. Jia LI**](https://sites.google.com/view/lijia), [**Prof. Hong CHENG**](https://www1.se.cuhk.edu.hk/~hcheng/)
 - **Developers:** [**Mr. Chenyi ZI**](https://barristen.github.io/), [**Mr. Haihong ZHAO**](https://haihongzhao.com/), [**Dr. Xiangguo SUN**](https://xgsun.mysxl.cn)
-- **Insight Suggestions:** [**Miss. Xixi Wu**](https://wxxshirley.github.io) (who also contributes a lot to our [survey](https://arxiv.org/abs/2311.16534), [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt), etc.)
+- **Insight Suggestions:** [**Miss. Xixi WU**](https://wxxshirley.github.io) (who also contributes a lot to our [survey](https://arxiv.org/abs/2311.16534), [repository](https://github.com/WxxShirley/Awesome-Graph-Prompt), etc.)
 - [**Clik Here to See Other Contributors**](https://github.com/sheldonresearch/ProG/graphs/contributors)  
 
 </div>
