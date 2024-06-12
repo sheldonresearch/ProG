@@ -340,7 +340,7 @@ conda install pyg -c pyg
       title={ProG: A Graph Prompt Learning Benchmark}, 
       author={Chenyi Zi and Haihong Zhao and Xiangguo Sun and Yiqing Lin and Hong Cheng and Jia Li},
       year={2024},
-      journal = {arXiv:2406.05346}
+      journal = {arXiv:2406.05346},
       eprint={2406.05346},
       archivePrefix={arXiv}
 }
