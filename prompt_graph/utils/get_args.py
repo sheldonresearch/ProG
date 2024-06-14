@@ -10,9 +10,9 @@ def get_args():
     parser.add_argument('--prompt_type', type=str, default="None", 
                         help='Choose the prompt type for node or graph task, for node task,we support \GPPT\, \All-in-one\, \Gprompt\ for graph task , \All-in-one\, \Gprompt\, \GPF\, \GPF-plus\ ')
     parser.add_argument('--hid_dim', type=int, default=128,
-                        help='hideen layer of GNN dimensions (default: 300)')
-    parser.add_argument('--batch_size', type=int, default=32,
-                        help='Input batch size for training (default: 32)')
+                        help='hideen layer of GNN dimensions (default: 128)')
+    parser.add_argument('--batch_size', type=int, default=128,
+                        help='Input batch size for training (default: 128)')
     parser.add_argument('--epochs', type=int, default=1000,
                         help='Number of epochs to train (default: 50)')
     parser.add_argument('--shot_num', type=int, default = 1, help='Number of shots')
