@@ -75,7 +75,7 @@ In the pre-train phase, you can obtain the experimental results by running the p
 python pre_train.py --task Edgepred_Gprompt --dataset_name 'PubMed' --gnn_type 'GCN' --hid_dim 128 --num_layer 2 --epochs 1000 --seed 42 --device 0
 ```
 
-In downstream_task, you can obtain the experimental results by running the parameters you want:
+In downstream_task, you can obtain the experimental results by running the parameters you want, for example, 
 
 ```shell
 python downstream_task.py --pre_train_model_path './Experiment/pre_trained_model/Cora/Edgepred_Gprompt.GCN.128hidden_dim.pth' --task NodeTask --dataset_name 'Cora' --gnn_type 'GCN' --prompt_type 'GPF-plus' --shot_num 1 --hid_dim 128 --num_layer 2  --lr 0.02 --decay 2e-6 --seed 42 --device 0
@@ -84,8 +84,6 @@ python downstream_task.py --pre_train_model_path './Experiment/pre_trained_model
 ```shell
 python downstream_task.py --pre_train_model_path './Experiment/pre_trained_model/BZR/DGI.GCN.128hidden_dim.pth' --task GraphTask --dataset_name 'BZR' --gnn_type 'GCN' --prompt_type 'All-in-one' --shot_num 1 --hid_dim 128 --num_layer 2  --lr 0.02 --decay 2e-6 --seed 42 --device 1
 ```
-or run `GraphTask.sh` for Graph task in **MUTAG** dataset, or run run `NodeTask.sh` for Node task in **Cora** dataset.
-
 
 
 <details>
