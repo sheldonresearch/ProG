@@ -72,13 +72,9 @@ We have provided scripts with hyper-parameter settings to get the experimental r
 
 In the pre-train phase, you can obtain the experimental results by running the parameters you want:
 ```shell
-python pre_train.py --task Edgepred_Gprompt --dataset_name 'PubMed' --gnn_type 'GCN' --hid_dim 128 --num_layer 3 --epochs 50 --seed 42 --device 5
+python pre_train.py --task Edgepred_Gprompt --dataset_name 'PubMed' --gnn_type 'GCN' --hid_dim 128 --num_layer 2 --epochs 1000 --seed 42 --device 0
 ```
-or run `pre_train.sh`
-```shell
-cd scripts
-./ pre_train.sh
-```
+
 In downstream_task, you can obtain the experimental results by running the parameters you want:
 
 ```shell
