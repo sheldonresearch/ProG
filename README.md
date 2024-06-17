@@ -249,10 +249,8 @@ _, test_acc, std_test_acc, f1, std_f1, roc, std_roc, _, _= tasker.run()
 
 ```
 
-
-
   
-**Kindly note that the comparison takes the same pre-trained pth.The absolute value of performance won't mean much because the final results may vary depending on different pre-training states.It would be more interesting to see the relative performance with other pre-training paradigms.**
+**Kindly note that the comparison takes the same pre-trained pth. The absolute value of performance won't mean much because the final results may vary depending on different pre-training states.It would be more interesting to see the relative performance with other pre-training paradigms.**
 
 
 ### Bench Random Search
@@ -260,18 +258,26 @@ In our bench
       
 ## Datasets
 
-| Graphs    | Graph classes | Avg. nodes | Avg. edges | Node features | Node classes | Task (N/E/G) |
-|-----------|---------------|------------|------------|---------------|--------------|------------|
-| Cora      | 1             | 2,708      | 5,429      | 1,433         | 7            |N           |
-| Pubmed    | 1             |19,717      | 88,648     | 500           | 3            |N           |
-| CiteSeer  | 1             | 3,327      | 9,104      | 3,703         | 6            |N           |
-| Mutag     | 188           | 17.9       | 39.6       | ?             | 7            |N           |
-| Reddit    | 1             | 232,965    | 23,213,838 | 602           | 41           |N           |
-| Amazon    | 1             | 13,752     | 491,722    | 767           | 10           |N           |
-| [Flickr](https://snap.stanford.edu/data/web-flickr.html)    | 1             | 89,250     | 899,756    | 500           | 7            | N          |
-| PROTEINS  | 1,113         | 39.06      | 72.82      | 1             | 3            | N, G       |
-| ENZYMES   | 600           | 32.63      | 62.14      | 18            | 3            | N, G       |
+| Dataset     | Graphs | Avg.nodes | Avg.edges | Features | Node classes | Task (N / G) | Category                           |
+|-------------|--------|-----------|-----------|----------|--------------|--------------|------------------------------------|
+| Cora        | 1      | 2,708     | 5,429     | 1,433    | 7            | N            | Homophilic                         |
+| Pubmed      | 1      | 19,717    | 88,648    | 500      | 3            | N            | Homophilic                         |
+| CiteSeer    | 1      | 3,327     | 9,104     | 3,703    | 6            | N            | Homophilic                         |
+| Actor       | 1      | 7600      | 30019     | 932      | 5            | N            | Heterophilic                       |
+| Wisconsin   | 1      | 251       | 515       | 1703     | 5            | N            | Heterophilic                       |
+| Texas       | 1      | 183       | 325       | 1703     | 5            | N            | Heterophilic                       |
+| ogbn-arxiv  | 1      | 169,343   | 1,166,243 | 128      | 40           | N            | Homophilic & Large scale           |
 
+| Dataset      | Graphs | Avg.nodes | Avg.edges | Features | Graph classes | Task (N / G) | Domain         |
+|--------------|--------|-----------|-----------|----------|---------------|--------------|----------------|
+| MUTAG        | 188    | 17.9      | 19.8      | 7        | 2             | G            | small molecule |
+| IMDB-BINARY  | 1000   | 19.8      | 96.53     | 0        | 2             | G            | social network |
+| COLLAP       | 5000   | 74.5      | 2457.8    | 0        | 3             | G            | social network |
+| PROTEINS     | 1,113  | 39.1      | 72.8      | 3        | 2             | G            | proteins       |
+| ENZYMES      | 600    | 32.6      | 62.1      | 18       | 6             | G            | proteins       |
+| DD           | 1,178  | 284.1     | 715.7     | 89       | 2             | G            | proteins       |
+| COX2         | 467    | 41.2      | 43.5      | 3        | 2             | G            | small molecule |
+| BZR          | 405    | 35.8      | 38.4      | 3        | 2             | G            | small molecule |
 
 
 ## Environment Setup
