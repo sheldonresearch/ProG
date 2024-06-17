@@ -1,5 +1,4 @@
 # Project exclude paths
-/old/
 .idea/*
 .idea/workspace.xml
 /ProG/__pycache__
@@ -7,12 +6,4 @@
 .DS_Store
 /data
 /dataset
-/pre_trained_gnn
-/Experiment
-/pre_trained_model
-/induced_graph
 /Docs
-/wandb
-/UGAD_lyq
-/UGAD_lyq.zip
-/UGAD_lyq.py
