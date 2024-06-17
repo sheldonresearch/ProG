@@ -312,12 +312,9 @@ conda install pyg -c pyg
 
 - [ ] **Write a comprehensive usage document**(refer to pyG)
 - [ ] Write a tutorial, and polish data code, to make our readers feel more easily to deal with their own data. That is to: (1) provide a demo/tutorial to let our readers know how to deal with data; (2) polish data code, making it more robust, reliable, and readable.  
-- [ ] Pre_train: implementation of DGI. (Deep Graph Infomax), InfoGraph, contextpred, AttrMasking, ContextPred, GraphMAE, GraphLoG, JOAO
-- [ ] Debug Gprompt inference, All-in-one Tune，graphcl loss
+- [ ] Pre_train: implementation of  InfoGraph, contextpred, AttrMasking, ContextPred, GraphLoG, JOAO
 - [ ] Add Prompt: prodigy (NeurIPS'2023 Spotlight)
 - [ ] induced graph(1.better way to generate induced graph/2.simplify the 3 type of generate-func)
-- [ ] add prompt type table (prompt_type, prompt paradigm, loss function, task_type)
-- [ ] add pre_train type table
 - [ ] support deep GNN layers by adding the feature [DeepGCNLayer](https://pytorch-geometric.readthedocs.io/en/latest/generated/torch_geometric.nn.models.DeepGCNLayer.html#torch_geometric.nn.models.DeepGCNLayer)
 
 
