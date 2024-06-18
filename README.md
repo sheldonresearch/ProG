@@ -63,7 +63,8 @@ The **``ori``** branch of this repository is the source code of **All in One**, 
 <br>
 
 ## Installation
-###Pypi
+
+**Pypi**
 From ProG 1.0 onwards, you can install and use ProG. For this, simply run
 ```shell
 pip install prompt-graph
