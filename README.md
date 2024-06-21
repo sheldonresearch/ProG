@@ -60,9 +60,9 @@ The **``ori``** branch of this repository is the source code of **All in One**, 
 - **2023/11/15:** We released a [🦀repository🦀](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, datasets, and readily accessible code implementations. 
 
 
-<br>
-## Installation
+<br>\
 
+## Installation
 **Pypi**
 
 From ProG 1.0 onwards, you can install and use ProG. For this, simply run
