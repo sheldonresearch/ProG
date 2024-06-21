@@ -60,7 +60,7 @@ The **``ori``** branch of this repository is the source code of **All in One**, 
 - **2023/11/15:** We released a [🦀repository🦀](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, datasets, and readily accessible code implementations. 
 
 
-<br>\
+<br>
 
 ## Installation
 **Pypi**
@@ -107,7 +107,7 @@ In the pre-train phase, you can obtain the experimental results by running the p
 ```shell
 python pre_train.py --task Edgepred_Gprompt --dataset_name 'PubMed' --gnn_type 'GCN' --hid_dim 128 --num_layer 2 --epochs 1000 --seed 42 --device 0
 ```
-
+### With Customized Hyperparameters 
 In downstream_task, you can obtain the experimental results by running the parameters you want, for example, 
 
 ```shell
@@ -118,6 +118,12 @@ python downstream_task.py --pre_train_model_path './Experiment/pre_trained_model
 python downstream_task.py --pre_train_model_path './Experiment/pre_trained_model/BZR/DGI.GCN.128hidden_dim.pth' --task GraphTask --dataset_name 'BZR' --gnn_type 'GCN' --prompt_type 'All-in-one' --shot_num 1 --hid_dim 128 --num_layer 2  --lr 0.02 --decay 2e-6 --seed 42 --device 1
 ```
 
+### With Optimal Hyperparameters through Random Search
+
+Perform a random search of hyperparameters for the GCN model on the Cora dataset. (NodeTask)
+```shell
+python bench.py --pre_train_model_path './Experiment/pre_trained_model/Cora/Edgepred_Gprompt.GCN.128hidden_dim.pth' --task NodeTask --dataset_name 'Cora' --gnn_type 'GCN' --prompt_type 'GPF-plus' --shot_num 1 --hid_dim 128 --num_layer 2 --seed 42 --device 0
+```
 
 <details>
   <summary ><strong>Table of The Following Contents</strong></summary>
