@@ -61,7 +61,6 @@ The **``ori``** branch of this repository is the source code of **All in One**, 
 
 
 <br>
-
 ## Installation
 
 **Pypi**
@@ -70,6 +69,32 @@ From ProG 1.0 onwards, you can install and use ProG. For this, simply run
 ```shell
 pip install prompt-graph
 ```
+Or you can git clone our repository directly.
+## Environment Setup
+
+
+Before you begin, please make sure that you have Anaconda or Miniconda installed on your system. This guide assumes that you have a CUDA-enabled GPU.
+
+```shell
+# Create and activate a new Conda environment named 'ProG'
+conda create -n ProG
+conda activate ProG
+
+# Install Pytorch and DGL with CUDA 11.7 support
+# If your use a different CUDA version, please refer to the PyTorch and DGL websites for the appropriate versions.
+conda install numpy
+conda install pytorch==2.0.1 pytorch-cuda=12.2 -c pytorch -c nvidia
+
+# Install additional dependencies
+pip install torch_geometric pandas torchmetrics Deprecated 
+```
+
+In addition, You can use our pre-train GNN directly or use our pretrain module to pre-train the GNN you want by 
+```shell
+pip install torch_cluster  -f https://data.pyg.org/whl/torch-2.3.0+cu121.html
+```
+the torch and cuda version  can refer to https://data.pyg.org/whl/  
+
 ## Quick Start
 The Architecture of ProG is shown as follows:
 
