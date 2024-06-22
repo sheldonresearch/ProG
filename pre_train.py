@@ -5,10 +5,7 @@ from prompt_graph.data import load4node,load4graph
 
 args = get_args()
 seed_everything(args.seed)
-args.task = 'GraphMultiGprompt'
-args.dataset_name = 'MUTAG'
 
-input_dim, out_dim, graph_list = load4graph(args.dataset_name, pretrained=True)
 
 if args.task == 'SimGRACE':
     pt = SimGRACE(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device)
