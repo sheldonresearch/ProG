@@ -160,25 +160,6 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         else:
             return input_dim, out_dim, dataset        
 
-
-
-    if  dataset_name in ['PubMed', 'CiteSeer', 'Cora']:
-        dataset = Planetoid(root='data/Planetoid', name=dataset_name, transform=NormalizeFeatures())
-        data = dataset[0]
-        num_parts=200
-
-        x = data.x.detach()
-        edge_index = data.edge_index
-        edge_index = to_undirected(edge_index)
-        data = Data(x=x, edge_index=edge_index)
-        input_dim = dataset.num_features
-        out_dim = dataset.num_classes
-        
-        dataset = list(ClusterData(data=data, num_parts=num_parts))
-        graph_list = dataset
-        # 这里的图没有标签
-
-        return input_dim, out_dim, None, None, None, graph_list
     
 def load4node(dataname):
     print(dataname)
@@ -224,62 +205,6 @@ def load4node(dataname):
         out_dim = dataset.num_classes
 
     return data, input_dim, out_dim
-
-
-    # print()
-    # print(f'Dataset: {dataset}:')
-    # print('======================')
-    # print(f'Number of graphs: {len(dataset)}')
-    # print(f'Number of features: {dataset.num_features}')
-    # print(f'Number of classes: {dataset.num_classes}')
-
-    # data = dataset[0]  # Get the first graph object.
-
-    # print()
-    # print(data)
-    # print('===========================================================================================================')
-
-    # # Gather some statistics about the graph.
-    # print(f'Number of nodes: {data.num_nodes}')
-    # print(f'Number of edges: {data.num_edges}')
-    # print(f'Average node degree: {data.num_edges / data.num_nodes:.2f}')
-    # print(f'Has isolated nodes: {data.has_isolated_nodes()}')
-    # print(f'Has self-loops: {data.has_self_loops()}')
-    # print(f'Is undirected: {data.is_undirected()}')
-
-    #  # 根据 shot_num 更新训练掩码
-    # class_counts = {}  # 统计每个类别的节点数
-    # for label in data.y:
-    #     label = label.item()
-    #     class_counts[label] = class_counts.get(label, 0) + 1
-
-    
-    # train_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
-    # test_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
-    # # val_mask = torch.zeros(data.num_nodes, dtype=torch.bool)
-
-    
-    # for label in data.y.unique():
-    #     label_indices = (data.y == label).nonzero(as_tuple=False).view(-1)
-
-    #     # if len(label_indices) < 3 * shot_num:
-    #     #     raise ValueError(f"类别 {label.item()} 的样本数不足以分配到训练集、测试集和验证集。")
-
-    #     label_indices = label_indices[torch.randperm(len(label_indices))]
-    #     train_indices = label_indices[:shot_num]
-    #     train_mask[train_indices] = True       
-    #     remaining_indices = label_indices[100:]
-    #     # split_point = int(len(remaining_indices) * 0.1)  # 验证集占剩余的10%
-        
-    #     # val_indices = remaining_indices[:split_point]
-    #     test_indices = remaining_indices
-
-    #     # val_mask[val_indices] = True
-    #     test_mask[test_indices] = True
-
-    # data.train_mask = train_mask
-    # data.test_mask = test_mask
-    # # data.val_mask = val_mask
 
 
 def load4link_prediction_single_graph(dataname, num_per_samples=1):
