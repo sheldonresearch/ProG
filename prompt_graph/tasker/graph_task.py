@@ -210,7 +210,7 @@ class GraphTask(BaseTask):
                 best = 1e9
                 cnt_wait = 0
                 
-                elif self.prompt_type == 'GPPT':
+                if self.prompt_type == 'GPPT':
                     # initialize the GPPT hyperparametes via graph data
                     if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
                         # total_num_nodes = sum([data.num_nodes for data in train_dataset])
