@@ -122,7 +122,7 @@ python downstream_task.py --pre_train_model_path './Experiment/pre_trained_model
 
 Perform a random search of hyperparameters for the GCN model on the Cora dataset. (NodeTask)
 ```shell
-python bench.py --pre_train_model_path './Experiment/pre_trained_model/Cora/Edgepred_Gprompt.GCN.128hidden_dim.pth' --task NodeTask --dataset_name 'Cora' --gnn_type 'GCN' --prompt_type 'GPF-plus' --shot_num 1 --hid_dim 128 --num_layer 2 --seed 42 --device 0
+python bench.py --pre_train_model_path './Experiment/pre_trained_model/Cora/GraphCL.GCN.128hidden_dim.pth' --task NodeTask --dataset_name 'Cora' --gnn_type 'GCN' --prompt_type 'GPF-plus' --shot_num 1 --hid_dim 128 --num_layer 2 --seed 42 --device 0
 ```
 
 <details>
