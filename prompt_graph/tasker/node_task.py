@@ -27,8 +27,6 @@ class NodeTask(BaseTask):
                   self.input_dim = input_dim
                   self.output_dim = output_dim
                   self.graphs_list = graphs_list
-                  self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
-                                                torch.nn.Softmax(dim=1)).to(self.device) 
             
             self.create_few_data_folder()
 
@@ -207,6 +205,8 @@ class NodeTask(BaseTask):
                   self.epochs = int(self.epochs/self.answer_epoch)
             for i in range(1, 6):
                   self.initialize_gnn()
+                  self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
+                                                torch.nn.Softmax(dim=1)).to(self.device) 
                   self.initialize_prompt()
                   self.initialize_optimizer()
                   idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
