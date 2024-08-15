@@ -399,6 +399,13 @@ In our bench
       journal = {arXiv:2402.06326}
 }
 
+@article{jin2024urban,
+  title={Urban Region Pre-training and Prompting: A Graph-based Approach},
+  author={Jin, Jiahui and Song, Yifan and Kan, Dong and Zhu, Haojia and Sun, Xiangguo and Li, Zhicheng and Sun, Xigang and Zhang, Jinghui},
+  journal={arXiv preprint arXiv:2408.05920},
+  year={2024}
+}
+
 @article{li2024survey,
       title={A Survey of Graph Meets Large Language Model: Progress and Future Directions}, 
       author={Yuhan Li and Zhixun Li and Peisong Wang and Jia Li and Xiangguo Sun and Hong Cheng and Jeffrey Xu Yu},
@@ -408,12 +415,15 @@ In our bench
       journal = {arXiv:2311.12399}
 }
 
+
 @article{wang2024ddiprompt,
-  title={Advanced Drug Interaction Event Prediction},
+  title={DDIPrompt: Drug-Drug Interaction Event Prediction based on Graph Prompt Learning},
   author={Wang, Yingying and Xiong, Yun and Wu, Xixi and Sun, Xiangguo and Zhang, Jiawei},
   journal={arXiv preprint arXiv:2402.11472},
   year={2024}
 }
+
+
 ```
 
 ---
