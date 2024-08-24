@@ -150,7 +150,7 @@ python bench.py --pre_train_model_path './Experiment/pre_trained_model/Cora/Grap
 
 ### with the default few-shot sample
 For train and test sample split to reproduce the results in the benchmark, you can 
-```unzip node.zip -d ./Experiment/sample_data```
+```unzip node.zip -d './Experiment/sample_data'```
 or do not unzip use the code to split the dataset Automatically
 
 ### Supportive List
