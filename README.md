@@ -104,13 +104,14 @@ The Architecture of ProG is shown as follows:
 
 <img height="350" src="/ProG_pipeline.jpg?sanitize=true" />
 
+Firstly, unzip to get our dataset pre-trained model which is already pre-trained, and indecued graph, sample data in the few-shot setting. 
+``` shell
+unzip Experiment.zip
+```
 
 We have provided scripts with hyper-parameter settings to get the experimental results
 
-In the pre-train phase, you can obtain the experimental results by running the parameters you want:
-```shell
-python pre_train.py --task Edgepred_Gprompt --dataset_name 'PubMed' --gnn_type 'GCN' --hid_dim 128 --num_layer 2 --epochs 1000 --seed 42 --device 0
-```
+
 ### With Customized Hyperparameters 
 In downstream_task, you can obtain the experimental results by running the parameters you want, for example, 
 
@@ -185,10 +186,14 @@ or do not unzip use the code to split the dataset Automatically
 
 ### Pre-train your GNN model
 
-We have designed four pre_trained class (Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE), which is in ProG.pretrain module, you can pre_train the model by running ``pre_train.py`` and setting the parameters you want. 
-Or just unzip to get our dataset pretrained model which is already pre-trained. 
+We have designed four pre_trained classes (Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE), which is in ProG.pretrain module, you can pre_train the model by running ``pre_train.py`` and setting the parameters you want. 
+Or just unzip to get our dataset pre-trained model which is already pre-trained. 
 ``` shell
 unzip Experiment.zip
+```
+In the pre-train phase, you can obtain the experimental results by running the parameters you want:
+```shell
+python pre_train.py --task Edgepred_Gprompt --dataset_name 'PubMed' --gnn_type 'GCN' --hid_dim 128 --num_layer 2 --epochs 1000 --seed 42 --device 0
 ```
 
 ```python
