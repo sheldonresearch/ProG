@@ -104,7 +104,9 @@ The Architecture of ProG is shown as follows:
 
 <img height="350" src="/ProG_pipeline.jpg?sanitize=true" />
 
-Firstly, unzip to get our dataset pre-trained model which is already pre-trained, and indecued graph, sample data in the few-shot setting. 
+
+Firstly, download from onedrive https://1drv.ms/u/s!ArZGDth_ySjPjkW2n-zsF3_GGvC1?e=rEnBA7 (126MB)to get `Experiment.zip`.
+You can unzip to get our dataset pre-trained model which is already pre-trained, and indecued graph, sample data in the few-shot setting. 
 ``` shell
 unzip Experiment.zip
 ```
