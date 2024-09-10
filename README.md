@@ -106,7 +106,8 @@ The Architecture of ProG is shown as follows:
 
 
 Firstly, download from onedrive https://1drv.ms/u/s!ArZGDth_ySjPjkW2n-zsF3_GGvC1?e=rEnBA7 (126MB)to get `Experiment.zip`.
-You can unzip to get our dataset pre-trained model which is already pre-trained, and indecued graph, sample data in the few-shot setting. 
+You can unzip to get our dataset pre-trained model which is already pre-trained, and induced graph, sample data in the few-shot setting. (Please make sure the unzipped folder's name is `/Experiment`.
+if the download link is unavailable, please drop us an email to let us know(barristanzi666@gmail.com)
 ``` shell
 unzip Experiment.zip
 ```
