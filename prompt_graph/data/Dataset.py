@@ -7,16 +7,17 @@ class GraphDataset(Dataset):
         初始化 GraphDataset
         :param graphs: 包含图对象的列表
         """
+        super(GraphDataset, self).__init__()
         self.graphs = graphs
 
-    def __len__(self):
+    def len(self):
         """
         返回数据集的大小
         :return: 数据集的大小
         """
         return len(self.graphs)
 
-    def __getitem__(self, idx):
+    def get(self, idx):
         """
         获取索引为 idx 的图
         :param idx: 索引
