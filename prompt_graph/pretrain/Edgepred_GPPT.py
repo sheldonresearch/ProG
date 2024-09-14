@@ -14,7 +14,7 @@ class Edgepred_GPPT(PreTrain):
         super().__init__(*args, **kwargs)  
         self.dataloader = self.generate_loader_data()
         self.initialize_gnn(self.input_dim, self.hid_dim) 
-        self.graph_pred_linear = torch.nn.Linear(self.hid_dim, self.output_dim).to(self.device)  
+        self.graph_pred_linear = torch.nn.Linear(self.hid_dim, self.hid_dim).to(self.device)  # output_dim 未出现
 
     def generate_loader_data(self):
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora', 'Computers', 'Photo','ogbn-arxiv', 'Flickr', 'Actor', 'Texas', 'Wisconsin']:
