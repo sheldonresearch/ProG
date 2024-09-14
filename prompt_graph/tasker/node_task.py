@@ -15,9 +15,10 @@ from prompt_graph.utils import process
 warnings.filterwarnings("ignore")
 
 class NodeTask(BaseTask):
-      def __init__(self, data, input_dim, output_dim, graphs_list = None, *args, **kwargs):
+      def __init__(self, data, input_dim, output_dim, task_num = 5, graphs_list = None, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.task_type = 'NodeTask'
+            self.task_num = task_num  # 增加task_num的参数，控制重复数量，默认为5
             if self.prompt_type == 'MultiGprompt':
                   self.load_multigprompt_data()
             else:
@@ -32,11 +33,13 @@ class NodeTask(BaseTask):
 
       def create_few_data_folder(self):
             # 创建文件夹并保存数据
-            for k in range(1, 11):
+            k = self.shot_num  # shot_num 可变
+            task_num = self.task_num  # task_num 可变
+            for k in range(1, task_num+1):
                   k_shot_folder = './Experiment/sample_data/Node/'+ self.dataset_name +'/' + str(k) +'_shot'
                   os.makedirs(k_shot_folder, exist_ok=True)
-                  
-                  for i in range(1, 6):
+
+                  for i in range(1, k+1):
                         folder = os.path.join(k_shot_folder, str(i))
                         if not os.path.exists(folder):
                               os.makedirs(folder)
@@ -57,22 +60,29 @@ class NodeTask(BaseTask):
             print("adj",self.sp_adj.shape)
             print("feature",features.shape)
 
-      # def load_induced_graph(self):
-        
-      #       folder_path = './Experiment/induced_graph/' + self.dataset_name
-      #       if not os.path.exists(folder_path):
-      #             os.makedirs(folder_path)
+      def load_induced_graph(self):
+            smallest_size = 5  # 默认为5
+            if self.dataset_name in ['ENZYMES', 'PROTEINS']:
+                  smallest_size = 1
+            if self.dataset_name == 'PubMed':
+                  smallest_size = 8
+            folder_path = './Experiment/induced_graph/' + self.dataset_name
+            if not os.path.exists(folder_path):
+                  os.makedirs(folder_path)
 
-      #       file_path = folder_path + '/induced_graph_min100_max300.pkl'
-      #       if os.path.exists(file_path):
-      #             with open(file_path, 'rb') as f:
-      #                   graphs_list = pickle.load(f)
-      #       else:
-      #             print('Begin split_induced_graphs.')
-      #             split_induced_graphs(self.data, folder_path, self.device, smallest_size=100, largest_size=300)
-      #             with open(file_path, 'rb') as f:
-      #                   graphs_list = pickle.load(f)
-      #       self.graphs_list = [graph.to(self.device) for graph in graphs_list]
+            file_path = folder_path + '/induced_graph_min{}_max300.pkl'.format(smallest_size)
+            if os.path.exists(file_path):
+                  with open(file_path, 'rb') as f:
+                        graphs_list = pickle.load(f)
+            else:
+                  print('Begin split_induced_graphs.')
+                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=smallest_size, largest_size=300)
+                  with open(file_path, 'rb') as f:
+                        graphs_list = pickle.load(f)
+            self.graphs_list = []
+            for i in range(len(graphs_list)):
+                  graph = graphs_list[i].to(self.device)
+                  self.graphs_list.append(graph)
             
 
       
@@ -203,7 +213,7 @@ class NodeTask(BaseTask):
                   self.answer_epoch = 50
                   self.prompt_epoch = 50
                   self.epochs = int(self.epochs/self.answer_epoch)
-            for i in range(1, 6):
+            for i in range(1, self.task_num+1):
                   self.initialize_gnn()
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
@@ -315,13 +325,14 @@ class NodeTask(BaseTask):
             mean_roc = np.mean(rocs)
             std_roc = np.std(rocs)   
             mean_prc = np.mean(prcs)
-            std_prc = np.std(prcs) 
+            std_prc = np.std(prcs)
+            print('Acc List', test_accs) # 输出所有测试的Acc结果
             print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
             print(" Final best | test F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1))   
             print(" Final best | AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc))   
             print(" Final best | AUPRC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc))   
 
-            print(self.pre_train_type, self.gnn_type, self.prompt_type, " Graph Task completed")
+            print(self.pre_train_type, self.gnn_type, self.prompt_type, "Node Task completed")
             mean_best = np.mean(batch_best_loss)
 
             return  mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc

@@ -10,9 +10,10 @@ import os
 import numpy as np
 
 class GraphTask(BaseTask):
-    def __init__(self, input_dim, output_dim, dataset, *args, **kwargs):    
+    def __init__(self, input_dim, output_dim, dataset, task_num = 5 , *args, **kwargs):    
         super().__init__(*args, **kwargs)
         self.task_type = 'GraphTask'
+        self.task_num = task_num
         # self.load_data()
         self.input_dim = input_dim
         self.output_dim = output_dim
@@ -27,16 +28,17 @@ class GraphTask(BaseTask):
 
     def create_few_data_folder(self):
             # 创建文件夹并保存数据
-            for k in range(1, 11):
-                  k_shot_folder = './Experiment/sample_data/Graph/'+ self.dataset_name +'/' + str(k) +'_shot'
-                  os.makedirs(k_shot_folder, exist_ok=True)
-                  
-                  for i in range(1, 6):
-                        folder = os.path.join(k_shot_folder, str(i))
-                        if not os.path.exists(folder):
-                            os.makedirs(folder, exist_ok=True)
-                            graph_sample_and_save(self.dataset, k, folder, self.output_dim)
-                            print(str(k) + ' shot ' + str(i) + ' th is saved!!')
+            k = self.shot_num
+            task_num = self.task_num
+            for k in range(1, task_num+1):
+                k_shot_folder = './Experiment/sample_data/Graph/'+ self.dataset_name +'/' + str(k) +'_shot'
+                os.makedirs(k_shot_folder, exist_ok=True)
+                for i in range(1, task_num+1):
+                    folder = os.path.join(k_shot_folder, str(i))
+                    if not os.path.exists(folder):
+                        os.makedirs(folder, exist_ok=True)
+                        graph_sample_and_save(self.dataset, k, folder, self.output_dim)
+                        print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
     def load_data(self):
         if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa','DD']:
