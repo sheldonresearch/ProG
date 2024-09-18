@@ -99,7 +99,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         """
 
     if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'DD']:
-        dataset = TUDataset(root='data/TUDataset', name=dataset_name)
+        dataset = TUDataset(root='data/TUDataset', name=dataset_name, use_node_attr=True)  # use_node_attr=False时，节点属性为one-hot编码的节点类别
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
 
@@ -137,7 +137,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         if(pretrained==True):
             return input_dim, out_dim, graph_list
         else:
-            return input_dim, out_dim, dataset
+            return dataset, input_dim, out_dim  # 统一下游任务返回参数的顺序
         
     if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
         dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')
@@ -158,7 +158,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         if(pretrained==True):
             return input_dim, out_dim, graph_list
         else:
-            return input_dim, out_dim, dataset        
+            return dataset, input_dim, out_dim       
 
     
 def load4node(dataname):
@@ -203,6 +203,14 @@ def load4node(dataname):
         data = dataset[0]
         input_dim = data.x.shape[1]
         out_dim = dataset.num_classes
+    elif dataname in ['ENZYMES', 'PROTEINS']:
+        # 实现TUDataset中两个multi graphs dataset的节点分类
+        dataset = TUDataset(root='data/TUDataset', name=dataname, use_node_attr=True)
+        node_class = dataset.data.x[:,-3:]
+        input_dim = dataset.num_node_features
+        out_dim = dataset.num_node_labels
+        data = Batch.from_data_list(dataset)  # 将dataset中小图合并成一个大图
+        data.y = node_class.nonzero().T[1]
 
     return data, input_dim, out_dim
 
@@ -231,7 +239,7 @@ def load4link_prediction_single_graph(dataname, num_per_samples=1):
 
 def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
     if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'DD']:
-        dataset = TUDataset(root='data/TUDataset', name=dataset_name)
+        dataset = TUDataset(root='data/TUDataset', name=dataset_name, use_node_attr=True)
 
     if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
         dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')

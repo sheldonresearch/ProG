@@ -2,7 +2,8 @@ import argparse
 
 def get_args():
     parser = argparse.ArgumentParser(description='PyTorch implementation of pre-training of graph neural networks')
-    parser.add_argument('--task', type = str)
+    parser.add_argument('--pretrain_task', type = str)
+    parser.add_argument('--downstream_task', type = str)
     parser.add_argument('--dataset_name', type=str, default='Cora',help='Choose the dataset of pretrainor downstream task')
     parser.add_argument('--device', type=int, default=0,
                         help='Which gpu to use if any (default: 0)')
@@ -37,7 +38,7 @@ def get_args():
     parser.add_argument('--num_workers', type=int, default = 0, help='Number of workers for dataset loading')
     parser.add_argument('--num_layers', type=int, default = 1, help='A range of [1,2,3]-layer MLPs with equal width')
     parser.add_argument('--pnum', type=int, default = 5, help='The number of independent basis for GPF-plus')
-    
+    parser.add_argument('--task_num', type=int, default = 5, help='The number of tasks for computing the mean metrices')
 
     args = parser.parse_args()
     return args
