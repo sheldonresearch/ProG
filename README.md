@@ -33,6 +33,8 @@ pre-trained Graph Neural Networks (GNNs). You can easily use this library to con
 
 * The **``main``** branch of this library is the source code of [**ProG: A Graph Prompt Learning Benchmark**](https://arxiv.org/abs/2406.05346), it supports more than **5** graph prompt models (e.g. All-in-One, GPPT, GPF Plus, GPF, GraphPrompt, etc) with more than **6** pre-training strategies (e.g. DGI, GraphMAE, EdgePreGPPT, EdgePreGprompt, GraphCL, SimGRACE, etc), and have been tested on more than **15** graph datasets, covering both homophilic and heterophilic graphs from various domains with different scales.  Click [here](#supportive-list) to see the full and latest supportive list (backbones, pre-training strategies, graph prompts, and datasets). 
 
+
+
  
 <h3 align="left">🌟Acknowledgement</h3>
 
@@ -45,6 +47,13 @@ pre-trained Graph Neural Networks (GNNs). You can easily use this library to con
 - [**Clik Here to See Other Contributors**](https://github.com/sheldonresearch/ProG/graphs/contributors)  
 
 </div>
+
+Development Progress:
+
+> - ``ori`` branch started [JUl 2023]
+> -  ``main`` branch started [JUN 2024]
+> -   widely testing, debugging and updating [NOW]
+> -  ``stable`` branch started [reaching around 20%]
 
 <br>
 
