@@ -11,8 +11,7 @@
 <div align="center">
   
 | **[Quick Start](#quick-start)** 
-| **[Website](https://graphprompt.github.io/)** | **[Paper](https://arxiv.org/abs/2406.05346)**
-| **[Video](https://www.youtube.com/watch?v=MFL0ynk1BKs)**
+| **[Paper](#paper)**
 | **[Media Coverage](#media-coverage)**
 | **[Call For Contribution](#call-for-contributors)** |
 
@@ -351,6 +350,7 @@ In our bench
 
 ---
 
+<a name="paper"></a>
 
 <h3 align="center">🌹Please Cite Our Work If Helpful:</h3>
 <p align="center"><strong>Thanks! / 谢谢! / ありがとう! / merci! / 감사! / Danke! / спасибо! / gracias! ...</strong></p>
