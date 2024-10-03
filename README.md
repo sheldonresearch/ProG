@@ -55,9 +55,11 @@ pre-trained Graph Neural Networks (GNNs). You can easily use this library to con
   
 </div>
 
-- **2024/06/08**: We use our developed ProG to extensively evaluate various graph prompts, and released our analysis report as follows:
+- **2024/10/03**: We present a comprehensive theoretical analysis on graph prompt and release theory as follows:   
+  - > Qunzhong Wang and Xiangguo Sun and Hong Cheng. Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis. [https://arxiv.org/abs/2410.01635](https://arxiv.org/abs/2410.01635)
+- **2024/09/26**: Our Benchmark Paper was accepted by NeurIPS 2024:   
   - > Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. [https://arxiv.org/abs/2406.05346](https://arxiv.org/abs/2406.05346)  
-- **2024/05/28:** We are so happy to announce that we have finished most of the updating works for ProG! (the ``main`` branch of this repository. If you wish to find the original ProG package, go to the ``ori`` branch)
+  - (prior news) 2024/06/08: We use our developed ProG to extensively evaluate various graph prompts, and released our analysis report as follows: Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. [https://arxiv.org/abs/2406.05346](https://arxiv.org/abs/2406.05346)  
 - **2024/01/01:** A big updated version released!
 - **2023/11/28:** We released a comprehensive survey on graph prompt! 
   - >Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. Graph Prompt Learning: A Comprehensive Survey and Beyond [https://arxiv.org/abs/2311.16534](https://arxiv.org/abs/2311.16534)
@@ -366,6 +368,16 @@ In our bench
   doi = {10.1145/3580305.3599256}
 }
 
+@article{wang2024doesgraphpromptwork,
+      title={Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis}, 
+      author={Qunzhong Wang and Xiangguo Sun and Hong Cheng},
+      year={2024},
+      journal = {arXiv:2410.01635},
+      eprint={2410.01635},
+      archivePrefix={arXiv},
+      url={https://arxiv.org/abs/2410.01635}, 
+}
+
 @article{zi2024prog,
       title={ProG: A Graph Prompt Learning Benchmark}, 
       author={Chenyi Zi and Haihong Zhao and Xiangguo Sun and Yiqing Lin and Hong Cheng and Jia Li},
@@ -374,7 +386,6 @@ In our bench
       volume={},
       pages={}
 }
-
 
 
 @article{sun2023graph,
@@ -386,6 +397,13 @@ In our bench
   archiveprefix = {arxiv}
 }
 
+@inproceedings{li2024graph,
+  title={Graph Intelligence with Large Language Models and Prompt Learning},
+  author={Li, Jia and Sun, Xiangguo and Li, Yuhan and Li, Zhixun and Cheng, Hong and Yu, Jeffrey Xu},
+  booktitle={Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining},
+  pages={6545--6554},
+  year={2024}
+}
 
 @inproceedings{zhao2024all,
       title={All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining}, 
