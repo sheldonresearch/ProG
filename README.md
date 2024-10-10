@@ -377,15 +377,14 @@ In our bench
   doi = {10.1145/3580305.3599256}
 }
 
-@article{wang2024doesgraphpromptwork,
+@article{wang2024does,
       title={Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis}, 
       author={Qunzhong Wang and Xiangguo Sun and Hong Cheng},
       year={2024},
-      journal = {arXiv:2410.01635},
-      eprint={2410.01635},
-      archivePrefix={arXiv},
-      url={https://arxiv.org/abs/2410.01635}, 
+      journal = {arXiv preprint arXiv:2410.01635},
+      url={https://arxiv.org/abs/2410.01635}
 }
+
 
 @article{zi2024prog,
       title={ProG: A Graph Prompt Learning Benchmark}, 
