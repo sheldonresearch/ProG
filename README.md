@@ -63,8 +63,10 @@ Development Progress:
   
 </div>
 
-- **2024/10/03**: We present a comprehensive theoretical analysis on graph prompt and release theory as follows:   
-  - > Qunzhong Wang and Xiangguo Sun and Hong Cheng. Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis. [https://arxiv.org/abs/2410.01635](https://arxiv.org/abs/2410.01635)
+- **2024/10/15**: We released a new work with graph prompts on cross-domain recommendation:   
+  - > Hengyu Zhang, Chunxu Shen, Xiangguo Sun, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations. [https://arxiv.org/abs/2410.11719](https://arxiv.org/abs/2410.11719)
+- **2024/10/03**: We present a comprehensive theoretical analysis of graph prompt and release our theory analysis as follows:   
+  - > Qunzhong Wang and Xiangguo Sun and Hong Cheng. **Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis**. [https://arxiv.org/abs/2410.01635](https://arxiv.org/abs/2410.01635)
 - **2024/09/26**: Our Benchmark Paper was accepted by NeurIPS 2024:   
   - > Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. [https://arxiv.org/abs/2406.05346](https://arxiv.org/abs/2406.05346)  
   - (prior news) 2024/06/08: We use our developed ProG to extensively evaluate various graph prompts, and released our analysis report as follows: Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. [https://arxiv.org/abs/2406.05346](https://arxiv.org/abs/2406.05346)  
@@ -403,6 +405,13 @@ In our bench
   journal = {arXiv:2311.16534},
   eprint = {2311.16534},
   archiveprefix = {arxiv}
+}
+
+@article{zhang2024adaptive,
+  title={Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations},
+  author={Hengyu Zhang and Chunxu Shen and Xiangguo Sun and Jie Tan and Yu Rong and Chengzhi Piao and Hong Cheng and Lingling Yi},
+  journal={arXiv preprint arXiv:2410.11719},
+  year={2024}
 }
 
 @inproceedings{li2024graph,
