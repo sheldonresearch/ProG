@@ -485,7 +485,7 @@ In our bench
 
 <div name="our-work",  align="center">
   
-  🌟**A Ful List of Our Works on Graph Prompts**🌟
+  🌟**A Full List of Our Works on Graph Prompts**🌟
   
   </div>
 
