@@ -34,9 +34,11 @@ pre-trained Graph Neural Networks (GNNs). You can easily use this library to con
 * The **``main``** branch of this library is the source code of [**ProG: A Graph Prompt Learning Benchmark**](https://arxiv.org/abs/2406.05346), it supports more than **5** graph prompt models (e.g. All-in-One, GPPT, GPF Plus, GPF, GraphPrompt, etc) with more than **6** pre-training strategies (e.g. DGI, GraphMAE, EdgePreGPPT, EdgePreGprompt, GraphCL, SimGRACE, etc), and have been tested on more than **15** graph datasets, covering both homophilic and heterophilic graphs from various domains with different scales.  Click [here](#supportive-list) to see the full and latest supportive list (backbones, pre-training strategies, graph prompts, and datasets). 
 
 
-
+<div align="center">
+  
 **Click to See [A Full List of Our Works in Graph Prompts](#our-work)**
 
+</div>
 
  
 <h3 align="left">🌟Acknowledgement</h3>
@@ -480,11 +482,18 @@ In our bench
 
 <a name="our-work">**A Ful List of Our Works on Graph Prompts**</a>
 
-- a
-- a
-- a
-
-
+1. Xiangguo Sun, Hong Cheng, Jia Li, Bo Liu, Jihong Guan. All in One: Multi-Task Prompting for Graph Neural Networks. SIGKDD 23. [PDF](https://arxiv.org/abs/2307.01504)
+2. Qunzhong Wang, Xiangguo Sun, Hong Cheng. Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis. arXiv. [PDF](https://arxiv.org/abs/2410.01635)
+3. Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. NeurIPS 2024. [PDF](https://arxiv.org/abs/2406.05346)
+4. Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. Graph Prompt Learning: A Comprehensive Survey and Beyond. arXiv. [PDF](https://arxiv.org/abs/2311.16534)
+5. Hengyu Zhang, Chunxu Shen, Xiangguo Sun, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations. arXiv. [PDF](https://arxiv.org/abs/2410.11719)
+6. Jia Li, Xiangguo Sun, Yuhan Li, Zhixun Li, Hong Cheng, Jeffrey Xu Yu. Graph Intelligence with Large Language Models and Prompt Learning. SIGKDD 24. [Paper](https://dl.acm.org/doi/10.1145/3637528.3671456)
+7. Haihong Zhao, Aochuan Chen, Xiangguo Sun, Hong Cheng, Jia Li. All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining. SIGKDD 24. [Paper](https://arxiv.org/abs/2402.09834)
+8. Ziqi Gao, Xiangguo Sun, Zijing Liu, Yu Li, Hong Cheng, Jia Li. Protein Multimer Structure Prediction via PPI-guided Prompt Learning. ICLR 2024. [PDF](https://arxiv.org/abs/2402.18813)
+9. Xi Chen, Siwei Zhang, Yun Xiong, Xixi Wu, Jiawei Zhang, Xiangguo Sun, Yao Zhang, Feng Zhao, Yulin Kang. Prompt Learning on Temporal Interaction Graphs. arXiv. [Paper](https://arxiv.org/abs/2402.06326)
+10. Jiahui Jin, Yifan Song, Dong Kan, Haojia Zhu, Xiangguo Sun, Zhicheng Li, Xigang Sun, Jinghui Zhang. Urban Region Pre-training and Prompting: A Graph-based Approach. arXiv. [Paper](https://www.arxiv.org/abs/2408.05920)
+11. Yuhan Li, Zhixun Li, Peisong Wang, Jia Li, Xiangguo Sun, Hong Cheng, Jeffrey Xu Yu. A Survey of Graph Meets Large Language Model: Progress and Future Directions. IJCAI. [Paper](https://arxiv.org/abs/2311.12399)
+12. Yingying Wang, Yun Xiong, Xixi Wu, Xiangguo Sun, Jiawei Zhang. DDIPrompt: Drug-Drug Interaction Event Prediction based on Graph Prompt Learning. CIKM 2024. [Paper](https://arxiv.org/abs/2402.11472)
 
 
 
