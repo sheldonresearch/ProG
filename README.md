@@ -480,21 +480,27 @@ In our bench
 
 ```
 
-<a name="our-work">**A Ful List of Our Works on Graph Prompts**</a>
+<br>
 
-1. Xiangguo Sun, Hong Cheng, Jia Li, Bo Liu, Jihong Guan. All in One: Multi-Task Prompting for Graph Neural Networks. SIGKDD 23. [PDF](https://arxiv.org/abs/2307.01504)
-2. Qunzhong Wang, Xiangguo Sun, Hong Cheng. Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis. arXiv. [PDF](https://arxiv.org/abs/2410.01635)
-3. Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. NeurIPS 2024. [PDF](https://arxiv.org/abs/2406.05346)
-4. Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. Graph Prompt Learning: A Comprehensive Survey and Beyond. arXiv. [PDF](https://arxiv.org/abs/2311.16534)
-5. Hengyu Zhang, Chunxu Shen, Xiangguo Sun, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations. arXiv. [PDF](https://arxiv.org/abs/2410.11719)
-6. Jia Li, Xiangguo Sun, Yuhan Li, Zhixun Li, Hong Cheng, Jeffrey Xu Yu. Graph Intelligence with Large Language Models and Prompt Learning. SIGKDD 24. [Paper](https://dl.acm.org/doi/10.1145/3637528.3671456)
-7. Haihong Zhao, Aochuan Chen, Xiangguo Sun, Hong Cheng, Jia Li. All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining. SIGKDD 24. [Paper](https://arxiv.org/abs/2402.09834)
-8. Ziqi Gao, Xiangguo Sun, Zijing Liu, Yu Li, Hong Cheng, Jia Li. Protein Multimer Structure Prediction via PPI-guided Prompt Learning. ICLR 2024. [PDF](https://arxiv.org/abs/2402.18813)
-9. Xi Chen, Siwei Zhang, Yun Xiong, Xixi Wu, Jiawei Zhang, Xiangguo Sun, Yao Zhang, Feng Zhao, Yulin Kang. Prompt Learning on Temporal Interaction Graphs. arXiv. [Paper](https://arxiv.org/abs/2402.06326)
-10. Jiahui Jin, Yifan Song, Dong Kan, Haojia Zhu, Xiangguo Sun, Zhicheng Li, Xigang Sun, Jinghui Zhang. Urban Region Pre-training and Prompting: A Graph-based Approach. arXiv. [Paper](https://www.arxiv.org/abs/2408.05920)
-11. Yuhan Li, Zhixun Li, Peisong Wang, Jia Li, Xiangguo Sun, Hong Cheng, Jeffrey Xu Yu. A Survey of Graph Meets Large Language Model: Progress and Future Directions. IJCAI. [Paper](https://arxiv.org/abs/2311.12399)
-12. Yingying Wang, Yun Xiong, Xixi Wu, Xiangguo Sun, Jiawei Zhang. DDIPrompt: Drug-Drug Interaction Event Prediction based on Graph Prompt Learning. CIKM 2024. [Paper](https://arxiv.org/abs/2402.11472)
 
+<div name="our-work",  align="center">
+  
+  🌟**A Ful List of Our Works on Graph Prompts**🌟
+  
+  </div>
+
+1. ![](https://img.shields.io/badge/Theory-black) Qunzhong Wang, Xiangguo Sun, Hong Cheng. **Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis**. arXiv. [Paper](https://arxiv.org/abs/2410.01635)
+2. ![](https://img.shields.io/badge/Framework-red) Xiangguo Sun, Hong Cheng, Jia Li, Bo Liu, Jihong Guan. **All in One: Multi-Task Prompting for Graph Neural Networks**. SIGKDD 23.  [Paper](https://arxiv.org/abs/2307.01504)
+3. ![](https://img.shields.io/badge/Framework-red) Haihong Zhao, Aochuan Chen, Xiangguo Sun, Hong Cheng, Jia Li. **All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining**. SIGKDD 24.  [Paper](https://arxiv.org/abs/2402.09834)
+4. ![](https://img.shields.io/badge/Framework-red) Xi Chen, Siwei Zhang, Yun Xiong, Xixi Wu, Jiawei Zhang, Xiangguo Sun, Yao Zhang, Feng Zhao, Yulin Kang. **Prompt Learning on Temporal Interaction Graphs**. arXiv.  [Paper](https://arxiv.org/abs/2402.06326)
+5. ![](https://img.shields.io/badge/Benchmark-violet) Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. **ProG: A Graph Prompt Learning Benchmark**. NeurIPS 2024.  [Paper](https://arxiv.org/abs/2406.05346)
+6. ![](https://img.shields.io/badge/Tutorial-brown) Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. **Graph Prompt Learning: A Comprehensive Survey and Beyond**. arXiv.  [Paper](https://arxiv.org/abs/2311.16534)
+7. ![](https://img.shields.io/badge/Tutorial-brown)Jia Li, Xiangguo Sun, Yuhan Li, Zhixun Li, Hong Cheng, Jeffrey Xu Yu. **Graph Intelligence with Large Language Models and Prompt Learning**. SIGKDD 24.   [Paper](https://dl.acm.org/doi/10.1145/3637528.3671456)
+8. ![](https://img.shields.io/badge/Tutorial-brown) Yuhan Li, Zhixun Li, Peisong Wang, Jia Li, Xiangguo Sun, Hong Cheng, Jeffrey Xu Yu. **A Survey of Graph Meets Large Language Model: Progress and Future Directions**. IJCAI 2024.  [Paper](https://arxiv.org/abs/2311.12399)
+9. ![](https://img.shields.io/badge/Application-green) Hengyu Zhang, Chunxu Shen, Xiangguo Sun, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. **Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations**. arXiv.  [Paper](https://arxiv.org/abs/2410.11719)
+10.  ![](https://img.shields.io/badge/Application-green) Ziqi Gao, Xiangguo Sun, Zijing Liu, Yu Li, Hong Cheng, Jia Li. **Protein Multimer Structure Prediction via PPI-guided Prompt Learning**. ICLR 2024. [Paper](https://arxiv.org/abs/2402.18813)
+11. ![](https://img.shields.io/badge/Application-green) Jiahui Jin, Yifan Song, Dong Kan, Haojia Zhu, Xiangguo Sun, Zhicheng Li, Xigang Sun, Jinghui Zhang. **Urban Region Pre-training and Prompting: A Graph-based Approach**. arXiv. [Paper](https://www.arxiv.org/abs/2408.05920)
+12. ![](https://img.shields.io/badge/Application-green) Yingying Wang, Yun Xiong, Xixi Wu, Xiangguo Sun, Jiawei Zhang. **DDIPrompt: Drug-Drug Interaction Event Prediction based on Graph Prompt Learning**. CIKM 2024. [Paper](https://arxiv.org/abs/2402.11472)
 
 
 
