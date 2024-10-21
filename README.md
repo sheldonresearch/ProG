@@ -35,6 +35,9 @@ pre-trained Graph Neural Networks (GNNs). You can easily use this library to con
 
 
 
+**Click to See [A Full List of Our Works in Graph Prompts](#our-work)**
+
+
  
 <h3 align="left">🌟Acknowledgement</h3>
 
@@ -474,6 +477,31 @@ In our bench
 
 
 ```
+
+<a name="our-work">**A Ful List of Our Works on Graph Prompts**</a>
+
+- a
+- a
+- a
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
