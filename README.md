@@ -68,17 +68,18 @@ Development Progress:
   
 </div>
 
-- **2024/10/24**: **[BIG NEWS!]** We are now trying our best to prepare a very detailed, hands-on blog with deeper insights and an entirely new perspective for graph prompting (and our ProG project). We just started recently and we plan to finish this hard work by the end of next month. Please wait for a while! 
+- **2024/10/24**: **BIG NEWS! A Detailed Hands-on Blog Coming Soon**
+   > We are now trying our best to prepare a detailed, hands-on blog with deeper insights and an entirely new perspective for graph prompting (and our ProG project). We just started recently and we plan to finish this hard work by the end of next month. Please wait for a while! 
 - **2024/10/15**: We released a new work with graph prompts on cross-domain recommendation:   
-  - > Hengyu Zhang, Chunxu Shen, Xiangguo Sun, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations. [https://arxiv.org/abs/2410.11719](https://arxiv.org/abs/2410.11719)
+   > Hengyu Zhang, Chunxu Shen, Xiangguo Sun, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations. [https://arxiv.org/abs/2410.11719](https://arxiv.org/abs/2410.11719)
 - **2024/10/03**: We present a comprehensive theoretical analysis of graph prompt and release our theory analysis as follows:   
-  - > Qunzhong Wang and Xiangguo Sun and Hong Cheng. **Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis**. [https://arxiv.org/abs/2410.01635](https://arxiv.org/abs/2410.01635)
+   > Qunzhong Wang and Xiangguo Sun and Hong Cheng. **Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis**. [https://arxiv.org/abs/2410.01635](https://arxiv.org/abs/2410.01635)
 - **2024/09/26**: Our Benchmark Paper was accepted by NeurIPS 2024:   
-  - > Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. [https://arxiv.org/abs/2406.05346](https://arxiv.org/abs/2406.05346)  
+   > Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. [https://arxiv.org/abs/2406.05346](https://arxiv.org/abs/2406.05346)  
   - (prior news) 2024/06/08: We use our developed ProG to extensively evaluate various graph prompts, and released our analysis report as follows: Chenyi Zi, Haihong Zhao, Xiangguo Sun, Yiqing Lin, Hong Cheng, Jia Li. ProG: A Graph Prompt Learning Benchmark. [https://arxiv.org/abs/2406.05346](https://arxiv.org/abs/2406.05346)  
 - **2024/01/01:** A big updated version released!
 - **2023/11/28:** We released a comprehensive survey on graph prompt! 
-  - >Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. Graph Prompt Learning: A Comprehensive Survey and Beyond [https://arxiv.org/abs/2311.16534](https://arxiv.org/abs/2311.16534)
+   > Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. Graph Prompt Learning: A Comprehensive Survey and Beyond [https://arxiv.org/abs/2311.16534](https://arxiv.org/abs/2311.16534)
 - **2023/11/15:** We released a [🦀repository🦀](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, datasets, and readily accessible code implementations. 
 
 
