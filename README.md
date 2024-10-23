@@ -68,6 +68,7 @@ Development Progress:
   
 </div>
 
+- **2024/10/24**: **[BIG NEWS!]** We are now trying our best to prepare a very detailed, hands-on blog with deeper insights and an entirely new perspective for graph prompting (and our ProG project). We just started recently and we plan to finish this hard work by the end of next month. Please wait for a while! 
 - **2024/10/15**: We released a new work with graph prompts on cross-domain recommendation:   
   - > Hengyu Zhang, Chunxu Shen, Xiangguo Sun, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations. [https://arxiv.org/abs/2410.11719](https://arxiv.org/abs/2410.11719)
 - **2024/10/03**: We present a comprehensive theoretical analysis of graph prompt and release our theory analysis as follows:   
