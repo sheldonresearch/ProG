@@ -2,20 +2,19 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from prompt_graph.prompt import DGI,GraphCL,Lp,AvgReadout, DGIprompt,GraphCLprompt,Lpprompt, GcnLayers
-import tqdm
 import scipy.sparse as sp
 import numpy as np
 from prompt_graph.utils import process
 import prompt_graph.utils.aug as aug
 import os
 from torch_geometric.loader import DataLoader
-from tqdm import tqdm
+from tqdm import tqdm, trange
 
 class NodePrePrompt(nn.Module):
     def __init__(self, dataset_name, n_h, activation,a1,a2,a3, a4, num_layers_num, dropout, device):
         super(NodePrePrompt, self).__init__()
         self.dataset_name = dataset_name
-        self.device = device
+        self.device = torch.device('cuda:' + str(device) if torch.cuda.is_available() else 'cpu')
         self.hid_dim = n_h
         n_in, self.nb_nodes = self.load_data()
         self.dgi = DGI(n_in, n_h, activation)
@@ -32,7 +31,7 @@ class NodePrePrompt(nn.Module):
         self.graphcledgeprompt = GraphCLprompt(n_in, n_h, activation)
         self.lpprompt = Lpprompt(n_in, n_h)
         sample = self.negetive_sample
-        self.sample = torch.tensor(sample,dtype=int).to(self.device)
+        self.sample = torch.tensor(sample, dtype=int).to(self.device)
         self.loss = nn.BCEWithLogitsLoss()
         self.act = nn.ELU()
 
@@ -221,7 +220,7 @@ class GraphPrePrompt(nn.Module):
         self.graph_list = graph
         self.loader = self.get_loader()
         self.dataset_name = dataset_name
-        self.device = device
+        self.device = torch.device('cuda:' + str(device) if torch.cuda.is_available() else 'cpu')
         self.dgi = DGI(n_in, n_h, activation)
         self.graphcledge = GraphCL(n_in, n_h, activation)
         self.graphclmask = GraphCL(n_in, n_h, activation)
@@ -397,7 +396,7 @@ def prompt_pretrain_sample(adj,n):
     whole=np.array(range(nodenum))
     print("#############")
     print("start sampling disconnected tuples")
-    for i in tqdm.trange(nodenum):
+    for i in trange(nodenum):
         nonzero_index_i_row=indices[indptr[i]:indptr[i+1]]
         zero_index_i_row=np.setdiff1d(whole,nonzero_index_i_row)
         np.random.shuffle(nonzero_index_i_row)
