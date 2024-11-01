@@ -23,9 +23,9 @@ class Edgepred_GPPT(PreTrain):
             edge_index = edge_index.transpose(0, 1)
             data = TensorDataset(edge_label, edge_index)
             if self.dataset_name in['ogbn-arxiv', 'Flickr']:
-                return DataLoader(data, batch_size = 1024, shuffle=True)
+                return DataLoader(data, batch_size = 1024, shuffle=True, num_workers=self.num_workers)
             else:
-                return DataLoader(data, batch_size=64, shuffle=True)
+                return DataLoader(data, batch_size=64, shuffle=True, num_workers=self.num_workers)
         
         elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)
@@ -35,10 +35,10 @@ class Edgepred_GPPT(PreTrain):
             
             # Batch图太大，向前传播的时候分开操作
             if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa', 'DD']:
-                self.batch_dataloader = DataLoader(self.data.to_data_list(),batch_size=256,shuffle=False)
-                return DataLoader(data, batch_size=512000, shuffle=True)
+                self.batch_dataloader = DataLoader(self.data.to_data_list(),batch_size=256,shuffle=False, num_workers=self.num_workers)
+                return DataLoader(data, batch_size=512000, shuffle=True, num_workers=self.num_workers)
 
-            return DataLoader(data, batch_size=64, shuffle=True)
+            return DataLoader(data, batch_size=64, shuffle=True, num_workers=self.num_workers)
       
     def pretrain_one_epoch(self):
 

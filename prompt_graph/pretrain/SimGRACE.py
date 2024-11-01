@@ -22,7 +22,13 @@ class SimGRACE(PreTrain):
         
     def load_graph_data(self):
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr','ogbn-arxiv', 'Actor', 'Texas', 'Wisconsin']:
-            self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
+            data, self.input_dim, _ = load4node(self.dataset_name)  # 需要先读入数据，参数为dataset_name，为str格式
+            self.graph_list = NodePretrain(
+                data=data,
+                num_parts=200,
+                split_method='Cluster'
+                )  # NodePretrain 没有dataname参数，此处应为pyG的data类型
+            # self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
         else:
             self.input_dim, self.out_dim, self.graph_list= load4graph(self.dataset_name,pretrained=True)
         
@@ -32,7 +38,7 @@ class SimGRACE(PreTrain):
             raise KeyError(
                 "batch_size {} makes the last batch only contain 1 graph, \n which will trigger a zero bug in SimGRACE!")
 
-        loader = DataLoader(graph_list, batch_size=batch_size, shuffle=False, num_workers=1)
+        loader = DataLoader(graph_list, batch_size=batch_size, shuffle=False, num_workers=self.num_workers)
         return loader
     
     def forward_cl(self, x, edge_index, batch):

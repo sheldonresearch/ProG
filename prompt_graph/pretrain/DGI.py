@@ -112,7 +112,7 @@ class DGI(PreTrain):
             self.input_dim = input_dim
 
             from torch_geometric import loader
-            self.batch_dataloader = loader.DataLoader(graph_list,batch_size=512,shuffle=False)
+            self.batch_dataloader = loader.DataLoader(graph_list,batch_size=512,shuffle=False, num_workers=self.num_workers)
 
             data = graph_list
 

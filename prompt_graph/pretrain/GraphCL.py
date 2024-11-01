@@ -54,9 +54,9 @@ class GraphCL(PreTrain):
             view_list_2.append(view_g)
 
         loader1 = DataLoader(view_list_1, batch_size=batch_size, shuffle=False,
-                                num_workers=1)  # you must set shuffle=False !
+                                num_workers=self.num_workers)  # you must set shuffle=False !
         loader2 = DataLoader(view_list_2, batch_size=batch_size, shuffle=False,
-                                num_workers=1)  # you must set shuffle=False !
+                                num_workers=self.num_workers)  # you must set shuffle=False !
 
         return loader1, loader2
     
