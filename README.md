@@ -499,6 +499,10 @@ In our bench
   
   </div>
 
+
+
+  
+
 1. ![](https://img.shields.io/badge/Theory-black) Qunzhong Wang*, Xiangguo Sun*†, Hong Cheng. **Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis**. arXiv. [Paper](https://arxiv.org/abs/2410.01635)
 2. ![](https://img.shields.io/badge/Framework-red) Xiangguo Sun, Hong Cheng, Jia Li, Bo Liu, Jihong Guan. **All in One: Multi-Task Prompting for Graph Neural Networks**. SIGKDD 23.  [Paper](https://arxiv.org/abs/2307.01504)
 3. ![](https://img.shields.io/badge/Framework-red) Haihong Zhao*, Aochuan Chen*, Xiangguo Sun*†, Hong Cheng, Jia Li†. **All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining**. SIGKDD 24.  [Paper](https://arxiv.org/abs/2402.09834)
