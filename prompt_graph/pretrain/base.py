@@ -3,7 +3,7 @@ from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 from torch.optim import Adam
 
 class PreTrain(torch.nn.Module):
-    def __init__(self, gnn_type='TransformerConv', dataset_name = 'Cora', input_dim=128, hid_dim = 128, gln = 2, num_epoch = 1000, device : int = 5, graph_list=None):
+    def __init__(self, gnn_type='TransformerConv', dataset_name = 'Cora', input_dim=128, hid_dim = 128, gln = 2, num_epoch = 1000, device : int = 5, graph_list=None, num_workers=0):
         super().__init__()
         self.device = torch.device('cuda:' + str(device) if torch.cuda.is_available() else 'cpu')
         self.graph_list = graph_list
@@ -15,6 +15,7 @@ class PreTrain(torch.nn.Module):
         self.hid_dim =hid_dim
         self.learning_rate = 0.001
         self.weight_decay = 0.00005
+        self.num_workers = num_workers
     
     def initialize_gnn(self, input_dim, hid_dim):
         if self.gnn_type == 'GAT':

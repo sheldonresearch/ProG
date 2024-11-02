@@ -199,16 +199,22 @@ class GraphMAE(PreTrain):
     def load_graph_data(self):
 
         if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv', 'Actor', 'Texas', 'Wisconsin']:
-            graph_list, in_node_feat_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
+            data, in_node_feat_dim, _ = load4node(self.dataset_name)  # 需要先读入数据，参数为dataset_name，为str格式
+            graph_list = NodePretrain(
+                data=data,
+                num_parts=200,
+                split_method='Cluster'
+                )  # NodePretrain 没有dataname参数，此处应为pyG的data类型
+            # graph_list, in_node_feat_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
             # data = Batch.from_data_list(graph_list)
         elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
             in_node_feat_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True)
             # data = Batch.from_data_list()
         self.input_dim = in_node_feat_dim
         if self.dataset_name == 'ogbg-ppa':
-             return DataLoader(graph_list, batch_size=256, shuffle=True)
+             return DataLoader(graph_list, batch_size=256, shuffle=True, num_workers=self.num_workers)
         else:
-            return DataLoader(graph_list, batch_size=64, shuffle=True)
+            return DataLoader(graph_list, batch_size=64, shuffle=True, num_workers=self.num_workers)
     
     def pretrain(self):
         from torchmetrics import MeanMetric

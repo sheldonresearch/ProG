@@ -22,9 +22,9 @@ class Edgepred_Gprompt(PreTrain):
             self.adj = edge_index_to_sparse_matrix(self.data.edge_index, self.data.x.shape[0]).to(self.device)
             data = prepare_structured_data(self.data)
             if self.dataset_name in['ogbn-arxiv', 'Flickr']:
-                return DataLoader(TensorDataset(data), batch_size = 1024, shuffle=True)
+                return DataLoader(TensorDataset(data), batch_size = 1024, shuffle=True, num_workers=self.num_workers)
             else:
-                return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
+                return DataLoader(TensorDataset(data), batch_size=64, shuffle=True, num_workers=self.num_workers)
         
         elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
             self.data, edge_label, edge_index, self.input_dim, self.output_dim = load4link_prediction_multi_graph(self.dataset_name)          
@@ -33,10 +33,10 @@ class Edgepred_Gprompt(PreTrain):
 
             if self.dataset_name in  ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa', 'DD']:
                 from torch_geometric import loader
-                self.batch_dataloader = loader.DataLoader(self.data.to_data_list(),batch_size=256,shuffle=False)
-                return DataLoader(TensorDataset(data), batch_size=5120000, shuffle=True)
+                self.batch_dataloader = loader.DataLoader(self.data.to_data_list(),batch_size=256,shuffle=False, num_workers=self.num_workers)
+                return DataLoader(TensorDataset(data), batch_size=5120000, shuffle=True, num_workers=self.num_workers)
             else:
-                return DataLoader(TensorDataset(data), batch_size=64, shuffle=True)
+                return DataLoader(TensorDataset(data), batch_size=64, shuffle=True, num_workers=self.num_workers)
     
     def pretrain_one_epoch(self):
         accum_loss, total_step = 0, 0
