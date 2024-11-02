@@ -83,6 +83,12 @@ Development Progress:
 - **2023/11/15:** We released a [🦀repository🦀](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, datasets, and readily accessible code implementations. 
 
 
+ <details close>
+   <summary>History News</summary>
+   
+   - **2023/11/15:** We released a [🦀repository🦀](https://github.com/WxxShirley/Awesome-Graph-Prompt) for a comprehensive collection of research papers, datasets, and readily accessible code implementations.
+</details>
+
 <br>
 
 ## Installation
