@@ -74,17 +74,15 @@ def split_induced_graphs(data, dir_path, device, smallest_size=10, largest_size=
             subset, _, _, _ = k_hop_subgraph(node_idx=index, num_hops=current_hop,
                                                 edge_index=data.edge_index)
             
+
         if len(subset) < smallest_size:
-            raise ValueError("It is better to reduce the value of 'smallest_size'.")
-        
-        # if len(subset) < smallest_size:
-        #     need_node_num = smallest_size - len(subset)
-        #     pos_nodes = torch.argwhere(data.y == int(current_label))   # Test data may leak
-        #     pos_nodes = pos_nodes.to('cpu')
-        #     subset = subset.to('cpu')
-        #     candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
-        #     candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][0:need_node_num]
-        #     subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
+            need_node_num = smallest_size - len(subset)
+            pos_nodes = torch.argwhere(data.y == int(current_label))   # Test data may leak
+            pos_nodes = pos_nodes.to('cpu')
+            subset = subset.to('cpu')
+            candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
+            candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][0:need_node_num]
+            subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
 
         if len(subset) > largest_size:
             subset = subset[torch.randperm(subset.shape[0])][0:largest_size - 1]
