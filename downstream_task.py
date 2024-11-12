@@ -38,7 +38,7 @@ seed_everything(args.seed)
 print('dataset_name', args.dataset_name)
 
 
-if args.task == 'NodeTask':
+if args.downstream_task == 'NodeTask':
     data, input_dim, output_dim = load4node(args.dataset_name)   
     data = data.to(args.device)
     if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
@@ -47,10 +47,11 @@ if args.task == 'NodeTask':
         graphs_list = None 
          
 
-if args.task == 'GraphTask':
+if args.downstream_task == 'GraphTask':
     input_dim, output_dim, dataset = load4graph(args.dataset_name)
 
-if args.task == 'NodeTask':
+#print(dataset) # Returned "2"
+if args.downstream_task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer,
                     gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
@@ -58,7 +59,7 @@ if args.task == 'NodeTask':
                     batch_size = args.batch_size, data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
 
 
-if args.task == 'GraphTask':
+if args.downstream_task == 'GraphTask':
     tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
                     shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,

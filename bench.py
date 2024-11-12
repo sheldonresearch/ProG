@@ -70,7 +70,7 @@ final_f1_std = 0
 final_roc_mean = 0
 final_roc_std = 0
 
-# args.task = 'GraphTask'
+# args.pretrain_task = 'GraphTask'
 # # # # # args.prompt_type = 'MultiGprompt'
 # args.dataset_name = 'COLLAB'
 # # args.dataset_name = 'Cora'
@@ -79,7 +79,7 @@ final_roc_std = 0
 # args.pre_train_model_path='./Experiment/pre_trained_model/DD/DGI.GCN.128hidden_dim.pth' 
 
 
-if args.task == 'NodeTask':
+if args.pretrain_task == 'NodeTask':
     data, input_dim, output_dim = load4node(args.dataset_name)   
     data = data.to(args.device)
     if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
@@ -88,7 +88,7 @@ if args.task == 'NodeTask':
         graphs_list = None 
          
 
-if args.task == 'GraphTask':
+if args.pretrain_task == 'GraphTask':
     input_dim, output_dim, dataset = load4graph(args.dataset_name)
     
 print('num_iter',num_iter)
@@ -96,7 +96,7 @@ for a in range(num_iter):
     params = {k: random.choice(v) for k, v in param_grid.items()}
     print(params)
     
-    if args.task == 'NodeTask':
+    if args.pretrain_task == 'NodeTask':
         tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
                         dataset_name = args.dataset_name, num_layer = args.num_layer,
                         gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
@@ -104,7 +104,7 @@ for a in range(num_iter):
                         batch_size = int(params['batch_size']), data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
 
 
-    if args.task == 'GraphTask':
+    if args.pretrain_task == 'GraphTask':
         tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
                         dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
                         shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
@@ -130,9 +130,9 @@ for a in range(num_iter):
 # prompt_types = ['None', 'GPPT', 'All-in-one', 'Gprompt', 'GPF', 'GPF-plus']
 
 file_name = args.gnn_type +"_total_results.xlsx"
-if args.task == 'NodeTask':
+if args.pretrain_task == 'NodeTask':
     file_path = os.path.join('./Experiment/ExcelResults/Node/'+str(args.shot_num)+'shot/'+ args.dataset_name +'/', file_name)
-if args.task == 'GraphTask':
+if args.pretrain_task == 'GraphTask':
     file_path = os.path.join('./Experiment/ExcelResults/Graph/'+str(args.shot_num)+'shot/'+ args.dataset_name +'/', file_name)
 data = pd.read_excel(file_path, index_col=0)
 

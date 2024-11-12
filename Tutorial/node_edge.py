@@ -274,7 +274,7 @@ final_roc_std = 0
 final_prc_mean = 0
 final_prc_std = 0
 
-args.task = 'GraphTask'
+args.downstream_task = 'GraphTask'
 args.shot_num = 0
 args.epochs = 10
 
