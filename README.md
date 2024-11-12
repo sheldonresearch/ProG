@@ -141,7 +141,7 @@ We have provided scripts with hyper-parameter settings to get the experimental r
 
 
 ### With Customized Hyperparameters 
-In downstream_task, you can obtain the experimental results by running the parameters you want, for example, 
+In downstream task, you can obtain the experimental results by running the parameters you want, for example, 
 
 ```shell
 python downstream_task.py --pre_train_model_path './Experiment/pre_trained_model/Cora/Edgepred_Gprompt.GCN.128hidden_dim.pth' --task NodeTask --dataset_name 'Cora' --gnn_type 'GCN' --prompt_type 'GPF-plus' --shot_num 1 --hid_dim 128 --num_layer 2  --lr 0.02 --decay 2e-6 --seed 42 --device 0
@@ -235,23 +235,23 @@ args = get_args()
 seed_everything(args.seed)
 
 
-if args.task == 'SimGRACE':
+if args.pretrain_task == 'SimGRACE':
     pt = SimGRACE(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device)
-if args.task == 'GraphCL':
+if args.pretrain_task == 'GraphCL':
     pt = GraphCL(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device)
-if args.task == 'Edgepred_GPPT':
+if args.pretrain_task == 'Edgepred_GPPT':
     pt = Edgepred_GPPT(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device)
-if args.task == 'Edgepred_Gprompt':
+if args.pretrain_task == 'Edgepred_Gprompt':
     pt = Edgepred_Gprompt(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device)
-if args.task == 'DGI':
+if args.pretrain_task == 'DGI':
     pt = DGI(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device)
-if args.task == 'NodeMultiGprompt':
+if args.pretrain_task == 'NodeMultiGprompt':
     nonlinearity = 'prelu'
     pt = NodePrePrompt(args.dataset_name, args.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3, args.device)
-if args.task == 'GraphMultiGprompt':
+if args.pretrain_task == 'GraphMultiGprompt':
     nonlinearity = 'prelu'
     pt = GraphPrePrompt(graph_list, input_dim, out_dim, args.dataset_name, args.hid_dim, nonlinearity,0.9,0.9,0.1,1,0.3, 0.1, args.device)
-if args.task == 'GraphMAE':
+if args.pretrain_task == 'GraphMAE':
     pt = GraphMAE(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device,
                   mask_rate=0.75, drop_edge_rate=0.0, replace_rate=0.1, loss_fn='sce', alpha_l=2)
 pt.pretrain()
@@ -286,7 +286,7 @@ args = get_args()
 seed_everything(args.seed)
 
 print('dataset_name', args.dataset_name)
-if args.task == 'NodeTask':
+if args.downstream_task == 'NodeTask':
     data, input_dim, output_dim = load4node(args.dataset_name)   
     data = data.to(args.device)
     if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
@@ -295,7 +295,7 @@ if args.task == 'NodeTask':
         graphs_list = None 
          
 
-if args.task == 'GraphTask':
+if args.downstream_task == 'GraphTask':
     input_dim, output_dim, dataset = load4graph(args.dataset_name)
 ```
 
@@ -305,10 +305,10 @@ In ``downstreamtask.py``, we designed two tasks (Node Classification, Graph Clas
 import prompt_graph as ProG
 from ProG.tasker import NodeTask, LinkTask, GraphTask
 
-if args.task == 'GraphTask':
+if args.downstream_task == 'GraphTask':
     input_dim, output_dim, dataset = load4graph(args.dataset_name)
 
-if args.task == 'NodeTask':
+if args.downstream_task == 'NodeTask':
     tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer,
                     gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
@@ -316,7 +316,7 @@ if args.task == 'NodeTask':
                     batch_size = args.batch_size, data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
 
 
-if args.task == 'GraphTask':
+if args.downstream_task == 'GraphTask':
     tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
                     dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
                     shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
