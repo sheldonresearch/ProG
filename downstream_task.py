@@ -1,3 +1,4 @@
+import argparse
 from prompt_graph.tasker import NodeTask, GraphTask
 from prompt_graph.utils import seed_everything
 from torchsummary import summary
@@ -31,49 +32,51 @@ def load_induced_graph(dataset_name, data, device):
     return graphs_list
 
 
-args = get_args()
-seed_everything(args.seed)
 
 
-print('dataset_name', args.dataset_name)
+def get_downstream_task_delegate(args:argparse.Namespace):
+    
+    seed_everything(args.seed)
+    
+    if args.downstream_task == 'NodeTask':
+        data, input_dim, output_dim = load4node(args.dataset_name)   
+        data = data.to(args.device)
+        if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
+            graphs_list = load_induced_graph(args.dataset_name, data, args.device) 
+        else:
+            graphs_list = None 
+        tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
+                        dataset_name = args.dataset_name, num_layer = args.num_layer,
+                        gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
+                        epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
+                        batch_size = args.batch_size, data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
 
 
-if args.downstream_task == 'NodeTask':
-    data, input_dim, output_dim = load4node(args.dataset_name)   
-    data = data.to(args.device)
-    if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-        graphs_list = load_induced_graph(args.dataset_name, data, args.device) 
+    elif args.downstream_task == 'GraphTask':
+        input_dim, output_dim, dataset = load4graph(args.dataset_name)
+
+        tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
+                        dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
+                        shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
+                        batch_size = args.batch_size, dataset = dataset, input_dim = input_dim, output_dim = output_dim)
     else:
-        graphs_list = None 
-         
+        raise ValueError(f"Unexpected args.downstream_task type {args.downstream_task}.")
 
-if args.downstream_task == 'GraphTask':
-    input_dim, output_dim, dataset = load4graph(args.dataset_name)
+    return tasker
 
-#print(dataset) # Returned "2"
-if args.downstream_task == 'NodeTask':
-    tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
-                    dataset_name = args.dataset_name, num_layer = args.num_layer,
-                    gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
-                    epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
-                    batch_size = args.batch_size, data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
+if __name__ == "__main__":
+    args = get_args()
+    print('dataset_name', args.dataset_name)
 
+    tasker = get_downstream_task_delegate(args=args)
 
-if args.downstream_task == 'GraphTask':
-    tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
-                    dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
-                    shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
-                    batch_size = args.batch_size, dataset = dataset, input_dim = input_dim, output_dim = output_dim)
-pre_train_type = tasker.pre_train_type
+    _, test_acc, std_test_acc, f1, std_f1, roc, std_roc, _, _= tasker.run()
+    
+    print("Final Accuracy {:.4f}±{:.4f}(std)".format(test_acc, std_test_acc)) 
+    print("Final F1 {:.4f}±{:.4f}(std)".format(f1,std_f1)) 
+    print("Final AUROC {:.4f}±{:.4f}(std)".format(roc, std_roc)) 
 
-
-_, test_acc, std_test_acc, f1, std_f1, roc, std_roc, _, _= tasker.run()
-  
-print("Final Accuracy {:.4f}±{:.4f}(std)".format(test_acc, std_test_acc)) 
-print("Final F1 {:.4f}±{:.4f}(std)".format(f1,std_f1)) 
-print("Final AUROC {:.4f}±{:.4f}(std)".format(roc, std_roc)) 
-
-
+    pre_train_type = tasker.pre_train_type
 
 
 

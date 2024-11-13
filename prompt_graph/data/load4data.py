@@ -137,7 +137,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         if(pretrained==True):
             return input_dim, out_dim, graph_list
         else:
-            return dataset, input_dim, out_dim  # 统一下游任务返回参数的顺序
+            return input_dim, out_dim, dataset  # 统一下游任务返回参数的顺序
         
     if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
         dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')
@@ -158,7 +158,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         if(pretrained==True):
             return input_dim, out_dim, graph_list
         else:
-            return dataset, input_dim, out_dim       
+            return  input_dim, out_dim, dataset
 
     
 def load4node(dataname):
