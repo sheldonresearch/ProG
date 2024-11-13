@@ -139,7 +139,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         else:
             return input_dim, out_dim, dataset  # 统一下游任务返回参数的顺序
         
-    if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
+    elif dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
         dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
@@ -159,7 +159,8 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
             return input_dim, out_dim, graph_list
         else:
             return  input_dim, out_dim, dataset
-
+    else:
+        raise ValueError(f"Unsupported GraphTask on dataset: {dataset_name}.")
     
 def load4node(dataname):
     print(dataname)
@@ -211,7 +212,8 @@ def load4node(dataname):
         out_dim = dataset.num_node_labels
         data = Batch.from_data_list(dataset)  # 将dataset中小图合并成一个大图
         data.y = node_class.nonzero().T[1]
-
+    else:
+        raise ValueError(f"Unsupported NodeTask on dataset: {dataname}.")
     return data, input_dim, out_dim
 
 
