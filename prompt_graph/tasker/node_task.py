@@ -214,17 +214,27 @@ class NodeTask(BaseTask):
                   self.prompt_epoch = 50
                   self.epochs = int(self.epochs/self.answer_epoch)
             for i in range(1, self.task_num+1):
+                  sample_data_foler_path = "./Experiment/sample_data/Node/{}/{}_shot/{}".format(self.dataset_name, self.shot_num, i)
+
+                  if not os.path.exists(sample_data_foler_path):
+                        print(f"Warning! Failed to find sample_data for shot {self.shot_num}, id {i}, path: {sample_data_foler_path}, skipping...")
+                        continue
+
+
                   self.initialize_gnn()
                   self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
                                                 torch.nn.Softmax(dim=1)).to(self.device) 
                   self.initialize_prompt()
                   self.initialize_optimizer()
-                  idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
+
+
+
+                  idx_train = torch.load(f"{sample_data_foler_path}/train_idx.pt").type(torch.long).to(self.device)
                   print('idx_train',idx_train)
-                  train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+                  train_lbls = torch.load(f"{sample_data_foler_path}/train_labels.pt").type(torch.long).squeeze().to(self.device)
                   print("true",i,train_lbls)
-                  idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-                  test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
+                  idx_test = torch.load(f"{sample_data_foler_path}/test_idx.pt").type(torch.long).to(self.device)
+                  test_lbls = torch.load(f"{sample_data_foler_path}/test_labels.pt").type(torch.long).squeeze().to(self.device)
 
                   # GPPT prompt initialtion
                   if self.prompt_type == 'GPPT':
