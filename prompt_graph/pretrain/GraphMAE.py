@@ -1,3 +1,4 @@
+from ..defines import GRAPH_TASKS, NODE_TASKS
 from .base import PreTrain
 from torch_geometric.data import Data, Batch
 from torch_geometric.loader import DataLoader
@@ -198,7 +199,7 @@ class GraphMAE(PreTrain):
 
     def load_graph_data(self):
 
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv', 'Actor', 'Texas', 'Wisconsin']:
+        if self.dataset_name in NODE_TASKS:
             data, in_node_feat_dim, _ = load4node(self.dataset_name)  # 需要先读入数据，参数为dataset_name，为str格式
             graph_list = NodePretrain(
                 data=data,
@@ -207,7 +208,7 @@ class GraphMAE(PreTrain):
                 )  # NodePretrain 没有dataname参数，此处应为pyG的data类型
             # graph_list, in_node_feat_dim = NodePretrain(dataname = self.dataset_name, num_parts=200)
             # data = Batch.from_data_list(graph_list)
-        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
+        elif self.dataset_name in GRAPH_TASKS:
             in_node_feat_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True)
             # data = Batch.from_data_list()
         self.input_dim = in_node_feat_dim
@@ -257,6 +258,6 @@ class GraphMAE(PreTrain):
             os.makedirs(folder_path)
 
         torch.save(self.gnn.state_dict(),
-                    "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'GraphMAE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+                    "{}/{}.{}.{}.pth".format(folder_path, 'GraphMAE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
         
         print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'GraphMAE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))                

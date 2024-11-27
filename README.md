@@ -116,6 +116,10 @@ conda install pytorch==2.0.1 pytorch-cuda=12.2 -c pytorch -c nvidia
 
 # Install additional dependencies
 pip install torch_geometric pandas torchmetrics Deprecated 
+
+# If you are having trouble with torch-geometric linked binary version, use conda to build it.
+
+conda install pytorch-sparse -c pyg
 ```
 
 In addition, You can use our pre-train GNN directly or use our pretrain module to pre-train the GNN you want by 
