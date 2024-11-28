@@ -210,5 +210,5 @@ class DGI(PreTrain):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         torch.save(self.gnn.state_dict(),
-                    "{}/{}/{}.{}.{}.pth".format(folder_path, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+                    "{}/{}.{}.{}.pth".format(folder_path, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
         print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))

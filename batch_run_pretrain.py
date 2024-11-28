@@ -49,6 +49,7 @@ class BatchRunPretrain:
 
             
             try:
+                print(f"Starting {args}.")
                 tasker = get_pretrain_task_delegate(args=args)
                 
                 print(tasker.pretrain())
@@ -59,12 +60,14 @@ class BatchRunPretrain:
             except Exception as e:
                 traceback.print_exc()
                 print(f"Error config: {certain_config}")
-                if skip_error or input("Do you wish to stop? y/n [n]:").lower().startswith("y"):
+                if not skip_error and input("Do you wish to stop? y/n [n]:").lower().startswith("y"):
                     break
 
 
 if __name__ == "__main__":
     _pd = config_resoler.ConfigResolver.resolve_config_from_dir("./Experiment/provided_pt_models")
+
+    _pd = [item for item in _pd if item.get("pretrain_task") not  in ("Edgepred_Gprompt",) and item.get("dataset_name") not in ("COLLAB",)]
     _runner = BatchRunPretrain(_pd)
 
     _runner.start(device=2,skip_error=True)

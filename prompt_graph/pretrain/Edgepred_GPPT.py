@@ -94,7 +94,7 @@ class Edgepred_GPPT(PreTrain):
             st_time = time.time()
             train_loss = self.pretrain_one_epoch()
             print(f"Edgepred_GPPT [Pretrain] Epoch {epoch}/{num_epoch} | Train Loss {train_loss:.5f} | "
-                  f"Cost Time {time.time() - st_time:.3}s")
+                  f"Cost Time {time.time() - st_time:.3f}s")
             
             if train_loss_min > train_loss:
                 train_loss_min = train_loss

@@ -27,7 +27,7 @@ def get_pretrain_task_delegate(args:argparse.Namespace):
             #TODO: Bugged unknown parameters: graph_list, input_dim, out_dim
             nonlinearity = 'prelu'
 
-            graph_list, input_dim, out_dim = load4graph(args.dataset_name,pretrained=True)
+            #graph_list, input_dim, out_dim = load4graph(args.dataset_name,pretrained=True)
             pt = GraphPrePrompt(graph_list, input_dim, out_dim, args.dataset_name, args.hid_dim, nonlinearity,0.9,0.9,0.1,1,0.3, device=args.device)
         else:
             raise ValueError(f"Unsupported args.pretrain_task type for MultiGprompt {args.pretrain_task}")
