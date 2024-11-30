@@ -2,6 +2,8 @@ import torch
 from prompt_graph.data import load4graph, load4node, graph_sample_and_save
 from torch_geometric.loader import DataLoader
 import torch.nn.functional as F
+
+from ..defines import GRAPH_TASKS
 from .task import BaseTask
 from prompt_graph.utils import center_embedding, Gprompt_tuning_loss,constraint
 from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva, GPPTGraphEva
@@ -41,7 +43,7 @@ class GraphTask(BaseTask):
                         print(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
     def load_data(self):
-        if self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa','DD']:
+        if self.dataset_name in GRAPH_TASKS:
             self.input_dim, self.output_dim, self.dataset= load4graph(self.dataset_name, self.shot_num)
 
     def node_degree_as_features(self, data_list):

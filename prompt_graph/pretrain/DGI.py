@@ -1,3 +1,4 @@
+from ..defines import GRAPH_TASKS, NODE_TASKS
 from .base import PreTrain
 from torch_geometric.data import Data, Batch
 from torch_geometric.loader import DataLoader
@@ -58,7 +59,7 @@ class DGI(PreTrain):
     #     if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv']:
     #         data, input_dim, _ = load4node(self.dataset_name)
     #         self.input_dim = input_dim
-    #     elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR']:
+    #     elif self.dataset_name in GRAPH_TASKS:
     #         input_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True) # need graph list not dataset object, so the pretrained = True
     #         self.input_dim = input_dim
     #         graph_data_batch = Batch.from_data_list(graph_list)
@@ -104,10 +105,10 @@ class DGI(PreTrain):
     #     return accum_loss
 
     def load_data(self):
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv','Actor', 'Texas', 'Wisconsin']:
+        if self.dataset_name in NODE_TASKS:
             data, input_dim, _ = load4node(self.dataset_name)
             self.input_dim = input_dim
-        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
+        elif self.dataset_name in GRAPH_TASKS:
             input_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True) # need graph list not dataset object, so the pretrained = True
             self.input_dim = input_dim
 
@@ -123,7 +124,7 @@ class DGI(PreTrain):
         self.optimizer.zero_grad()
         device = self.device
 
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv']:
+        if self.dataset_name in NODE_TASKS:
             graph_original = self.graph_data
             graph_corrupted = copy.deepcopy(graph_original)
             idx_perm = np.random.permutation(graph_original.x.size(0))
@@ -148,7 +149,7 @@ class DGI(PreTrain):
             self.optimizer.step()
 
             accum_loss = float(loss.detach().cpu().item())            
-        elif self.dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa', 'DD']:
+        elif self.dataset_name in GRAPH_TASKS:
             accum_loss = torch.tensor(0.0)
             for batch_id, batch_graph in enumerate(self.batch_dataloader):
                 graph_original = batch_graph.to(device)
@@ -188,10 +189,11 @@ class DGI(PreTrain):
         cnt_wait = 0
 
         for epoch in range(1, self.epochs + 1):
-            time0 = time.time()
+            st_time = time.time()
             train_loss = self.pretrain_one_epoch()
-            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, self.epochs , train_loss))
 
+            print(f"DGI [Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {train_loss:.5f} | "
+                  f"Cost Time {time.time() - st_time:.3}s")
             
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
@@ -208,5 +210,5 @@ class DGI(PreTrain):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         torch.save(self.gnn.state_dict(),
-                    "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+                    "{}/{}.{}.{}.pth".format(folder_path, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
         print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))

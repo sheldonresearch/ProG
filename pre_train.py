@@ -1,4 +1,5 @@
 import argparse
+from prompt_graph.defines import GRAPH_TASKS, NODE_TASKS
 from prompt_graph.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE, NodePrePrompt, GraphPrePrompt, DGI, GraphMAE
 from prompt_graph.utils import seed_everything
 from prompt_graph.utils import mkdir, get_args
@@ -18,13 +19,18 @@ def get_pretrain_task_delegate(args:argparse.Namespace):
         pt = Edgepred_Gprompt(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device, num_workers=args.num_workers)
     elif args.pretrain_task == 'DGI':
         pt = DGI(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device, num_workers=args.num_workers)
-    elif args.pretrain_task == 'NodeMultiGprompt':
-        nonlinearity = 'prelu'
-        pt = NodePrePrompt(args.dataset_name, args.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3, device=args.device)
-    elif args.pretrain_task == 'GraphMultiGprompt':
-        #TODO: Bugged unknown parameters: graph_list, input_dim, out_dim
-        nonlinearity = 'prelu'
-        pt = GraphPrePrompt(graph_list, input_dim, out_dim, args.dataset_name, args.hid_dim, nonlinearity,0.9,0.9,0.1,1,0.3, device=args.device)
+    elif args.pretrain_task in ('NodeMultiGprompt','MultiGprompt','GraphMultiGprompt'):
+        if args.pretrain_task == "NodeMultiGprompt" or args.dataset_name in NODE_TASKS:
+            nonlinearity = 'prelu'
+            pt = NodePrePrompt(args.dataset_name, args.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3, device=args.device)
+        elif args.pretrain_task == 'GraphMultiGprompt'or args.dataset_name in GRAPH_TASKS:
+            #TODO: Bugged unknown parameters: graph_list, input_dim, out_dim
+            nonlinearity = 'prelu'
+
+            #graph_list, input_dim, out_dim = load4graph(args.dataset_name,pretrained=True)
+            pt = GraphPrePrompt(graph_list, input_dim, out_dim, args.dataset_name, args.hid_dim, nonlinearity,0.9,0.9,0.1,1,0.3, device=args.device)
+        else:
+            raise ValueError(f"Unsupported args.pretrain_task type for MultiGprompt {args.pretrain_task}")
     elif args.pretrain_task == 'GraphMAE':
         pt = GraphMAE(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device,
                     mask_rate=0.75, drop_edge_rate=0.0, replace_rate=0.1, loss_fn='sce', alpha_l=2, num_workers=args.num_workers)

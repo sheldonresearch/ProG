@@ -13,6 +13,8 @@ import os
 from ogb.nodeproppred import PygNodePropPredDataset
 from ogb.graphproppred import PygGraphPropPredDataset
 
+from ..defines import GRAPH_TASKS
+
 def node_sample_and_save(data, k, folder, num_classes):
     # 获取标签
     labels = data.y.to('cpu')
@@ -98,7 +100,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         :obj:`batch`, which maps each node to its respective graph identifier.
         """
 
-    if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'DD']:
+    if dataset_name in GRAPH_TASKS:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name, use_node_attr=True)  # use_node_attr=False时，节点属性为one-hot编码的节点类别
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
@@ -140,7 +142,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
             return input_dim, out_dim, dataset  # 统一下游任务返回参数的顺序
         
     elif dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
-        dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')
+        dataset = PygGraphPropPredDataset(name = dataset_name, root='./data/ogbg')
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
 
@@ -200,7 +202,7 @@ def load4node(dataname):
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname == 'ogbn-arxiv':
-        dataset = PygNodePropPredDataset(name='ogbn-arxiv', root='./dataset')
+        dataset = PygNodePropPredDataset(name='ogbn-arxiv', root='data')
         data = dataset[0]
         input_dim = data.x.shape[1]
         out_dim = dataset.num_classes
@@ -240,7 +242,7 @@ def load4link_prediction_single_graph(dataname, num_per_samples=1):
     return data, edge_label, edge_index, input_dim, output_dim
 
 def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
-    if dataset_name in ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'DD']:
+    if dataset_name in GRAPH_TASKS:
         dataset = TUDataset(root='data/TUDataset', name=dataset_name, use_node_attr=True)
 
     if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:

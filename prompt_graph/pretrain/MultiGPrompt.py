@@ -210,7 +210,7 @@ class NodePrePrompt(nn.Module):
             os.makedirs(folder_path)
 
         torch.save(self.state_dict(),
-                    "./Experiment/pre_trained_model/{}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
+                    "{}/{}.pth".format(folder_path, 'MultiGprompt'))
         print("+++model saved ! {}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
 
 
@@ -355,7 +355,7 @@ class GraphPrePrompt(nn.Module):
             os.makedirs(folder_path)
 
         torch.save(self.state_dict(),
-                    "./Experiment/pre_trained_model/{}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
+                    "{}/{}.pth".format(folder_path, 'MultiGprompt'))
         print("+++model saved ! {}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
 
 

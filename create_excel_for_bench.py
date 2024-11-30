@@ -1,7 +1,9 @@
 import pandas as pd
 import os
 
-graph_dataset_name = ['MUTAG', 'ENZYMES', 'COLLAB', 'PROTEINS', 'IMDB-BINARY', 'REDDIT-BINARY', 'COX2', 'BZR', 'PTC_MR', 'ogbg-ppa','DD']
+from prompt_graph.defines import GRAPH_TASKS
+
+graph_dataset_name = GRAPH_TASKS
 node_dataset_name = ['PubMed', 'CiteSeer', 'Cora', 'Wisconsin', 'Texas', 'ogbn-arxiv', 'Actor', 'Flickr']
 shot_nums = [1,3,5]
 for dataset_name in node_dataset_name:

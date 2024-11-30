@@ -9,6 +9,10 @@
 /Docs
 
 /Experiment
+/Utility
+Experiment.zip
+
 
 
 debug_*.py
+batch_run_pretrain.py

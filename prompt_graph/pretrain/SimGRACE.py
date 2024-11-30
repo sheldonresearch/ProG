@@ -3,6 +3,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch_geometric.loader import DataLoader
 from torch_geometric.data import Data
+from ..defines import NODE_TASKS
 from prompt_graph.utils import mkdir
 from torch.optim import Adam
 from prompt_graph.data import load4node, load4graph, NodePretrain
@@ -21,7 +22,7 @@ class SimGRACE(PreTrain):
                                                    torch.nn.Linear(self.hid_dim, self.hid_dim)).to(self.device)
         
     def load_graph_data(self):
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr','ogbn-arxiv', 'Actor', 'Texas', 'Wisconsin']:
+        if self.dataset_name in NODE_TASKS:
             data, self.input_dim, _ = load4node(self.dataset_name)  # 需要先读入数据，参数为dataset_name，为str格式
             self.graph_list = NodePretrain(
                 data=data,
@@ -121,5 +122,5 @@ class SimGRACE(PreTrain):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         torch.save(self.gnn.state_dict(),
-                    "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'SimGRACE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+                    "{}/{}.{}.{}.pth".format(folder_path, 'SimGRACE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
         print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'SimGRACE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))

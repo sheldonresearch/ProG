@@ -4,6 +4,7 @@ from torch_geometric.loader import DataLoader
 from torch_geometric.data import Data
 from random import shuffle
 import random
+from ..defines import NODE_TASKS
 from prompt_graph.utils import mkdir, graph_views
 from prompt_graph.data import load4node, load4graph, NodePretrain
 from torch.optim import Adam
@@ -20,7 +21,7 @@ class GraphCL(PreTrain):
                                                    torch.nn.Linear(self.hid_dim, self.hid_dim)).to(self.device)
     def load_graph_data(self):
 
-        if self.dataset_name in ['PubMed', 'CiteSeer', 'Cora','Computers', 'Photo', 'Reddit', 'WikiCS', 'Flickr', 'ogbn-arxiv','Actor', 'Texas', 'Wisconsin']:
+        if self.dataset_name in NODE_TASKS:
             data, self.input_dim, _ = load4node(self.dataset_name)  # 需要先读入数据，参数为dataset_name，为str格式
             self.graph_list = NodePretrain(data = data, num_parts=200, split_method='Cluster')  #NodePretrain 没有dataname参数，此处应为pyG的data类型
             # self.graph_list, self.input_dim = NodePretrain(dataname = self.dataset_name, num_parts=0, split_method='Random Walk')
@@ -131,5 +132,5 @@ class GraphCL(PreTrain):
             os.makedirs(folder_path)
 
         torch.save(self.gnn.state_dict(),
-                    "./Experiment/pre_trained_model/{}/{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+                    "{}/{}.{}.{}.pth".format(folder_path, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
         print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
