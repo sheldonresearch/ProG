@@ -131,6 +131,17 @@ def do_config_bench(args:argparse.Namespace):
 
         # 返回平均损失
         avg_best_loss, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc = tasker.run()
+
+        # Convert each metric to Python float
+        avg_best_loss = float(avg_best_loss)
+        mean_test_acc = float(mean_test_acc)
+        std_test_acc = float(std_test_acc)
+        mean_f1 = float(mean_f1)
+        std_f1 = float(std_f1)
+        mean_roc = float(mean_roc)
+        std_roc = float(std_roc)
+        mean_prc = float(mean_prc)
+        std_prc = float(std_prc)
         print(f"For {a}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
 
         if avg_best_loss < best_loss:
@@ -143,7 +154,8 @@ def do_config_bench(args:argparse.Namespace):
             final_roc_mean = mean_roc
             final_roc_std = std_roc
 
-    best_params = {k:float(v) for k,v in best_params.items()}
+    if isinstance(best_params,dict):
+        best_params = {k:float(v) for k,v in best_params.items()}
 
     return ConfigBenchResult(
         pretrain_task_type=args.pretrain_task,
