@@ -12,7 +12,12 @@
 /Utility
 Experiment.zip
 
-
+/wandb
+/prjs
 
 debug_*.py
 batch_run_pretrain.py
+
+c_bench.py
+
+mcr_*.py

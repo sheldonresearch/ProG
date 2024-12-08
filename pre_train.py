@@ -6,7 +6,13 @@ from prompt_graph.utils import mkdir, get_args
 from prompt_graph.data import load4node,load4graph
 
 
-
+def get_pretrain_task_by_dataset_name(dataset_name:str)->str:
+    if dataset_name in GRAPH_TASKS:
+        return "GraphTask"
+    elif dataset_name in NODE_TASKS:
+        return "NodeTask"
+    else:
+        raise ValueError(f"Does not support this kind of dataset {dataset_name}.")
 def get_pretrain_task_delegate(args:argparse.Namespace):
     seed_everything(args.seed)
     if args.pretrain_task == 'SimGRACE':
