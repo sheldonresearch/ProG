@@ -77,7 +77,7 @@ def do_config_bench(args:argparse.Namespace):
     if args.dataset_name in ['ogbn-arxiv','Flickr']:
         print('num_iter = 1')
         num_iter = 1
-    best_params = None
+    best_params = {}
     best_loss = float('inf')
     final_acc_mean = 0
     final_acc_std = 0
@@ -155,8 +155,7 @@ def do_config_bench(args:argparse.Namespace):
             final_roc_std = std_roc
 
     if isinstance(best_params,dict):
-        best_params = {k:float(v) for k,v in best_params.items()}
-
+        best_params = {k:float(v) for k,v in best_params.items()} 
     return ConfigBenchResult(
         pretrain_task_type=args.pretrain_task,
         dataset_name=args.dataset_name,
