@@ -143,6 +143,9 @@ def get_args_by_call(
     task_num: int = 5,
     **kwargs
 ) -> argparse.Namespace:
+    
+    if len(kwargs)> 0:
+        print(f"Warning! Unexpected argument input: {list(kwargs.keys())}")
     return argparse.Namespace(
         pretrain_task=pretrain_task,
         downstream_task=downstream_task,
@@ -169,3 +172,8 @@ def get_args_by_call(
         task_num=task_num,
         **kwargs
     )
+
+
+
+DEFAULT_ARG_DICT = dict(vars(get_args_by_call()))
+DEFAULT_ARG_KEYS = list(DEFAULT_ARG_DICT.keys())
