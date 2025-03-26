@@ -493,6 +493,18 @@ In our bench
   year={2024}
 }
 
+@inproceedings{zi2025rethinking,
+  title={Rethinking Graph Prompts: Unraveling the Power of Data Manipulation in Graph Neural Networks},
+  author={Zi, Chenyi and Bowen, LIU and Sun, Xiangguo and Cheng, Hong and Li, Jia},
+  booktitle={ICLR 2025 (Blogpost Track)}
+}
+
+@article{zhu2025boundary,
+  title={Boundary Prompting: Elastic Urban Region Representation via Graph-based Spatial Tokenization},
+  author={Zhu, Haojia and Jin, Jiahui and Kan, Dong and Shen, Rouxi and Wang, Ruize and Sun, Xiangguo and Zhang, Jinghui},
+  journal={arXiv preprint arXiv:2503.07991},
+  year={2025}
+}
 
 ```
 
@@ -519,10 +531,12 @@ In our bench
 6. ![](https://img.shields.io/badge/Tutorial-brown) Xiangguo Sun, Jiawen Zhang, Xixi Wu, Hong Cheng, Yun Xiong, Jia Li. **Graph Prompt Learning: A Comprehensive Survey and Beyond**. arXiv.  [Paper](https://arxiv.org/abs/2311.16534)
 7. ![](https://img.shields.io/badge/Tutorial-brown)Jia Li, Xiangguo Sun, Yuhan Li, Zhixun Li, Hong Cheng, Jeffrey Xu Yu. **Graph Intelligence with Large Language Models and Prompt Learning**. SIGKDD 24.   [Paper](https://dl.acm.org/doi/10.1145/3637528.3671456)
 8. ![](https://img.shields.io/badge/Tutorial-brown) Yuhan Li*, Zhixun Li*, Peisong Wang*, Jia Li†, Xiangguo Sun, Hong Cheng, Jeffrey Xu Yu. **A Survey of Graph Meets Large Language Model: Progress and Future Directions**. IJCAI 2024.  [Paper](https://arxiv.org/abs/2311.12399)
-9. ![](https://img.shields.io/badge/Application-green) Hengyu Zhang*, Chunxu Shen*, Xiangguo Sun†, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. **Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations**. arXiv.  [Paper](https://arxiv.org/abs/2410.11719)
-10.  ![](https://img.shields.io/badge/Application-green) Ziqi Gao, Xiangguo Sun, Zijing Liu, Yu Li, Hong Cheng, Jia Li†. **Protein Multimer Structure Prediction via PPI-guided Prompt Learning**. ICLR 2024. [Paper](https://arxiv.org/abs/2402.18813)
-11. ![](https://img.shields.io/badge/Application-green) Jiahui Jin, Yifan Song, Dong Kan, Haojia Zhu, Xiangguo Sun, Zhicheng Li, Xigang Sun, Jinghui Zhang. **Urban Region Pre-training and Prompting: A Graph-based Approach**. arXiv. [Paper](https://www.arxiv.org/abs/2408.05920)
-12. ![](https://img.shields.io/badge/Application-green) Yingying Wang, Yun Xiong, Xixi Wu, Xiangguo Sun, Jiawei Zhang. **DDIPrompt: Drug-Drug Interaction Event Prediction based on Graph Prompt Learning**. CIKM 2024. [Paper](https://arxiv.org/abs/2402.11472)
+9. ![](https://img.shields.io/badge/Blog-blue) Chenyi Zi, Bowen Liu, Xiangguo Sun, Hong Cheng, Jia Li. **Rethinking Graph Prompts: Unraveling the Power of Data Manipulation in Graph Neural Networks**. ICLR 2025 (BlogPosts). [Website](https://openreview.net/forum?id=fQtOTcZhXI)
+10. ![](https://img.shields.io/badge/Application-green) Hengyu Zhang*, Chunxu Shen*, Xiangguo Sun†, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. **Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations**. arXiv.  [Paper](https://arxiv.org/abs/2410.11719)
+11.  ![](https://img.shields.io/badge/Application-green) Ziqi Gao, Xiangguo Sun, Zijing Liu, Yu Li, Hong Cheng, Jia Li†. **Protein Multimer Structure Prediction via PPI-guided Prompt Learning**. ICLR 2024. [Paper](https://arxiv.org/abs/2402.18813)
+12. ![](https://img.shields.io/badge/Application-green) Jiahui Jin, Yifan Song, Dong Kan, Haojia Zhu, Xiangguo Sun, Zhicheng Li, Xigang Sun, Jinghui Zhang. **Urban Region Pre-training and Prompting: A Graph-based Approach**. arXiv. [Paper](https://www.arxiv.org/abs/2408.05920)
+13. ![](https://img.shields.io/badge/Application-green) Yingying Wang, Yun Xiong, Xixi Wu, Xiangguo Sun, Jiawei Zhang. **DDIPrompt: Drug-Drug Interaction Event Prediction based on Graph Prompt Learning**. CIKM 2024. [Paper](https://arxiv.org/abs/2402.11472)
+14. ![](https://img.shields.io/badge/Application-green) Haojia Zhu, Jiahui Jin, Dong Kan, Rouxi Shen, Ruize Wang, Xiangguo Sun, Jinghui Zhang. **Boundary Prompting: Elastic Urban Region Representation via Graph-based Spatial Tokenization**. arXiv. [Paper](https://arxiv.org/abs/2503.07991).
 
 
 
