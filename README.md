@@ -431,8 +431,8 @@ In our bench
 @article{zhang2024adaptive,
   title={Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations},
   author={Hengyu Zhang and Chunxu Shen and Xiangguo Sun and Jie Tan and Yu Rong and Chengzhi Piao and Hong Cheng and Lingling Yi},
-  journal={arXiv preprint arXiv:2410.11719},
-  year={2024}
+  journal={SIGIR 2025},
+  year={2025}
 }
 
 @inproceedings{li2024graph,
@@ -532,7 +532,7 @@ In our bench
 7. ![](https://img.shields.io/badge/Tutorial-brown)Jia Li, Xiangguo Sun, Yuhan Li, Zhixun Li, Hong Cheng, Jeffrey Xu Yu. **Graph Intelligence with Large Language Models and Prompt Learning**. SIGKDD 24.   [Paper](https://dl.acm.org/doi/10.1145/3637528.3671456)
 8. ![](https://img.shields.io/badge/Tutorial-brown) Yuhan Li*, Zhixun Li*, Peisong Wang*, Jia Li†, Xiangguo Sun, Hong Cheng, Jeffrey Xu Yu. **A Survey of Graph Meets Large Language Model: Progress and Future Directions**. IJCAI 2024.  [Paper](https://arxiv.org/abs/2311.12399)
 9. ![](https://img.shields.io/badge/Blog-blue) Chenyi Zi, Bowen Liu, Xiangguo Sun, Hong Cheng, Jia Li. **Rethinking Graph Prompts: Unraveling the Power of Data Manipulation in Graph Neural Networks**. ICLR 2025 (BlogPosts). [Website](https://openreview.net/forum?id=fQtOTcZhXI)
-10. ![](https://img.shields.io/badge/Application-green) Hengyu Zhang*, Chunxu Shen*, Xiangguo Sun†, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. **Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations**. arXiv.  [Paper](https://arxiv.org/abs/2410.11719)
+10. ![](https://img.shields.io/badge/Application-green) Hengyu Zhang*, Chunxu Shen*, Xiangguo Sun†, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. **Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations**. SIGIR 2025.  [Paper](https://arxiv.org/abs/2410.11719)
 11.  ![](https://img.shields.io/badge/Application-green) Ziqi Gao, Xiangguo Sun, Zijing Liu, Yu Li, Hong Cheng, Jia Li†. **Protein Multimer Structure Prediction via PPI-guided Prompt Learning**. ICLR 2024. [Paper](https://arxiv.org/abs/2402.18813)
 12. ![](https://img.shields.io/badge/Application-green) Jiahui Jin, Yifan Song, Dong Kan, Haojia Zhu, Xiangguo Sun, Zhicheng Li, Xigang Sun, Jinghui Zhang. **Urban Region Pre-training and Prompting: A Graph-based Approach**. arXiv. [Paper](https://www.arxiv.org/abs/2408.05920)
 13. ![](https://img.shields.io/badge/Application-green) Yingying Wang, Yun Xiong, Xixi Wu, Xiangguo Sun, Jiawei Zhang. **DDIPrompt: Drug-Drug Interaction Event Prediction based on Graph Prompt Learning**. CIKM 2024. [Paper](https://arxiv.org/abs/2402.11472)
