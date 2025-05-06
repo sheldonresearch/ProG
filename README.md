@@ -400,12 +400,12 @@ In our bench
   doi = {10.1145/3580305.3599256}
 }
 
-@article{wang2024does,
-      title={Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis}, 
-      author={Qunzhong Wang and Xiangguo Sun and Hong Cheng},
-      year={2024},
-      journal = {arXiv preprint arXiv:2410.01635},
-      url={https://arxiv.org/abs/2410.01635}
+@inproceedings{wang2024does,
+  title={Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis},
+  author={Qunzhong Wang and Xiangguo Sun and Hong Cheng},
+  booktitle={ICML},
+  year={2025},
+  pages = {}
 }
 
 
@@ -523,7 +523,7 @@ In our bench
 
   
 
-1. ![](https://img.shields.io/badge/Theory-black) Qunzhong Wang*, Xiangguo Sun*†, Hong Cheng. **Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis**. arXiv. [Paper](https://arxiv.org/abs/2410.01635)
+1. ![](https://img.shields.io/badge/Theory-black) Qunzhong Wang*, Xiangguo Sun*†, Hong Cheng. **Does Graph Prompt Work? A Data Operation Perspective with Theoretical Analysis**. ICML 2025. [Paper](https://arxiv.org/abs/2410.01635)
 2. ![](https://img.shields.io/badge/Framework-red) Xiangguo Sun, Hong Cheng, Jia Li, Bo Liu, Jihong Guan. **All in One: Multi-Task Prompting for Graph Neural Networks**. SIGKDD 23.  [Paper](https://arxiv.org/abs/2307.01504)
 3. ![](https://img.shields.io/badge/Framework-red) Haihong Zhao*, Aochuan Chen*, Xiangguo Sun*†, Hong Cheng, Jia Li†. **All in One and One for All: A Simple yet Effective Method towards Cross-domain Graph Pretraining**. SIGKDD 24.  [Paper](https://arxiv.org/abs/2402.09834)
 4. ![](https://img.shields.io/badge/Framework-red) Xi Chen, Siwei Zhang, Yun Xiong, Xixi Wu, Jiawei Zhang, Xiangguo Sun, Yao Zhang, Feng Zhao, Yulin Kang. **Prompt Learning on Temporal Interaction Graphs**. arXiv.  [Paper](https://arxiv.org/abs/2402.06326)
