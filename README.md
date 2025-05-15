@@ -469,12 +469,12 @@ In our bench
       journal = {arXiv:2402.06326}
 }
 
-@article{jin2024urban,
-  title={Urban Region Pre-training and Prompting: A Graph-based Approach},
-  author={Jin, Jiahui and Song, Yifan and Kan, Dong and Zhu, Haojia and Sun, Xiangguo and Li, Zhicheng and Sun, Xigang and Zhang, Jinghui},
-  journal={arXiv preprint arXiv:2408.05920},
-  year={2024}
-}
+ @inproceedings{jin2024urban,
+    title={Urban Region Pre-training and Prompting: A Graph-based Approach},
+    author={Jin, Jiahui and Song, Yifan and Kan, Dong and Zhu, Haojia and Sun, Xiangguo and Li, Zhicheng and Sun, Xigang and Zhang, Jinghui},
+    booktitle={Proceedings of the 28th ACM SIGKDD international conference on knowledge discovery \& data mining (KDD'25)},
+    year={2025}
+  }
 
 @article{li2024survey,
       title={A Survey of Graph Meets Large Language Model: Progress and Future Directions}, 
@@ -534,7 +534,7 @@ In our bench
 9. ![](https://img.shields.io/badge/Blog-blue) Chenyi Zi, Bowen Liu, Xiangguo Sun, Hong Cheng, Jia Li. **Rethinking Graph Prompts: Unraveling the Power of Data Manipulation in Graph Neural Networks**. ICLR 2025 (BlogPosts). [Website](https://openreview.net/forum?id=fQtOTcZhXI)
 10. ![](https://img.shields.io/badge/Application-green) Hengyu Zhang*, Chunxu Shen*, Xiangguo Sun†, Jie Tan, Yu Rong, Chengzhi Piao, Hong Cheng, Lingling Yi. **Adaptive Coordinators and Prompts on Heterogeneous Graphs for Cross-Domain Recommendations**. SIGIR 2025.  [Paper](https://arxiv.org/abs/2410.11719)
 11.  ![](https://img.shields.io/badge/Application-green) Ziqi Gao, Xiangguo Sun, Zijing Liu, Yu Li, Hong Cheng, Jia Li†. **Protein Multimer Structure Prediction via PPI-guided Prompt Learning**. ICLR 2024. [Paper](https://arxiv.org/abs/2402.18813)
-12. ![](https://img.shields.io/badge/Application-green) Jiahui Jin, Yifan Song, Dong Kan, Haojia Zhu, Xiangguo Sun, Zhicheng Li, Xigang Sun, Jinghui Zhang. **Urban Region Pre-training and Prompting: A Graph-based Approach**. arXiv. [Paper](https://www.arxiv.org/abs/2408.05920)
+12. ![](https://img.shields.io/badge/Application-green) Jiahui Jin, Yifan Song, Dong Kan, Haojia Zhu, Xiangguo Sun, Zhicheng Li, Xigang Sun, Jinghui Zhang. **Urban Region Pre-training and Prompting: A Graph-based Approach**. KDD'25. [Paper](https://www.arxiv.org/abs/2408.05920)
 13. ![](https://img.shields.io/badge/Application-green) Yingying Wang, Yun Xiong, Xixi Wu, Xiangguo Sun, Jiawei Zhang. **DDIPrompt: Drug-Drug Interaction Event Prediction based on Graph Prompt Learning**. CIKM 2024. [Paper](https://arxiv.org/abs/2402.11472)
 14. ![](https://img.shields.io/badge/Application-green) Haojia Zhu, Jiahui Jin, Dong Kan, Rouxi Shen, Ruize Wang, Xiangguo Sun, Jinghui Zhang. **Boundary Prompting: Elastic Urban Region Representation via Graph-based Spatial Tokenization**. arXiv. [Paper](https://arxiv.org/abs/2503.07991).
 
