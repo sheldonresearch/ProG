@@ -2,6 +2,7 @@ import torch
 import pickle as pk
 from random import shuffle
 import random
+from contextlib import contextmanager
 from torch_geometric.datasets import Planetoid, Amazon, Reddit, WikiCS, Flickr, WebKB, Actor
 from torch_geometric.datasets import TUDataset
 from torch_geometric.transforms import NormalizeFeatures
@@ -14,6 +15,21 @@ from ogb.nodeproppred import PygNodePropPredDataset
 from ogb.graphproppred import PygGraphPropPredDataset
 
 from ..defines import GRAPH_TASKS
+
+
+@contextmanager
+def ogb_torch_load_compat():
+    original_load = torch.load
+
+    def load_with_legacy_default(*args, **kwargs):
+        kwargs.setdefault('weights_only', False)
+        return original_load(*args, **kwargs)
+
+    torch.load = load_with_legacy_default
+    try:
+        yield
+    finally:
+        torch.load = original_load
 
 def node_sample_and_save(data, k, folder, num_classes):
     # 获取标签
@@ -100,6 +116,29 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         :obj:`batch`, which maps each node to its respective graph identifier.
         """
 
+    if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
+        data_root = get_data_root()
+        with ogb_torch_load_compat():
+            dataset = PygGraphPropPredDataset(name=dataset_name, root=os.path.join(data_root, 'ogbg'))
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
+
+        torch.manual_seed(12345)
+        dataset = dataset.shuffle()
+        graph_list = [data for data in dataset]
+
+        graph_list = [g for g in graph_list]
+        node_degree_as_features(graph_list)
+        input_dim = graph_list[0].x.size(1)
+
+        for g in graph_list:
+            g.y = g.y.squeeze(0)
+
+        if(pretrained==True):
+            return input_dim, out_dim, graph_list
+        else:
+            return  input_dim, out_dim, dataset
+
     if dataset_name in GRAPH_TASKS:
         data_root = get_data_root()
         dataset = TUDataset(root=os.path.join(data_root, 'TUDataset'), name=dataset_name, use_node_attr=True)  # use_node_attr=False时，节点属性为one-hot编码的节点类别
@@ -142,26 +181,6 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         else:
             return input_dim, out_dim, dataset  # 统一下游任务返回参数的顺序
         
-    elif dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
-        dataset = PygGraphPropPredDataset(name = dataset_name, root='./data/ogbg')
-        input_dim = dataset.num_features
-        out_dim = dataset.num_classes
-
-        torch.manual_seed(12345)
-        dataset = dataset.shuffle()
-        graph_list = [data for data in dataset]
-
-        graph_list = [g for g in graph_list]
-        node_degree_as_features(graph_list)
-        input_dim = graph_list[0].x.size(1)
-
-        for g in graph_list:
-            g.y = g.y.squeeze(0)
-
-        if(pretrained==True):
-            return input_dim, out_dim, graph_list
-        else:
-            return  input_dim, out_dim, dataset
     else:
         raise ValueError(f"Unsupported GraphTask on dataset: {dataset_name}.")
     
@@ -179,7 +198,7 @@ def load4node(dataname):
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname in ['Computers', 'Photo']:
-        dataset = Amazon(root=os.path.join(data_root, 'amazon'), name=dataname)
+        dataset = Amazon(root=os.path.join(data_root, 'amazon', dataname), name=dataname)
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
@@ -209,7 +228,8 @@ def load4node(dataname):
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname == 'ogbn-arxiv':
-        dataset = PygNodePropPredDataset(name='ogbn-arxiv', root=data_root)
+        with ogb_torch_load_compat():
+            dataset = PygNodePropPredDataset(name='ogbn-arxiv', root=data_root)
         data = dataset[0]
         input_dim = data.x.shape[1]
         out_dim = dataset.num_classes
@@ -381,5 +401,3 @@ def NodePretrain(data, num_parts=200, split_method='Random Walk'):
         exit()
     
     return graph_list
-
-
