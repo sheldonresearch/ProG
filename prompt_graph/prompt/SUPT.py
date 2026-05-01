@@ -53,7 +53,7 @@ class SAGPoolPrompt(nn.Module):
 
         self.orth_loss = orth_loss
         if orth_loss:
-            self.eye = torch.eye(num_clusters).cuda()
+            self.eye = torch.eye(num_clusters)
             self.eye.requires_grad = False
         self.reset_parameters()
 
@@ -117,7 +117,7 @@ class DiffPoolPrompt(nn.Module):
         self.ent_loss = 0
         self.orth_loss = orth_loss
         if orth_loss:
-            self.eye = torch.eye(num_clusters).cuda()
+            self.eye = torch.eye(num_clusters)
             self.eye.requires_grad = False
 
         self.reset_parameters()

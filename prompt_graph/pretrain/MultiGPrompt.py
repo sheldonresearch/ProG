@@ -14,7 +14,12 @@ class NodePrePrompt(nn.Module):
     def __init__(self, dataset_name, n_h, activation,a1,a2,a3, a4, num_layers_num, dropout, device):
         super(NodePrePrompt, self).__init__()
         self.dataset_name = dataset_name
-        self.device = torch.device('cuda:' + str(device) if torch.cuda.is_available() else 'cpu')
+        if torch.cuda.is_available():
+            self.device = torch.device('cuda:' + str(device))
+        elif os.environ.get('PROG_USE_MPS') == '1' and torch.backends.mps.is_available():
+            self.device = torch.device('mps')
+        else:
+            self.device = torch.device('cpu')
         self.hid_dim = n_h
         n_in, self.nb_nodes = self.load_data()
         self.dgi = DGI(n_in, n_h, activation)
@@ -220,7 +225,12 @@ class GraphPrePrompt(nn.Module):
         self.graph_list = graph
         self.loader = self.get_loader()
         self.dataset_name = dataset_name
-        self.device = torch.device('cuda:' + str(device) if torch.cuda.is_available() else 'cpu')
+        if torch.cuda.is_available():
+            self.device = torch.device('cuda:' + str(device))
+        elif os.environ.get('PROG_USE_MPS') == '1' and torch.backends.mps.is_available():
+            self.device = torch.device('mps')
+        else:
+            self.device = torch.device('cpu')
         self.dgi = DGI(n_in, n_h, activation)
         self.graphcledge = GraphCL(n_in, n_h, activation)
         self.graphclmask = GraphCL(n_in, n_h, activation)

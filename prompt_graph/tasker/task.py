@@ -1,3 +1,4 @@
+import os
 import torch
 from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 from prompt_graph.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt, DiffPoolPrompt, SAGPoolPrompt
@@ -15,7 +16,12 @@ class BaseTask:
         
         self.pre_train_model_path = pre_train_model_path
         self.pre_train_type = self.return_pre_train_type(pre_train_model_path)
-        self.device = torch.device('cuda:'+ str(device) if torch.cuda.is_available() else 'cpu')
+        if torch.cuda.is_available():
+            self.device = torch.device('cuda:' + str(device))
+        elif os.environ.get('PROG_USE_MPS') == '1' and torch.backends.mps.is_available():
+            self.device = torch.device('mps')
+        else:
+            self.device = torch.device('cpu')
         self.hid_dim = hid_dim
         self.num_layer = num_layer
         self.dataset_name = dataset_name

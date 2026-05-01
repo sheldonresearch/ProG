@@ -1,3 +1,4 @@
+import os
 import torch
 from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
 from torch.optim import Adam
@@ -5,7 +6,12 @@ from torch.optim import Adam
 class PreTrain(torch.nn.Module):
     def __init__(self, gnn_type='TransformerConv', dataset_name = 'Cora', input_dim=128, hid_dim = 128, gln = 2, num_epoch = 1000, device : int = 5, graph_list=None, num_workers=0):
         super().__init__()
-        self.device = torch.device('cuda:' + str(device) if torch.cuda.is_available() else 'cpu')
+        if torch.cuda.is_available():
+            self.device = torch.device('cuda:' + str(device))
+        elif os.environ.get('PROG_USE_MPS') == '1' and torch.backends.mps.is_available():
+            self.device = torch.device('mps')
+        else:
+            self.device = torch.device('cpu')
         self.graph_list = graph_list
         self.input_dim = input_dim
         self.dataset_name = dataset_name
@@ -43,4 +49,3 @@ class PreTrain(torch.nn.Module):
 #         self.data.to(self.device)
 #         self.input_dim = self.dataset.num_features
 #         self.output_dim = self.dataset.num_classes
-

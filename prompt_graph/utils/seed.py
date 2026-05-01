@@ -13,6 +13,8 @@ def seed_everything(seed):
     os.environ['PYTHONHASHSEED'] = str(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+    elif torch.backends.mps.is_available():
+        torch.mps.manual_seed(seed)
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
@@ -38,7 +40,10 @@ def seed_torch(seed=1029):
 	os.environ['PYTHONHASHSEED'] = str(seed) # 为了禁止hash随机化，使得实验可复现
 	np.random.seed(seed)
 	torch.manual_seed(seed)
-	torch.cuda.manual_seed(seed)
-	torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
+	if torch.cuda.is_available():
+		torch.cuda.manual_seed(seed)
+		torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
+	elif torch.backends.mps.is_available():
+		torch.mps.manual_seed(seed)
 	torch.backends.cudnn.benchmark = False
 	torch.backends.cudnn.deterministic = True

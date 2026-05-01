@@ -101,7 +101,8 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         """
 
     if dataset_name in GRAPH_TASKS:
-        dataset = TUDataset(root='data/TUDataset', name=dataset_name, use_node_attr=True)  # use_node_attr=False时，节点属性为one-hot编码的节点类别
+        data_root = get_data_root()
+        dataset = TUDataset(root=os.path.join(data_root, 'TUDataset'), name=dataset_name, use_node_attr=True)  # use_node_attr=False时，节点属性为one-hot编码的节点类别
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
 
@@ -164,45 +165,51 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
     else:
         raise ValueError(f"Unsupported GraphTask on dataset: {dataset_name}.")
     
+import os
+
+def get_data_root():
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data')
+
 def load4node(dataname):
     print(dataname)
+    data_root = get_data_root()
     if dataname in ['PubMed', 'CiteSeer', 'Cora']:
-        dataset = Planetoid(root='data/Planetoid', name=dataname, transform=NormalizeFeatures())
+        dataset = Planetoid(root=os.path.join(data_root, 'Planetoid'), name=dataname, transform=NormalizeFeatures())
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname in ['Computers', 'Photo']:
-        dataset = Amazon(root='data/amazon', name=dataname)
+        dataset = Amazon(root=os.path.join(data_root, 'amazon'), name=dataname)
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname == 'Reddit':
-        dataset = Reddit(root='data/Reddit')
+        dataset = Reddit(root=os.path.join(data_root, 'Reddit'))
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname == 'WikiCS':
-        dataset = WikiCS(root='data/WikiCS')
+        dataset = WikiCS(root=os.path.join(data_root, 'WikiCS'))
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname == 'Flickr':
-        dataset = Flickr(root='data/Flickr')
+        dataset = Flickr(root=os.path.join(data_root, 'Flickr'))
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname in ['Wisconsin', 'Texas']:
-        dataset = WebKB(root='data/'+dataname, name=dataname)
+        dataset = WebKB(root=os.path.join(data_root, dataname), name=dataname)
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname == 'Actor':
-        dataset = Actor(root='data/Actor')
+        dataset = Actor(root=os.path.join(data_root, 'Actor'))
         data = dataset[0]
         input_dim = dataset.num_features
         out_dim = dataset.num_classes
     elif dataname == 'ogbn-arxiv':
-        dataset = PygNodePropPredDataset(name='ogbn-arxiv', root='data')
+        dataset = PygNodePropPredDataset(name='ogbn-arxiv', root=data_root)
         data = dataset[0]
         input_dim = data.x.shape[1]
         out_dim = dataset.num_classes
