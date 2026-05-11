@@ -3,8 +3,8 @@ from prompt_graph.tasker import NodeTask, GraphTask
 from prompt_graph.utils import seed_everything
 from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
-from prompt_graph.utils import  get_args
-from prompt_graph.data import load4node,load4graph, split_induced_graphs
+from prompt_graph.utils import  get_args, resolve_device
+from prompt_graph.data import load4node,load4graph, split_induced_graphs, induced_graph_cache_path
 import pickle
 import random
 import numpy as np
@@ -17,7 +17,11 @@ def load_induced_graph(dataset_name, data, device):
     if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-    file_path = folder_path + '/induced_graph_min100_max300.pkl'
+    train_mask = getattr(data, 'train_mask', None)
+    file_path = induced_graph_cache_path(
+        folder_path, smallest_size=100, largest_size=300,
+        leak_safe=train_mask is not None,
+    )
     if os.path.exists(file_path):
             with open(file_path, 'rb') as f:
                 print('loading induced graph...')
@@ -25,7 +29,11 @@ def load_induced_graph(dataset_name, data, device):
                 print('Done!!!')
     else:
         print('Begin split_induced_graphs.')
-        split_induced_graphs(data, folder_path, device, smallest_size=100, largest_size=300)
+        split_induced_graphs(
+            data, folder_path, device,
+            smallest_size=100, largest_size=300,
+            train_mask=train_mask,
+        )
         with open(file_path, 'rb') as f:
             graphs_list = pickle.load(f)
     graphs_list = [graph.to(device) for graph in graphs_list]
@@ -35,29 +43,30 @@ def load_induced_graph(dataset_name, data, device):
 
 
 def get_downstream_task_delegate(args:argparse.Namespace):
-    
+
     seed_everything(args.seed)
-    
+    runtime_device = resolve_device(args.device)
+
     if args.downstream_task == 'NodeTask':
-        data, input_dim, output_dim = load4node(args.dataset_name)   
-        data = data.to(args.device)
+        data, input_dim, output_dim = load4node(args.dataset_name)
+        data = data.to(runtime_device)
         if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-            graphs_list = load_induced_graph(args.dataset_name, data, args.device) 
+            graphs_list = load_induced_graph(args.dataset_name, data, runtime_device)
         else:
-            graphs_list = None 
-        tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
+            graphs_list = None
+        tasker = NodeTask(pre_train_model_path = args.pre_train_model_path,
                         dataset_name = args.dataset_name, num_layer = args.num_layer,
                         gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
-                        epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
+                        epochs = args.epochs, shot_num = args.shot_num, device=runtime_device, lr = args.lr, wd = args.decay,
                         batch_size = args.batch_size, data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
 
 
     elif args.downstream_task == 'GraphTask':
         input_dim, output_dim, dataset = load4graph(args.dataset_name)
 
-        tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
+        tasker = GraphTask(pre_train_model_path = args.pre_train_model_path,
                         dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
-                        shot_num = args.shot_num, device=args.device, lr = args.lr, wd = args.decay,
+                        shot_num = args.shot_num, device=runtime_device, lr = args.lr, wd = args.decay,
                         batch_size = args.batch_size, dataset = dataset, input_dim = input_dim, output_dim = output_dim)
     else:
         raise ValueError(f"Unexpected args.downstream_task type {args.downstream_task}.")

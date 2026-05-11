@@ -4,21 +4,32 @@ from prompt_graph.utils import seed_everything
 from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
 from prompt_graph.utils import  get_args
-from prompt_graph.data import load4node,load4graph, split_induced_graphs
+from prompt_graph.data import load4node,load4graph, split_induced_graphs, induced_graph_cache_path
 import pickle
 import random
 import numpy as np
 import os
 import pandas as pd
+import torch
 
 from prompt_graph.utils.report_data import ConfigBenchResult
+from prompt_graph.utils import resolve_device
+
+
+def get_runtime_device(device_id):
+    return resolve_device(device_id)
+
 def load_induced_graph(dataset_name, data, device):
 
     folder_path = './Experiment/induced_graph/' + dataset_name
     if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-    file_path = folder_path + '/induced_graph_min100_max300.pkl'
+    train_mask = getattr(data, 'train_mask', None)
+    file_path = induced_graph_cache_path(
+        folder_path, smallest_size=100, largest_size=300,
+        leak_safe=train_mask is not None,
+    )
     if os.path.exists(file_path):
             with open(file_path, 'rb') as f:
                 print('loading induced graph...')
@@ -26,7 +37,11 @@ def load_induced_graph(dataset_name, data, device):
                 print('Done!!!')
     else:
         print('Begin split_induced_graphs.')
-        split_induced_graphs(data, folder_path, device, smallest_size=100, largest_size=300)
+        split_induced_graphs(
+            data, folder_path, device,
+            smallest_size=100, largest_size=300,
+            train_mask=train_mask,
+        )
         with open(file_path, 'rb') as f:
             graphs_list = pickle.load(f)
     graphs_list = [graph.to(device) for graph in graphs_list]
@@ -45,6 +60,7 @@ prompt_type
 """
 def do_config_bench(args:argparse.Namespace):
     seed_everything(args.seed)
+    runtime_device = get_runtime_device(args.device)
 
     param_grid = {
         'learning_rate': 10 ** np.linspace(-3, -1, 1000),
@@ -59,10 +75,12 @@ def do_config_bench(args:argparse.Namespace):
     #     'batch_size': np.linspace(128, 512, 200),
     #     }
     if args.dataset_name in ['ogbn-arxiv','Flickr']:
+        # 大图数据集单 run 即可：random search 也只跑 1 次 (num_iter=1)，
+        # 用显式列表表达“这里没有 grid”，避免 np.linspace 退化成重复值。
         param_grid = {
-        'learning_rate': 10 ** np.linspace(-3, -1, 1),
-        'weight_decay':  10 ** np.linspace(-5, -6, 1),
-        'batch_size': np.linspace(512, 512, 200),
+            'learning_rate': [1e-2],
+            'weight_decay':  [1e-5],
+            'batch_size':    [512],
         }
 
 
@@ -97,9 +115,9 @@ def do_config_bench(args:argparse.Namespace):
 
     if args.pretrain_task == 'NodeTask':
         data, input_dim, output_dim = load4node(args.dataset_name)   
-        data = data.to(args.device)
+        data = data.to(runtime_device)
         if args.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
-            graphs_list = load_induced_graph(args.dataset_name, data, args.device) 
+            graphs_list = load_induced_graph(args.dataset_name, data, runtime_device) 
         else:
             graphs_list = None 
             
@@ -113,17 +131,17 @@ def do_config_bench(args:argparse.Namespace):
         print(params)
         
         if args.pretrain_task == 'NodeTask':
-            tasker = NodeTask(pre_train_model_path = args.pre_train_model_path, 
+            tasker = NodeTask(pre_train_model_path = args.pre_train_model_path,
                             dataset_name = args.dataset_name, num_layer = args.num_layer,
                             gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type,
-                            epochs = args.epochs, shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
+                            epochs = args.epochs, shot_num = args.shot_num, device=runtime_device, lr = params['learning_rate'], wd = params['weight_decay'],
                             batch_size = int(params['batch_size']), data = data, input_dim = input_dim, output_dim = output_dim, graphs_list = graphs_list)
 
 
         elif args.pretrain_task == 'GraphTask':
-            tasker = GraphTask(pre_train_model_path = args.pre_train_model_path, 
+            tasker = GraphTask(pre_train_model_path = args.pre_train_model_path,
                             dataset_name = args.dataset_name, num_layer = args.num_layer, gnn_type = args.gnn_type, hid_dim = args.hid_dim, prompt_type = args.prompt_type, epochs = args.epochs,
-                            shot_num = args.shot_num, device=args.device, lr = params['learning_rate'], wd = params['weight_decay'],
+                            shot_num = args.shot_num, device=runtime_device, lr = params['learning_rate'], wd = params['weight_decay'],
                             batch_size = int(params['batch_size']), dataset = dataset, input_dim = input_dim, output_dim = output_dim)
         else:
             raise ValueError(f"Unexpected pretrain_task: {args.pretrain_task}.")
@@ -158,6 +176,7 @@ def do_config_bench(args:argparse.Namespace):
         best_params = {k:float(v) for k,v in best_params.items()} 
     return ConfigBenchResult(
         pretrain_task_type=args.pretrain_task,
+        pre_train_type=pre_train_type,
         dataset_name=args.dataset_name,
         prompt_type=args.prompt_type,
         best_params=best_params,
@@ -198,7 +217,5 @@ if __name__ == "__main__":
     print("After searching, Final AUROC {:.4f}±{:.4f}(std)".format(cbr_result.final_roc_mean, cbr_result.final_roc_std)) 
     print('best_params ', cbr_result.best_params)
     print('best_loss ', cbr_result.best_loss)
-
-
 
 

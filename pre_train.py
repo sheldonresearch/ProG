@@ -30,11 +30,12 @@ def get_pretrain_task_delegate(args:argparse.Namespace):
             nonlinearity = 'prelu'
             pt = NodePrePrompt(args.dataset_name, args.hid_dim, nonlinearity, 0.9, 0.9, 0.1, 0.001, 1, 0.3, device=args.device)
         elif args.pretrain_task == 'GraphMultiGprompt'or args.dataset_name in GRAPH_TASKS:
-            #TODO: Bugged unknown parameters: graph_list, input_dim, out_dim
-            nonlinearity = 'prelu'
-
-            #graph_list, input_dim, out_dim = load4graph(args.dataset_name,pretrained=True)
-            pt = GraphPrePrompt(graph_list, input_dim, out_dim, args.dataset_name, args.hid_dim, nonlinearity,0.9,0.9,0.1,1,0.3, device=args.device)
+            # GraphMultiGprompt 预训练当前未接入：load4graph(pretrained=True) 没有实现，
+            # 需要的 graph_list / input_dim / out_dim 都拿不到。等数据加载收敛后再补回。
+            raise NotImplementedError(
+                "GraphMultiGprompt pretrain is not wired up yet — "
+                "load4graph(pretrained=True) and GraphPrePrompt inputs are missing."
+            )
         else:
             raise ValueError(f"Unsupported args.pretrain_task type for MultiGprompt {args.pretrain_task}")
     elif args.pretrain_task == 'GraphMAE':

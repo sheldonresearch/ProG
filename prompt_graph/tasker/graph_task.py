@@ -142,14 +142,14 @@ class GraphTask(BaseTask):
                 accumulated_centers += center * class_counts
                 accumulated_counts += class_counts
             criterion = Gprompt_tuning_loss()
-            loss = criterion(out, center, batch.y)  
-            loss.backward()  
-            self.pg_opi.step()  
+            loss = criterion(out, center, batch.y)
+            loss.backward()
+            self.pg_opi.step()
             total_loss += loss.item()
-            # 计算加权平均中心向量
-            mean_centers = accumulated_centers / accumulated_counts
+        # 计算加权平均中心向量
+        mean_centers = accumulated_centers / accumulated_counts
 
-            return total_loss / len(train_loader), mean_centers
+        return total_loss / len(train_loader), mean_centers
 
     def GPPTtrain(self, train_loader):
         self.prompt.train()

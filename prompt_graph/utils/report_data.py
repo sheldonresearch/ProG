@@ -7,6 +7,7 @@ from typing import Optional
 @dataclass
 class ConfigBenchResult:
     pretrain_task_type:str
+    pre_train_type:str
     dataset_name:str
     prompt_type:str
 

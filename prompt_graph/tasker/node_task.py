@@ -7,7 +7,7 @@ from .task import BaseTask
 import time
 import warnings
 import numpy as np
-from prompt_graph.data import load4node, induced_graphs, graph_split, split_induced_graphs, node_sample_and_save,GraphDataset
+from prompt_graph.data import load4node, induced_graphs, graph_split, split_induced_graphs, induced_graph_cache_path, node_sample_and_save,GraphDataset
 from prompt_graph.evaluation import GpromptEva, AllInOneEva
 import pickle
 import os
@@ -70,13 +70,21 @@ class NodeTask(BaseTask):
             if not os.path.exists(folder_path):
                   os.makedirs(folder_path)
 
-            file_path = folder_path + '/induced_graph_min{}_max300.pkl'.format(smallest_size)
+            train_mask = getattr(self.data, 'train_mask', None)
+            file_path = induced_graph_cache_path(
+                  folder_path, smallest_size=smallest_size, largest_size=300,
+                  leak_safe=train_mask is not None,
+            )
             if os.path.exists(file_path):
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
             else:
                   print('Begin split_induced_graphs.')
-                  split_induced_graphs(self.data, folder_path, self.device, smallest_size=smallest_size, largest_size=300)
+                  split_induced_graphs(
+                        self.data, folder_path, self.device,
+                        smallest_size=smallest_size, largest_size=300,
+                        train_mask=train_mask,
+                  )
                   with open(file_path, 'rb') as f:
                         graphs_list = pickle.load(f)
             self.graphs_list = []

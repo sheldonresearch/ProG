@@ -6,22 +6,17 @@ from prompt_graph.prompt import featureprompt, downprompt
 from prompt_graph.pretrain import GraphPrePrompt, NodePrePrompt
 from torch import nn, optim
 from prompt_graph.data import load4node, load4graph
-from prompt_graph.utils import Gprompt_tuning_loss
+from prompt_graph.utils import Gprompt_tuning_loss, resolve_device
 import numpy as np
 
 class BaseTask:
     def __init__(self, pre_train_model_path='None', gnn_type='TransformerConv',
-                 hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='None', epochs=100, shot_num=10, device : int = 5, lr =0.001, wd = 5e-4,
+                 hid_dim = 128, num_layer = 2, dataset_name='Cora', prompt_type='None', epochs=100, shot_num=10, device=5, lr =0.001, wd = 5e-4,
                  batch_size = 16, search = False):
-        
+
         self.pre_train_model_path = pre_train_model_path
         self.pre_train_type = self.return_pre_train_type(pre_train_model_path)
-        if torch.cuda.is_available():
-            self.device = torch.device('cuda:' + str(device))
-        elif os.environ.get('PROG_USE_MPS') == '1' and torch.backends.mps.is_available():
-            self.device = torch.device('mps')
-        else:
-            self.device = torch.device('cpu')
+        self.device = self._resolve_device(device)
         self.hid_dim = hid_dim
         self.num_layer = num_layer
         self.dataset_name = dataset_name
@@ -34,6 +29,11 @@ class BaseTask:
         self.batch_size = batch_size
         self.search = search
         self.initialize_lossfn()
+
+    @staticmethod
+    def _resolve_device(device):
+        """统一的设备解析；委托给 prompt_graph.utils.resolve_device。"""
+        return resolve_device(device)
 
     def initialize_lossfn(self):
         self.criterion = torch.nn.CrossEntropyLoss()
@@ -139,10 +139,18 @@ class BaseTask:
             print("Successfully loaded pre-trained weights!")
 
     def return_pre_train_type(self, pre_train_model_path):
-        names = ['None', 'DGI', 'GraphMAE','Edgepred_GPPT', 'Edgepred_Gprompt','GraphCL', 'SimGRACE']
-        for name in names:
-            if name  in  pre_train_model_path:
-                return name
+        valid_names = {'None', 'DGI', 'GraphMAE', 'Edgepred_GPPT',
+                       'Edgepred_Gprompt', 'GraphCL', 'SimGRACE'}
+        if pre_train_model_path == 'None':
+            return 'None'
+        # 约定文件名格式为 "<PreTrainType>.<gnn>.<hid_dim>hidden_dim.pth"
+        head = os.path.basename(pre_train_model_path).split('.')[0]
+        if head not in valid_names:
+            raise ValueError(
+                f"Cannot infer pre_train_type from path '{pre_train_model_path}': "
+                f"the leading filename token '{head}' is not in {sorted(valid_names)}."
+            )
+        return head
 
 
       
