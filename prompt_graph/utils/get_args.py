@@ -133,6 +133,19 @@ def _build_parser():
         default=argparse.SUPPRESS,
         help="The number of tasks for computing the mean metrices",
     )
+    parser.add_argument(
+        "--log-level",
+        dest="log_level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Set root logger level (default: INFO)",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Silence all INFO logs (equivalent to --log-level WARNING)",
+    )
     return parser
 
 
@@ -184,6 +197,8 @@ def get_args_by_call(
     num_layers: int = 1,
     pnum: int = 5,
     task_num: int = 5,
+    log_level: str = "INFO",
+    quiet: bool = False,
     **kwargs,
 ) -> argparse.Namespace:
     if len(kwargs) > 0:
@@ -212,6 +227,8 @@ def get_args_by_call(
         num_layers=num_layers,
         pnum=pnum,
         task_num=task_num,
+        log_level=log_level,
+        quiet=quiet,
         **kwargs,
     )
 
