@@ -8,6 +8,7 @@ import numpy as np
 from torch_geometric.utils import subgraph
 import pickle
 import os
+from prompt_graph.utils import resolve_device
 def split_graph(data, split_ratio=0.5):
     num_nodes = data.num_nodes
 
@@ -170,7 +171,7 @@ def induced_graphs_from_edges(dir, data, device, smallest_size=1, largest_size=5
     return induced_graph_list
 
 a=0
-device  = torch.device('cuda:'+str(a))
+device  = resolve_device(a)
 
 
 # file_path = 'UGAD_lyq/datasets-edge/amazon-els'

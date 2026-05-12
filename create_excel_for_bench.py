@@ -2,6 +2,7 @@ import pandas as pd
 import os
 
 from prompt_graph.defines import GRAPH_TASKS
+from prompt_graph.utils import excel_result_dir
 
 graph_dataset_name = GRAPH_TASKS
 node_dataset_name = ['PubMed', 'CiteSeer', 'Cora', 'Wisconsin', 'Texas', 'ogbn-arxiv', 'Actor', 'Flickr']
@@ -20,7 +21,7 @@ for dataset_name in node_dataset_name:
         gnn_type = 'GCN'
 
         file_name = gnn_type +"_total_results.xlsx"
-        file_path = os.path.join('./Experiment/ExcelResults/Node/'+str(shot_num)+'shot/'+ dataset_name +'/', file_name)
+        file_path = os.path.join(str(excel_result_dir('Node', shot_num, dataset_name)), file_name)
         if not os.path.exists(file_path):
             os.makedirs(os.path.dirname(file_path), exist_ok=True)        
         data.to_excel(file_path)
@@ -42,7 +43,7 @@ for dataset_name in graph_dataset_name:
         gnn_type = 'GCN'
 
         file_name = gnn_type +"_total_results.xlsx"
-        file_path = os.path.join('./Experiment/ExcelResults/Graph/'+str(shot_num)+'shot/'+ dataset_name +'/', file_name)
+        file_path = os.path.join(str(excel_result_dir('Graph', shot_num, dataset_name)), file_name)
         if not os.path.exists(file_path):
             os.makedirs(os.path.dirname(file_path), exist_ok=True)        
         data.to_excel(file_path)

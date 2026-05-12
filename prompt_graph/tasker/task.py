@@ -1,6 +1,6 @@
 import os
 import torch
-from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
+from prompt_graph.model import build_gnn
 from prompt_graph.prompt import GPF, GPF_plus, LightPrompt,HeavyPrompt, Gprompt, GPPTPrompt, DiffPoolPrompt, SAGPoolPrompt
 from prompt_graph.prompt import featureprompt, downprompt
 from prompt_graph.pretrain import GraphPrePrompt, NodePrePrompt
@@ -111,20 +111,7 @@ class BaseTask:
             raise KeyError(" We don't support this kind of prompt.")
 
     def initialize_gnn(self):
-        if self.gnn_type == 'GAT':
-            self.gnn = GAT(input_dim=self.input_dim, hid_dim=self.hid_dim, num_layer=self.num_layer)
-        elif self.gnn_type == 'GCN':
-            self.gnn = GCN(input_dim=self.input_dim, hid_dim=self.hid_dim, num_layer=self.num_layer)
-        elif self.gnn_type == 'GraphSAGE':
-            self.gnn = GraphSAGE(input_dim=self.input_dim, hid_dim=self.hid_dim, num_layer=self.num_layer)
-        elif self.gnn_type == 'GIN':
-            self.gnn = GIN(input_dim=self.input_dim, hid_dim=self.hid_dim, num_layer=self.num_layer)
-        elif self.gnn_type == 'GCov':
-            self.gnn = GCov(input_dim=self.input_dim, hid_dim=self.hid_dim, num_layer=self.num_layer)
-        elif self.gnn_type == 'GraphTransformer':
-            self.gnn = GraphTransformer(input_dim=self.input_dim, hid_dim=self.hid_dim, num_layer=self.num_layer)
-        else:
-            raise ValueError(f"Unsupported GNN type: {self.gnn_type}")
+        self.gnn = build_gnn(self.gnn_type, self.input_dim, self.hid_dim, self.num_layer)
         self.gnn.to(self.device)
         print(self.gnn)
 

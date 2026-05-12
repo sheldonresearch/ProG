@@ -2,7 +2,7 @@ import argparse
 from prompt_graph.defines import GRAPH_TASKS, NODE_TASKS
 from prompt_graph.pretrain import Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE, NodePrePrompt, GraphPrePrompt, DGI, GraphMAE
 from prompt_graph.utils import seed_everything
-from prompt_graph.utils import mkdir, get_args
+from prompt_graph.utils import mkdir, get_args, resolve_device
 from prompt_graph.data import load4node,load4graph
 
 
@@ -15,6 +15,7 @@ def get_pretrain_task_by_dataset_name(dataset_name:str)->str:
         raise ValueError(f"Does not support this kind of dataset {dataset_name}.")
 def get_pretrain_task_delegate(args:argparse.Namespace):
     seed_everything(args.seed)
+    args.device = resolve_device(args.device)
     if args.pretrain_task == 'SimGRACE':
         pt = SimGRACE(dataset_name = args.dataset_name, gnn_type = args.gnn_type, hid_dim = args.hid_dim, gln = args.num_layer, num_epoch=args.epochs, device=args.device, num_workers=args.num_workers)
     elif args.pretrain_task == 'GraphCL':

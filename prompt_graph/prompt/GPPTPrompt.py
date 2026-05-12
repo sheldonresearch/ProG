@@ -49,7 +49,7 @@ class GPPTPrompt(torch.nn.Module):
             # if layer.bias is not None:
             #     init.constant_(layer.bias, 0)        
 
-    def weigth_init(self, h, edge_index, label, index):
+    def weight_init(self, h, edge_index, label, index):
         # 对于图中的每一个节点，将其特征（'h'）发送给所有邻居节点，然后每个节点会计算所有收到的邻居特征的平均值，并将这个平均值存储为自己的新特征在'neighbor'下
 
         conv = SimpleMeanConv()

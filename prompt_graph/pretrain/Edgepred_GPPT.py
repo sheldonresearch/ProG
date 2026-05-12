@@ -103,7 +103,7 @@ class Edgepred_GPPT(PreTrain):
                 cnt_wait += 1
                 if cnt_wait == patience:
                     print('-' * 100)
-                    print('Early stopping at '+str(epoch) +' eopch!')
+                    print('Early stopping at '+str(epoch) +' epoch!')
                     break
             print(cnt_wait)
         folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"

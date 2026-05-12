@@ -14,7 +14,10 @@ def get_args():
         help="Choose the dataset of pretrainor downstream task",
     )
     parser.add_argument(
-        "--device", type=int, default=0, help="Which gpu to use if any (default: 0)"
+        "--device",
+        type=str,
+        default="0",
+        help="Device: int (legacy CUDA index), or auto/cuda:N/mps/cpu",
     )
     parser.add_argument(
         "--gnn_type",
