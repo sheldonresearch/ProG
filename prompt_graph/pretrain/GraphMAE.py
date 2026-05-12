@@ -9,12 +9,15 @@ from torch import nn
 import time
 from prompt_graph.utils import generate_corrupted_graph
 from prompt_graph.data import load4node, load4graph, NodePretrain
+from prompt_graph.utils import get_logger
 import os
 import torch.nn.functional as F
 from itertools import chain
 from functools import partial
 import numpy as np
 from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
+
+logger = get_logger(__name__)
 
 def sce_loss(x, y, alpha=3):
     x = F.normalize(x, p=2, dim=-1)
@@ -239,19 +242,19 @@ class GraphMAE(PreTrain):
                 self.optimizer.step() 
                 loss_metric.update(loss.item(), batch.size(0))
 
-            print(f"GraphMAE [Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {loss_metric.compute():.5f} | "
+            logger.info(f"GraphMAE [Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {loss_metric.compute():.5f} | "
                   f"Cost Time {time.time() - st_time:.3}s")
-            
+
             if train_loss_min > loss_metric.compute():
                 train_loss_min = loss_metric.compute()
                 cnt_wait = 0
             else:
                 cnt_wait += 1
                 if cnt_wait == patience:
-                    print('-' * 100)
-                    print('Early stopping at '+str(epoch) +' epoch!')
+                    logger.info('-' * 100)
+                    logger.info('Early stopping at '+str(epoch) +' epoch!')
                     break
-            print(cnt_wait)
+            logger.info(cnt_wait)
 
         folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
         if not os.path.exists(folder_path):
@@ -259,5 +262,5 @@ class GraphMAE(PreTrain):
 
         torch.save(self.gnn.state_dict(),
                     "{}/{}.{}.{}.pth".format(folder_path, 'GraphMAE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
-        
-        print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'GraphMAE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))                
+
+        logger.info("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'GraphMAE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))                

@@ -4,11 +4,14 @@ import torch.nn.functional as F
 from prompt_graph.prompt import DGI,GraphCL,Lp,AvgReadout, DGIprompt,GraphCLprompt,Lpprompt, GcnLayers
 import scipy.sparse as sp
 import numpy as np
-from prompt_graph.utils import process, resolve_device
+from prompt_graph.utils import process, resolve_device, get_logger
 import prompt_graph.utils.aug as aug
 import os
 from torch_geometric.loader import DataLoader
 from tqdm import tqdm, trange
+
+logger = get_logger(__name__)
+
 
 class NodePrePrompt(nn.Module):
     def __init__(self, dataset_name, n_h, activation,a1,a2,a3, a4, num_layers_num, dropout, device):
@@ -142,10 +145,10 @@ class NodePrePrompt(nn.Module):
 
         labels = torch.FloatTensor(self.labels[np.newaxis])
         # print("labels",labels)
-        print("adj",sp_adj.shape)
-        print("feature",features.shape)
+        logger.info("adj %s", sp_adj.shape)
+        logger.info("feature %s", features.shape)
         LP = False
-        print("")
+        logger.info("")
         lr=0.0001
 
       
@@ -187,7 +190,7 @@ class NodePrePrompt(nn.Module):
                         sp_aug_adj1mask if sparse else aug_adj1mask,
                         sp_aug_adj2mask if sparse else aug_adj2mask,
                         sparse, None, None, None, lbl=lbl)
-            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, nb_epochs, loss.item()))
+            logger.info("***epoch: {}/{} | train_loss: {:.8}".format(epoch, nb_epochs, loss.item()))
             loss.backward()
             optimizer.step()
 
@@ -198,8 +201,8 @@ class NodePrePrompt(nn.Module):
             else:
                 cnt_wait += 1
             if cnt_wait == patience:
-                print('-' * 100)
-                print('Early stopping at '+str(epoch) +' epoch!')
+                logger.info('-' * 100)
+                logger.info('Early stopping at '+str(epoch) +' epoch!')
                 break
 
         folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
@@ -208,7 +211,7 @@ class NodePrePrompt(nn.Module):
 
         torch.save(self.state_dict(),
                     "{}/{}.pth".format(folder_path, 'MultiGprompt'))
-        print("+++model saved ! {}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
+        logger.info("+++model saved ! {}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
 
 
 class GraphPrePrompt(nn.Module):
@@ -328,7 +331,7 @@ class GraphPrePrompt(nn.Module):
                 # print(loss)
                 showloss = loss/(step+1)
             loss = loss / (step+1)
-            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, 1000, loss.item()))
+            logger.info("***epoch: {}/{} | train_loss: {:.8}".format(epoch, 1000, loss.item()))
             if loss < best:
                 best = loss
                 best_t = epoch
@@ -339,8 +342,8 @@ class GraphPrePrompt(nn.Module):
                 # print("cnt_wait",cnt_wait)
 
             if cnt_wait == patience:
-                print('-' * 100)
-                print('Early stopping at '+str(epoch) +' epoch!')
+                logger.info('-' * 100)
+                logger.info('Early stopping at '+str(epoch) +' epoch!')
                 break
 
         folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
@@ -349,7 +352,7 @@ class GraphPrePrompt(nn.Module):
 
         torch.save(self.state_dict(),
                     "{}/{}.pth".format(folder_path, 'MultiGprompt'))
-        print("+++model saved ! {}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
+        logger.info("+++model saved ! {}/{}.pth".format(self.dataset_name, 'MultiGprompt'))
 
 
 def mygather(feature, index): 
@@ -387,8 +390,8 @@ def prompt_pretrain_sample(adj,n):
     indptr=adj.indptr
     res=np.zeros((nodenum,1+n))
     whole=np.array(range(nodenum))
-    print("#############")
-    print("start sampling disconnected tuples")
+    logger.info("#############")
+    logger.info("start sampling disconnected tuples")
     for i in trange(nodenum):
         nonzero_index_i_row=indices[indptr[i]:indptr[i+1]]
         zero_index_i_row=np.setdiff1d(whole,nonzero_index_i_row)
@@ -433,6 +436,6 @@ class weighted_feature(nn.Module):
         self.weight[0][1].data.fill_(a2)
         self.weight[0][2].data.fill_(a3)
     def forward(self, graph_embedding1,graph_embedding2,graph_embedding3):
-        print("weight",self.weight)
+        logger.info("weight %s", self.weight)
         graph_embedding= self.weight[0][0] * graph_embedding1 + self.weight[0][1] * graph_embedding2 + self.weight[0][2] * graph_embedding3
         return graph_embedding
