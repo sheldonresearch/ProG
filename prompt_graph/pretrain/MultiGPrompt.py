@@ -35,7 +35,7 @@ class NodePrePrompt(nn.Module):
         self.dgiprompt = DGIprompt(n_in, n_h, activation)
         self.graphcledgeprompt = GraphCLprompt(n_in, n_h, activation)
         self.lpprompt = Lpprompt(n_in, n_h)
-        sample = self.negetive_sample
+        sample = self.negative_sample
         self.sample = torch.tensor(sample, dtype=int).to(self.device)
         self.loss = nn.BCEWithLogitsLoss()
         self.act = nn.ELU()
@@ -46,9 +46,9 @@ class NodePrePrompt(nn.Module):
         self.features, _ = process.preprocess_features(features)
         
         if self.dataset_name in ['Texas','Wisconsin']:
-            self.negetive_sample = prompt_pretrain_sample(self.adj,50)
+            self.negative_sample = prompt_pretrain_sample(self.adj,50)
         else:
-            self.negetive_sample = prompt_pretrain_sample(self.adj,200)
+            self.negative_sample = prompt_pretrain_sample(self.adj,200)
         # prompt_pretrain_sample为图中的每个节点提供了一个正样本和多个负样本的索引
         nb_nodes = self.features.shape[0]  # node number
         ft_size = self.features.shape[1]  # node features dim
@@ -207,7 +207,7 @@ class NodePrePrompt(nn.Module):
                 cnt_wait += 1
             if cnt_wait == patience:
                 print('-' * 100)
-                print('Early stopping at '+str(epoch) +' eopch!')
+                print('Early stopping at '+str(epoch) +' epoch!')
                 break
 
         folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
@@ -289,7 +289,7 @@ class GraphPrePrompt(nn.Module):
             for step, batch in enumerate(self.loader):
 
                 features,adj =  process.process_tu(batch, self.output_dim, self.input_dim)
-                negetive_sample = tu_prompt_pretrain_sample(adj,50)
+                negative_sample = tu_prompt_pretrain_sample(adj,50)
                 nb_nodes = features.shape[0]  # node number
                 features = torch.FloatTensor(features[np.newaxis])
 
@@ -340,7 +340,7 @@ class GraphPrePrompt(nn.Module):
                             adj,
                             aug_adj1edge,
                             aug_adj2edge,
-                            False, None, None, None, lbl=lbl,sample=negetive_sample)
+                            False, None, None, None, lbl=lbl,sample=negative_sample)
                 loss = loss + logit
                 # print(loss)
                 showloss = loss/(step+1)
@@ -357,7 +357,7 @@ class GraphPrePrompt(nn.Module):
 
             if cnt_wait == patience:
                 print('-' * 100)
-                print('Early stopping at '+str(epoch) +' eopch!')
+                print('Early stopping at '+str(epoch) +' epoch!')
                 break
 
         folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"

@@ -181,29 +181,7 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         if dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
             graph_list = [g for g in graph_list]
             node_degree_as_features(graph_list)
-            input_dim = graph_list[0].x.size(1)        
-
-        # # 分类并选择每个类别的图
-        # class_datasets = {}
-        # for data in dataset:
-        #     label = data.y.item()
-        #     if label not in class_datasets:
-        #         class_datasets[label] = []
-        #     class_datasets[label].append(data)
-
-        # train_data = []
-        # remaining_data = []
-        # for label, data_list in class_datasets.items():
-        #     train_data.extend(data_list[:shot_num])
-        #     random.shuffle(train_data)
-        #     remaining_data.extend(data_list[shot_num:])
-
-        # # 将剩余的数据 1：9 划分为测试集和验证集
-        # random.shuffle(remaining_data)
-        # val_dataset_size = len(remaining_data) // 9
-        # val_dataset = remaining_data[:val_dataset_size]
-        # test_dataset = remaining_data[val_dataset_size:]
-        
+            input_dim = graph_list[0].x.size(1)
 
         if(pretrained==True):
             return input_dim, out_dim, graph_list

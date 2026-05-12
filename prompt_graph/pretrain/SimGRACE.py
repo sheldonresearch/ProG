@@ -114,7 +114,7 @@ class SimGRACE(PreTrain):
                 cnt_wait += 1
                 if cnt_wait == patience:
                     print('-' * 100)
-                    print('Early stopping at '+str(epoch) +' eopch!')
+                    print('Early stopping at '+str(epoch) +' epoch!')
                     break
             print(cnt_wait)
 
