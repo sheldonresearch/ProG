@@ -1,6 +1,6 @@
 import os
 import torch
-from prompt_graph.model import GAT, GCN, GCov, GIN, GraphSAGE, GraphTransformer
+from prompt_graph.model import build_gnn
 from torch.optim import Adam
 
 class PreTrain(torch.nn.Module):
@@ -24,20 +24,7 @@ class PreTrain(torch.nn.Module):
         self.num_workers = num_workers
     
     def initialize_gnn(self, input_dim, hid_dim):
-        if self.gnn_type == 'GAT':
-                self.gnn = GAT(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
-        elif self.gnn_type == 'GCN':
-                self.gnn = GCN(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
-        elif self.gnn_type == 'GraphSAGE':
-                self.gnn = GraphSAGE(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
-        elif self.gnn_type == 'GIN':
-                self.gnn = GIN(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
-        elif self.gnn_type == 'GCov':
-                self.gnn = GCov(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
-        elif self.gnn_type == 'GraphTransformer':
-                self.gnn = GraphTransformer(input_dim = input_dim, hid_dim = hid_dim, num_layer = self.num_layer)
-        else:
-                raise ValueError(f"Unsupported GNN type: {self.gnn_type}")
+        self.gnn = build_gnn(self.gnn_type, input_dim, hid_dim, self.num_layer)
         print(self.gnn)
         self.gnn.to(self.device)
         self.optimizer = Adam(self.gnn.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
