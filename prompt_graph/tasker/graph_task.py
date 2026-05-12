@@ -262,7 +262,7 @@ class GraphTask(BaseTask):
             elif self.prompt_type == 'Gprompt':
                 loss = gprompt_strategy.train_epoch(self._gprompt_ctx(), train_loader)
             elif self.prompt_type == 'GPPT':
-                loss = self.GPPTtrain(train_loader)
+                loss = get_strategy('GPPT')().train_epoch(self._gppt_ctx(), train_loader)
 
             if loss < best:
                 best = loss
@@ -282,7 +282,7 @@ class GraphTask(BaseTask):
         if self.prompt_type == 'None':
             test_acc, f1, roc, prc = get_strategy('None')().evaluate(self._none_ctx(), test_loader)
         elif self.prompt_type == 'GPPT':
-            test_acc, f1, roc, prc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.output_dim, self.device)
+            test_acc, f1, roc, prc = get_strategy('GPPT')().evaluate(self._gppt_ctx(), test_loader)
         elif self.prompt_type == 'All-in-one':
             test_acc, f1, roc, prc = get_strategy('All-in-one')().evaluate(
                 self._all_in_one_ctx(answer_epoch, prompt_epoch), test_loader,
@@ -337,6 +337,16 @@ class GraphTask(BaseTask):
                 'answer_epoch': answer_epoch,
                 'prompt_epoch': prompt_epoch,
             },
+        )
+
+    def _gppt_ctx(self):
+        """Build a TaskContext for the GPPT strategy on this GraphTask."""
+        return TaskContext(
+            gnn=self.gnn, prompt=self.prompt,
+            criterion=self.criterion, pg_opi=self.pg_opi,
+            device=self.device, hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={'task_type': 'GraphTask'},
         )
 
     def run(self):
