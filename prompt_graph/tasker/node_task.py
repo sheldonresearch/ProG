@@ -258,6 +258,16 @@ class NodeTask(BaseTask):
             },
         )
 
+    def _gppt_ctx(self):
+        """Build a TaskContext for the GPPT strategy on this NodeTask."""
+        return TaskContext(
+            gnn=self.gnn, prompt=self.prompt,
+            criterion=self.criterion, pg_opi=self.pg_opi,
+            device=self.device, hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={'task_type': 'NodeTask'},
+        )
+
     def run(self):
         test_accs = []
         f1s = []
@@ -337,7 +347,7 @@ class NodeTask(BaseTask):
                 if self.prompt_type == 'None':
                     loss = get_strategy('None')().train_epoch(self._none_ctx(), (self.data, idx_train))
                 elif self.prompt_type == 'GPPT':
-                    loss = self.GPPTtrain(self.data, idx_train)
+                    loss = get_strategy('GPPT')().train_epoch(self._gppt_ctx(), (self.data, idx_train))
                 elif self.prompt_type == 'All-in-one':
                     loss = get_strategy('All-in-one')().train_epoch(self._all_in_one_ctx(), train_loader)
                 elif self.prompt_type in ['GPF', 'GPF-plus']:
@@ -368,7 +378,7 @@ class NodeTask(BaseTask):
                 if self.prompt_type == 'None':
                     test_acc, f1, roc, prc = get_strategy('None')().evaluate(self._none_ctx(), (self.data, idx_test))
                 elif self.prompt_type == 'GPPT':
-                    test_acc, f1, roc, prc = GPPTEva(self.data, idx_test, self.gnn, self.prompt, self.output_dim, self.device)                
+                    test_acc, f1, roc, prc = get_strategy('GPPT')().evaluate(self._gppt_ctx(), (self.data, idx_test))
                 elif self.prompt_type == 'All-in-one':
                     test_acc, f1, roc, prc = get_strategy('All-in-one')().evaluate(self._all_in_one_ctx(), test_loader)
                 elif self.prompt_type in ['GPF', 'GPF-plus']:
