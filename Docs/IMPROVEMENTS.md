@@ -469,6 +469,36 @@ trial_count: 10
 | Phase 5 | 工程基建（CI/配置/日志） | 持续，并行展开 | Phase 0 | 低–中 | `pyproject.toml`、CI、YAML config、logging |
 | Phase 6 | 文档对齐 | 1–2 天 | 各 Phase 收尾后 | 低 | 拆分后的 `Docs/` 体系 |
 
+#### 6.0.1 实际落地进度（截至 2026-05-12）
+
+| Phase | 状态 | 落地 commit / 备注 |
+|---|---|---|
+| Phase 0 | done | `e276670`（基线脚本 + baseline_metrics.md） |
+| Phase 1 | done | `e276670`（8 条关键 bug 修复打成一个 squash） |
+| Phase 2 | done | `87b01c2` 合并：Unit 1（工具链）+ Unit 2/3（死码+typo）+ Unit 4（reindent）+ Unit 5（GNN 死 import） |
+| Phase 3 | done | `87b01c2` 合并：Unit 6（device 统一）+ Unit 7（paths）+ Unit 8（OGB RLock）+ Unit 9（GNN registry） |
+| Phase 4 | **pending** | 需要独立批次；前置 = Phase 5 smoke tests（已落地）。逐 prompt 渐进 + epoch1-5 loss ≤1e-3 校验。 |
+| Phase 5.1 | done | `bbd1278`（pyproject + ruff + pre-commit） |
+| Phase 5.2 | done | `ac9a1da`（tests/test_{data_loaders,factory,bench_smoke}.py） |
+| Phase 5.3 | done | `bb98a4d`（GitHub Actions CI：lint + import smoke + pytest） |
+| Phase 5.4 | partial | `49b8088` 引入 `utils/get_logger`；全包 `print() → logger` 留到 Phase 4 顺手做 |
+| Phase 5.5 | pending | YAML config，依赖 Phase 4 |
+| Phase 5.6 | **pending** | 二进制资源（Node.zip 646K / ProG_pipeline.jpg 519K）`git filter-repo` 历史改写，破坏式，需全员重 clone |
+| Phase 6.1 | done | `e0d9d4c`（.gitignore 移除 /Docs，IMPROVEMENTS/baseline_metrics/README 入库） |
+| Phase 6.2-6.4 | **pending** | 文档拆分 + CLAUDE.md + 顶层 README 更新，建议等 Phase 4 后再做 |
+
+**附带的 pre-existing bug 修复**（由 Phase 5.2 smoke tests 暴露，commit `b590fd2`）：
+
+- `tasker/node_task.py:284` `range(1, self.epochs)` → `range(1, self.epochs + 1)`
+- `tasker/{node,graph}_task.py` `int(self.epochs/self.answer_epoch)` → `max(1, int(...))`（3 处）
+
+**端到端验证记录**（在 `87b01c2` 上跑）：
+
+- `pytest tests/ -v` — 9 passed
+- `python downstream_task.py --dataset_name Cora --gnn_type GCN --prompt_type GPF --downstream_task NodeTask --epochs 2 --shot_num 5 --seed 42 --device 0`（MPS）— PASS
+- `python downstream_task.py --dataset_name MUTAG --gnn_type GCN --prompt_type All-in-one --downstream_task GraphTask --epochs 2 --shot_num 5 --seed 42 --device cpu` — PASS
+- 同上 `--device 0`（MPS）— FAIL：`scatter_add_` on MPS 的 placeholder 限制，**非本批次引入**
+
 **通用约定**（所有 Phase 都要遵守）：
 - 每个 PR 一个目标，方便回滚。Phase 1 每条 Bug 一个 PR；Phase 3、4 每个抽象一个 PR。
 - 旧 import 路径必须保留 alias，禁止"破坏式重命名"。重命名走两步：先加新名 + `DeprecationWarning`，下个版本再删旧名。
