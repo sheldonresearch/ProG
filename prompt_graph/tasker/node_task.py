@@ -5,6 +5,8 @@ from prompt_graph.utils import induced_graph_dir, sample_dir
 from prompt_graph.evaluation import GPPTEva, GNNNodeEva, GPFEva, MultiGpromptEva
 from prompt_graph.pretrain import GraphPrePrompt, NodePrePrompt, prompt_pretrain_sample
 from .task import BaseTask
+from .strategy import TaskContext, get_strategy
+from . import strategies as _strategies  # noqa: F401 -- registers bundled strategies
 import time
 import warnings
 import numpy as np
@@ -213,6 +215,16 @@ class NodeTask(BaseTask):
 
         return total_loss / len(train_loader), mean_centers
       
+    def _none_ctx(self):
+        """Build a TaskContext for the 'None' strategy on this NodeTask."""
+        return TaskContext(
+            gnn=self.gnn, answering=self.answering,
+            criterion=self.criterion, optimizer=self.optimizer,
+            device=self.device, hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={'task_type': 'NodeTask'},
+        )
+
     def run(self):
         test_accs = []
         f1s = []
@@ -233,7 +245,7 @@ class NodeTask(BaseTask):
 
             self.initialize_gnn()
             self.answering =  torch.nn.Sequential(torch.nn.Linear(self.hid_dim, self.output_dim),
-                                torch.nn.Softmax(dim=1)).to(self.device) 
+                                torch.nn.Softmax(dim=1)).to(self.device)
             self.initialize_prompt()
             self.initialize_optimizer()
 
@@ -286,7 +298,7 @@ class NodeTask(BaseTask):
                 t0 = time.time()
 
                 if self.prompt_type == 'None':
-                    loss = self.train(self.data, idx_train)                             
+                    loss = get_strategy('None')().train_epoch(self._none_ctx(), (self.data, idx_train))
                 elif self.prompt_type == 'GPPT':
                     loss = self.GPPTtrain(self.data, idx_train)                
                 elif self.prompt_type == 'All-in-one':
@@ -317,7 +329,7 @@ class NodeTask(BaseTask):
                 batch_best_loss.append(loss)
                   
                 if self.prompt_type == 'None':
-                    test_acc, f1, roc, prc = GNNNodeEva(self.data, idx_test, self.gnn, self.answering,self.output_dim, self.device)                           
+                    test_acc, f1, roc, prc = get_strategy('None')().evaluate(self._none_ctx(), (self.data, idx_test))
                 elif self.prompt_type == 'GPPT':
                     test_acc, f1, roc, prc = GPPTEva(self.data, idx_test, self.gnn, self.prompt, self.output_dim, self.device)                
                 elif self.prompt_type == 'All-in-one':

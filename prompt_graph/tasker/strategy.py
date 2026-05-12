@@ -37,6 +37,7 @@ class TaskContext:
     answer_opi: Any = field(default=None)
     data: Any = field(default=None)
     dataset_name: str = field(default=None)
+    extra: dict = field(default_factory=dict)
 
 
 class PromptStrategy(Protocol):

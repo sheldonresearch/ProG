@@ -5,6 +5,8 @@ import torch.nn.functional as F
 
 from ..defines import GRAPH_TASKS
 from .task import BaseTask
+from .strategy import TaskContext, get_strategy
+from . import strategies as _strategies  # noqa: F401 -- registers bundled strategies
 from prompt_graph.utils import center_embedding, Gprompt_tuning_loss,constraint
 from prompt_graph.utils import sample_dir
 from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva, GPPTGraphEva
@@ -246,7 +248,7 @@ class GraphTask(BaseTask):
             t0 = time.time()
 
             if self.prompt_type == 'None':
-                loss = self.Train(train_loader)
+                loss = get_strategy('None')().train_epoch(self._none_ctx(), train_loader)
             elif self.prompt_type == 'All-in-one':
                 loss = self.AllInOneTrain(train_loader, answer_epoch, prompt_epoch)
             elif self.prompt_type in ['GPF', 'GPF-plus']:
@@ -272,7 +274,7 @@ class GraphTask(BaseTask):
         print('Begin to evaluate')
 
         if self.prompt_type == 'None':
-            test_acc, f1, roc, prc = GNNGraphEva(test_loader, self.gnn, self.answering, self.output_dim, self.device)
+            test_acc, f1, roc, prc = get_strategy('None')().evaluate(self._none_ctx(), test_loader)
         elif self.prompt_type == 'GPPT':
             test_acc, f1, roc, prc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.output_dim, self.device)
         elif self.prompt_type == 'All-in-one':
@@ -285,6 +287,16 @@ class GraphTask(BaseTask):
         print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}")
 
         return test_acc, f1, roc, prc, loss
+
+    def _none_ctx(self):
+        """Build a TaskContext for the 'None' strategy on this GraphTask."""
+        return TaskContext(
+            gnn=self.gnn, answering=self.answering,
+            criterion=self.criterion, optimizer=self.optimizer,
+            device=self.device, hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={'task_type': 'GraphTask'},
+        )
 
     def run(self):
         # Dispatch to ``_run_for_split``. Few-shot path loops over 5 sample_data
