@@ -221,7 +221,7 @@ class NodeTask(BaseTask):
         if self.prompt_type == 'All-in-one':
             self.answer_epoch = 50
             self.prompt_epoch = 50
-            self.epochs = int(self.epochs/self.answer_epoch)
+            self.epochs = max(1, int(self.epochs/self.answer_epoch))
         for i in range(1, self.task_num+1):
             sample_data_foler_path = "./Experiment/sample_data/Node/{}/{}_shot/{}".format(self.dataset_name, self.shot_num, i)
 
@@ -281,7 +281,7 @@ class NodeTask(BaseTask):
             cnt_wait = 0
             best_loss = 1e9
 
-            for epoch in range(1, self.epochs):
+            for epoch in range(1, self.epochs + 1):
                 t0 = time.time()
 
                 if self.prompt_type == 'None':

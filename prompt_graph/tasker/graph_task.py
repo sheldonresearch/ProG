@@ -181,7 +181,7 @@ class GraphTask(BaseTask):
             # self.prompt_epoch = 1
             self.answer_epoch = 50
             self.prompt_epoch = 50
-            self.epochs = int(self.epochs/self.answer_epoch)
+            self.epochs = max(1, int(self.epochs/self.answer_epoch))
         if self.shot_num > 0:
             for i in range(1, 6):
                 idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
@@ -346,7 +346,7 @@ class GraphTask(BaseTask):
                 # self.prompt_epoch = 1
                 self.answer_epoch = 5
                 self.prompt_epoch = 1
-                self.epochs = int(self.epochs/self.answer_epoch)
+                self.epochs = max(1, int(self.epochs/self.answer_epoch))
                 
             elif self.prompt_type == 'GPPT':
                 # initialize the GPPT hyperparametes via graph data
