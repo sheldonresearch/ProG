@@ -1,5 +1,6 @@
 import torch
 import pickle as pk
+import threading
 from random import shuffle
 import random
 from contextlib import contextmanager
@@ -17,19 +18,47 @@ from ogb.graphproppred import PygGraphPropPredDataset
 from ..defines import GRAPH_TASKS
 
 
+_TORCH_LOAD_LOCK = threading.RLock()
+_TORCH_LOAD_ORIGINAL = None
+
+
 @contextmanager
 def ogb_torch_load_compat():
-    original_load = torch.load
+    """OGB >=1.x + torch >=2.4 compatibility patch.
 
-    def load_with_legacy_default(*args, **kwargs):
-        kwargs.setdefault('weights_only', False)
-        return original_load(*args, **kwargs)
+    Forces ``torch.load(..., weights_only=False)`` for OGB's internal ``.pt``
+    loads, which would otherwise fail on torch >=2.4 where ``weights_only``
+    defaults to ``True``. The patch is scoped to the ``with`` block and the
+    original ``torch.load`` is restored on exit.
 
-    torch.load = load_with_legacy_default
-    try:
-        yield
-    finally:
-        torch.load = original_load
+    Thread-safety: protected by an ``RLock`` so concurrent invocations cannot
+    race and capture each other's patched function as the "original" — which
+    would otherwise leave ``torch.load`` permanently monkey-patched after the
+    last context exits. Nested entries (same or other threads) share the
+    outermost patch and are no-ops on enter/exit.
+
+    Lifetime: this shim should be removed once OGB no longer relies on the
+    legacy ``weights_only=False`` behaviour (e.g. after an OGB release that
+    saves with safe-serialization, or once torch removes the
+    ``weights_only=False`` option entirely).
+    """
+    global _TORCH_LOAD_ORIGINAL
+    with _TORCH_LOAD_LOCK:
+        is_outermost = _TORCH_LOAD_ORIGINAL is None
+        if is_outermost:
+            _TORCH_LOAD_ORIGINAL = torch.load
+
+            def load_with_legacy_default(*args, **kwargs):
+                kwargs.setdefault('weights_only', False)
+                return _TORCH_LOAD_ORIGINAL(*args, **kwargs)
+
+            torch.load = load_with_legacy_default
+        try:
+            yield
+        finally:
+            if is_outermost:
+                torch.load = _TORCH_LOAD_ORIGINAL
+                _TORCH_LOAD_ORIGINAL = None
 
 def node_sample_and_save(data, k, folder, num_classes):
     # 获取标签
