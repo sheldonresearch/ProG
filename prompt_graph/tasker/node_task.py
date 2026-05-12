@@ -20,16 +20,17 @@ class NodeTask(BaseTask):
         super().__init__(*args, **kwargs)
         self.task_type = 'NodeTask'
         self.task_num = task_num  # 增加task_num的参数，控制重复数量，默认为5
+        self.data = data
+        if self.dataset_name == 'ogbn-arxiv':
+            self.data.y = self.data.y.squeeze()
+        self.graphs_list = graphs_list
+
         if self.prompt_type == 'MultiGprompt':
             self.load_multigprompt_data()
         else:
-            self.data = data
-            if self.dataset_name == 'ogbn-arxiv':
-                self.data.y = self.data.y.squeeze()
             self.input_dim = input_dim
             self.output_dim = output_dim
-            self.graphs_list = graphs_list
-            
+
         self.create_few_data_folder()
 
     def create_few_data_folder(self):
