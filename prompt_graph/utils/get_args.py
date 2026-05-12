@@ -1,4 +1,7 @@
 import argparse
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _build_parser():
@@ -184,7 +187,7 @@ def get_args_by_call(
     **kwargs,
 ) -> argparse.Namespace:
     if len(kwargs) > 0:
-        print(f"Warning! Unexpected argument input: {list(kwargs.keys())}")
+        logger.warning(f"Warning! Unexpected argument input: {list(kwargs.keys())}")
     return argparse.Namespace(
         pretrain_task=pretrain_task,
         downstream_task=downstream_task,

@@ -1,6 +1,10 @@
 import torch
 import numpy as np
 
+from .logging import get_logger
+
+logger = get_logger(__name__)
+
 
 def graph_views(data, aug='random', aug_ratio=0.1):
     if aug == 'dropN':
@@ -16,7 +20,7 @@ def graph_views(data, aug='random', aug_ratio=0.1):
         elif n == 1:
             data = permute_edges(data, aug_ratio)
         else:
-            print('augmentation error')
+            logger.warning('augmentation error')
             assert False
     return data
 

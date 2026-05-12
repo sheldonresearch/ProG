@@ -2,9 +2,12 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.data import Batch, Data
 from prompt_graph.utils import act
+from prompt_graph.utils import get_logger
 from deprecated.sphinx import deprecated
 from sklearn.cluster import KMeans
 from torch_geometric.nn.inits import glorot
+
+logger = get_logger(__name__)
 
 class LightPrompt(torch.nn.Module):
     def __init__(self, token_dim, token_num_per_group, group_num=1, inner_prune=None):
@@ -113,8 +116,8 @@ class HeavyPrompt(LightPrompt):
             train_loss.backward()
             opi.step()
             running_loss += train_loss.item()
-       
-            print(' batch {}/{} | loss: {:.8f}'.format( batch_id, len(train_loader), train_loss))
+
+            logger.info(' batch {}/{} | loss: {:.8f}'.format( batch_id, len(train_loader), train_loss))
 
         return running_loss / len(train_loader)
     

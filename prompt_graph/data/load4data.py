@@ -17,6 +17,9 @@ from ogb.graphproppred import PygGraphPropPredDataset
 
 from ..defines import GRAPH_TASKS
 from ..utils.paths import tudataset_root, ogb_dataset_root
+from ..utils import get_logger
+
+logger = get_logger(__name__)
 
 
 _TORCH_LOAD_LOCK = threading.RLock()
@@ -197,7 +200,7 @@ def get_data_root():
     return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data')
 
 def load4node(dataname):
-    print(dataname)
+    logger.info(dataname)
     data_root = get_data_root()
     if dataname in ['PubMed', 'CiteSeer', 'Cora']:
         dataset = Planetoid(root=os.path.join(data_root, 'Planetoid'), name=dataname, transform=NormalizeFeatures())
@@ -401,10 +404,10 @@ def NodePretrain(data, num_parts=200, split_method='Random Walk'):
 
             graph_list.append(subgraph_data)
 
-        print(f"Total {len(graph_list)} random walk subgraphs with nodes more than 5, and there are {skip_num} skipped subgraphs with nodes less than 5.")
+        logger.info(f"Total {len(graph_list)} random walk subgraphs with nodes more than 5, and there are {skip_num} skipped subgraphs with nodes less than 5.")
 
     else:
-        print('None split method!')
+        logger.warning('None split method!')
         exit()
     
     return graph_list
