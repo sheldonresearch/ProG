@@ -23,3 +23,7 @@ batch_run_pretrain.py
 c_bench.py
 
 mcr_*.py
+
+# Binary assets (moved out of main repo — see README.md)
+Node.zip
+ProG_pipeline.jpg
