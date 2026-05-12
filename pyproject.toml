@@ -19,6 +19,7 @@ dependencies = [
     "numpy<2",
     "deprecated",
     "tqdm",
+    "pyyaml",
 ]
 
 [project.optional-dependencies]

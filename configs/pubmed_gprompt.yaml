@@ -1,0 +1,11 @@
+# Baseline config: PubMed + GraphCL + Gprompt (NodeTask)
+# Mirrors scripts/baseline.sh Case 3.
+# Usage: python bench.py --config configs/pubmed_gprompt.yaml
+pretrain_task: NodeTask
+dataset_name: PubMed
+prompt_type: Gprompt
+gnn_type: GCN
+shot_num: 1
+seed: 42
+epochs: 200
+pre_train_model_path: ./Experiment/pre_trained_model/PubMed/GraphCL.GCN.128hidden_dim.pth
