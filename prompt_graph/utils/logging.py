@@ -16,6 +16,7 @@ Usage:
 import logging
 import os
 import sys
+from typing import Optional
 
 
 _DEFAULT_FORMAT = '[%(asctime)s][%(levelname)s][%(name)s] %(message)s'
@@ -53,3 +54,18 @@ def get_logger(name: str) -> logging.Logger:
     if not name.startswith('prompt_graph'):
         name = f'prompt_graph.{name}'
     return logging.getLogger(name)
+
+
+def apply_log_level(log_level: Optional[str], quiet: bool = False) -> None:
+    """Apply a runtime log level to the prompt_graph logger.
+
+    Intended for use by CLI entrypoints: parse --log-level / --quiet and call
+    this once after argparse. `quiet` overrides `log_level` and forces WARNING.
+    """
+    _configure_root_once()
+    root = logging.getLogger('prompt_graph')
+    if quiet:
+        root.setLevel(logging.WARNING)
+        return
+    if log_level:
+        root.setLevel(getattr(logging, log_level.upper(), logging.INFO))

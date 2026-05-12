@@ -5,6 +5,7 @@ from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
 from prompt_graph.utils import  get_args
 from prompt_graph.utils import induced_graph_dir, excel_result_dir
+from prompt_graph.utils import get_logger, apply_log_level
 from prompt_graph.data import load4node, load4graph, split_induced_graphs, induced_graph_cache_path
 import pickle
 import random
@@ -15,6 +16,9 @@ import torch
 
 from prompt_graph.utils.report_data import ConfigBenchResult
 from prompt_graph.utils import resolve_device
+
+
+logger = get_logger(__name__)
 
 
 def get_runtime_device(device_id):
@@ -33,11 +37,11 @@ def load_induced_graph(dataset_name, data, device):
     )
     if os.path.exists(file_path):
             with open(file_path, 'rb') as f:
-                print('loading induced graph...')
+                logger.info('loading induced graph...')
                 graphs_list = pickle.load(f)
-                print('Done!!!')
+                logger.info('Done!!!')
     else:
-        print('Begin split_induced_graphs.')
+        logger.info('Begin split_induced_graphs.')
         split_induced_graphs(
             data, folder_path, device,
             smallest_size=100, largest_size=300,
@@ -80,15 +84,17 @@ def do_config_bench(args:argparse.Namespace):
                 'batch_size':    [512],
             }
 
-    print('args.dataset_name', args.dataset_name)
+    logger.info('args.dataset_name %s', args.dataset_name)
 
     num_iter = getattr(args, 'num_iter', None)
     if num_iter is None:
         num_iter = 10
         # Define special num_iter cases
         if args.prompt_type in ['MultiGprompt', 'GPPT']:
+            logger.info('num_iter = 1')
             num_iter = 1
         if args.dataset_name in ['ogbn-arxiv', 'Flickr']:
+            logger.info('num_iter = 1')
             num_iter = 1
     best_params = {}
     best_loss = float('inf')
@@ -120,10 +126,10 @@ def do_config_bench(args:argparse.Namespace):
     if args.pretrain_task == 'GraphTask':
         input_dim, output_dim, dataset = load4graph(args.dataset_name)
         
-    print('num_iter',num_iter)
+    logger.info('num_iter %s', num_iter)
     for a in range(num_iter):
         params = {k: random.choice(v) for k, v in param_grid.items()}
-        print(params)
+        logger.info('params: %s', params)
         
         if args.pretrain_task == 'NodeTask':
             tasker = NodeTask(pre_train_model_path = args.pre_train_model_path,
@@ -155,7 +161,7 @@ def do_config_bench(args:argparse.Namespace):
         std_roc = float(std_roc)
         mean_prc = float(mean_prc)
         std_prc = float(std_prc)
-        print(f"For {a}th searching, Tested Params: {params}, Avg Best Loss: {avg_best_loss}")
+        logger.info("For %sth searching, Tested Params: %s, Avg Best Loss: %s", a, params, avg_best_loss)
 
         if avg_best_loss < best_loss:
             best_loss = avg_best_loss
@@ -188,6 +194,7 @@ def do_config_bench(args:argparse.Namespace):
 # prompt_types = ['None', 'GPPT', 'All-in-one', 'Gprompt', 'GPF', 'GPF-plus']
 if __name__ == "__main__":
     args = get_args()
+    apply_log_level(args.log_level, args.quiet)
 
     cbr_result = do_config_bench(args=args)
 
@@ -199,7 +206,7 @@ if __name__ == "__main__":
     data = pd.read_excel(file_path, index_col=0)
 
     col_name = f"{cbr_result.pre_train_type}+{args.prompt_type}"
-    print('col_name', col_name)
+    logger.info('col_name %s', col_name)
     data.at['Final Accuracy', col_name] = f"{cbr_result.final_acc_mean:.4f}±{cbr_result.final_acc_std:.4f}"
     data.at['Final F1', col_name] = f"{cbr_result.final_f1_mean:.4f}±{cbr_result.final_f1_std:.4f}"
     data.at['Final AUROC', col_name] = f"{cbr_result.final_roc_mean:.4f}±{cbr_result.final_roc_std:.4f}"

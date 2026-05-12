@@ -4,12 +4,17 @@ from prompt_graph.utils import seed_everything
 from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
 from prompt_graph.utils import get_args, resolve_device, induced_graph_dir
+from prompt_graph.utils import get_logger, apply_log_level
 from prompt_graph.data import load4node, load4graph, split_induced_graphs, induced_graph_cache_path
 import pickle
 import random
 import numpy as np
 import os
 import pandas as pd
+
+
+logger = get_logger(__name__)
+
 
 def load_induced_graph(dataset_name, data, device):
 
@@ -24,11 +29,11 @@ def load_induced_graph(dataset_name, data, device):
     )
     if os.path.exists(file_path):
             with open(file_path, 'rb') as f:
-                print('loading induced graph...')
+                logger.info('loading induced graph...')
                 graphs_list = pickle.load(f)
-                print('Done!!!')
+                logger.info('Done!!!')
     else:
-        print('Begin split_induced_graphs.')
+        logger.info('Begin split_induced_graphs.')
         split_induced_graphs(
             data, folder_path, device,
             smallest_size=100, largest_size=300,
@@ -75,7 +80,8 @@ def get_downstream_task_delegate(args:argparse.Namespace):
 
 if __name__ == "__main__":
     args = get_args()
-    print('dataset_name', args.dataset_name)
+    apply_log_level(args.log_level, args.quiet)
+    logger.info('dataset_name %s', args.dataset_name)
 
     tasker = get_downstream_task_delegate(args=args)
 
