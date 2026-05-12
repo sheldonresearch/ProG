@@ -5,7 +5,9 @@ import torch
 from torch_geometric.data import Data
 from torch_geometric.utils import subgraph, k_hop_subgraph
 import numpy as np
-from prompt_graph.utils import resolve_device
+from prompt_graph.utils import resolve_device, get_logger
+
+logger = get_logger(__name__)
 
 def induced_graphs(data, device, smallest_size=1, largest_size=5):
 
@@ -111,8 +113,8 @@ labels = labels['glabel'].tolist()
 # 使用 train_test_split 按照6:4比例划分数据
 train_graphs, test_graphs, train_labels, test_labels = train_test_split(graphs, labels, test_size=0.6, random_state=42)
 
-print('Number of training graphs:', len(train_graphs))
-print('Number of testing graphs:', len(test_graphs))
+logger.info('Number of training graphs: %d', len(train_graphs))
+logger.info('Number of testing graphs: %d', len(test_graphs))
 
 
 train_graph_list = []
@@ -139,7 +141,7 @@ for i in range(len(train_graphs)):
         train_node_list.append(g)
         train_node_graph_list.append(g)
     if i%500==0:
-        print(i)
+        logger.info('train graph progress: %d', i)
 
 
 test_graph_list = []
@@ -162,7 +164,7 @@ for i in range(len(test_graphs)):
     for g in induced_graph_list:
         test_node_list.append(g)
     if i%500==0:
-        print(i)
+        logger.info('test graph progress: %d', i)
 
 from prompt_graph.tasker import NodeTask, GraphTask
 from prompt_graph.utils import seed_everything
@@ -234,8 +236,8 @@ for args.prompt_type in ['Gprompt','All-in-one' ]:
         # 返回平均损失
         mean_test_acc, mean_f1, mean_roc, mean_prc = tasker.run()
    
-        print('prompt_type', args.prompt_type)
-        print("After searching, Final F1 {:.4f}".format(mean_f1)) 
+        logger.info('prompt_type %s', args.prompt_type)
+        print("After searching, Final F1 {:.4f}".format(mean_f1))
         print("After searching, Final AUROC {:.4f}".format(mean_roc) )
         print("After searching, Final AUPRC {:.4f}".format(mean_prc))
     

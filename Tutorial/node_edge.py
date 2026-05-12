@@ -8,7 +8,10 @@ import numpy as np
 from torch_geometric.utils import subgraph
 import pickle
 import os
-from prompt_graph.utils import resolve_device
+from prompt_graph.utils import resolve_device, get_logger
+
+logger = get_logger(__name__)
+
 def split_graph(data, split_ratio=0.5):
     num_nodes = data.num_nodes
 
@@ -95,19 +98,19 @@ def induced_graphs(dir, data, device, smallest_size=1, largest_size=5):
             induced_graph_list.append(induced_graph)
             # print(index)
         if index%500 == 0:
-            print(index)
+            logger.info('induced_graphs progress: %d', index)
 
 
     dir_path = dir
     if not os.path.exists(dir_path):
-        os.makedirs(dir_path) 
+        os.makedirs(dir_path)
 
     file_path = os.path.join(dir_path, 'induced_graph_min'+ str(smallest_size) +'_max'+str(largest_size)+'.pkl')
     with open(file_path, 'wb') as f:
         # Assuming 'data' is what you want to pickle
-        # pickle.dump(induced_graph_list, f) 
+        # pickle.dump(induced_graph_list, f)
         pickle.dump(induced_graph_list, f)
-        print("induced graph data has been write into " + file_path)
+        logger.info("induced graph data has been write into %s", file_path)
     return induced_graph_list
 
 
@@ -155,18 +158,18 @@ def induced_graphs_from_edges(dir, data, device, smallest_size=1, largest_size=5
         induced_graph = Data(x=x, edge_index=sub_edge_index, y=torch.tensor([current_label], dtype=torch.long))
         induced_graph_list.append(induced_graph)
         if edge_id%1000==0:
-            print(edge_id)
-    
+            logger.info('induced_graphs_from_edges progress: %d', edge_id)
+
     dir_path = dir
     if not os.path.exists(dir_path):
-        os.makedirs(dir_path) 
+        os.makedirs(dir_path)
 
     file_path = os.path.join(dir_path, 'induced_edge_graph_min'+ str(smallest_size) +'_max'+str(largest_size)+'.pkl')
     with open(file_path, 'wb') as f:
         # Assuming 'data' is what you want to pickle
-        # pickle.dump(induced_graph_list, f) 
+        # pickle.dump(induced_graph_list, f)
         pickle.dump(induced_graph_list, f)
-        print("induced graph data has been write into " + file_path)
+        logger.info("induced graph data has been write into %s", file_path)
 
     return induced_graph_list
 
@@ -215,7 +218,7 @@ edge_index = torch.tensor([dgl_graph.edges()[0].numpy(), dgl_graph.edges()[1].nu
 x = torch.tensor(dgl_graph.ndata['feature'].numpy(), dtype=torch.float) 
 edge_label = torch.tensor(dgl_graph.edata['edge_label'].numpy(), dtype=torch.float)
 y = dgl_graph.ndata['node_label']
-print(x.shape)
+logger.info('feature shape: %s', x.shape)
 graph = Data(x=x, edge_index=edge_index, y = y, edge_attr=edge_label)
 
 pretrain_graph_list = []
@@ -304,8 +307,8 @@ for args.prompt_type in ['All-in-one', 'Gprompt']:
 
         mean_test_acc, mean_f1, mean_roc, mean_prc = tasker.run()
    
-        print('prompt_type', args.prompt_type)
-        print("After searching, Final F1 {:.4f}".format(mean_f1)) 
+        logger.info('prompt_type %s', args.prompt_type)
+        print("After searching, Final F1 {:.4f}".format(mean_f1))
         print("After searching, Final AUROC {:.4f}".format(mean_roc) )
         print("After searching, Final AUPRC {:.4f}".format(mean_prc))
     
