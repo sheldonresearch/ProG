@@ -91,6 +91,19 @@ Development Progress:
 
 <br>
 
+## Documentation
+
+| 我想… / I want to… | 看这里 / Go here |
+|---|---|
+| Run a baseline / understand the three entry points (`pre_train.py` / `downstream_task.py` / `bench.py`) | [`Docs/running.md`](./Docs/running.md) |
+| See module boundaries, the `PromptStrategy` protocol, init order | [`Docs/architecture.md`](./Docs/architecture.md) |
+| Look up dataset support, disk-root conventions, gotchas | [`Docs/datasets.md`](./Docs/datasets.md) |
+| Read the historical bug list + Phase 0-6 refactor roadmap | [`Docs/IMPROVEMENTS.md`](./Docs/IMPROVEMENTS.md) |
+| Contribute a PR (branch naming, commits, CI) | [`CONTRIBUTING.md`](./CONTRIBUTING.md) |
+| AI-collaborator (Claude / Cursor / Copilot) project-level conventions | [`CLAUDE.md`](./CLAUDE.md) |
+
+<br>
+
 ## Installation
 **Pypi**
 
@@ -351,7 +364,7 @@ if args.downstream_task == 'GraphTask':
 In ``downstreamtask.py``, we designed two tasks (Node Classification, Graph Classification). Here are some examples. 
 ```python
 import prompt_graph as ProG
-from ProG.tasker import NodeTask, LinkTask, GraphTask
+from ProG.tasker import NodeTask, GraphTask  # LinkTask exists but isn't wired into the PromptStrategy framework yet — see Docs/IMPROVEMENTS.md §1.10
 
 if args.downstream_task == 'GraphTask':
     input_dim, output_dim, dataset = load4graph(args.dataset_name)

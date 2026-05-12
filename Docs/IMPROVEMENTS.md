@@ -477,15 +477,14 @@ trial_count: 10
 | Phase 1 | done | `e276670`（8 条关键 bug 修复打成一个 squash） |
 | Phase 2 | done | `87b01c2` 合并：Unit 1（工具链）+ Unit 2/3（死码+typo）+ Unit 4（reindent）+ Unit 5（GNN 死 import） |
 | Phase 3 | done | `87b01c2` 合并：Unit 6（device 统一）+ Unit 7（paths）+ Unit 8（OGB RLock）+ Unit 9（GNN registry） |
-| Phase 4 | **pending** | 需要独立批次；前置 = Phase 5 smoke tests（已落地）。逐 prompt 渐进 + epoch1-5 loss ≤1e-3 校验。 |
+| Phase 4 | done | 2026-05-12 落地：PRs #1-#8（Unit 14 foundation + Unit 15-20 六个 strategy + Unit 21 GraphTask 双分支合并）+ fix PR #17（MultiGprompt 隐藏 bug）。逐 prompt 渐进，每个 strategy 都通过 epoch1-5 loss ≤1e-3 校验。 |
 | Phase 5.1 | done | `bbd1278`（pyproject + ruff + pre-commit） |
 | Phase 5.2 | done | `ac9a1da`（tests/test_{data_loaders,factory,bench_smoke}.py） |
 | Phase 5.3 | done | `bb98a4d`（GitHub Actions CI：lint + import smoke + pytest） |
-| Phase 5.4 | partial | `49b8088` 引入 `utils/get_logger`；全包 `print() → logger` 留到 Phase 4 顺手做 |
-| Phase 5.5 | pending | YAML config，依赖 Phase 4 |
-| Phase 5.6 | **pending** | 二进制资源（Node.zip 646K / ProG_pipeline.jpg 519K）`git filter-repo` 历史改写，破坏式，需全员重 clone |
+| Phase 5.4 | done | `49b8088` 引入 `utils/get_logger`；2026-05-12 完成全包迁移：PRs #9-#14（Unit 22 tasker / Unit 23 pretrain / Unit 24 data+utils+prompt / Unit 25 evaluation / Unit 26 顶层脚本 + `--log-level`/`--quiet` CLI / Unit 27 Tutorial）。RESULT 行（` Final best ` / `Final Test:`）保留为 `print`。 |
+| Phase 5.5 | done | 2026-05-12 落地：PR #15（Unit 28 YAML config + `configs/{cora_gpf,mutag_allinone,pubmed_gprompt}.yaml` + `pyproject.toml` 加 `pyyaml`，CLI 覆盖 YAML 覆盖默认值）。 |
 | Phase 6.1 | done | `e0d9d4c`（.gitignore 移除 /Docs，IMPROVEMENTS/baseline_metrics/README 入库） |
-| Phase 6.2-6.4 | **pending** | 文档拆分 + CLAUDE.md + 顶层 README 更新，建议等 Phase 4 后再做 |
+| Phase 6.2-6.4 | done | 2026-05-12 落地：PR #19（拆分 `Docs/README.md` → `architecture.md` / `datasets.md` / `running.md`；新增 `CLAUDE.md`、`CONTRIBUTING.md`；顶层 `README.md` 移除"LinkTask"过时声明 + 加 Quickstart/Architecture 链接）。 |
 
 **附带的 pre-existing bug 修复**（由 Phase 5.2 smoke tests 暴露，commit `b590fd2`）：
 
@@ -730,9 +729,6 @@ trial_count: 10
    - 新增 `configs/` 目录，给 baseline.sh 的 3 组命令各写一份 yaml；
    - `bench.py` 增加 `--config` 参数，支持"yaml 覆盖 CLI 默认值，CLI 显式传入再覆盖 yaml"；
    - 旧 CLI 调用保持有效。
-6. **二进制资源迁移**（独立 PR）：
-   - 把 `Node.zip`、`ProG_pipeline.jpg`、`Logo.jpg` 迁出主仓库，放到 Release Assets 或 LFS；
-   - `git rm` 后用 `git filter-repo` 清理历史（**破坏式操作，需要全员同步重新 clone，提前一周通知**）。
 
 **Definition of Done**：
 - 新成员只需 `git clone && pip install -e .[dev,ogb] && bash scripts/baseline.sh` 就能跑起来；
