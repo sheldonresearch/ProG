@@ -5,6 +5,7 @@ import torch
 from torch_geometric.data import Data
 from torch_geometric.utils import subgraph, k_hop_subgraph
 import numpy as np
+from prompt_graph.utils import resolve_device
 
 def induced_graphs(data, device, smallest_size=1, largest_size=5):
 
@@ -87,7 +88,7 @@ dataset_name = 'mnist0'
 
 graphs, labels = dgl.load_graphs(file_path)
 a = 4
-device  = torch.device('cuda:'+str(a))
+device  = resolve_device(a)
 
 pretrain_graph_list = []
 for i in range(len(graphs)):

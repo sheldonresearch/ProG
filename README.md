@@ -159,6 +159,16 @@ python downstream_task.py --pre_train_model_path './Experiment/pre_trained_model
 python downstream_task.py --pre_train_model_path './Experiment/pre_trained_model/BZR/DGI.GCN.128hidden_dim.pth' --task GraphTask --dataset_name 'BZR' --gnn_type 'GCN' --prompt_type 'All-in-one' --shot_num 1 --hid_dim 128 --num_layer 2  --lr 0.02 --decay 2e-6 --seed 42 --device 1
 ```
 
+#### Device selection (`--device`)
+
+`--device` now accepts both the legacy CUDA index (`--device 0`, `--device 1`)
+and explicit strings: `--device auto` autodetects CUDA > MPS > CPU,
+`--device cpu` forces CPU, `--device mps` selects the Apple Silicon GPU when
+available (falling back to CPU otherwise), and `--device cuda:N` picks a
+specific CUDA device. The previous `PROG_USE_MPS=1` environment-variable gate
+has been removed — pass `--device mps` instead. All device detection is
+centralized in `prompt_graph.utils.resolve_device`.
+
 ### With Optimal Hyperparameters through Random Search
 
 Perform a random search of hyperparameters for the GCN model on the Cora dataset. (NodeTask)
