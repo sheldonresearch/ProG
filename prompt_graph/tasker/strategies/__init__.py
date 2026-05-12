@@ -9,3 +9,4 @@ from . import gpf  # noqa: F401 -- import side-effect registers GPFStrategy + GP
 from . import gprompt  # noqa: F401 -- import side-effect registers GpromptStrategy
 from . import all_in_one  # noqa: F401 -- import side-effect registers AllInOneStrategy
 from . import gppt  # noqa: F401 -- import side-effect registers GPPTStrategy
+from . import multi_gprompt  # noqa: F401 -- import side-effect registers MultiGpromptStrategy
