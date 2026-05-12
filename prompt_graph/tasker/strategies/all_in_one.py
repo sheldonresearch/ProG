@@ -13,8 +13,11 @@ Two preserved asymmetries vs. baseline:
 from __future__ import annotations
 
 from prompt_graph.evaluation import AllInOneEva
+from prompt_graph.utils import get_logger
 
 from ..strategy import PromptStrategy, TaskContext, register_strategy
+
+logger = get_logger(__name__)
 
 
 @register_strategy('All-in-one')
@@ -37,7 +40,7 @@ class AllInOneStrategy(PromptStrategy):
                 train_loader, ctx.gnn, ctx.answering, ctx.criterion,
                 ctx.answer_opi, ctx.device,
             )
-            print(
+            logger.info(
                 "frozen gnn | frozen prompt | *tune answering function... "
                 "{}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, answer_loss)
             )
@@ -50,7 +53,7 @@ class AllInOneStrategy(PromptStrategy):
                 train_loader, ctx.gnn, ctx.answering, ctx.criterion,
                 ctx.pg_opi, ctx.device,
             )
-            print(
+            logger.info(
                 "frozen gnn | *tune prompt |frozen answering function... "
                 "{}/{} ,loss: {:.4f} ".format(epoch, prompt_epoch, pg_loss)
             )

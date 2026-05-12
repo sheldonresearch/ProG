@@ -7,7 +7,11 @@ from prompt_graph.pretrain import GraphPrePrompt, NodePrePrompt
 from torch import nn, optim
 from prompt_graph.data import load4node, load4graph
 from prompt_graph.utils import Gprompt_tuning_loss, resolve_device
+from prompt_graph.utils import get_logger
 import numpy as np
+
+logger = get_logger(__name__)
+
 
 class BaseTask:
     def __init__(self, pre_train_model_path='None', gnn_type='TransformerConv',
@@ -113,7 +117,7 @@ class BaseTask:
     def initialize_gnn(self):
         self.gnn = build_gnn(self.gnn_type, self.input_dim, self.hid_dim, self.num_layer)
         self.gnn.to(self.device)
-        print(self.gnn)
+        logger.info(self.gnn)
 
         if self.pre_train_model_path != 'None' and self.prompt_type != 'MultiGprompt':
             if self.gnn_type not in self.pre_train_model_path :
@@ -122,8 +126,8 @@ class BaseTask:
                 raise ValueError(f"the Downstream dataset '{self.dataset_name}' does not match the pre-train dataset")
 
             self.gnn.load_state_dict(torch.load(self.pre_train_model_path, map_location='cpu'))
-            self.gnn.to(self.device)       
-            print("Successfully loaded pre-trained weights!")
+            self.gnn.to(self.device)
+            logger.info("Successfully loaded pre-trained weights!")
 
     def return_pre_train_type(self, pre_train_model_path):
         valid_names = {'None', 'DGI', 'GraphMAE', 'Edgepred_GPPT',

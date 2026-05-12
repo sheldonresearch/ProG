@@ -9,11 +9,15 @@ from .strategy import TaskContext, get_strategy
 from . import strategies as _strategies  # noqa: F401 -- registers bundled strategies
 from prompt_graph.utils import center_embedding, Gprompt_tuning_loss,constraint
 from prompt_graph.utils import sample_dir
+from prompt_graph.utils import get_logger
 from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva, GPPTGraphEva
 import time
 import math
 import os
 import numpy as np
+
+logger = get_logger(__name__)
+
 
 class GraphTask(BaseTask):
     def __init__(self, input_dim, output_dim, dataset, task_num = 5 , *args, **kwargs):
@@ -44,7 +48,7 @@ class GraphTask(BaseTask):
                     if not os.path.exists(folder):
                         os.makedirs(folder, exist_ok=True)
                         graph_sample_and_save(self.dataset, k, folder, self.output_dim)
-                        print(str(k) + ' shot ' + str(i) + ' th is saved!!')
+                        logger.info(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
     def load_data(self):
         if self.dataset_name in GRAPH_TASKS:
@@ -96,14 +100,14 @@ class GraphTask(BaseTask):
         self.prompt.eval()
         for epoch in range(1, answer_epoch + 1):
             answer_loss = self.prompt.Tune(train_loader, self.gnn,  self.answering, self.criterion, self.answer_opi, self.device)
-            print(("frozen gnn | frozen prompt | *tune answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, answer_loss)))
+            logger.info(("frozen gnn | frozen prompt | *tune answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, answer_loss)))
 
         # tune prompt
         self.answering.eval()
         self.prompt.train()
         for epoch in range(1, prompt_epoch + 1):
             pg_loss = self.prompt.Tune( train_loader,  self.gnn, self.answering, self.criterion, self.pg_opi, self.device)
-            print(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, pg_loss)))
+            logger.info(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, pg_loss)))
 
         return pg_loss
 
@@ -272,12 +276,12 @@ class GraphTask(BaseTask):
             else:
                 cnt_wait += 1
                 if cnt_wait == patience:
-                    print('-' * 100)
-                    print('Early stopping at ' + str(epoch) + ' epoch!')
+                    logger.info('-' * 100)
+                    logger.info('Early stopping at ' + str(epoch) + ' epoch!')
                     break
-            print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
+            logger.info("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
 
-        print('Begin to evaluate')
+        logger.info('Begin to evaluate')
 
         if self.prompt_type == 'None':
             test_acc, f1, roc, prc = get_strategy('None')().evaluate(self._none_ctx(), test_loader)
@@ -292,7 +296,7 @@ class GraphTask(BaseTask):
         elif self.prompt_type == 'Gprompt':
             test_acc, f1, roc, prc = gprompt_strategy.evaluate(self._gprompt_ctx(), test_loader)
 
-        print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}")
+        logger.info(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}")
 
         return test_acc, f1, roc, prc, loss
 
@@ -369,9 +373,9 @@ class GraphTask(BaseTask):
             batch_best_loss = []
             for i in range(1, 6):
                 idx_train = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
-                print('idx_train', idx_train)
+                logger.debug(f'idx_train {idx_train}')
                 train_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
-                print("true", i, train_lbls)
+                logger.debug(f"true {i} {train_lbls}")
 
                 idx_test = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).to(self.device)
                 test_lbls = torch.load("./Experiment/sample_data/Graph/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().to(self.device)
@@ -394,7 +398,7 @@ class GraphTask(BaseTask):
 
                 train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
                 test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
-                print("prepare data is finished!")
+                logger.info("prepare data is finished!")
 
                 test_acc, f1, roc, prc, loss = self._run_for_split(
                     train_dataset, test_dataset, train_loader, test_loader,
@@ -406,7 +410,7 @@ class GraphTask(BaseTask):
 
                 if not math.isnan(loss):
                     batch_best_loss.append(loss)
-                print("best_loss", batch_best_loss)
+                logger.info(f"best_loss {batch_best_loss}")
                 test_accs.append(test_acc)
                 f1s.append(f1)
                 rocs.append(roc)
@@ -425,7 +429,7 @@ class GraphTask(BaseTask):
             print(" Final best | AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc))
             print(" Final best | AUPRC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc))
 
-            print(self.pre_train_type, self.gnn_type, self.prompt_type, " Graph Task completed")
+            logger.info(f"{self.pre_train_type} {self.gnn_type} {self.prompt_type}  Graph Task completed")
             mean_best = np.mean(batch_best_loss)
 
             return mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc
@@ -435,7 +439,7 @@ class GraphTask(BaseTask):
 
             train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
             test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
-            print("prepare data is finished!")
+            logger.info("prepare data is finished!")
 
             if self.prompt_type == 'All-in-one':
                 # self.answer_epoch = 5 MUTAG Graph MAE / GraphCL
@@ -452,6 +456,6 @@ class GraphTask(BaseTask):
                 prompt_epoch=getattr(self, 'prompt_epoch', 50),
             )
 
-            print(self.pre_train_type, self.gnn_type, self.prompt_type, " Graph Task completed")
+            logger.info(f"{self.pre_train_type} {self.gnn_type} {self.prompt_type}  Graph Task completed")
 
             return test_acc, f1, roc, prc
