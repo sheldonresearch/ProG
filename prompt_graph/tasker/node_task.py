@@ -15,7 +15,11 @@ from prompt_graph.evaluation import GpromptEva, AllInOneEva
 import pickle
 import os
 from prompt_graph.utils import process
+from prompt_graph.utils import get_logger
 warnings.filterwarnings("ignore")
+
+logger = get_logger(__name__)
+
 
 class NodeTask(BaseTask):
     def __init__(self, data, input_dim, output_dim, task_num = 5, graphs_list = None, *args, **kwargs):
@@ -48,21 +52,21 @@ class NodeTask(BaseTask):
                 if not os.path.exists(folder):
                     os.makedirs(folder)
                     node_sample_and_save(self.data, k, folder, self.output_dim)
-                    print(str(k) + ' shot ' + str(i) + ' th is saved!!')
+                    logger.info(str(k) + ' shot ' + str(i) + ' th is saved!!')
 
     def load_multigprompt_data(self):
         adj, features, labels = process.load_data(self.dataset_name)
         # adj, features, labels = process.load_data(self.dataset_name)  
         self.input_dim = features.shape[1]
         self.output_dim = labels.shape[1]
-        print('a',self.output_dim)
+        logger.debug(f'a {self.output_dim}')
         features, _ = process.preprocess_features(features)
         self.sp_adj = process.sparse_mx_to_torch_sparse_tensor(adj).to(self.device)
         self.labels = torch.FloatTensor(labels[np.newaxis])
         self.features = torch.FloatTensor(features[np.newaxis]).to(self.device)
         # print("labels",labels)
-        print("adj",self.sp_adj.shape)
-        print("feature",features.shape)
+        logger.debug(f"adj {self.sp_adj.shape}")
+        logger.debug(f"feature {features.shape}")
 
     def load_induced_graph(self):
         smallest_size = 5  # 默认为5
@@ -83,7 +87,7 @@ class NodeTask(BaseTask):
             with open(file_path, 'rb') as f:
                 graphs_list = pickle.load(f)
         else:
-            print('Begin split_induced_graphs.')
+            logger.info('Begin split_induced_graphs.')
             split_induced_graphs(
                 self.data, folder_path, self.device,
                 smallest_size=smallest_size, largest_size=300,
@@ -175,14 +179,14 @@ class NodeTask(BaseTask):
         self.gnn.eval()
         for epoch in range(1, answer_epoch + 1):
             answer_loss = self.prompt.Tune(train_loader, self.gnn,  self.answering, self.criterion, self.answer_opi, self.device)
-            print(("frozen gnn | frozen prompt | *tune answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, answer_loss)))
+            logger.info(("frozen gnn | frozen prompt | *tune answering function... {}/{} ,loss: {:.4f} ".format(epoch, answer_epoch, answer_loss)))
 
         # tune prompt
         self.answering.eval()
         self.prompt.train()
         for epoch in range(1, prompt_epoch + 1):
             pg_loss = self.prompt.Tune( train_loader,  self.gnn, self.answering, self.criterion, self.pg_opi, self.device)
-            print(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, prompt_epoch, pg_loss)))
+            logger.info(("frozen gnn | *tune prompt |frozen answering function... {}/{} ,loss: {:.4f} ".format(epoch, prompt_epoch, pg_loss)))
             
         # return pg_loss
         return answer_loss
@@ -305,7 +309,7 @@ class NodeTask(BaseTask):
             sample_data_foler_path = "./Experiment/sample_data/Node/{}/{}_shot/{}".format(self.dataset_name, self.shot_num, i)
 
             if not os.path.exists(sample_data_foler_path):
-                print(f"Warning! Failed to find sample_data for shot {self.shot_num}, id {i}, path: {sample_data_foler_path}, skipping...")
+                logger.warning(f"Failed to find sample_data for shot {self.shot_num}, id {i}, path: {sample_data_foler_path}, skipping...")
                 continue
 
 
@@ -318,9 +322,9 @@ class NodeTask(BaseTask):
 
 
             idx_train = torch.load(f"{sample_data_foler_path}/train_idx.pt").type(torch.long).to(self.device)
-            print('idx_train',idx_train)
+            logger.debug(f'idx_train {idx_train}')
             train_lbls = torch.load(f"{sample_data_foler_path}/train_labels.pt").type(torch.long).squeeze().to(self.device)
-            print("true",i,train_lbls)
+            logger.debug(f"true {i} {train_lbls}")
             idx_test = torch.load(f"{sample_data_foler_path}/test_idx.pt").type(torch.long).to(self.device)
             test_lbls = torch.load(f"{sample_data_foler_path}/test_labels.pt").type(torch.long).squeeze().to(self.device)
 
@@ -334,13 +338,13 @@ class NodeTask(BaseTask):
                 train_graphs = []
                 test_graphs = []
                 # self.graphs_list.to(self.device)
-                print('distinguishing the train dataset and test dataset...')
-                for graph in self.graphs_list:                              
+                logger.info('distinguishing the train dataset and test dataset...')
+                for graph in self.graphs_list:
                     if graph.index in idx_train:
                         train_graphs.append(graph)
                     elif graph.index in idx_test:
                         test_graphs.append(graph)
-                print('Done!!!')
+                logger.info('Done!!!')
 
                 train_dataset = GraphDataset(train_graphs)
                 test_dataset = GraphDataset(test_graphs)
@@ -348,7 +352,7 @@ class NodeTask(BaseTask):
                 # 创建数据加载器
                 train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
                 test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
-                print("prepare induced graph data is finished!")
+                logger.info("prepare induced graph data is finished!")
 
             if self.prompt_type == 'MultiGprompt':
                 embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
@@ -392,11 +396,11 @@ class NodeTask(BaseTask):
                 else:
                     cnt_wait += 1
                     if cnt_wait == patience:
-                        print('-' * 100)
-                        print('Early stopping at '+str(epoch) +' epoch!')
+                        logger.info('-' * 100)
+                        logger.info('Early stopping at ' + str(epoch) + ' epoch!')
                         break
-                        
-                print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
+
+                logger.info("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
             import math
             if not math.isnan(loss):
                 batch_best_loss.append(loss)
@@ -417,8 +421,8 @@ class NodeTask(BaseTask):
                         (test_lbls, idx_test),
                     )
 
-                print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}" )
-                print("best_loss",  batch_best_loss)     
+                logger.info(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}")
+                logger.info(f"best_loss {batch_best_loss}")
                                     
                 test_accs.append(test_acc)
                 f1s.append(f1)
@@ -433,13 +437,13 @@ class NodeTask(BaseTask):
         std_roc = np.std(rocs)   
         mean_prc = np.mean(prcs)
         std_prc = np.std(prcs)
-        print('Acc List', test_accs) # 输出所有测试的Acc结果
-        print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))   
-        print(" Final best | test F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1))   
-        print(" Final best | AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc))   
-        print(" Final best | AUPRC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc))   
+        logger.info(f'Acc List {test_accs}')  # 输出所有测试的Acc结果
+        print(" Final best | test Accuracy {:.4f}±{:.4f}(std)".format(mean_test_acc, std_test_acc))
+        print(" Final best | test F1 {:.4f}±{:.4f}(std)".format(mean_f1, std_f1))
+        print(" Final best | AUROC {:.4f}±{:.4f}(std)".format(mean_roc, std_roc))
+        print(" Final best | AUPRC {:.4f}±{:.4f}(std)".format(mean_prc, std_prc))
 
-        print(self.pre_train_type, self.gnn_type, self.prompt_type, "Node Task completed")
+        logger.info(f"{self.pre_train_type} {self.gnn_type} {self.prompt_type} Node Task completed")
         mean_best = np.mean(batch_best_loss)
 
         return  mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc

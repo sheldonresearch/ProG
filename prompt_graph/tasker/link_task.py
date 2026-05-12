@@ -5,6 +5,10 @@ import torch_geometric.transforms as T
 from torch_geometric.datasets import Planetoid
 from torch_geometric.utils import negative_sampling
 from .task import BaseTask
+from prompt_graph.utils import get_logger
+
+logger = get_logger(__name__)
+
 
 class LinkTask(BaseTask):
     def __init__(self, *args, **kwargs):
@@ -72,8 +76,8 @@ class LinkTask(BaseTask):
             if val_auc > best_val_auc:
                 best_val_auc = val_auc
                 final_test_auc = test_auc
-            print(f'Epoch: {epoch:03d}, Loss: {loss:.4f}, Val: {val_auc:.4f}, '
-                f'Test: {test_auc:.4f}')
+            logger.info(f'Epoch: {epoch:03d}, Loss: {loss:.4f}, Val: {val_auc:.4f}, '
+                        f'Test: {test_auc:.4f}')
 
         print(f'Final Test: {final_test_auc:.4f}')
 
