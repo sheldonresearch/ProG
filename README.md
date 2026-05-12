@@ -144,8 +144,25 @@ graphs, sample splits, Excel results, pre-trained checkpoints) are written under
 ## Quick Start
 The Architecture of ProG is shown as follows:
 
-<img height="350" src="/ProG_pipeline.jpg?sanitize=true" />
+<!-- ProG_pipeline.jpg has been removed from the working tree (see "Binary assets" note below). -->
+<!-- 架构图请从 Release Assets 下载，或在历史 commit 中 checkout 获取。 -->
 
+### Binary assets / 二进制资源说明
+
+以下二进制资源已从主仓库工作树移除（通过 `git rm`，**git 历史保留**，不重写历史）：
+
+- `Node.zip` (~646K)
+- `ProG_pipeline.jpg` (~519K, 原架构示意图)
+
+说明 / Notes:
+
+- 旧 commit 仍可 `git checkout <old-commit> -- Node.zip ProG_pipeline.jpg` 取回这些文件。
+- 如需获取最新版本，请从项目 Release Assets 下载，或联系维护者
+  (barristanzi666@gmail.com)。
+- 仓库总体积不会立即减小（因为 git 历史中仍保留这些 blob），但**新的
+  `git clone` / sparse checkout / shallow clone 不会再下载工作树中的这两个
+  文件**，新拉取的工作树体积也会更小。
+- 这两个文件也已写入 `.gitignore`，避免被意外重新加入。
 
 Firstly, download from onedrive https://1drv.ms/u/s!ArZGDth_ySjPjkW2n-zsF3_GGvC1?e=rEnBA7 (126MB)to get `Experiment.zip`.
 You can unzip to get our dataset pre-trained model which is already pre-trained, and induced graph, sample data in the few-shot setting. (Please make sure the unzipped folder's name is `/Experiment`.
