@@ -6,3 +6,4 @@ all bundled strategies into ``STRATEGY_REGISTRY``.
 """
 from . import none  # noqa: F401 -- import side-effect registers NoneStrategy
 from . import gpf  # noqa: F401 -- import side-effect registers GPFStrategy + GPFPlusStrategy
+from . import gprompt  # noqa: F401 -- import side-effect registers GpromptStrategy
