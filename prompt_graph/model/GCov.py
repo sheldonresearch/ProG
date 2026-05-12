@@ -1,16 +1,6 @@
-import torch as th
-import torch.nn as nn
+import torch
 import torch.nn.functional as F
-import sklearn.linear_model as lm
-import sklearn.metrics as skm
-import torch, gc
-from torch_geometric.utils import add_self_loops
-from torch_geometric.nn import global_add_pool, global_max_pool, GlobalAttention
-from torch_geometric.nn import global_mean_pool
-from torch_geometric.nn import GraphConv as GConv
-import numpy as np
-import sklearn.linear_model as lm
-import sklearn.metrics as skm
+from torch_geometric.nn import GraphConv as GConv, global_add_pool, global_max_pool, global_mean_pool
 from prompt_graph.utils import act
 
 
