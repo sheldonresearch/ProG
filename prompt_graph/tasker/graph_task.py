@@ -218,20 +218,6 @@ class GraphTask(BaseTask):
                 if self.prompt_type == 'GPPT':
                     # initialize the GPPT hyperparametes via graph data
                     if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
-                        # total_num_nodes = sum([data.num_nodes for data in train_dataset])
-                        # train_node_ids = torch.arange(0,total_num_nodes).squeeze().to(self.device)
-                        # self.gppt_loader = DataLoader(processed_dataset, batch_size=1, shuffle=True)
-                        # for i, batch in enumerate(self.gppt_loader):
-                        #     if(i==0):
-                        #         node_for_graph_labels = torch.full((1,batch.x.shape[0]), batch.y.item())
-                        #     else:                   
-                        #         node_for_graph_labels = torch.concat([node_for_graph_labels,torch.full((1,batch.x.shape[0]), batch.y.item())],dim=1)
-                        
-                        # node_embedding = self.gnn(processed_dataset.x.to(self.device), processed_dataset.edge_index.to(self.device))
-                        # node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)             
-                        # self.prompt.weigth_init(node_embedding,processed_dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
-
-                        # test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
                         total_num_nodes = sum([data.num_nodes for data in train_dataset])
                         train_node_ids = torch.arange(0,total_num_nodes).squeeze().to(self.device)
@@ -245,7 +231,7 @@ class GraphTask(BaseTask):
                                 node_embedding = torch.concat([node_embedding,self.gnn(batch.x.to(self.device), batch.edge_index.to(self.device))],dim=0)
                         
                         node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)
-                        self.prompt.weigth_init(node_embedding,processed_dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
+                        self.prompt.weight_init(node_embedding,processed_dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
 
                         test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)                    
                     else:
@@ -267,21 +253,10 @@ class GraphTask(BaseTask):
                         
                         node_embedding = self.gnn(self.dataset.x.to(self.device), self.dataset.edge_index.to(self.device))
                         node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)
-                        self.prompt.weigth_init(node_embedding,self.dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
+                        self.prompt.weight_init(node_embedding,self.dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
 
                         test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
-                    # from torch_geometric.nn import global_mean_pool
-                    # self.gppt_pool = global_mean_pool
-                    # train_ids = torch.nonzero(idx_train, as_tuple=False).squeeze()
-                    # self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)          
-                    # for i, batch in enumerate(self.gppt_loader):
-                    #     batch.to(self.device)
-                    #     node_embedding = self.gnn(batch.x, batch.edge_index)
-                    #     if(i==0):
-                    #         graph_embedding = self.gppt_pool(node_embedding,batch.batch.long())
-                    #     else:
-                    #         graph_embedding = torch.concat([graph_embedding,self.gppt_pool(node_embedding,batch.batch.long())],dim=0)
                     
 
                 for epoch in range(1, self.epochs + 1):
@@ -307,13 +282,13 @@ class GraphTask(BaseTask):
                         cnt_wait += 1
                         if cnt_wait == patience:
                                 print('-' * 100)
-                                print('Early stopping at '+str(epoch) +' eopch!')
+                                print('Early stopping at '+str(epoch) +' epoch!')
                                 break
                     print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
                 import math
                 if not math.isnan(loss):
                     batch_best_loss.append(loss)
-                print('Bengin to evaluate')
+                print('Begin to evaluate')
                 
                 if self.prompt_type == 'None':
                     test_acc, f1, roc, prc = GNNGraphEva(test_loader, self.gnn, self.answering, self.output_dim, self.device)
@@ -376,20 +351,6 @@ class GraphTask(BaseTask):
             elif self.prompt_type == 'GPPT':
                 # initialize the GPPT hyperparametes via graph data
                 if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa']:
-                    # total_num_nodes = sum([data.num_nodes for data in train_dataset])
-                    # train_node_ids = torch.arange(0,total_num_nodes).squeeze().to(self.device)
-                    # self.gppt_loader = DataLoader(processed_dataset, batch_size=1, shuffle=True)
-                    # for i, batch in enumerate(self.gppt_loader):
-                    #     if(i==0):
-                    #         node_for_graph_labels = torch.full((1,batch.x.shape[0]), batch.y.item())
-                    #     else:                   
-                    #         node_for_graph_labels = torch.concat([node_for_graph_labels,torch.full((1,batch.x.shape[0]), batch.y.item())],dim=1)
-                    
-                    # node_embedding = self.gnn(processed_dataset.x.to(self.device), processed_dataset.edge_index.to(self.device))
-                    # node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)             
-                    # self.prompt.weigth_init(node_embedding,processed_dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
-
-                    # test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
                     total_num_nodes = sum([data.num_nodes for data in train_dataset])
                     train_node_ids = torch.arange(0,total_num_nodes).squeeze().to(self.device)
@@ -403,7 +364,7 @@ class GraphTask(BaseTask):
                             node_embedding = torch.concat([node_embedding,self.gnn(batch.x.to(self.device), batch.edge_index.to(self.device))],dim=0)
                     
                     node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)
-                    self.prompt.weigth_init(node_embedding,processed_dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
+                    self.prompt.weight_init(node_embedding,processed_dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
 
                     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)                    
                 else:
@@ -417,21 +378,10 @@ class GraphTask(BaseTask):
                     
                     node_embedding = self.gnn(self.dataset.x.to(self.device), self.dataset.edge_index.to(self.device))
                     node_for_graph_labels=node_for_graph_labels.reshape((-1)).to(self.device)             
-                    self.prompt.weigth_init(node_embedding,self.dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
+                    self.prompt.weight_init(node_embedding,self.dataset.edge_index.to(self.device), node_for_graph_labels, train_node_ids)
 
                     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
-                # from torch_geometric.nn import global_mean_pool
-                # self.gppt_pool = global_mean_pool
-                # train_ids = torch.nonzero(idx_train, as_tuple=False).squeeze()
-                # self.gppt_loader = DataLoader(self.dataset, batch_size=1, shuffle=True)          
-                # for i, batch in enumerate(self.gppt_loader):
-                #     batch.to(self.device)
-                #     node_embedding = self.gnn(batch.x, batch.edge_index)
-                #     if(i==0):
-                #         graph_embedding = self.gppt_pool(node_embedding,batch.batch.long())
-                #     else:
-                #         graph_embedding = torch.concat([graph_embedding,self.gppt_pool(node_embedding,batch.batch.long())],dim=0)
                 
 
             for epoch in range(1, self.epochs + 1):
@@ -457,11 +407,11 @@ class GraphTask(BaseTask):
                     cnt_wait += 1
                     if cnt_wait == patience:
                             print('-' * 100)
-                            print('Early stopping at '+str(epoch) +' eopch!')
+                            print('Early stopping at '+str(epoch) +' epoch!')
                             break
                 print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
 
-            print('Bengin to evaluate')
+            print('Begin to evaluate')
             
             if self.prompt_type == 'None':
                 test_acc, f1, roc, prc = GNNGraphEva(test_loader, self.gnn, self.answering, self.output_dim, self.device)

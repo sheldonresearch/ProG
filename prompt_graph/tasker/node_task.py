@@ -248,7 +248,7 @@ class NodeTask(BaseTask):
                   # GPPT prompt initialtion
                   if self.prompt_type == 'GPPT':
                         node_embedding = self.gnn(self.data.x, self.data.edge_index)
-                        self.prompt.weigth_init(node_embedding,self.data.edge_index, self.data.y, idx_train)
+                        self.prompt.weight_init(node_embedding,self.data.edge_index, self.data.y, idx_train)
 
                   
                   if self.prompt_type in ['Gprompt', 'All-in-one', 'GPF', 'GPF-plus']:
@@ -269,7 +269,7 @@ class NodeTask(BaseTask):
                         # 创建数据加载器
                         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
                         test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
-                        print("prepare induce graph data is finished!")
+                        print("prepare induced graph data is finished!")
 
                   if self.prompt_type == 'MultiGprompt':
                         embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
@@ -307,7 +307,7 @@ class NodeTask(BaseTask):
                               cnt_wait += 1
                               if cnt_wait == patience:
                                     print('-' * 100)
-                                    print('Early stopping at '+str(epoch) +' eopch!')
+                                    print('Early stopping at '+str(epoch) +' epoch!')
                                     break
                         
                         print("Epoch {:03d} |  Time(s) {:.4f} | Loss {:.4f}  ".format(epoch, time.time() - t0, loss))
@@ -356,80 +356,5 @@ class NodeTask(BaseTask):
 
             return  mean_best, mean_test_acc, std_test_acc, mean_f1, std_f1, mean_roc, std_roc, mean_prc, std_prc
 
-                  
-            # elif self.prompt_type != 'MultiGprompt':
-            #       # embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
-            #       embeds, _ = self.Preprompt.embed(self.features, self.sp_adj, True, None, False)
-
-                  
-            #       test_lbls = torch.argmax(self.labels[0, self.idx_test], dim=1).cuda()
-            #       tot = torch.zeros(1)
-            #       tot = tot.cuda()
-            #       accs = []
-            #       patience = 20
-            #       print('-' * 100)
-            #       cnt_wait = 0
-            #       for i in range(1,6):
-            #             # idx_train = torch.load("./data/fewshot_cora/{}-shot_cora/{}/idx.pt".format(self.shot_num,i)).type(torch.long).cuda()
-            #             # print('idx_train',idx_train)
-            #             # train_lbls = torch.load("./data/fewshot_cora/{}-shot_cora/{}/labels.pt".format(self.shot_num,i)).type(torch.long).squeeze().cuda()
-            #             # print("true",i,train_lbls)
-            #             self.dataset_name ='Cora'
-            #             idx_train = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
-            #             print('idx_train',idx_train)
-            #             train_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/train_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
-            #             print("true",i,train_lbls)
-
-            #             idx_test = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_idx.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).cuda()
-            #             test_lbls = torch.load("./Experiment/sample_data/Node/{}/{}_shot/{}/test_labels.pt".format(self.dataset_name, self.shot_num, i)).type(torch.long).squeeze().cuda()
-                        
-            #             test_embs = embeds[0, idx_test]
-            #             best = 1e9
-            #             pat_steps = 0
-            #             best_acc = torch.zeros(1)
-            #             best_acc = best_acc.cuda()
-            #             pretrain_embs = embeds[0, idx_train]
-            #             for _ in range(50):
-            #                   self.DownPrompt.train()
-            #                   self.optimizer.zero_grad()
-            #                   prompt_feature = self.feature_prompt(self.features)
-            #                   # prompt_feature = self.feature_prompt(self.data.x)
-            #                   # embeds1 = self.gnn(prompt_feature, self.data.edge_index)
-            #                   embeds1= self.Preprompt.gcn(prompt_feature, self.sp_adj , True, False)
-            #                   pretrain_embs1 = embeds1[0, idx_train]
-            #                   logits = self.DownPrompt(pretrain_embs,pretrain_embs1, train_lbls,1).float().cuda()
-            #                   loss = self.criterion(logits, train_lbls)
-            #                   if loss < best:
-            #                         best = loss
-            #                         cnt_wait = 0
-            #                   else:
-            #                         cnt_wait += 1
-            #                         if cnt_wait == patience:
-            #                               print('Early stopping at '+str(_) +' eopch!')
-            #                               break
-                              
-            #                   loss.backward(retain_graph=True)
-            #                   self.optimizer.step()
-
-            #             prompt_feature = self.feature_prompt(self.features)
-            #             embeds1, _ = self.Preprompt.embed(prompt_feature, self.sp_adj, True, None, False)
-            #             test_embs1 = embeds1[0, idx_test]
-            #             print('idx_test', idx_test)
-            #             logits = self.DownPrompt(test_embs, test_embs1, train_lbls)
-            #             preds = torch.argmax(logits, dim=1)
-            #             acc = torch.sum(preds == test_lbls).float() / test_lbls.shape[0]
-            #             accs.append(acc * 100)
-            #             print('acc:[{:.4f}]'.format(acc))
-            #             tot += acc
-
-            #       print('-' * 100)
-            #       print('Average accuracy:[{:.4f}]'.format(tot.item() / 10))
-            #       accs = torch.stack(accs)
-            #       print('Mean:[{:.4f}]'.format(accs.mean().item()))
-            #       print('Std :[{:.4f}]'.format(accs.std().item()))
-            #       print('-' * 100)
-                  
-            
-            # print("Node Task completed")
 
 
