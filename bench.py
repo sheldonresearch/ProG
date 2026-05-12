@@ -63,39 +63,33 @@ def do_config_bench(args:argparse.Namespace):
     seed_everything(args.seed)
     runtime_device = get_runtime_device(args.device)
 
-    param_grid = {
-        'learning_rate': 10 ** np.linspace(-3, -1, 1000),
-        'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-        # 'batch_size': np.linspace(32, 64, 32),
-        'batch_size': [32,64,128],
-    }
-    # if args.dataset_name in ['PubMed']:
-    #      param_grid = {
-    #     'learning_rate': 10 ** np.linspace(-3, -1, 1000),
-    #     'weight_decay':  10 ** np.linspace(-5, -6, 1000),
-    #     'batch_size': np.linspace(128, 512, 200),
-    #     }
-    if args.dataset_name in ['ogbn-arxiv','Flickr']:
-        # 大图数据集单 run 即可：random search 也只跑 1 次 (num_iter=1)，
-        # 用显式列表表达“这里没有 grid”，避免 np.linspace 退化成重复值。
+    # YAML/CLI override wins; otherwise fall back to dataset-specific defaults.
+    param_grid = getattr(args, 'param_grid', None)
+    if param_grid is None:
         param_grid = {
-            'learning_rate': [1e-2],
-            'weight_decay':  [1e-5],
-            'batch_size':    [512],
+            'learning_rate': 10 ** np.linspace(-3, -1, 1000),
+            'weight_decay':  10 ** np.linspace(-5, -6, 1000),
+            'batch_size': [32, 64, 128],
         }
+        if args.dataset_name in ['ogbn-arxiv', 'Flickr']:
+            # 大图数据集单 run 即可：random search 也只跑 1 次 (num_iter=1)，
+            # 用显式列表表达"这里没有 grid"，避免 np.linspace 退化成重复值。
+            param_grid = {
+                'learning_rate': [1e-2],
+                'weight_decay':  [1e-5],
+                'batch_size':    [512],
+            }
 
-
-    num_iter=10
     print('args.dataset_name', args.dataset_name)
 
-
-    # Define special num_iter cases
-    if args.prompt_type in['MultiGprompt','GPPT']:
-        print('num_iter = 1')
-        num_iter = 1
-    if args.dataset_name in ['ogbn-arxiv','Flickr']:
-        print('num_iter = 1')
-        num_iter = 1
+    num_iter = getattr(args, 'num_iter', None)
+    if num_iter is None:
+        num_iter = 10
+        # Define special num_iter cases
+        if args.prompt_type in ['MultiGprompt', 'GPPT']:
+            num_iter = 1
+        if args.dataset_name in ['ogbn-arxiv', 'Flickr']:
+            num_iter = 1
     best_params = {}
     best_loss = float('inf')
     final_acc_mean = 0
