@@ -1,13 +1,10 @@
 import torch
-import torch.nn.functional as F
 from torch_geometric.data import Batch, Data
-from prompt_graph.utils import act
+
 from prompt_graph.utils import get_logger
-from deprecated.sphinx import deprecated
-from sklearn.cluster import KMeans
-from torch_geometric.nn.inits import glorot
 
 logger = get_logger(__name__)
+
 
 class LightPrompt(torch.nn.Module):
     def __init__(self, token_dim, token_num_per_group, group_num=1, inner_prune=None):
@@ -22,26 +19,36 @@ class LightPrompt(torch.nn.Module):
         :param isolate_tokens: if Trure, then inner tokens have no connection.
         :param inner_prune: if inner_prune is not None, then cross prune adopt prune_thre whereas inner prune adopt inner_prune
         """
-        super(LightPrompt, self).__init__()
+        super().__init__()
 
         self.inner_prune = inner_prune
 
         self.token_list = torch.nn.ParameterList(
-            [torch.nn.Parameter(torch.empty(token_num_per_group, token_dim)) for i in range(group_num)])
+            [
+                torch.nn.Parameter(torch.empty(token_num_per_group, token_dim))
+                for i in range(group_num)
+            ]
+        )
 
         self.token_init(init_method="kaiming_uniform")
 
     def token_init(self, init_method="kaiming_uniform"):
         if init_method == "kaiming_uniform":
             for token in self.token_list:
-                torch.nn.init.kaiming_uniform_(token, nonlinearity='leaky_relu', mode='fan_in', a=0.01)
+                torch.nn.init.kaiming_uniform_(
+                    token, nonlinearity="leaky_relu", mode="fan_in", a=0.01
+                )
         else:
-            raise ValueError("only support kaiming_uniform init, more init methods will be included soon")
+            raise ValueError(
+                "only support kaiming_uniform init, more init methods will be included soon"
+            )
 
     def inner_structure_update(self):
         return self.token_view()
 
-    def token_view(self, ):
+    def token_view(
+        self,
+    ):
         """
         each token group is viewed as a prompt sub-graph.
         turn the all groups of tokens as a batch of prompt graphs.
@@ -61,9 +68,10 @@ class LightPrompt(torch.nn.Module):
         pg_batch = Batch.from_data_list(pg_list)
         return pg_batch
 
+
 class HeavyPrompt(LightPrompt):
     def __init__(self, token_dim, token_num, cross_prune=0.1, inner_prune=0.01):
-        super(HeavyPrompt, self).__init__(token_dim, token_num, 1, inner_prune)  # only has one prompt graph.
+        super().__init__(token_dim, token_num, 1, inner_prune)  # only has one prompt graph.
         self.cross_prune = cross_prune
 
     def forward(self, graph_batch: Batch):
@@ -74,7 +82,9 @@ class HeavyPrompt(LightPrompt):
         :return:
         """
 
-        pg = self.inner_structure_update()  # batch of prompt graph (currently only 1 prompt graph in the batch)
+        pg = (
+            self.inner_structure_update()
+        )  # batch of prompt graph (currently only 1 prompt graph in the batch)
 
         inner_edge_index = pg.edge_index
         token_num = pg.x.shape[0]
@@ -82,14 +92,14 @@ class HeavyPrompt(LightPrompt):
         re_graph_list = []
         for g in Batch.to_data_list(graph_batch):
             g_edge_index = g.edge_index + token_num
-            
+
             cross_dot = torch.mm(pg.x, torch.transpose(g.x, 0, 1))
             cross_sim = torch.sigmoid(cross_dot)  # 0-1 from prompt to input graph
             cross_adj = torch.where(cross_sim < self.cross_prune, 0, cross_sim)
-            
+
             cross_edge_index = cross_adj.nonzero().t().contiguous()
             cross_edge_index[1] = cross_edge_index[1] + token_num
-            
+
             x = torch.cat([pg.x, g.x], dim=0)
             y = g.y
 
@@ -99,12 +109,11 @@ class HeavyPrompt(LightPrompt):
 
         graphp_batch = Batch.from_data_list(re_graph_list)
         return graphp_batch
-    
 
     def Tune(self, train_loader, gnn, answering, lossfn, opi, device):
-        running_loss = 0.
-        for batch_id, train_batch in enumerate(train_loader): 
-            opi.zero_grad() 
+        running_loss = 0.0
+        for batch_id, train_batch in enumerate(train_loader):
+            opi.zero_grad()
             # print(train_batch)
             train_batch = train_batch.to(device)
             prompted_graph = self.forward(train_batch)
@@ -117,12 +126,12 @@ class HeavyPrompt(LightPrompt):
             opi.step()
             running_loss += train_loss.item()
 
-            logger.info(' batch {}/{} | loss: {:.8f}'.format( batch_id, len(train_loader), train_loss))
+            logger.info(f" batch {batch_id}/{len(train_loader)} | loss: {train_loss:.8f}")
 
         return running_loss / len(train_loader)
-    
+
     def TuneWithoutAnswering(self, train_loader, gnn, answering, lossfn, opi, device):
-        total_loss = 0.0 
+        total_loss = 0.0
         for batch in train_loader:
             self.optimizer.zero_grad()
             batch = batch.to(self.device)
@@ -136,23 +145,35 @@ class HeavyPrompt(LightPrompt):
             loss = lossfn(sim, batch.y)
             loss.backward()
             self.optimizer.step()
-            total_loss += loss.item()  
-        return total_loss / len(train_loader) 
+            total_loss += loss.item()
+        return total_loss / len(train_loader)
+
 
 class FrontAndHead(torch.nn.Module):
-    def __init__(self, input_dim, hid_dim=16, num_classes=2,
-                 task_type="multi_label_classification",
-                 token_num=10, cross_prune=0.1, inner_prune=0.3):
+    def __init__(
+        self,
+        input_dim,
+        hid_dim=16,
+        num_classes=2,
+        task_type="multi_label_classification",
+        token_num=10,
+        cross_prune=0.1,
+        inner_prune=0.3,
+    ):
 
         super().__init__()
 
-        self.PG = HeavyPrompt(token_dim=input_dim, token_num=token_num, cross_prune=cross_prune,
-                              inner_prune=inner_prune)
+        self.PG = HeavyPrompt(
+            token_dim=input_dim,
+            token_num=token_num,
+            cross_prune=cross_prune,
+            inner_prune=inner_prune,
+        )
 
-        if task_type == 'multi_label_classification':
+        if task_type == "multi_label_classification":
             self.answering = torch.nn.Sequential(
-                torch.nn.Linear(hid_dim, num_classes),
-                torch.nn.Softmax(dim=1))
+                torch.nn.Linear(hid_dim, num_classes), torch.nn.Softmax(dim=1)
+            )
         else:
             raise NotImplementedError
 
@@ -162,5 +183,3 @@ class FrontAndHead(torch.nn.Module):
         pre = self.answering(graph_emb)
 
         return pre
-
-

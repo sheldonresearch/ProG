@@ -27,20 +27,22 @@ from prompt_graph.utils import act
 
 def _make_gin_conv(in_dim: int, out_dim: int) -> nn.Module:
     """Closure used as the conv factory for GIN (matches the legacy lambda)."""
-    return GINConv(nn.Sequential(
-        nn.Linear(in_dim, out_dim),
-        nn.ReLU(),
-        nn.Linear(out_dim, out_dim),
-    ))
+    return GINConv(
+        nn.Sequential(
+            nn.Linear(in_dim, out_dim),
+            nn.ReLU(),
+            nn.Linear(out_dim, out_dim),
+        )
+    )
 
 
 _GNN_REGISTRY = {
-    'GCN': GCNConv,
-    'GAT': GATConv,
-    'GraphSAGE': SAGEConv,
-    'GIN': _make_gin_conv,
-    'GCov': PygGraphConv,
-    'GraphTransformer': TransformerConv,
+    "GCN": GCNConv,
+    "GAT": GATConv,
+    "GraphSAGE": SAGEConv,
+    "GIN": _make_gin_conv,
+    "GCov": PygGraphConv,
+    "GraphTransformer": TransformerConv,
 }
 
 
@@ -52,8 +54,17 @@ class GNN(torch.nn.Module):
     ``prompt_graph/model/GCN.py`` so behavior is byte-equivalent.
     """
 
-    def __init__(self, input_dim, hid_dim=None, out_dim=None, num_layer=3,
-                 JK="last", drop_ratio=0, pool='mean', conv_type='GCN'):
+    def __init__(
+        self,
+        input_dim,
+        hid_dim=None,
+        out_dim=None,
+        num_layer=3,
+        JK="last",
+        drop_ratio=0,
+        pool="mean",
+        conv_type="GCN",
+    ):
         super().__init__()
         """
         Args:
@@ -69,7 +80,7 @@ class GNN(torch.nn.Module):
         """
         if conv_type not in _GNN_REGISTRY:
             raise ValueError(
-                f'Unknown conv_type {conv_type!r}; expected one of {sorted(_GNN_REGISTRY)}'
+                f"Unknown conv_type {conv_type!r}; expected one of {sorted(_GNN_REGISTRY)}"
             )
         GraphConv = _GNN_REGISTRY[conv_type]
         self.conv_type = conv_type
@@ -79,9 +90,11 @@ class GNN(torch.nn.Module):
         if out_dim is None:
             out_dim = hid_dim
         if num_layer < 2:
-            raise ValueError('GNN layer_num should >=2 but you set {}'.format(num_layer))
+            raise ValueError(f"GNN layer_num should >=2 but you set {num_layer}")
         elif num_layer == 2:
-            self.conv_layers = torch.nn.ModuleList([GraphConv(input_dim, hid_dim), GraphConv(hid_dim, out_dim)])
+            self.conv_layers = torch.nn.ModuleList(
+                [GraphConv(input_dim, hid_dim), GraphConv(hid_dim, out_dim)]
+            )
         else:
             layers = [GraphConv(input_dim, hid_dim)]
             for i in range(num_layer - 2):
@@ -118,10 +131,10 @@ class GNN(torch.nn.Module):
             h_list = [h.unsqueeze_(0) for h in h_list]
             node_emb = torch.sum(torch.cat(h_list[1:], dim=0), dim=0)[0]
 
-        if batch == None:
+        if batch is None:
             return node_emb
         else:
-            if prompt_type == 'Gprompt':
+            if prompt_type == "Gprompt":
                 node_emb = prompt(node_emb)
             graph_emb = self.pool(node_emb, batch.long())
             return graph_emb

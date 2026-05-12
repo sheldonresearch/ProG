@@ -1,25 +1,24 @@
-from ..defines import GRAPH_TASKS, NODE_TASKS
-from .base import PreTrain
-from torch_geometric.data import Data, Batch
-from torch_geometric.loader import DataLoader
-from torch_geometric.nn.inits import reset, uniform
-from torch.optim import Adam
+import copy
+import os
+import time
+
+import numpy as np
 import torch
 from torch import nn
-import time
-from prompt_graph.utils import generate_corrupted_graph
-from prompt_graph.data import load4node, load4graph, NodePretrain
+from torch.optim import Adam
+
+from prompt_graph.data import load4graph, load4node
 from prompt_graph.utils import get_logger
-import os
-import numpy as np
-import copy
+
+from ..defines import GRAPH_TASKS, NODE_TASKS
+from .base import PreTrain
 
 logger = get_logger(__name__)
 
 
 class Discriminator(nn.Module):
     def __init__(self, n_h):
-        super(Discriminator, self).__init__()
+        super().__init__()
         self.f_k = nn.Bilinear(n_h, n_h, 1)
 
         for m in self.modules():
@@ -49,26 +48,30 @@ class Discriminator(nn.Module):
 
 
 class DGI(PreTrain):
-    def __init__(self, *args, **kwargs):    # hid_dim=16
+    def __init__(self, *args, **kwargs):  # hid_dim=16
         super().__init__(*args, **kwargs)
-        
-      
+
         self.disc = Discriminator(self.hid_dim).to(self.device)
         self.loss_fn = nn.BCEWithLogitsLoss()
         self.graph_data = self.load_data()
-        self.initialize_gnn(self.input_dim, self.hid_dim)  
-        self.optimizer = Adam(self.gnn.parameters(), lr=0.001, weight_decay = 0.0)
+        self.initialize_gnn(self.input_dim, self.hid_dim)
+        self.optimizer = Adam(self.gnn.parameters(), lr=0.001, weight_decay=0.0)
 
     def load_data(self):
         if self.dataset_name in NODE_TASKS:
             data, input_dim, _ = load4node(self.dataset_name)
             self.input_dim = input_dim
         elif self.dataset_name in GRAPH_TASKS:
-            input_dim, _, graph_list= load4graph(self.dataset_name,pretrained=True) # need graph list not dataset object, so the pretrained = True
+            input_dim, _, graph_list = load4graph(
+                self.dataset_name, pretrained=True
+            )  # need graph list not dataset object, so the pretrained = True
             self.input_dim = input_dim
 
             from torch_geometric import loader
-            self.batch_dataloader = loader.DataLoader(graph_list,batch_size=512,shuffle=False, num_workers=self.num_workers)
+
+            self.batch_dataloader = loader.DataLoader(
+                graph_list, batch_size=512, shuffle=False, num_workers=self.num_workers
+            )
 
             data = graph_list
 
@@ -103,7 +106,7 @@ class DGI(PreTrain):
             loss.backward()
             self.optimizer.step()
 
-            accum_loss = float(loss.detach().cpu().item())            
+            accum_loss = float(loss.detach().cpu().item())
         elif self.dataset_name in GRAPH_TASKS:
             accum_loss = torch.tensor(0.0)
             for batch_id, batch_graph in enumerate(self.batch_dataloader):
@@ -117,7 +120,7 @@ class DGI(PreTrain):
 
                 pos_z = self.gnn(graph_original.x, graph_original.edge_index)
                 neg_z = self.gnn(graph_corrupted.x, graph_corrupted.edge_index)
-        
+
                 s = torch.sigmoid(torch.mean(pos_z, dim=0)).to(device)
 
                 logits = self.disc(s, pos_z, neg_z)
@@ -131,12 +134,10 @@ class DGI(PreTrain):
                 self.optimizer.step()
 
                 accum_loss += float(loss.detach().cpu().item())
-          
-            accum_loss = accum_loss/(batch_id+1)
 
-        return accum_loss    
-            
+            accum_loss = accum_loss / (batch_id + 1)
 
+        return accum_loss
 
     def pretrain(self):
         train_loss_min = 1000000
@@ -147,8 +148,10 @@ class DGI(PreTrain):
             st_time = time.time()
             train_loss = self.pretrain_one_epoch()
 
-            logger.info(f"DGI [Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {train_loss:.5f} | "
-                  f"Cost Time {time.time() - st_time:.3}s")
+            logger.info(
+                f"DGI [Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {train_loss:.5f} | "
+                f"Cost Time {time.time() - st_time:.3}s"
+            )
 
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
@@ -156,14 +159,21 @@ class DGI(PreTrain):
             else:
                 cnt_wait += 1
                 if cnt_wait == patience:
-                    logger.info('-' * 100)
-                    logger.info('Early stopping at '+str(epoch) +' epoch!')
+                    logger.info("-" * 100)
+                    logger.info("Early stopping at " + str(epoch) + " epoch!")
                     break
-
 
         folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
-        torch.save(self.gnn.state_dict(),
-                    "{}/{}.{}.{}.pth".format(folder_path, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
-        logger.info("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+        torch.save(
+            self.gnn.state_dict(),
+            "{}/{}.{}.{}.pth".format(
+                folder_path, "DGI", self.gnn_type, str(self.hid_dim) + "hidden_dim"
+            ),
+        )
+        logger.info(
+            "+++model saved ! {}/{}.{}.{}.pth".format(
+                self.dataset_name, "DGI", self.gnn_type, str(self.hid_dim) + "hidden_dim"
+            )
+        )

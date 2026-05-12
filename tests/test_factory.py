@@ -1,14 +1,14 @@
 """Smoke tests for GNN model factory."""
+
 import pytest
 import torch
 
 from prompt_graph.model import GAT, GCN, GIN, GCov, GraphSAGE, GraphTransformer
 
-
 GNN_CLASSES = [GCN, GAT, GraphSAGE, GIN, GCov, GraphTransformer]
 
 
-@pytest.mark.parametrize('cls', GNN_CLASSES)
+@pytest.mark.parametrize("cls", GNN_CLASSES)
 def test_gnn_instantiates(cls):
     """Each GNN backbone should construct without raising."""
     model = cls(input_dim=10, hid_dim=16, num_layer=2)

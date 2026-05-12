@@ -14,6 +14,7 @@ they depend on the few-shot folding logic. The strategy reads
 ``ctx.extra['task_type']`` to switch between node- and graph-level
 training.
 """
+
 from __future__ import annotations
 
 import torch
@@ -24,20 +25,20 @@ from prompt_graph.utils import constraint
 from ..strategy import PromptStrategy, TaskContext, register_strategy
 
 
-@register_strategy('GPPT')
+@register_strategy("GPPT")
 class GPPTStrategy(PromptStrategy):
     """GPPT prompt-tuning train/eval (NodeTask + GraphTask)."""
 
     def train_epoch(self, ctx: TaskContext, loader_or_data) -> float:
-        task_type = ctx.extra.get('task_type', 'NodeTask')
-        if task_type == 'NodeTask':
+        task_type = ctx.extra.get("task_type", "NodeTask")
+        if task_type == "NodeTask":
             data, train_idx = loader_or_data
             return self._train_node(ctx, data, train_idx)
         return self._train_graph(ctx, loader_or_data)
 
     def evaluate(self, ctx: TaskContext, loader_or_data) -> tuple:
-        task_type = ctx.extra.get('task_type', 'NodeTask')
-        if task_type == 'NodeTask':
+        task_type = ctx.extra.get("task_type", "NodeTask")
+        if task_type == "NodeTask":
             data, idx_test = loader_or_data
             return GPPTEva(data, idx_test, ctx.gnn, ctx.prompt, ctx.output_dim, ctx.device)
         test_loader = loader_or_data
@@ -70,11 +71,16 @@ class GPPTStrategy(PromptStrategy):
                 out = ctx.prompt(node_embedding, graph.edge_index)
                 loss = ctx.criterion(
                     out,
-                    torch.full((1, graph.x.shape[0]), graph.y.item())
-                    .reshape(-1).to(ctx.device),
+                    torch.full((1, graph.x.shape[0]), graph.y.item()).reshape(-1).to(ctx.device),
                 )
-                temp_loss = temp_loss + loss + 0.001 * constraint(
-                    ctx.device, ctx.prompt.get_TaskToken(),
+                temp_loss = (
+                    temp_loss
+                    + loss
+                    + 0.001
+                    * constraint(
+                        ctx.device,
+                        ctx.prompt.get_TaskToken(),
+                    )
                 )
             temp_loss = temp_loss / (index + 1)
             ctx.pg_opi.zero_grad()

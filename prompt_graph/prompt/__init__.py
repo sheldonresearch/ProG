@@ -1,11 +1,49 @@
+from .AllInOnePrompt import FrontAndHead, HeavyPrompt, LightPrompt
 from .GPF import GPF, GPF_plus
 from .GPPTPrompt import GPPTPrompt
-from .AllInOnePrompt import HeavyPrompt, FrontAndHead, LightPrompt
 from .GPrompt import Gprompt
+from .MultiGprompt import (
+    DGI,
+    AvgReadout,
+    DGIprompt,
+    Discriminator,
+    GcnLayers,
+    GraphCL,
+    GraphCLprompt,
+    LogReg,
+    Lp,
+    Lpprompt,
+    downprompt,
+    downstreamprompt,
+    featureprompt,
+    weighted_feature,
+    weighted_prompt,
+)
 from .SUPT import DiffPoolPrompt, SAGPoolPrompt
-from .MultiGprompt import downprompt, DGI, GraphCL, Lp
-from .MultiGprompt import AvgReadout, Discriminator, LogReg
-from .MultiGprompt import Lpprompt, DGIprompt, GraphCLprompt
-from .MultiGprompt import weighted_feature, weighted_prompt, downstreamprompt, featureprompt, GcnLayers
 
-
+__all__ = [
+    "DGI",
+    "AvgReadout",
+    "DGIprompt",
+    "DiffPoolPrompt",
+    "Discriminator",
+    "FrontAndHead",
+    "GPF",
+    "GPF_plus",
+    "GPPTPrompt",
+    "GcnLayers",
+    "Gprompt",
+    "GraphCL",
+    "GraphCLprompt",
+    "HeavyPrompt",
+    "LightPrompt",
+    "LogReg",
+    "Lp",
+    "Lpprompt",
+    "SAGPoolPrompt",
+    "downprompt",
+    "downstreamprompt",
+    "featureprompt",
+    "weighted_feature",
+    "weighted_prompt",
+]

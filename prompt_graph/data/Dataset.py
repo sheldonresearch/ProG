@@ -1,5 +1,5 @@
-from torch_geometric.data import Dataset, Data
-from torch_geometric.loader import DataLoader
+from torch_geometric.data import Dataset
+
 
 class GraphDataset(Dataset):
     def __init__(self, graphs):
@@ -7,7 +7,7 @@ class GraphDataset(Dataset):
         初始化 GraphDataset
         :param graphs: 包含图对象的列表
         """
-        super(GraphDataset, self).__init__()
+        super().__init__()
         self.graphs = graphs
 
     def len(self):

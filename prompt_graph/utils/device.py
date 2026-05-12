@@ -7,12 +7,12 @@ Note: the previous ``PROG_USE_MPS=1`` environment-variable gate has been
 removed in favor of an explicit ``--device mps`` CLI argument. To use Apple
 Silicon GPUs, pass ``--device mps`` directly instead of toggling an env var.
 """
+
 from __future__ import annotations
 
 from typing import Union
 
 import torch
-
 
 DeviceSpec = Union[int, str, torch.device, None]
 

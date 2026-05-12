@@ -13,24 +13,25 @@
                              历史版本将 OGB 数据下载到 ``./dataset``, 升级后请
                              通过此变量指回旧目录, 否则会重新下载。
 """
+
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]   # ProG/
+REPO_ROOT = Path(__file__).resolve().parents[2]  # ProG/
 
 
 def _env_or_default(env_var: str, default: Path) -> Path:
     return Path(os.environ.get(env_var, default))
 
 
-DATA_ROOT = _env_or_default('PROG_DATA_ROOT', REPO_ROOT / 'data')
-EXPERIMENT_ROOT = _env_or_default('PROG_EXPERIMENT_ROOT', REPO_ROOT / 'Experiment')
+DATA_ROOT = _env_or_default("PROG_DATA_ROOT", REPO_ROOT / "data")
+EXPERIMENT_ROOT = _env_or_default("PROG_EXPERIMENT_ROOT", REPO_ROOT / "Experiment")
 
 
 def induced_graph_dir(dataset_name: str) -> Path:
-    return EXPERIMENT_ROOT / 'induced_graph' / dataset_name
+    return EXPERIMENT_ROOT / "induced_graph" / dataset_name
 
 
 def sample_dir(task_type: str, shot_num: int, dataset_name: str) -> Path:
@@ -38,19 +39,19 @@ def sample_dir(task_type: str, shot_num: int, dataset_name: str) -> Path:
 
     ``task_type`` 取值为 ``'Node'`` 或 ``'Graph'``。
     """
-    return EXPERIMENT_ROOT / 'sample_data' / task_type / dataset_name / f'{shot_num}_shot'
+    return EXPERIMENT_ROOT / "sample_data" / task_type / dataset_name / f"{shot_num}_shot"
 
 
 def excel_result_dir(task_type: str, shot_num: int, dataset_name: str) -> Path:
-    return EXPERIMENT_ROOT / 'ExcelResults' / task_type / f'{shot_num}shot' / dataset_name
+    return EXPERIMENT_ROOT / "ExcelResults" / task_type / f"{shot_num}shot" / dataset_name
 
 
 def pretrained_model_dir(dataset_name: str) -> Path:
-    return EXPERIMENT_ROOT / 'pre_trained_model' / dataset_name
+    return EXPERIMENT_ROOT / "pre_trained_model" / dataset_name
 
 
 def tudataset_root() -> Path:
-    return DATA_ROOT / 'TUDataset'
+    return DATA_ROOT / "TUDataset"
 
 
 def ogb_dataset_root() -> Path:
@@ -58,11 +59,11 @@ def ogb_dataset_root() -> Path:
 
     旧版本默认 ``./dataset``; 如需沿用, 请设置 ``PROG_OGB_ROOT=./dataset``。
     """
-    override = os.environ.get('PROG_OGB_ROOT')
+    override = os.environ.get("PROG_OGB_ROOT")
     if override is not None:
         return Path(override)
-    return DATA_ROOT / 'OGB'
+    return DATA_ROOT / "OGB"
 
 
 def planetoid_root() -> Path:
-    return DATA_ROOT / 'Planetoid'
+    return DATA_ROOT / "Planetoid"

@@ -4,9 +4,12 @@ Each strategy encapsulates the train/eval logic for one ``prompt_type`` value
 (``'None'``, ``'GPF'``, ``'GPPT'``, etc.). Importing this package registers
 all bundled strategies into ``STRATEGY_REGISTRY``.
 """
-from . import none  # noqa: F401 -- import side-effect registers NoneStrategy
-from . import gpf  # noqa: F401 -- import side-effect registers GPFStrategy + GPFPlusStrategy
-from . import gprompt  # noqa: F401 -- import side-effect registers GpromptStrategy
-from . import all_in_one  # noqa: F401 -- import side-effect registers AllInOneStrategy
-from . import gppt  # noqa: F401 -- import side-effect registers GPPTStrategy
-from . import multi_gprompt  # noqa: F401 -- import side-effect registers MultiGpromptStrategy
+
+from . import (
+    all_in_one,  # noqa: F401 -- import side-effect registers AllInOneStrategy
+    gpf,  # noqa: F401 -- import side-effect registers GPFStrategy + GPFPlusStrategy
+    gppt,  # noqa: F401 -- import side-effect registers GPPTStrategy
+    gprompt,  # noqa: F401 -- import side-effect registers GpromptStrategy
+    multi_gprompt,  # noqa: F401 -- import side-effect registers MultiGpromptStrategy
+    none,  # noqa: F401 -- import side-effect registers NoneStrategy
+)

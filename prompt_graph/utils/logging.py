@@ -13,14 +13,14 @@ Usage:
     logger.info('training started')
     logger.warning('using mock dataset')
 """
+
 import logging
 import os
 import sys
 from typing import Optional
 
-
-_DEFAULT_FORMAT = '[%(asctime)s][%(levelname)s][%(name)s] %(message)s'
-_DEFAULT_DATEFMT = '%Y-%m-%d %H:%M:%S'
+_DEFAULT_FORMAT = "[%(asctime)s][%(levelname)s][%(name)s] %(message)s"
+_DEFAULT_DATEFMT = "%Y-%m-%d %H:%M:%S"
 
 _configured = False
 
@@ -34,8 +34,8 @@ def _configure_root_once() -> None:
     global _configured
     if _configured:
         return
-    root = logging.getLogger('prompt_graph')
-    level_name = os.environ.get('PROG_LOG_LEVEL', 'INFO').upper()
+    root = logging.getLogger("prompt_graph")
+    level_name = os.environ.get("PROG_LOG_LEVEL", "INFO").upper()
     root.setLevel(getattr(logging, level_name, logging.INFO))
     handler = logging.StreamHandler(stream=sys.stderr)
     handler.setFormatter(logging.Formatter(fmt=_DEFAULT_FORMAT, datefmt=_DEFAULT_DATEFMT))
@@ -51,8 +51,8 @@ def get_logger(name: str) -> logging.Logger:
     project logs share a parent and inherit configuration.
     """
     _configure_root_once()
-    if not name.startswith('prompt_graph'):
-        name = f'prompt_graph.{name}'
+    if not name.startswith("prompt_graph"):
+        name = f"prompt_graph.{name}"
     return logging.getLogger(name)
 
 
@@ -63,7 +63,7 @@ def apply_log_level(log_level: Optional[str], quiet: bool = False) -> None:
     this once after argparse. `quiet` overrides `log_level` and forces WARNING.
     """
     _configure_root_once()
-    root = logging.getLogger('prompt_graph')
+    root = logging.getLogger("prompt_graph")
     if quiet:
         root.setLevel(logging.WARNING)
         return

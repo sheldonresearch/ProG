@@ -5,9 +5,9 @@ Encapsulates the behaviour previously inlined in
 when ``prompt_type == 'None'``. A single class serves both node- and graph-level
 tasks; the task type is read from ``ctx.extra['task_type']``.
 """
+
 from __future__ import annotations
 
-import torch
 from torch import nn, optim
 
 from prompt_graph.evaluation import GNNGraphEva, GNNNodeEva
@@ -15,7 +15,7 @@ from prompt_graph.evaluation import GNNGraphEva, GNNNodeEva
 from ..strategy import PromptStrategy, TaskContext, register_strategy
 
 
-@register_strategy('None')
+@register_strategy("None")
 class NoneStrategy(PromptStrategy):
     """No-prompt baseline: train ``gnn + answering`` head end-to-end."""
 
@@ -29,8 +29,8 @@ class NoneStrategy(PromptStrategy):
 
     def configure_optimizer(self, ctx: TaskContext) -> None:
         """Adam over gnn + answering params; mirrors ``BaseTask.initialize_optimizer``."""
-        lr = ctx.extra.get('lr', 1e-3)
-        wd = ctx.extra.get('wd', 5e-4)
+        lr = ctx.extra.get("lr", 1e-3)
+        wd = ctx.extra.get("wd", 5e-4)
         param_groups = [
             {"params": ctx.gnn.parameters()},
             {"params": ctx.answering.parameters()},
@@ -38,21 +38,30 @@ class NoneStrategy(PromptStrategy):
         ctx.optimizer = optim.Adam(param_groups, lr=lr, weight_decay=wd)
 
     def train_epoch(self, ctx: TaskContext, loader_or_data) -> float:
-        task_type = ctx.extra.get('task_type', 'NodeTask')
-        if task_type == 'NodeTask':
+        task_type = ctx.extra.get("task_type", "NodeTask")
+        if task_type == "NodeTask":
             return self._train_node(ctx, loader_or_data)
         return self._train_graph(ctx, loader_or_data)
 
     def evaluate(self, ctx: TaskContext, loader_or_data) -> tuple:
-        task_type = ctx.extra.get('task_type', 'NodeTask')
-        if task_type == 'NodeTask':
+        task_type = ctx.extra.get("task_type", "NodeTask")
+        if task_type == "NodeTask":
             data, idx_test = loader_or_data
             return GNNNodeEva(
-                data, idx_test, ctx.gnn, ctx.answering, ctx.output_dim, ctx.device,
+                data,
+                idx_test,
+                ctx.gnn,
+                ctx.answering,
+                ctx.output_dim,
+                ctx.device,
             )
         test_loader = loader_or_data
         return GNNGraphEva(
-            test_loader, ctx.gnn, ctx.answering, ctx.output_dim, ctx.device,
+            test_loader,
+            ctx.gnn,
+            ctx.answering,
+            ctx.output_dim,
+            ctx.device,
         )
 
     # -- internal helpers -------------------------------------------------

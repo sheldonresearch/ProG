@@ -8,10 +8,11 @@ strategy classes are added in subsequent Phase 4 units and registered via
 
 See ``Docs/IMPROVEMENTS.md`` section 2.4 for the rationale.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, ClassVar, Protocol, Tuple
+from typing import Any, ClassVar, Protocol
 
 import torch
 
@@ -62,7 +63,7 @@ class PromptStrategy(Protocol):
         """Run one training epoch; return the mean loss."""
         ...
 
-    def evaluate(self, ctx: TaskContext, loader_or_data) -> Tuple[float, float, float, float]:
+    def evaluate(self, ctx: TaskContext, loader_or_data) -> tuple[float, float, float, float]:
         """Evaluate on the given loader/data; return ``(acc, f1, roc, prc)``."""
         ...
 
@@ -80,8 +81,7 @@ def register_strategy(name: str):
     def decorator(cls: type) -> type:
         if name in STRATEGY_REGISTRY:
             raise ValueError(
-                f"Strategy '{name}' is already registered to "
-                f"{STRATEGY_REGISTRY[name].__name__}"
+                f"Strategy '{name}' is already registered to {STRATEGY_REGISTRY[name].__name__}"
             )
         cls.name = name
         STRATEGY_REGISTRY[name] = cls
@@ -99,8 +99,5 @@ def get_strategy(name: str):
     try:
         return STRATEGY_REGISTRY[name]
     except KeyError:
-        available = sorted(STRATEGY_REGISTRY) or ['<none registered>']
-        raise KeyError(
-            f"No strategy registered under '{name}'. "
-            f"Available strategies: {available}"
-        )
+        available = sorted(STRATEGY_REGISTRY) or ["<none registered>"]
+        raise KeyError(f"No strategy registered under '{name}'. Available strategies: {available}")

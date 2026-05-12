@@ -64,9 +64,7 @@ def _build_parser():
         default=argparse.SUPPRESS,
         help="Number of epochs to train (default: 50)",
     )
-    parser.add_argument(
-        "--shot_num", type=int, default=argparse.SUPPRESS, help="Number of shots"
-    )
+    parser.add_argument("--shot_num", type=int, default=argparse.SUPPRESS, help="Number of shots")
     parser.add_argument(
         "--pre_train_model_path",
         type=str,

@@ -9,6 +9,6 @@ def mkdir(path):
     folder = os.path.exists(path)
     if not folder:
         os.makedirs(path)
-        logger.info("create folder {}".format(path))
+        logger.info(f"create folder {path}")
     else:
-        logger.info("folder exists! {}".format(path))
+        logger.info(f"folder exists! {path}")

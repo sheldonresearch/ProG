@@ -7,6 +7,7 @@ strategy instance across all ``train_epoch`` calls of a fold and the
 matching ``evaluate`` call, so ``self.mean_centers`` survives the
 train→eval transition.
 """
+
 from __future__ import annotations
 
 from prompt_graph.evaluation import GpromptEva
@@ -15,7 +16,7 @@ from prompt_graph.utils import Gprompt_tuning_loss, center_embedding
 from ..strategy import PromptStrategy, TaskContext, register_strategy
 
 
-@register_strategy('Gprompt')
+@register_strategy("Gprompt")
 class GpromptStrategy(PromptStrategy):
     """Center-prototype prompt; uses ``pg_opi`` for optimization."""
 
@@ -33,8 +34,11 @@ class GpromptStrategy(PromptStrategy):
             ctx.pg_opi.zero_grad()
             batch = batch.to(ctx.device)
             out = ctx.gnn(
-                batch.x, batch.edge_index, batch.batch,
-                prompt=ctx.prompt, prompt_type='Gprompt',
+                batch.x,
+                batch.edge_index,
+                batch.batch,
+                prompt=ctx.prompt,
+                prompt_type="Gprompt",
             )
             center, class_counts = center_embedding(out, batch.y, ctx.output_dim)
             if accumulated_centers is None:
@@ -53,6 +57,10 @@ class GpromptStrategy(PromptStrategy):
 
     def evaluate(self, ctx: TaskContext, test_loader) -> tuple:
         return GpromptEva(
-            test_loader, ctx.gnn, ctx.prompt,
-            self.mean_centers, ctx.output_dim, ctx.device,
+            test_loader,
+            ctx.gnn,
+            ctx.prompt,
+            self.mean_centers,
+            ctx.output_dim,
+            ctx.device,
         )

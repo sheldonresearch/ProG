@@ -6,6 +6,7 @@ share a single train/eval loop differing only in how ``prompt`` is built.
 
 Reads ``ctx.extra['input_dim']`` to construct the prompt module in ``setup``.
 """
+
 from __future__ import annotations
 
 from prompt_graph.evaluation import GPFEva
@@ -49,13 +50,13 @@ class _GPFBaseStrategy(PromptStrategy):
         )
 
 
-@register_strategy('GPF')
+@register_strategy("GPF")
 class GPFStrategy(_GPFBaseStrategy):
     def setup(self, ctx: TaskContext) -> None:
-        ctx.prompt = GPF(ctx.extra['input_dim']).to(ctx.device)
+        ctx.prompt = GPF(ctx.extra["input_dim"]).to(ctx.device)
 
 
-@register_strategy('GPF-plus')
+@register_strategy("GPF-plus")
 class GPFPlusStrategy(_GPFBaseStrategy):
     def setup(self, ctx: TaskContext) -> None:
-        ctx.prompt = GPF_plus(ctx.extra['input_dim'], 20).to(ctx.device)
+        ctx.prompt = GPF_plus(ctx.extra["input_dim"], 20).to(ctx.device)
