@@ -1,6 +1,10 @@
 import torch
 import torchmetrics
 
+from prompt_graph.utils import get_logger
+
+logger = get_logger(__name__)
+
 
 def MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, Preprompt, DownPrompt, sp_adj, num_class, device):
     Preprompt.eval()
@@ -16,7 +20,7 @@ def MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, Preprompt, D
     with torch.no_grad(): 
         embeds1, _ = Preprompt.embed(prompt_feature, sp_adj, True, None, False)
         test_embs1 = embeds1[0, idx_test]
-        print('idx_test', idx_test)
+        logger.debug('idx_test %s', idx_test)
         logits = DownPrompt(test_embs, test_embs1, test_lbls)
 
 

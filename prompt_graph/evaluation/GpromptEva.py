@@ -2,6 +2,11 @@ import torch.nn.functional as F
 import torchmetrics
 import torch
 from tqdm import tqdm
+from prompt_graph.utils import get_logger
+
+logger = get_logger(__name__)
+
+
 def GpromptEva(loader, gnn, prompt, center_embedding, num_class, device):
     prompt.eval()
     accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class).to(device)
@@ -24,7 +29,7 @@ def GpromptEva(loader, gnn, prompt, center_embedding, num_class, device):
             roc = auroc(similarity_matrix, batch.y)
             prc = auprc(similarity_matrix, batch.y)
             if len(loader) > 20:
-                print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
+                logger.info("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
 
             # print(acc)
     acc = accuracy.compute()
