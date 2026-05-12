@@ -268,6 +268,29 @@ class NodeTask(BaseTask):
             extra={'task_type': 'NodeTask'},
         )
 
+    def _multi_gprompt_ctx(self, pretrain_embs, test_embs):
+        """Build a TaskContext for the MultiGprompt strategy on this NodeTask.
+
+        ``pretrain_embs`` / ``test_embs`` are precomputed once per fold in
+        ``run`` because they depend on the fold-specific ``idx_train`` /
+        ``idx_test`` indices.
+        """
+        return TaskContext(
+            criterion=self.criterion, optimizer=self.optimizer,
+            device=self.device, hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={
+                'task_type': 'NodeTask',
+                'Preprompt': self.Preprompt,
+                'feature_prompt': self.feature_prompt,
+                'DownPrompt': self.DownPrompt,
+                'features': self.features,
+                'sp_adj': self.sp_adj,
+                'pretrain_embs': pretrain_embs,
+                'test_embs': test_embs,
+            },
+        )
+
     def run(self):
         test_accs = []
         f1s = []
@@ -355,7 +378,10 @@ class NodeTask(BaseTask):
                 elif self.prompt_type =='Gprompt':
                     loss = gprompt_strategy.train_epoch(self._gprompt_ctx(), train_loader)
                 elif self.prompt_type == 'MultiGprompt':
-                    loss = self.MultiGpromptTrain(pretrain_embs, train_lbls, idx_train)
+                    loss = get_strategy('MultiGprompt')().train_epoch(
+                        self._multi_gprompt_ctx(pretrain_embs, test_embs),
+                        (train_lbls, idx_train),
+                    )
 
 
                 if loss < best:
@@ -386,8 +412,10 @@ class NodeTask(BaseTask):
                 elif self.prompt_type =='Gprompt':
                     test_acc, f1, roc, prc = gprompt_strategy.evaluate(self._gprompt_ctx(), test_loader)
                 elif self.prompt_type == 'MultiGprompt':
-                    prompt_feature = self.feature_prompt(self.features)
-                    test_acc, f1, roc, prc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj, self.output_dim, self.device)
+                    test_acc, f1, roc, prc = get_strategy('MultiGprompt')().evaluate(
+                        self._multi_gprompt_ctx(pretrain_embs, test_embs),
+                        (test_lbls, idx_test),
+                    )
 
                 print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}" )
                 print("best_loss",  batch_best_loss)     
