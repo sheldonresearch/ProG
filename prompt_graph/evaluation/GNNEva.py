@@ -1,6 +1,11 @@
 import torchmetrics
 import torch
 from tqdm import tqdm
+from prompt_graph.utils import get_logger
+
+logger = get_logger(__name__)
+
+
 def GNNNodeEva(data, idx_test,  gnn, answering, num_class, device):
     gnn.eval()
     accuracy = torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_class).to(device)
@@ -48,7 +53,7 @@ def GNNGraphEva(loader, gnn, answering, num_class, device):
             roc = auroc(out, batch.y)
             prc = auprc(out, batch.y)
             if len(loader) > 20:
-                print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
+                logger.info("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
 
             # print(acc)
     acc = accuracy.compute()

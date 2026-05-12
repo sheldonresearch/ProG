@@ -1,6 +1,11 @@
 import torchmetrics
 import torch
 from tqdm import tqdm
+from prompt_graph.utils import get_logger
+
+logger = get_logger(__name__)
+
+
 def GPPTEva(data, idx_test, gnn, prompt, num_class, device):
     # gnn.eval()
     prompt.eval()
@@ -59,7 +64,7 @@ def GPPTGraphEva(loader, gnn, prompt, num_class, device):
             roc = auroc(average_out, batch.y)
             prc = auprc(average_out, batch.y)
             if len(loader) > 20:
-                print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
+                logger.info("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
 
     acc = accuracy.compute()
     ma_f1 = macro_f1.compute()

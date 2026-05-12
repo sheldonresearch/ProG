@@ -1,6 +1,11 @@
 import torchmetrics
 import torch
 from tqdm import tqdm
+from prompt_graph.utils import get_logger
+
+logger = get_logger(__name__)
+
+
 def AllInOneEva(loader, prompt, gnn, answering, num_class, device):
     prompt.eval()
     answering.eval()
@@ -28,7 +33,7 @@ def AllInOneEva(loader, prompt, gnn, answering, num_class, device):
             roc = auroc(pre, batch.y)
             prc = auprc(pre, batch.y)
             if len(loader) > 20:
-                print("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
+                logger.info("Batch {}/{} Acc: {:.4f} | Macro-F1: {:.4f}| AUROC: {:.4f}| AUPRC: {:.4f}".format(batch_id,len(loader), acc.item(), ma_f1.item(),roc.item(), prc.item()))
 
     acc = accuracy.compute()
     ma_f1 = macro_f1.compute()
