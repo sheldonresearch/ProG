@@ -225,6 +225,16 @@ class NodeTask(BaseTask):
             extra={'task_type': 'NodeTask'},
         )
 
+    def _gpf_ctx(self):
+        """Build a TaskContext for the GPF/GPF-plus strategy on this NodeTask."""
+        return TaskContext(
+            gnn=self.gnn, prompt=self.prompt, answering=self.answering,
+            criterion=self.criterion, optimizer=self.optimizer,
+            device=self.device, hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={'input_dim': self.input_dim},
+        )
+
     def run(self):
         test_accs = []
         f1s = []
@@ -304,7 +314,7 @@ class NodeTask(BaseTask):
                 elif self.prompt_type == 'All-in-one':
                     loss = self.AllInOneTrain(train_loader,self.answer_epoch,self.prompt_epoch)                           
                 elif self.prompt_type in ['GPF', 'GPF-plus']:
-                    loss = self.GPFTrain(train_loader)                                                          
+                    loss = get_strategy(self.prompt_type)().train_epoch(self._gpf_ctx(), train_loader)
                 elif self.prompt_type =='Gprompt':
                     loss, center = self.GpromptTrain(train_loader)
                 elif self.prompt_type == 'MultiGprompt':
@@ -335,7 +345,7 @@ class NodeTask(BaseTask):
                 elif self.prompt_type == 'All-in-one':
                     test_acc, f1, roc, prc = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)                                           
                 elif self.prompt_type in ['GPF', 'GPF-plus']:
-                    test_acc, f1, roc, prc = GPFEva(test_loader, self.gnn, self.prompt, self.answering, self.output_dim, self.device)                                                         
+                    test_acc, f1, roc, prc = get_strategy(self.prompt_type)().evaluate(self._gpf_ctx(), test_loader)
                 elif self.prompt_type =='Gprompt':
                     test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
                 elif self.prompt_type == 'MultiGprompt':
