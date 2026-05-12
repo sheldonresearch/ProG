@@ -1,8 +1,11 @@
 import os
 import torch
 from prompt_graph.model import build_gnn
-from prompt_graph.utils import resolve_device
+from prompt_graph.utils import resolve_device, get_logger
 from torch.optim import Adam
+
+logger = get_logger(__name__)
+
 
 class PreTrain(torch.nn.Module):
     def __init__(self, gnn_type='TransformerConv', dataset_name = 'Cora', input_dim=128, hid_dim = 128, gln = 2, num_epoch = 1000, device : int = 5, graph_list=None, num_workers=0):
@@ -21,7 +24,7 @@ class PreTrain(torch.nn.Module):
 
     def initialize_gnn(self, input_dim, hid_dim):
         self.gnn = build_gnn(self.gnn_type, input_dim, hid_dim, self.num_layer)
-        print(self.gnn)
+        logger.debug(self.gnn)
         self.gnn.to(self.device)
         self.optimizer = Adam(self.gnn.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
 

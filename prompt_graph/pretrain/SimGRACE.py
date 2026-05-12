@@ -5,11 +5,15 @@ from torch_geometric.loader import DataLoader
 from torch_geometric.data import Data
 from ..defines import NODE_TASKS
 from prompt_graph.utils import mkdir
+from prompt_graph.utils import get_logger
 from torch.optim import Adam
 from prompt_graph.data import load4node, load4graph, NodePretrain
 from copy import deepcopy
 from.base import PreTrain
 import os
+
+logger = get_logger(__name__)
+
 
 class SimGRACE(PreTrain):
 
@@ -95,7 +99,7 @@ class SimGRACE(PreTrain):
         if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa', 'DD']:
             batch_size = 512
         loader = self.get_loader(self.graph_list, batch_size)
-        print('start training {} | {} | {}...'.format(self.dataset_name, 'SimGRACE', self.gnn_type))
+        logger.info('start training {} | {} | {}...'.format(self.dataset_name, 'SimGRACE', self.gnn_type))
         optimizer = optim.Adam(self.gnn.parameters(), lr=lr, weight_decay=decay)
 
         train_loss_min = 1000000
@@ -105,7 +109,7 @@ class SimGRACE(PreTrain):
 
             train_loss = self.train_simgrace(loader, optimizer)
 
-            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, self.epochs, train_loss))
+            logger.info("***epoch: {}/{} | train_loss: {:.8}".format(epoch, self.epochs, train_loss))
 
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
@@ -113,14 +117,14 @@ class SimGRACE(PreTrain):
             else:
                 cnt_wait += 1
                 if cnt_wait == patience:
-                    print('-' * 100)
-                    print('Early stopping at '+str(epoch) +' epoch!')
+                    logger.info('-' * 100)
+                    logger.info('Early stopping at '+str(epoch) +' epoch!')
                     break
-            print(cnt_wait)
+            logger.info(cnt_wait)
 
         folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         torch.save(self.gnn.state_dict(),
                     "{}/{}.{}.{}.pth".format(folder_path, 'SimGRACE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
-        print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'SimGRACE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+        logger.info("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'SimGRACE', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))

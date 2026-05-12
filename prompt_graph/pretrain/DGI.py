@@ -9,9 +9,13 @@ from torch import nn
 import time
 from prompt_graph.utils import generate_corrupted_graph
 from prompt_graph.data import load4node, load4graph, NodePretrain
+from prompt_graph.utils import get_logger
 import os
 import numpy as np
 import copy
+
+logger = get_logger(__name__)
+
 
 class Discriminator(nn.Module):
     def __init__(self, n_h):
@@ -143,17 +147,17 @@ class DGI(PreTrain):
             st_time = time.time()
             train_loss = self.pretrain_one_epoch()
 
-            print(f"DGI [Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {train_loss:.5f} | "
+            logger.info(f"DGI [Pretrain] Epoch {epoch}/{self.epochs} | Train Loss {train_loss:.5f} | "
                   f"Cost Time {time.time() - st_time:.3}s")
-            
+
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
                 cnt_wait = 0
             else:
                 cnt_wait += 1
                 if cnt_wait == patience:
-                    print('-' * 100)
-                    print('Early stopping at '+str(epoch) +' epoch!')
+                    logger.info('-' * 100)
+                    logger.info('Early stopping at '+str(epoch) +' epoch!')
                     break
 
 
@@ -162,4 +166,4 @@ class DGI(PreTrain):
             os.makedirs(folder_path)
         torch.save(self.gnn.state_dict(),
                     "{}/{}.{}.{}.pth".format(folder_path, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
-        print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+        logger.info("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'DGI', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))

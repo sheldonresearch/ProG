@@ -6,10 +6,14 @@ from random import shuffle
 import random
 from ..defines import NODE_TASKS
 from prompt_graph.utils import mkdir, graph_views
+from prompt_graph.utils import get_logger
 from prompt_graph.data import load4node, load4graph, NodePretrain
 from torch.optim import Adam
 import os
 from.base import PreTrain
+
+logger = get_logger(__name__)
+
 
 class GraphCL(PreTrain):
     def __init__(self, *args, **kwargs):    # hid_dim=16
@@ -42,7 +46,7 @@ class GraphCL(PreTrain):
         if aug_ratio is None:
             aug_ratio = random.randint(1, 3) * 1.0 / 10  # 0.1,0.2,0.3
 
-        print("===graph views: {} and {} with aug_ratio: {}".format(aug1, aug2, aug_ratio))
+        logger.info("===graph views: {} and {} with aug_ratio: {}".format(aug1, aug2, aug_ratio))
 
         view_list_1 = []
         view_list_2 = []
@@ -105,7 +109,7 @@ class GraphCL(PreTrain):
         if self.dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY', 'ogbg-ppa', 'DD']:
             batch_size = 512
         loader1, loader2 = self.get_loader(self.graph_list, batch_size, aug1=aug1, aug2=aug2)
-        print('start training {} | {} | {}...'.format(self.dataset_name, 'GraphCL', self.gnn_type))
+        logger.info('start training {} | {} | {}...'.format(self.dataset_name, 'GraphCL', self.gnn_type))
         optimizer = Adam(self.parameters(), lr=lr, weight_decay=decay)
 
         train_loss_min = 1000000
@@ -114,7 +118,7 @@ class GraphCL(PreTrain):
         for epoch in range(1, self.epochs + 1):  # 1..100
             train_loss = self.train_graphcl(loader1, loader2, optimizer)
 
-            print("***epoch: {}/{} | train_loss: {:.8}".format(epoch, self.epochs, train_loss))
+            logger.info("***epoch: {}/{} | train_loss: {:.8}".format(epoch, self.epochs, train_loss))
 
             if train_loss_min > train_loss:
                 train_loss_min = train_loss
@@ -122,10 +126,10 @@ class GraphCL(PreTrain):
             else:
                 cnt_wait += 1
                 if cnt_wait == patience:
-                    print('-' * 100)
-                    print('Early stopping at '+str(epoch) +' epoch!')
+                    logger.info('-' * 100)
+                    logger.info('Early stopping at '+str(epoch) +' epoch!')
                     break
-            print(cnt_wait)
+            logger.info(cnt_wait)
 
         folder_path = f"./Experiment/pre_trained_model/{self.dataset_name}"
         if not os.path.exists(folder_path):
@@ -133,4 +137,4 @@ class GraphCL(PreTrain):
 
         torch.save(self.gnn.state_dict(),
                     "{}/{}.{}.{}.pth".format(folder_path, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
-        print("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
+        logger.info("+++model saved ! {}/{}.{}.{}.pth".format(self.dataset_name, 'GraphCL', self.gnn_type, str(self.hid_dim) + 'hidden_dim'))
