@@ -128,6 +128,19 @@ pip install torch_cluster  -f https://data.pyg.org/whl/torch-2.3.0+cu121.html
 ```
 the torch and cuda version  can refer to https://data.pyg.org/whl/  
 
+### Configurable paths
+
+All filesystem paths used by ProG are centralized in `prompt_graph/utils/paths.py`.
+By default datasets are read from `<repo>/data` and experiment artifacts (induced
+graphs, sample splits, Excel results, pre-trained checkpoints) are written under
+`<repo>/Experiment`. To relocate them without touching the code, set:
+
+- `PROG_DATA_ROOT` — overrides the data root (default: `<repo>/data`).
+- `PROG_EXPERIMENT_ROOT` — overrides the experiment root (default: `<repo>/Experiment`).
+- `PROG_OGB_ROOT` — overrides only the OGB download root (default: `<DATA_ROOT>/OGB`).
+  Set this to `./dataset` if you already downloaded OGB data with the previous
+  default and want to keep using it.
+
 ## Quick Start
 The Architecture of ProG is shown as follows:
 

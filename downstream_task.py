@@ -3,8 +3,8 @@ from prompt_graph.tasker import NodeTask, GraphTask
 from prompt_graph.utils import seed_everything
 from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
-from prompt_graph.utils import  get_args, resolve_device
-from prompt_graph.data import load4node,load4graph, split_induced_graphs, induced_graph_cache_path
+from prompt_graph.utils import get_args, resolve_device, induced_graph_dir
+from prompt_graph.data import load4node, load4graph, split_induced_graphs, induced_graph_cache_path
 import pickle
 import random
 import numpy as np
@@ -13,7 +13,7 @@ import pandas as pd
 
 def load_induced_graph(dataset_name, data, device):
 
-    folder_path = './Experiment/induced_graph/' + dataset_name
+    folder_path = str(induced_graph_dir(dataset_name))
     if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 

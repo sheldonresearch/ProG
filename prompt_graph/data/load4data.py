@@ -16,6 +16,7 @@ from ogb.nodeproppred import PygNodePropPredDataset
 from ogb.graphproppred import PygGraphPropPredDataset
 
 from ..defines import GRAPH_TASKS
+from ..utils.paths import tudataset_root, ogb_dataset_root
 
 
 _TORCH_LOAD_LOCK = threading.RLock()
@@ -145,7 +146,26 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         :obj:`batch`, which maps each node to its respective graph identifier.
         """
 
-    if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
+    if dataset_name in GRAPH_TASKS:
+        dataset = TUDataset(root=str(tudataset_root()), name=dataset_name, use_node_attr=True)  # use_node_attr=False时，节点属性为one-hot编码的节点类别
+        input_dim = dataset.num_features
+        out_dim = dataset.num_classes
+
+        torch.manual_seed(12345)
+        dataset = dataset.shuffle()
+        graph_list = [data for data in dataset]
+
+        if dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
+            graph_list = [g for g in graph_list]
+            node_degree_as_features(graph_list)
+            input_dim = graph_list[0].x.size(1)
+
+        if(pretrained==True):
+            return input_dim, out_dim, graph_list
+        else:
+            return input_dim, out_dim, dataset  # 统一下游任务返回参数的顺序
+
+    elif dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
         data_root = get_data_root()
         with ogb_torch_load_compat():
             dataset = PygGraphPropPredDataset(name=dataset_name, root=os.path.join(data_root, 'ogbg'))
@@ -168,26 +188,6 @@ def load4graph(dataset_name, shot_num= 10, num_parts=None, pretrained=False):
         else:
             return  input_dim, out_dim, dataset
 
-    if dataset_name in GRAPH_TASKS:
-        data_root = get_data_root()
-        dataset = TUDataset(root=os.path.join(data_root, 'TUDataset'), name=dataset_name, use_node_attr=True)  # use_node_attr=False时，节点属性为one-hot编码的节点类别
-        input_dim = dataset.num_features
-        out_dim = dataset.num_classes
-
-        torch.manual_seed(12345)
-        dataset = dataset.shuffle()
-        graph_list = [data for data in dataset]
-
-        if dataset_name in ['COLLAB', 'IMDB-BINARY', 'REDDIT-BINARY']:
-            graph_list = [g for g in graph_list]
-            node_degree_as_features(graph_list)
-            input_dim = graph_list[0].x.size(1)
-
-        if(pretrained==True):
-            return input_dim, out_dim, graph_list
-        else:
-            return input_dim, out_dim, dataset  # 统一下游任务返回参数的顺序
-        
     else:
         raise ValueError(f"Unsupported GraphTask on dataset: {dataset_name}.")
     
@@ -242,7 +242,7 @@ def load4node(dataname):
         out_dim = dataset.num_classes
     elif dataname in ['ENZYMES', 'PROTEINS']:
         # 实现TUDataset中两个multi graphs dataset的节点分类
-        dataset = TUDataset(root='data/TUDataset', name=dataname, use_node_attr=True)
+        dataset = TUDataset(root=str(tudataset_root()), name=dataname, use_node_attr=True)
         node_class = dataset.data.x[:,-3:]
         input_dim = dataset.num_node_features
         out_dim = dataset.num_node_labels
@@ -277,10 +277,10 @@ def load4link_prediction_single_graph(dataname, num_per_samples=1):
 
 def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
     if dataset_name in GRAPH_TASKS:
-        dataset = TUDataset(root='data/TUDataset', name=dataset_name, use_node_attr=True)
+        dataset = TUDataset(root=str(tudataset_root()), name=dataset_name, use_node_attr=True)
 
     if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
-        dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')
+        dataset = PygGraphPropPredDataset(name = dataset_name, root=str(ogb_dataset_root()))
     
     input_dim = dataset.num_features
     output_dim = 2 # link prediction的输出维度应该是2，0代表无边，1代表右边
@@ -321,7 +321,7 @@ def load4link_prediction_multi_graph(dataset_name, num_per_samples=1):
 # 未完待续，需要重写一个能够对large-scale图分类数据集的划分代码，避免node-level和edge-level的预训练算法或prompt方法显存溢出的问题
 def load4link_prediction_multi_large_scale_graph(dataset_name, num_per_samples=1):
     if dataset_name in ['ogbg-ppa', 'ogbg-molhiv', 'ogbg-molpcba', 'ogbg-code2']:
-        dataset = PygGraphPropPredDataset(name = dataset_name, root='./dataset')
+        dataset = PygGraphPropPredDataset(name = dataset_name, root=str(ogb_dataset_root()))
     
     input_dim = dataset.num_features
     output_dim = 2 # link prediction的输出维度应该是2，0代表无边，1代表右边

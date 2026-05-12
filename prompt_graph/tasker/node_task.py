@@ -1,6 +1,7 @@
 import torch
 from torch_geometric.loader import DataLoader
 from prompt_graph.utils import constraint,  center_embedding, Gprompt_tuning_loss
+from prompt_graph.utils import induced_graph_dir, sample_dir
 from prompt_graph.evaluation import GPPTEva, GNNNodeEva, GPFEva, MultiGpromptEva
 from prompt_graph.pretrain import GraphPrePrompt, NodePrePrompt, prompt_pretrain_sample
 from .task import BaseTask
@@ -36,7 +37,7 @@ class NodeTask(BaseTask):
             k = self.shot_num  # shot_num 可变
             task_num = self.task_num  # task_num 可变
             for k in range(1, task_num+1):
-                  k_shot_folder = './Experiment/sample_data/Node/'+ self.dataset_name +'/' + str(k) +'_shot'
+                  k_shot_folder = str(sample_dir('Node', k, self.dataset_name))
                   os.makedirs(k_shot_folder, exist_ok=True)
 
                   for i in range(1, task_num+1):
@@ -66,7 +67,7 @@ class NodeTask(BaseTask):
                   smallest_size = 1
             if self.dataset_name == 'PubMed':
                   smallest_size = 8
-            folder_path = './Experiment/induced_graph/' + self.dataset_name
+            folder_path = str(induced_graph_dir(self.dataset_name))
             if not os.path.exists(folder_path):
                   os.makedirs(folder_path)
 

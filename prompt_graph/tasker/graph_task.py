@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from ..defines import GRAPH_TASKS
 from .task import BaseTask
 from prompt_graph.utils import center_embedding, Gprompt_tuning_loss,constraint
+from prompt_graph.utils import sample_dir
 from prompt_graph.evaluation import GpromptEva, GNNGraphEva, GPFEva, AllInOneEva, GPPTGraphEva
 import time
 import os 
@@ -33,7 +34,7 @@ class GraphTask(BaseTask):
             k = self.shot_num
             task_num = self.task_num
             for k in range(1, task_num+1):
-                k_shot_folder = './Experiment/sample_data/Graph/'+ self.dataset_name +'/' + str(k) +'_shot'
+                k_shot_folder = str(sample_dir('Graph', k, self.dataset_name))
                 os.makedirs(k_shot_folder, exist_ok=True)
                 for i in range(1, task_num+1):
                     folder = os.path.join(k_shot_folder, str(i))

@@ -4,7 +4,8 @@ from prompt_graph.utils import seed_everything
 from torchsummary import summary
 from prompt_graph.utils import print_model_parameters
 from prompt_graph.utils import  get_args
-from prompt_graph.data import load4node,load4graph, split_induced_graphs, induced_graph_cache_path
+from prompt_graph.utils import induced_graph_dir, excel_result_dir
+from prompt_graph.data import load4node, load4graph, split_induced_graphs, induced_graph_cache_path
 import pickle
 import random
 import numpy as np
@@ -21,7 +22,7 @@ def get_runtime_device(device_id):
 
 def load_induced_graph(dataset_name, data, device):
 
-    folder_path = './Experiment/induced_graph/' + dataset_name
+    folder_path = str(induced_graph_dir(dataset_name))
     if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -198,9 +199,9 @@ if __name__ == "__main__":
 
     file_name = args.gnn_type +"_total_results.xlsx"
     if args.pretrain_task == 'NodeTask':
-        file_path = os.path.join('./Experiment/ExcelResults/Node/'+str(args.shot_num)+'shot/'+ args.dataset_name +'/', file_name)
+        file_path = os.path.join(str(excel_result_dir('Node', args.shot_num, args.dataset_name)), file_name)
     if args.pretrain_task == 'GraphTask':
-        file_path = os.path.join('./Experiment/ExcelResults/Graph/'+str(args.shot_num)+'shot/'+ args.dataset_name +'/', file_name)
+        file_path = os.path.join(str(excel_result_dir('Graph', args.shot_num, args.dataset_name)), file_name)
     data = pd.read_excel(file_path, index_col=0)
 
     col_name = f"{cbr_result.pre_train_type}+{args.prompt_type}"
