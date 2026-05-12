@@ -4,6 +4,10 @@ import random
 import torch
 from random import shuffle
 
+from .logging import get_logger
+
+logger = get_logger(__name__)
+
 
 
 def seed_everything(seed):
@@ -23,7 +27,7 @@ def __seeds_list__(nodes):
     split_size = max(5, int(nodes.shape[0] / 400))
     seeds_list = list(torch.split(nodes, split_size))
     if len(seeds_list) < 400:
-        print('len(seeds_list): {} <400, start overlapped split'.format(len(seeds_list)))
+        logger.warning('len(seeds_list): {} <400, start overlapped split'.format(len(seeds_list)))
         seeds_list = []
         while len(seeds_list) < 400:
             split_size = random.randint(3, 5)

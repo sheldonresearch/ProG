@@ -1,3 +1,6 @@
+from .logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def print_model_parameters(model):
@@ -6,5 +9,5 @@ def print_model_parameters(model):
         if not parameter.requires_grad: continue
         param = parameter.numel()
         total_params+=param
-        print(f"{name} has {param} parameters")
-    print(f"Total Parameters: {total_params}")
+        logger.info(f"{name} has {param} parameters")
+    logger.info(f"Total Parameters: {total_params}")

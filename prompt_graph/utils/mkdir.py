@@ -1,9 +1,14 @@
 import os
 
+from .logging import get_logger
+
+logger = get_logger(__name__)
+
+
 def mkdir(path):
     folder = os.path.exists(path)
     if not folder:
         os.makedirs(path)
-        print("create folder {}".format(path))
+        logger.info("create folder {}".format(path))
     else:
-        print("folder exists! {}".format(path))
+        logger.info("folder exists! {}".format(path))

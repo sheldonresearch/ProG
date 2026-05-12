@@ -14,6 +14,9 @@ from torch_geometric.utils import subgraph, k_hop_subgraph
 from torch_geometric.data import Data
 import numpy as np
 import pickle
+from prompt_graph.utils import get_logger
+
+logger = get_logger(__name__)
 
 def induced_graphs(data, smallest_size=10, largest_size=30):
 
@@ -119,7 +122,7 @@ def split_induced_graphs(data, dir_path, device, smallest_size=10, largest_size=
         saved_graph_list.append(deepcopy(induced_graph).to('cpu'))
         induced_graph_list.append(induced_graph)
         if index%500 == 0:
-            print(index)
+            logger.info(index)
 
 
     if not os.path.exists(dir_path):
@@ -136,7 +139,7 @@ def split_induced_graphs(data, dir_path, device, smallest_size=10, largest_size=
         # Assuming 'data' is what you want to pickle
         # pickle.dump(induced_graph_list, f)
         pickle.dump(saved_graph_list, f)
-        print("induced graph data has been write into " + file_path)
+        logger.info("induced graph data has been write into " + file_path)
 
 
 def induced_graph_cache_path(dir_path, smallest_size, largest_size, leak_safe=True):
