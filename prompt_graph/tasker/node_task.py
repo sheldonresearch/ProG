@@ -235,6 +235,14 @@ class NodeTask(BaseTask):
             extra={'input_dim': self.input_dim},
         )
 
+    def _gprompt_ctx(self):
+        """Build a TaskContext for the Gprompt strategy on this NodeTask."""
+        return TaskContext(
+            gnn=self.gnn, prompt=self.prompt, pg_opi=self.pg_opi,
+            device=self.device, hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+        )
+
     def run(self):
         test_accs = []
         f1s = []
@@ -304,19 +312,23 @@ class NodeTask(BaseTask):
             cnt_wait = 0
             best_loss = 1e9
 
+            # Stateful strategies (e.g. Gprompt's mean_centers) need a single
+            # instance reused across this fold's train_epoch + evaluate calls.
+            gprompt_strategy = get_strategy('Gprompt')() if self.prompt_type == 'Gprompt' else None
+
             for epoch in range(1, self.epochs + 1):
                 t0 = time.time()
 
                 if self.prompt_type == 'None':
                     loss = get_strategy('None')().train_epoch(self._none_ctx(), (self.data, idx_train))
                 elif self.prompt_type == 'GPPT':
-                    loss = self.GPPTtrain(self.data, idx_train)                
+                    loss = self.GPPTtrain(self.data, idx_train)
                 elif self.prompt_type == 'All-in-one':
-                    loss = self.AllInOneTrain(train_loader,self.answer_epoch,self.prompt_epoch)                           
+                    loss = self.AllInOneTrain(train_loader,self.answer_epoch,self.prompt_epoch)
                 elif self.prompt_type in ['GPF', 'GPF-plus']:
                     loss = get_strategy(self.prompt_type)().train_epoch(self._gpf_ctx(), train_loader)
                 elif self.prompt_type =='Gprompt':
-                    loss, center = self.GpromptTrain(train_loader)
+                    loss = gprompt_strategy.train_epoch(self._gprompt_ctx(), train_loader)
                 elif self.prompt_type == 'MultiGprompt':
                     loss = self.MultiGpromptTrain(pretrain_embs, train_lbls, idx_train)
 
@@ -347,7 +359,7 @@ class NodeTask(BaseTask):
                 elif self.prompt_type in ['GPF', 'GPF-plus']:
                     test_acc, f1, roc, prc = get_strategy(self.prompt_type)().evaluate(self._gpf_ctx(), test_loader)
                 elif self.prompt_type =='Gprompt':
-                    test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
+                    test_acc, f1, roc, prc = gprompt_strategy.evaluate(self._gprompt_ctx(), test_loader)
                 elif self.prompt_type == 'MultiGprompt':
                     prompt_feature = self.feature_prompt(self.features)
                     test_acc, f1, roc, prc = MultiGpromptEva(test_embs, test_lbls, idx_test, prompt_feature, self.Preprompt, self.DownPrompt, self.sp_adj, self.output_dim, self.device)

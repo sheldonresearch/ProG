@@ -244,6 +244,10 @@ class GraphTask(BaseTask):
         if self.prompt_type == 'GPPT':
             test_loader = self._gppt_weight_init(train_dataset, test_dataset, processed_dataset, idx_train)
 
+        # Stateful strategies (e.g. Gprompt's mean_centers) need a single
+        # instance reused across this fold's train_epoch + evaluate calls.
+        gprompt_strategy = get_strategy('Gprompt')() if self.prompt_type == 'Gprompt' else None
+
         for epoch in range(1, self.epochs + 1):
             t0 = time.time()
 
@@ -254,7 +258,7 @@ class GraphTask(BaseTask):
             elif self.prompt_type in ['GPF', 'GPF-plus']:
                 loss = get_strategy(self.prompt_type)().train_epoch(self._gpf_ctx(), train_loader)
             elif self.prompt_type == 'Gprompt':
-                loss, center = self.GpromptTrain(train_loader)
+                loss = gprompt_strategy.train_epoch(self._gprompt_ctx(), train_loader)
             elif self.prompt_type == 'GPPT':
                 loss = self.GPPTtrain(train_loader)
 
@@ -282,7 +286,7 @@ class GraphTask(BaseTask):
         elif self.prompt_type in ['GPF', 'GPF-plus']:
             test_acc, f1, roc, prc = get_strategy(self.prompt_type)().evaluate(self._gpf_ctx(), test_loader)
         elif self.prompt_type == 'Gprompt':
-            test_acc, f1, roc, prc = GpromptEva(test_loader, self.gnn, self.prompt, center, self.output_dim, self.device)
+            test_acc, f1, roc, prc = gprompt_strategy.evaluate(self._gprompt_ctx(), test_loader)
 
         print(f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}")
 
@@ -306,6 +310,14 @@ class GraphTask(BaseTask):
             device=self.device, hid_dim=self.hid_dim,
             output_dim=self.output_dim,
             extra={'input_dim': self.input_dim},
+        )
+
+    def _gprompt_ctx(self):
+        """Build a TaskContext for the Gprompt strategy on this GraphTask."""
+        return TaskContext(
+            gnn=self.gnn, prompt=self.prompt, pg_opi=self.pg_opi,
+            device=self.device, hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
         )
 
     def run(self):
