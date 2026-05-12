@@ -254,7 +254,9 @@ class GraphTask(BaseTask):
             if self.prompt_type == 'None':
                 loss = get_strategy('None')().train_epoch(self._none_ctx(), train_loader)
             elif self.prompt_type == 'All-in-one':
-                loss = self.AllInOneTrain(train_loader, answer_epoch, prompt_epoch)
+                loss = get_strategy('All-in-one')().train_epoch(
+                    self._all_in_one_ctx(answer_epoch, prompt_epoch), train_loader,
+                )
             elif self.prompt_type in ['GPF', 'GPF-plus']:
                 loss = get_strategy(self.prompt_type)().train_epoch(self._gpf_ctx(), train_loader)
             elif self.prompt_type == 'Gprompt':
@@ -282,7 +284,9 @@ class GraphTask(BaseTask):
         elif self.prompt_type == 'GPPT':
             test_acc, f1, roc, prc = GPPTGraphEva(test_loader, self.gnn, self.prompt, self.output_dim, self.device)
         elif self.prompt_type == 'All-in-one':
-            test_acc, f1, roc, prc = AllInOneEva(test_loader, self.prompt, self.gnn, self.answering, self.output_dim, self.device)
+            test_acc, f1, roc, prc = get_strategy('All-in-one')().evaluate(
+                self._all_in_one_ctx(answer_epoch, prompt_epoch), test_loader,
+            )
         elif self.prompt_type in ['GPF', 'GPF-plus']:
             test_acc, f1, roc, prc = get_strategy(self.prompt_type)().evaluate(self._gpf_ctx(), test_loader)
         elif self.prompt_type == 'Gprompt':
@@ -318,6 +322,21 @@ class GraphTask(BaseTask):
             gnn=self.gnn, prompt=self.prompt, pg_opi=self.pg_opi,
             device=self.device, hid_dim=self.hid_dim,
             output_dim=self.output_dim,
+        )
+
+    def _all_in_one_ctx(self, answer_epoch=1, prompt_epoch=1):
+        """Build a TaskContext for the All-in-one strategy on this GraphTask."""
+        return TaskContext(
+            gnn=self.gnn, prompt=self.prompt, answering=self.answering,
+            criterion=self.criterion,
+            pg_opi=self.pg_opi, answer_opi=self.answer_opi,
+            device=self.device, hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={
+                'task_type': 'GraphTask',
+                'answer_epoch': answer_epoch,
+                'prompt_epoch': prompt_epoch,
+            },
         )
 
     def run(self):
