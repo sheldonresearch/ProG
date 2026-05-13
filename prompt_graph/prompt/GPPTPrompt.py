@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 from sklearn.cluster import KMeans
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops
@@ -143,8 +144,10 @@ def kmeans(X, num_clusters, distance="euclidean", device="cuda", max_iter=100, t
         Cluster centers
     """
 
-    if distance != "euclidean":
-        raise NotImplementedError("Currently only 'euclidean' distance is supported.")
+    if distance not in ("euclidean", "cosine", "manhattan"):
+        raise ValueError(
+            f"distance must be 'euclidean', 'cosine' or 'manhattan', got {distance!r}"
+        )
 
     X = X.to(device)
     n_samples, n_features = X.shape
@@ -155,7 +158,16 @@ def kmeans(X, num_clusters, distance="euclidean", device="cuda", max_iter=100, t
 
     for i in range(max_iter):
         # Compute distances and assign clusters
-        distances = torch.cdist(X, cluster_centers)
+        if distance == "euclidean":
+            distances = torch.cdist(X, cluster_centers, p=2)
+        elif distance == "cosine":
+            X_norm = F.normalize(X, dim=1)
+            centers_norm = F.normalize(cluster_centers, dim=1)
+            similarities = torch.mm(X_norm, centers_norm.t())
+            distances = 1 - similarities
+        elif distance == "manhattan":
+            distances = torch.cdist(X, cluster_centers, p=1)
+
         cluster_ids_x = torch.argmin(distances, dim=1)
 
         # Compute new cluster centers
@@ -163,7 +175,10 @@ def kmeans(X, num_clusters, distance="euclidean", device="cuda", max_iter=100, t
         for k in range(num_clusters):
             cluster_k = X[cluster_ids_x == k]
             if len(cluster_k) > 0:
-                new_cluster_centers[k] = cluster_k.mean(dim=0)
+                if distance == "manhattan":
+                    new_cluster_centers[k] = cluster_k.median(dim=0).values
+                else:
+                    new_cluster_centers[k] = cluster_k.mean(dim=0)
 
         # Check for convergence
         if torch.norm(new_cluster_centers - cluster_centers) < tol:
