@@ -190,12 +190,14 @@ class FrontAndHead(torch.nn.Module):
             inner_prune=inner_prune,
         )
 
-        if task_type == "multi_label_classification":
+        if task_type in ("multi_label_classification", "multi_class_classification", "binary_classification"):
             self.answering = torch.nn.Sequential(
                 torch.nn.Linear(hid_dim, num_classes), torch.nn.Softmax(dim=1)
             )
+        elif task_type == "regression":
+            self.answering = torch.nn.Linear(hid_dim, 1)
         else:
-            raise NotImplementedError
+            raise ValueError(f"Unsupported task_type: {task_type!r}")
 
     def forward(self, graph_batch, gnn):
         prompted_graph = self.PG(graph_batch)
