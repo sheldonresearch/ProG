@@ -83,7 +83,7 @@ run_case "Case 1: Cora + GraphCL + GPF (NodeTask)" \
     --seed          42 \
     --epochs        "$EPOCHS_NODE" \
     --pre_train_model_path ./Experiment/pre_trained_model/Cora/GraphCL.GCN.128hidden_dim.pth \
-    "${EXTRA_ARGS[@]}"
+    "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
 
 # Case 2 — MUTAG / All-in-one (GraphTask, small molecular dataset)
 run_case "Case 2: MUTAG + GraphCL + All-in-one (GraphTask)" \
@@ -95,7 +95,7 @@ run_case "Case 2: MUTAG + GraphCL + All-in-one (GraphTask)" \
     --seed          42 \
     --epochs        "$EPOCHS_GRAPH" \
     --pre_train_model_path ./Experiment/pre_trained_model/MUTAG/GraphCL.GCN.128hidden_dim.pth \
-    "${EXTRA_ARGS[@]}"
+    "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
 
 # Case 3 — PubMed / Gprompt (NodeTask, mid-size citation network)
 run_case "Case 3: PubMed + GraphCL + Gprompt (NodeTask)" \
@@ -107,7 +107,7 @@ run_case "Case 3: PubMed + GraphCL + Gprompt (NodeTask)" \
     --seed          42 \
     --epochs        "$EPOCHS_NODE" \
     --pre_train_model_path ./Experiment/pre_trained_model/PubMed/GraphCL.GCN.128hidden_dim.pth \
-    "${EXTRA_ARGS[@]}"
+    "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
 
 echo "=== baseline done. metrics excel: ./Experiment/ExcelResults/ ===" | tee -a "$LOG_FILE"
 echo "Update Docs/baseline_metrics.md with the new column ($TAG)."      | tee -a "$LOG_FILE"
