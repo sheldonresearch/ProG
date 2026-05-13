@@ -31,7 +31,7 @@ bash scripts/baseline.sh --tag phase-0-fast --fast
 
 | 列 = Phase Tag | test_acc | test_f1 | test_auc | wall_time_s | peak_mem_mb | 备注 |
 | --- | --- | --- | --- | --- | --- | --- |
-| phase-0 (baseline) | - | - | - | - | - | 首次跑分，作为 ground truth |
+| phase-0 (baseline) | 0.1857±0.0590 | 0.0442±0.0112 | 0.5050±0.0100 | 90.63 | - | bench.py fast (50 ep, num_iter=1) |
 | phase-1 |  |  |  |  |  | 8 个 bug 修复后 |
 | phase-2 |  |  |  |  |  | API / 配置统一后 |
 | phase-3 |  |  |  |  |  | 数据/seed 治理后 |
@@ -43,7 +43,7 @@ bash scripts/baseline.sh --tag phase-0-fast --fast
 
 | 列 = Phase Tag | test_acc | test_f1 | test_auc | wall_time_s | peak_mem_mb | 备注 |
 | --- | --- | --- | --- | --- | --- | --- |
-| phase-0 (baseline) | - | - | - | - | - |  |
+| phase-0 (baseline) | 0.6307±0.0744 | 0.5786±0.1269 | 0.6220±0.1571 | ~4 | - | downstream_task.py fast (50 ep, CPU) |
 | phase-1 |  |  |  |  |  |  |
 | phase-2 |  |  |  |  |  |  |
 | phase-3 |  |  |  |  |  |  |
@@ -55,7 +55,7 @@ bash scripts/baseline.sh --tag phase-0-fast --fast
 
 | 列 = Phase Tag | test_acc | test_f1 | test_auc | wall_time_s | peak_mem_mb | 备注 |
 | --- | --- | --- | --- | --- | --- | --- |
-| phase-0 (baseline) | - | - | - | - | - |  |
+| phase-0 (baseline) | 0.4169±0.0549 | 0.4082±0.0441 | 0.5996±0.0627 | ~142 | - | downstream_task.py (5 ep, MPS) |
 | phase-1 |  |  |  |  |  |  |
 | phase-2 |  |  |  |  |  |  |
 | phase-3 |  |  |  |  |  |  |
