@@ -80,7 +80,7 @@ def induced_graphs(dir, data, device, smallest_size=1, largest_size=5):
 
         current_hop = 1
 
-        max_node_idx = torch.max(edge_index)
+        max_node_idx = torch.max(data.edge_index)
         if max_node_idx > index:
             #     induced_graph = Data(x=data.x[index],  y=current_label)
             #     induced_graph_list.append(induced_graph)
