@@ -76,39 +76,59 @@ class HeavyPrompt(LightPrompt):
 
     def forward(self, graph_batch: Batch):
         """
-        TODO: although it recieves graph batch, currently we only implement one-by-one computing instead of batch computing
-        TODO: we will implement batch computing once we figure out the memory sharing mechanism within PyG
-        :param graph_batch:
-        :return:
+        Assemble a batch of prompt-augmented graphs.
+
+        Decomposes ``graph_batch`` directly via the ``batch`` (or ``ptr``) vector
+        to avoid the ``to_data_list`` / ``from_data_list`` round-trip overhead.
+        Works for plain ``Data`` (single graph), standard ``Batch`` from a
+        ``DataLoader``, and manually constructed ``Batch`` objects.
         """
-
-        pg = (
-            self.inner_structure_update()
-        )  # batch of prompt graph (currently only 1 prompt graph in the batch)
-
-        inner_edge_index = pg.edge_index
+        pg = self.inner_structure_update()
+        device = graph_batch.x.device
         token_num = pg.x.shape[0]
+        inner_edge_index = pg.edge_index
+
+        # Derive per-graph node offsets from the batch vector.
+        if hasattr(graph_batch, "batch") and graph_batch.batch is not None:
+            batch_vec = graph_batch.batch
+            num_graphs = int(batch_vec.max().item()) + 1
+            ptr = torch.bincount(batch_vec, minlength=num_graphs).cumsum(0)
+            ptr = torch.cat([torch.zeros(1, dtype=ptr.dtype, device=ptr.device), ptr])
+        else:
+            num_graphs = 1
+            ptr = torch.tensor([0, graph_batch.num_nodes], device=device)
 
         re_graph_list = []
-        for g in Batch.to_data_list(graph_batch):
-            g_edge_index = g.edge_index + token_num
+        for i in range(num_graphs):
+            start = int(ptr[i])
+            end = int(ptr[i + 1])
+            g_x = graph_batch.x[start:end]
 
-            cross_dot = torch.mm(pg.x, torch.transpose(g.x, 0, 1))
-            cross_sim = torch.sigmoid(cross_dot)  # 0-1 from prompt to input graph
+            mask = (graph_batch.edge_index[0] >= start) & (graph_batch.edge_index[0] < end)
+            g_edge_index = graph_batch.edge_index[:, mask] - start + token_num
+
+            cross_dot = torch.mm(pg.x, g_x.t())
+            cross_sim = torch.sigmoid(cross_dot)
             cross_adj = torch.where(cross_sim < self.cross_prune, 0, cross_sim)
-
             cross_edge_index = cross_adj.nonzero().t().contiguous()
             cross_edge_index[1] = cross_edge_index[1] + token_num
 
-            x = torch.cat([pg.x, g.x], dim=0)
-            y = g.y
-
+            x = torch.cat([pg.x, g_x], dim=0)
             edge_index = torch.cat([inner_edge_index, g_edge_index, cross_edge_index], dim=1)
-            data = Data(x=x, edge_index=edge_index, y=y)
-            re_graph_list.append(data)
 
-        graphp_batch = Batch.from_data_list(re_graph_list)
-        return graphp_batch
+            # Distinguish graph-level vs node-level labels.
+            y = None
+            if graph_batch.y is not None:
+                if graph_batch.y.dim() == 0:
+                    y = graph_batch.y
+                elif graph_batch.y.dim() >= 1 and graph_batch.y.size(0) == num_graphs:
+                    y = graph_batch.y[i]
+                else:
+                    y = graph_batch.y[start:end]
+
+            re_graph_list.append(Data(x=x, edge_index=edge_index, y=y))
+
+        return Batch.from_data_list(re_graph_list)
 
     def Tune(self, train_loader, gnn, answering, lossfn, opi, device):
         running_loss = 0.0

@@ -6,7 +6,8 @@ from torch_geometric.data import Data
 
 
 def contrastive_loss(x1, x2, temperature=0.1):
-    # TODO: hyper-parameter checking, currently fix temperature = 0.1
+    if temperature <= 0:
+        raise ValueError(f"temperature must be positive, got {temperature}")
     batch_size, _ = x1.size()
     x1_abs, x2_abs = x1.norm(dim=1), x2.norm(dim=1)
     sim_matrix = torch.einsum("ik,jk->ij", x1, x2) / torch.einsum("i,j->ij", x1_abs, x2_abs)
