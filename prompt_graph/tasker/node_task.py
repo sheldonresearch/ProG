@@ -1,5 +1,4 @@
 import os
-import pickle
 import time
 import warnings
 
@@ -9,17 +8,14 @@ from torch_geometric.loader import DataLoader
 
 from prompt_graph.data import (
     GraphDataset,
-    induced_graph_cache_path,
     load4node,
     node_sample_and_save,
-    split_induced_graphs,
 )
 from prompt_graph.utils import (
     Gprompt_tuning_loss,
     center_embedding,
     constraint,
     get_logger,
-    induced_graph_dir,
     process,
     sample_dir,
 )
@@ -79,43 +75,6 @@ class NodeTask(BaseTask):
         # print("labels",labels)
         logger.debug(f"adj {self.sp_adj.shape}")
         logger.debug(f"feature {features.shape}")
-
-    def load_induced_graph(self):
-        smallest_size = 5  # 默认为5
-        if self.dataset_name in ["ENZYMES", "PROTEINS"]:
-            smallest_size = 1
-        if self.dataset_name == "PubMed":
-            smallest_size = 8
-        folder_path = str(induced_graph_dir(self.dataset_name))
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-
-        train_mask = getattr(self.data, "train_mask", None)
-        file_path = induced_graph_cache_path(
-            folder_path,
-            smallest_size=smallest_size,
-            largest_size=300,
-            leak_safe=train_mask is not None,
-        )
-        if os.path.exists(file_path):
-            with open(file_path, "rb") as f:
-                graphs_list = pickle.load(f)
-        else:
-            logger.info("Begin split_induced_graphs.")
-            split_induced_graphs(
-                self.data,
-                folder_path,
-                self.device,
-                smallest_size=smallest_size,
-                largest_size=300,
-                train_mask=train_mask,
-            )
-            with open(file_path, "rb") as f:
-                graphs_list = pickle.load(f)
-        self.graphs_list = []
-        for i in range(len(graphs_list)):
-            graph = graphs_list[i].to(self.device)
-            self.graphs_list.append(graph)
 
     def load_data(self):
         self.data, self.input_dim, self.output_dim = load4node(self.dataset_name)

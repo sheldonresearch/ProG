@@ -1,4 +1,3 @@
-# from collections import defaultdict
 import os
 import pickle
 
@@ -12,58 +11,93 @@ from prompt_graph.utils import get_logger
 logger = get_logger(__name__)
 
 
-def induced_graphs(data, smallest_size=10, largest_size=30):
+def _build_single_induced_graph(
+    data,
+    center_idx,
+    smallest_size,
+    largest_size,
+    initial_hop=2,
+    max_hop=5,
+    label=None,
+    candidate_mask=None,
+):
+    """Core logic for building a single node-centered induced subgraph.
 
-    induced_graph_list = []
+    Extracted from ``induced_graphs`` and ``split_induced_graphs`` to avoid
+    duplication. Operates on the same device as ``data``.
+    """
+    if label is None:
+        label = int(data.y[center_idx].item())
 
-    for index in range(data.x.size(0)):
-        current_label = data.y[index].item()
+    current_hop = initial_hop
+    subset, _, _, _ = k_hop_subgraph(
+        node_idx=center_idx,
+        num_hops=current_hop,
+        edge_index=data.edge_index,
+        relabel_nodes=True,
+    )
 
-        current_hop = 2
+    while len(subset) < smallest_size and current_hop < max_hop:
+        current_hop += 1
         subset, _, _, _ = k_hop_subgraph(
-            node_idx=index, num_hops=current_hop, edge_index=data.edge_index, relabel_nodes=True
+            node_idx=center_idx,
+            num_hops=current_hop,
+            edge_index=data.edge_index,
         )
 
-        while len(subset) < smallest_size and current_hop < 5:
-            current_hop += 1
-            subset, _, _, _ = k_hop_subgraph(
-                node_idx=index, num_hops=current_hop, edge_index=data.edge_index
-            )
-
-        if len(subset) < smallest_size:
-            need_node_num = smallest_size - len(subset)
-            pos_nodes = torch.argwhere(data.y == int(current_label))
-            candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
-            candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][
-                0:need_node_num
-            ]
+    if len(subset) < smallest_size:
+        need_node_num = smallest_size - len(subset)
+        label_mask = data.y == label
+        if candidate_mask is not None:
+            label_mask = label_mask & candidate_mask
+        pos_nodes = torch.argwhere(label_mask)
+        subset_cpu = subset.detach().cpu()
+        candidate_nodes = torch.from_numpy(
+            np.setdiff1d(pos_nodes.detach().cpu().numpy(), subset_cpu.numpy())
+        )
+        if candidate_nodes.numel() > 0:
+            perm = torch.randperm(candidate_nodes.shape[0])
+            take = min(need_node_num, candidate_nodes.shape[0])
+            candidate_nodes = candidate_nodes[perm][:take]
+            candidate_nodes = candidate_nodes.to(subset.device)
             subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
 
-        if len(subset) > largest_size:
-            subset = subset[torch.randperm(subset.shape[0])][0 : largest_size - 1]
-            subset = torch.unique(torch.cat([torch.LongTensor([index]), torch.flatten(subset)]))
+    if len(subset) > largest_size:
+        subset = subset[torch.randperm(subset.shape[0])][0 : largest_size - 1]
+        center_tensor = torch.LongTensor([center_idx]).to(subset.device)
+        subset = torch.unique(torch.cat([center_tensor, torch.flatten(subset)]))
 
-        sub_edge_index, _ = subgraph(subset, data.edge_index, relabel_nodes=True)
+    sub_edge_index, _ = subgraph(subset, data.edge_index, relabel_nodes=True)
+    x = data.x[subset]
 
-        x = data.x[subset]
+    graph = Data(x=x, edge_index=sub_edge_index, y=label)
+    return graph
 
-        induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label)
-        induced_graph_list.append(induced_graph)
-        # print(index)
+
+def induced_graphs(data, smallest_size=10, largest_size=30):
+    """Basic node-induced subgraph generation (no caching, no device placement)."""
+    induced_graph_list = []
+    for index in range(data.x.size(0)):
+        graph = _build_single_induced_graph(
+            data,
+            center_idx=index,
+            smallest_size=smallest_size,
+            largest_size=largest_size,
+        )
+        induced_graph_list.append(graph)
     return induced_graph_list
 
 
 def split_induced_graphs(
     data, dir_path, device, smallest_size=10, largest_size=30, train_mask=None
 ):
-    """
-    将一张大图按节点切成 induced subgraph，并把结果落盘到 dir_path。
+    """Production node-induced subgraph generation with disk caching.
 
-    train_mask: 可选的布尔张量，长度等于 data.num_nodes。如果给出，邻域不足时
-    只从 train_mask=True 的节点里补齐，避免把测试/验证节点采进训练子图、
-    把标签信息泄漏到训练里。**节点任务下必须提供。**
+    ``train_mask``: optional boolean tensor of length ``data.num_nodes``.
+    When provided, padding nodes are drawn **only from training nodes**
+    with the same label, preventing test/validation nodes from leaking
+    into training subgraphs. Node-level tasks should always provide this.
     """
-
     induced_graph_list = []
     saved_graph_list = []
     from copy import deepcopy
@@ -79,67 +113,30 @@ def split_induced_graphs(
         train_mask_cpu = None
     else:
         train_mask_cpu = train_mask.detach().to("cpu").bool()
-    labels_cpu = data.y.detach().to("cpu")
 
     for index in range(data.x.size(0)):
-        current_label = data.y[index].item()
-
-        current_hop = 2
-        subset, _, _, _ = k_hop_subgraph(
-            node_idx=index, num_hops=current_hop, edge_index=data.edge_index, relabel_nodes=True
+        graph = _build_single_induced_graph(
+            data,
+            center_idx=index,
+            smallest_size=smallest_size,
+            largest_size=largest_size,
+            candidate_mask=train_mask_cpu,
         )
-        subset = subset
-
-        while len(subset) < smallest_size and current_hop < 5:
-            current_hop += 1
-            subset, _, _, _ = k_hop_subgraph(
-                node_idx=index, num_hops=current_hop, edge_index=data.edge_index
-            )
-
-        if len(subset) < smallest_size:
-            need_node_num = smallest_size - len(subset)
-            label_mask = labels_cpu == int(current_label)
-            if train_mask_cpu is not None:
-                label_mask = label_mask & train_mask_cpu
-            pos_nodes = torch.argwhere(label_mask)
-            subset = subset.to("cpu")
-            candidate_nodes = torch.from_numpy(np.setdiff1d(pos_nodes.numpy(), subset.numpy()))
-            candidate_nodes = candidate_nodes[torch.randperm(candidate_nodes.shape[0])][
-                0:need_node_num
-            ]
-            subset = torch.cat([torch.flatten(subset), torch.flatten(candidate_nodes)])
-
-        if len(subset) > largest_size:
-            subset = subset[torch.randperm(subset.shape[0])][0 : largest_size - 1]
-            subset = torch.unique(
-                torch.cat([torch.LongTensor([index]).to(device), torch.flatten(subset)])
-            )
-
-        subset = subset.to(device)
-        sub_edge_index, _ = subgraph(subset, data.edge_index, relabel_nodes=True)
-        sub_edge_index = sub_edge_index.to(device)
-
-        x = data.x[subset]
-
-        induced_graph = Data(x=x, edge_index=sub_edge_index, y=current_label, index=index)
-        saved_graph_list.append(deepcopy(induced_graph).to("cpu"))
-        induced_graph_list.append(induced_graph)
+        graph.index = index
+        saved_graph_list.append(deepcopy(graph).to("cpu"))
+        induced_graph_list.append(graph)
         if index % 500 == 0:
             logger.info(index)
 
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
+    os.makedirs(dir_path, exist_ok=True)
 
-    # 给文件名加 _v2 后缀：v1 是旧的、有泄漏的缓存；提供 train_mask 走 v2，
-    # 避免把旧 pickle 误当成新算法的结果加载回来。
+    # v2 suffix distinguishes leak-safe caches from legacy leaky ones.
     suffix = "_v2" if train_mask_cpu is not None else ""
     file_path = os.path.join(
         dir_path,
         f"induced_graph_min{smallest_size}_max{largest_size}{suffix}.pkl",
     )
     with open(file_path, "wb") as f:
-        # Assuming 'data' is what you want to pickle
-        # pickle.dump(induced_graph_list, f)
         pickle.dump(saved_graph_list, f)
         logger.info("induced graph data has been write into " + file_path)
 
@@ -151,3 +148,46 @@ def induced_graph_cache_path(dir_path, smallest_size, largest_size, leak_safe=Tr
         dir_path,
         f"induced_graph_min{smallest_size}_max{largest_size}{suffix}.pkl",
     )
+
+
+def load_induced_graphs(
+    dataset_name, data, device, smallest_size=100, largest_size=300
+):
+    """Unified induced-graph loader with caching.
+
+    Replaces the copy-pasted ``load_induced_graph`` functions previously
+    scattered across ``bench.py``, ``downstream_task.py``, and
+    ``node_task.py``.
+    """
+    from prompt_graph.utils import induced_graph_dir
+
+    folder_path = str(induced_graph_dir(dataset_name))
+    os.makedirs(folder_path, exist_ok=True)
+
+    train_mask = getattr(data, "train_mask", None)
+    file_path = induced_graph_cache_path(
+        folder_path,
+        smallest_size=smallest_size,
+        largest_size=largest_size,
+        leak_safe=train_mask is not None,
+    )
+
+    if os.path.exists(file_path):
+        with open(file_path, "rb") as f:
+            logger.info("loading induced graph...")
+            graphs_list = pickle.load(f)
+            logger.info("Done!!!")
+    else:
+        logger.info("Begin split_induced_graphs.")
+        split_induced_graphs(
+            data,
+            folder_path,
+            device,
+            smallest_size=smallest_size,
+            largest_size=largest_size,
+            train_mask=train_mask,
+        )
+        with open(file_path, "rb") as f:
+            graphs_list = pickle.load(f)
+
+    return [graph.to(device) for graph in graphs_list]
