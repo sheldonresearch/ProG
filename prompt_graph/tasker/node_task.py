@@ -279,6 +279,20 @@ class NodeTask(BaseTask):
             extra={"task_type": "NodeTask"},
         )
 
+    def _prodigy_ctx(self):
+        """Build a TaskContext for the Prodigy strategy on this NodeTask."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            answering=self.answering,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "NodeTask", "lr": self.lr, "wd": self.decay},
+        )
+
     def _multi_gprompt_ctx(self, pretrain_embs, test_embs):
         """Build a TaskContext for the MultiGprompt strategy on this NodeTask.
 
@@ -406,6 +420,10 @@ class NodeTask(BaseTask):
                     loss = get_strategy("GPPT")().train_epoch(
                         self._gppt_ctx(), (self.data, idx_train)
                     )
+                elif self.prompt_type == "Prodigy":
+                    loss = get_strategy("Prodigy")().train_epoch(
+                        self._prodigy_ctx(), (self.data, idx_train)
+                    )
                 elif self.prompt_type == "All-in-one":
                     loss = get_strategy("All-in-one")().train_epoch(
                         self._all_in_one_ctx(), train_loader
@@ -449,6 +467,10 @@ class NodeTask(BaseTask):
                 elif self.prompt_type == "GPPT":
                     test_acc, f1, roc, prc = get_strategy("GPPT")().evaluate(
                         self._gppt_ctx(), (self.data, idx_test)
+                    )
+                elif self.prompt_type == "Prodigy":
+                    test_acc, f1, roc, prc = get_strategy("Prodigy")().evaluate(
+                        self._prodigy_ctx(), (self.data, idx_test)
                     )
                 elif self.prompt_type == "All-in-one":
                     test_acc, f1, roc, prc = get_strategy("All-in-one")().evaluate(

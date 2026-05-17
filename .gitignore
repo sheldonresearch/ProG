@@ -29,3 +29,4 @@ mcr_*.py
 # Binary assets (moved out of main repo — see README.md)
 Node.zip
 ProG_pipeline.jpg
+/ref

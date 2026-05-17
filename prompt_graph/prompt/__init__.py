@@ -19,6 +19,7 @@ from .MultiGprompt import (
     weighted_feature,
     weighted_prompt,
 )
+from .ProdigyPrompt import ProdigyPrompt
 from .SUPT import DiffPoolPrompt, SAGPoolPrompt
 
 __all__ = [
@@ -40,6 +41,7 @@ __all__ = [
     "LogReg",
     "Lp",
     "Lpprompt",
+    "ProdigyPrompt",
     "SAGPoolPrompt",
     "downprompt",
     "downstreamprompt",

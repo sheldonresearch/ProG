@@ -132,6 +132,9 @@ class BaseTask:
         #     self.prompt = DiffPoolPrompt(self.input_dim, num_clusters=5 ).to(self.device)
         elif self.prompt_type == "Gprompt":
             self.prompt = Gprompt(self.hid_dim).to(self.device)
+        elif self.prompt_type == "Prodigy":
+            from prompt_graph.prompt.ProdigyPrompt import ProdigyPrompt
+            self.prompt = ProdigyPrompt(self.hid_dim).to(self.device)
         elif self.prompt_type == "MultiGprompt":
             nonlinearity = "prelu"
             self.Preprompt = NodePrePrompt(

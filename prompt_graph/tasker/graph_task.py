@@ -335,6 +335,8 @@ class GraphTask(BaseTask):
                 loss = gprompt_strategy.train_epoch(self._gprompt_ctx(), train_loader)
             elif self.prompt_type == "GPPT":
                 loss = get_strategy("GPPT")().train_epoch(self._gppt_ctx(), train_loader)
+            elif self.prompt_type == "Prodigy":
+                loss = get_strategy("Prodigy")().train_epoch(self._prodigy_ctx(), train_loader)
 
             if loss < best:
                 best = loss
@@ -355,6 +357,8 @@ class GraphTask(BaseTask):
             test_acc, f1, roc, prc = get_strategy("None")().evaluate(self._none_ctx(), test_loader)
         elif self.prompt_type == "GPPT":
             test_acc, f1, roc, prc = get_strategy("GPPT")().evaluate(self._gppt_ctx(), test_loader)
+        elif self.prompt_type == "Prodigy":
+            test_acc, f1, roc, prc = get_strategy("Prodigy")().evaluate(self._prodigy_ctx(), test_loader)
         elif self.prompt_type == "All-in-one":
             test_acc, f1, roc, prc = get_strategy("All-in-one")().evaluate(
                 self._all_in_one_ctx(answer_epoch, prompt_epoch),
@@ -441,6 +445,20 @@ class GraphTask(BaseTask):
             hid_dim=self.hid_dim,
             output_dim=self.output_dim,
             extra={"task_type": "GraphTask"},
+        )
+
+    def _prodigy_ctx(self):
+        """Build a TaskContext for the Prodigy strategy on this GraphTask."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            answering=self.answering,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "GraphTask", "lr": self.lr, "wd": self.decay},
         )
 
     def run(self):

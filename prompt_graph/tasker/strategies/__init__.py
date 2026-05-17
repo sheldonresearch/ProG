@@ -12,4 +12,5 @@ from . import (
     gprompt,  # noqa: F401 -- import side-effect registers GpromptStrategy
     multi_gprompt,  # noqa: F401 -- import side-effect registers MultiGpromptStrategy
     none,  # noqa: F401 -- import side-effect registers NoneStrategy
+    prodigy,  # noqa: F401 -- import side-effect registers ProdigyStrategy
 )

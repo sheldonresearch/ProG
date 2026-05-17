@@ -136,6 +136,8 @@ class GNN(torch.nn.Module):
         else:
             if prompt_type == "Gprompt":
                 node_emb = prompt(node_emb)
+            elif prompt_type == "Prodigy":
+                node_emb = prompt(node_emb, edge_index, batch)
             graph_emb = self.pool(node_emb, batch.long())
             return graph_emb
 
