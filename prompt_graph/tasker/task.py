@@ -135,6 +135,17 @@ class BaseTask:
         elif self.prompt_type == "Prodigy":
             from prompt_graph.prompt.ProdigyPrompt import ProdigyPrompt
             self.prompt = ProdigyPrompt(self.hid_dim).to(self.device)
+        elif self.prompt_type == "EdgePrompt":
+            from prompt_graph.prompt.EdgePrompt import EdgePrompt
+            dim_list = [self.hid_dim] * (self.num_layer - 1) + [self.hid_dim]
+            self.prompt = EdgePrompt(dim_list).to(self.device)
+        elif self.prompt_type == "EdgePromptplus":
+            from prompt_graph.prompt.EdgePrompt import EdgePromptplus
+            dim_list = [self.hid_dim] * (self.num_layer - 1) + [self.hid_dim]
+            self.prompt = EdgePromptplus(dim_list, num_anchors=20).to(self.device)
+        elif self.prompt_type == "UniPrompt":
+            from prompt_graph.prompt.UniPrompt import UniPrompt
+            self.prompt = UniPrompt(self.data.x, num_nodes=self.data.num_nodes).to(self.device)
         elif self.prompt_type == "MultiGprompt":
             nonlinearity = "prelu"
             self.Preprompt = NodePrePrompt(

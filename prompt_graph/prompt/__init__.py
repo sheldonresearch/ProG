@@ -1,4 +1,5 @@
 from .AllInOnePrompt import FrontAndHead, HeavyPrompt, LightPrompt
+from .EdgePrompt import EdgePrompt, EdgePromptplus
 from .GPF import GPF, GPF_plus
 from .GPPTPrompt import GPPTPrompt
 from .GPrompt import Gprompt
@@ -28,6 +29,8 @@ __all__ = [
     "DGIprompt",
     "DiffPoolPrompt",
     "Discriminator",
+    "EdgePrompt",
+    "EdgePromptplus",
     "FrontAndHead",
     "GPF",
     "GPF_plus",

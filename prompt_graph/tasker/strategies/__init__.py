@@ -7,10 +7,12 @@ all bundled strategies into ``STRATEGY_REGISTRY``.
 
 from . import (
     all_in_one,  # noqa: F401 -- import side-effect registers AllInOneStrategy
+    edge_prompt,  # noqa: F401 -- import side-effect registers EdgePromptStrategy
     gpf,  # noqa: F401 -- import side-effect registers GPFStrategy + GPFPlusStrategy
     gppt,  # noqa: F401 -- import side-effect registers GPPTStrategy
     gprompt,  # noqa: F401 -- import side-effect registers GpromptStrategy
     multi_gprompt,  # noqa: F401 -- import side-effect registers MultiGpromptStrategy
     none,  # noqa: F401 -- import side-effect registers NoneStrategy
     prodigy,  # noqa: F401 -- import side-effect registers ProdigyStrategy
+    uni_prompt,  # noqa: F401 -- import side-effect registers UniPromptStrategy
 )

@@ -279,6 +279,39 @@ class NodeTask(BaseTask):
             extra={"task_type": "NodeTask"},
         )
 
+    def _edge_prompt_ctx(self):
+        """Build a TaskContext for the EdgePrompt/EdgePromptplus strategy."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            answering=self.answering,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "NodeTask", "lr": self.lr, "wd": self.decay, "prompt_type": self.prompt_type},
+        )
+
+    def _uni_prompt_ctx(self):
+        """Build a TaskContext for the UniPrompt strategy."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            answering=self.answering,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={
+                "task_type": "NodeTask",
+                "lr": self.lr,
+                "wd": self.decay,
+                "tau": getattr(self, "tau", 0.99),
+            },
+        )
+
     def _prodigy_ctx(self):
         """Build a TaskContext for the Prodigy strategy on this NodeTask."""
         return TaskContext(
@@ -424,6 +457,14 @@ class NodeTask(BaseTask):
                     loss = get_strategy("Prodigy")().train_epoch(
                         self._prodigy_ctx(), (self.data, idx_train)
                     )
+                elif self.prompt_type in ("EdgePrompt", "EdgePromptplus"):
+                    loss = get_strategy(self.prompt_type)().train_epoch(
+                        self._edge_prompt_ctx(), (self.data, idx_train)
+                    )
+                elif self.prompt_type == "UniPrompt":
+                    loss = get_strategy("UniPrompt")().train_epoch(
+                        self._uni_prompt_ctx(), (self.data, idx_train)
+                    )
                 elif self.prompt_type == "All-in-one":
                     loss = get_strategy("All-in-one")().train_epoch(
                         self._all_in_one_ctx(), train_loader
@@ -471,6 +512,14 @@ class NodeTask(BaseTask):
                 elif self.prompt_type == "Prodigy":
                     test_acc, f1, roc, prc = get_strategy("Prodigy")().evaluate(
                         self._prodigy_ctx(), (self.data, idx_test)
+                    )
+                elif self.prompt_type in ("EdgePrompt", "EdgePromptplus"):
+                    test_acc, f1, roc, prc = get_strategy(self.prompt_type)().evaluate(
+                        self._edge_prompt_ctx(), (self.data, idx_test)
+                    )
+                elif self.prompt_type == "UniPrompt":
+                    test_acc, f1, roc, prc = get_strategy("UniPrompt")().evaluate(
+                        self._uni_prompt_ctx(), (self.data, idx_test)
                     )
                 elif self.prompt_type == "All-in-one":
                     test_acc, f1, roc, prc = get_strategy("All-in-one")().evaluate(

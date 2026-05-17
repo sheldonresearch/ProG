@@ -116,14 +116,19 @@ class GNN(torch.nn.Module):
         else:
             raise ValueError("Invalid graph pooling type.")
 
-    def forward(self, x, edge_index, batch=None, prompt=None, prompt_type=None):
+    def forward(self, x, edge_index, batch=None, prompt=None, prompt_type=None, edge_weight=None):
         h_list = [x]
         for idx, conv in enumerate(self.conv_layers[0:-1]):
-            x = conv(x, edge_index)
+            if prompt_type in ("EdgePrompt", "EdgePromptplus"):
+                x = prompt(x, edge_index, layer=idx)
+            x = conv(x, edge_index, edge_weight) if edge_weight is not None else conv(x, edge_index)
             x = act(x)
             x = F.dropout(x, self.drop_ratio, training=self.training)
             h_list.append(x)
-        x = self.conv_layers[-1](x, edge_index)
+        if prompt_type in ("EdgePrompt", "EdgePromptplus"):
+            x = prompt(x, edge_index, layer=len(self.conv_layers) - 1)
+        last_conv = self.conv_layers[-1]
+        x = last_conv(x, edge_index, edge_weight) if edge_weight is not None else last_conv(x, edge_index)
         h_list.append(x)
         if self.JK == "last":
             node_emb = h_list[-1]
@@ -138,6 +143,9 @@ class GNN(torch.nn.Module):
                 node_emb = prompt(node_emb)
             elif prompt_type == "Prodigy":
                 node_emb = prompt(node_emb, edge_index, batch)
+            elif prompt_type in ("EdgePrompt", "EdgePromptplus"):
+                # EdgePrompt augments source-node features before readout.
+                node_emb = prompt(node_emb, edge_index, layer=len(self.conv_layers) - 1)
             graph_emb = self.pool(node_emb, batch.long())
             return graph_emb
 
