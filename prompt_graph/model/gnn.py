@@ -136,6 +136,25 @@ class GNN(torch.nn.Module):
             h_list = [h.unsqueeze_(0) for h in h_list]
             node_emb = torch.sum(torch.cat(h_list[1:], dim=0), dim=0)[0]
 
+        if prompt is not None and prompt_type is None:
+            # Direct feature perturbation (RELIEF style)
+            x = x + prompt
+            # Recompute embeddings after perturbation
+            h_list = [x]
+            for idx, conv in enumerate(self.conv_layers[0:-1]):
+                x = conv(x, edge_index, edge_weight) if edge_weight is not None else conv(x, edge_index)
+                x = act(x)
+                x = F.dropout(x, self.drop_ratio, training=self.training)
+                h_list.append(x)
+            last_conv = self.conv_layers[-1]
+            x = last_conv(x, edge_index, edge_weight) if edge_weight is not None else last_conv(x, edge_index)
+            h_list.append(x)
+            if self.JK == "last":
+                node_emb = h_list[-1]
+            elif self.JK == "sum":
+                h_list = [h.unsqueeze_(0) for h in h_list]
+                node_emb = torch.sum(torch.cat(h_list[1:], dim=0), dim=0)[0]
+
         if batch is None:
             if prompt_type == "DAGPrompT":
                 # Return multi-hop node embeddings for node-level prototype tuning
