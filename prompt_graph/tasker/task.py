@@ -91,6 +91,11 @@ class BaseTask:
             self.pg_opi = optim.Adam(self.prompt.parameters(), lr=self.lr, weight_decay=self.wd)
         elif self.prompt_type in ["GPPT"]:
             self.pg_opi = optim.Adam(self.prompt.parameters(), lr=2e-3, weight_decay=5e-4)
+        elif self.prompt_type == "SelfPro":
+            # Freeze GNN; only optimise the projector
+            for p in self.gnn.parameters():
+                p.requires_grad = False
+            self.optimizer = optim.Adam(self.prompt.parameters(), lr=self.lr, weight_decay=self.wd)
         elif self.prompt_type == "MultiGprompt":
             self.optimizer = optim.Adam(
                 [*self.DownPrompt.parameters(), *self.feature_prompt.parameters()], lr=self.lr
@@ -146,6 +151,9 @@ class BaseTask:
         elif self.prompt_type == "UniPrompt":
             from prompt_graph.prompt.UniPrompt import UniPrompt
             self.prompt = UniPrompt(self.data.x, num_nodes=self.data.num_nodes).to(self.device)
+        elif self.prompt_type == "SelfPro":
+            from prompt_graph.prompt.SelfProPrompt import SelfProPrompt
+            self.prompt = SelfProPrompt(self.hid_dim, self.hid_dim, num_layers=1).to(self.device)
         elif self.prompt_type == "MultiGprompt":
             nonlinearity = "prelu"
             self.Preprompt = NodePrePrompt(
