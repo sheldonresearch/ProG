@@ -344,6 +344,8 @@ class GraphTask(BaseTask):
                 loss = get_strategy("UniPrompt")().train_epoch(self._uni_prompt_ctx(), train_loader)
             elif self.prompt_type == "DAGPrompT":
                 loss = dagprompt_strategy.train_epoch(self._dagprompt_ctx(), train_loader)
+            elif self.prompt_type == "GraphPrompter":
+                loss = get_strategy("GraphPrompter")().train_epoch(self._graph_prompter_ctx(), train_loader)
 
             if loss < best:
                 best = loss
@@ -499,6 +501,20 @@ class GraphTask(BaseTask):
             gnn=self.gnn,
             prompt=self.prompt,
             param_center_embeddings=self.param_center_embeddings,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "GraphTask"},
+        )
+
+    def _graph_prompter_ctx(self):
+        """Build a TaskContext for the GraphPrompter strategy."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            answering=self.answering,
             criterion=self.criterion,
             optimizer=self.optimizer,
             device=self.device,

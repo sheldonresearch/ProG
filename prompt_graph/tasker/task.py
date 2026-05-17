@@ -107,6 +107,11 @@ class BaseTask:
                 *self.param_center_embeddings.parameters(),
             ]
             self.optimizer = optim.Adam(params, lr=self.lr, weight_decay=self.wd)
+        elif self.prompt_type in ("PSP", "RELIEF", "GraphPrompter"):
+            model_param_group = []
+            model_param_group.append({"params": self.prompt.parameters()})
+            model_param_group.append({"params": self.answering.parameters()})
+            self.optimizer = optim.Adam(model_param_group, lr=self.lr, weight_decay=self.wd)
         elif self.prompt_type == "MultiGprompt":
             self.optimizer = optim.Adam(
                 [*self.DownPrompt.parameters(), *self.feature_prompt.parameters()], lr=self.lr
@@ -192,6 +197,17 @@ class BaseTask:
             self.param_center_embeddings = ParameterizedMultiHopCenterEmbedding(
                 hop_num=hop_range, label_num=self.output_dim, hidden_dim=self.hid_dim
             ).to(self.device)
+        elif self.prompt_type == "PSP":
+            from prompt_graph.prompt.PSPPrompt import PSPPrompt
+            self.prompt = PSPPrompt(
+                self.data.num_nodes, self.output_dim, self.input_dim, self.hid_dim
+            ).to(self.device)
+        elif self.prompt_type == "RELIEF":
+            from prompt_graph.prompt.RELIEFPrompt import RELIEFPrompt
+            self.prompt = RELIEFPrompt(self.data.num_nodes, self.input_dim).to(self.device)
+        elif self.prompt_type == "GraphPrompter":
+            from prompt_graph.prompt.GraphPrompterPrompt import GraphPrompterPrompt
+            self.prompt = GraphPrompterPrompt(self.hid_dim).to(self.device)
         elif self.prompt_type == "MultiGprompt":
             nonlinearity = "prelu"
             self.Preprompt = NodePrePrompt(

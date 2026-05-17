@@ -14,8 +14,11 @@ from . import (
     multi_gprompt,  # noqa: F401 -- import side-effect registers MultiGpromptStrategy
     none,  # noqa: F401 -- import side-effect registers NoneStrategy
     dagprompt,  # noqa: F401 -- import side-effect registers DAGPrompTStrategy
+    graph_prompter,  # noqa: F401 -- import side-effect registers GraphPrompterStrategy
     prodigy,  # noqa: F401 -- import side-effect registers ProdigyStrategy
     pro_no_g,  # noqa: F401 -- import side-effect registers ProNoGStrategy
+    psp,  # noqa: F401 -- import side-effect registers PSPStrategy
+    relief,  # noqa: F401 -- import side-effect registers RELIEFStrategy
     self_pro,  # noqa: F401 -- import side-effect registers SelfProStrategy
     uni_prompt,  # noqa: F401 -- import side-effect registers UniPromptStrategy
 )

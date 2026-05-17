@@ -352,6 +352,48 @@ class NodeTask(BaseTask):
             extra={"task_type": "NodeTask"},
         )
 
+    def _psp_ctx(self):
+        """Build a TaskContext for the PSP strategy."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            answering=self.answering,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "NodeTask"},
+        )
+
+    def _relief_ctx(self):
+        """Build a TaskContext for the RELIEF strategy."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            answering=self.answering,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "NodeTask"},
+        )
+
+    def _graph_prompter_ctx(self):
+        """Build a TaskContext for the GraphPrompter strategy."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            answering=self.answering,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "NodeTask"},
+        )
+
     def _prodigy_ctx(self):
         """Build a TaskContext for the Prodigy strategy on this NodeTask."""
         return TaskContext(
@@ -516,6 +558,12 @@ class NodeTask(BaseTask):
                     )
                 elif self.prompt_type == "DAGPrompT":
                     loss = dagprompt_strategy.train_epoch(self._dagprompt_ctx(), train_loader)
+                elif self.prompt_type == "PSP":
+                    loss = get_strategy("PSP")().train_epoch(self._psp_ctx(), (self.data, idx_train))
+                elif self.prompt_type == "RELIEF":
+                    loss = get_strategy("RELIEF")().train_epoch(self._relief_ctx(), (self.data, idx_train))
+                elif self.prompt_type == "GraphPrompter":
+                    loss = get_strategy("GraphPrompter")().train_epoch(self._graph_prompter_ctx(), (self.data, idx_train))
                 elif self.prompt_type == "All-in-one":
                     loss = get_strategy("All-in-one")().train_epoch(
                         self._all_in_one_ctx(), train_loader
@@ -582,6 +630,12 @@ class NodeTask(BaseTask):
                     )
                 elif self.prompt_type == "DAGPrompT":
                     test_acc, f1, roc, prc = dagprompt_strategy.evaluate(self._dagprompt_ctx(), test_loader)
+                elif self.prompt_type == "PSP":
+                    test_acc, f1, roc, prc = get_strategy("PSP")().evaluate(self._psp_ctx(), (self.data, idx_test))
+                elif self.prompt_type == "RELIEF":
+                    test_acc, f1, roc, prc = get_strategy("RELIEF")().evaluate(self._relief_ctx(), (self.data, idx_test))
+                elif self.prompt_type == "GraphPrompter":
+                    test_acc, f1, roc, prc = get_strategy("GraphPrompter")().evaluate(self._graph_prompter_ctx(), (self.data, idx_test))
                 elif self.prompt_type == "All-in-one":
                     test_acc, f1, roc, prc = get_strategy("All-in-one")().evaluate(
                         self._all_in_one_ctx(), test_loader
