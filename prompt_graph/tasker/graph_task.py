@@ -318,6 +318,7 @@ class GraphTask(BaseTask):
         # Stateful strategies (e.g. Gprompt's mean_centers) need a single
         # instance reused across this fold's train_epoch + evaluate calls.
         gprompt_strategy = get_strategy("Gprompt")() if self.prompt_type == "Gprompt" else None
+        dagprompt_strategy = get_strategy("DAGPrompT")() if self.prompt_type == "DAGPrompT" else None
 
         for epoch in range(1, self.epochs + 1):
             t0 = time.time()
@@ -341,6 +342,8 @@ class GraphTask(BaseTask):
                 loss = get_strategy(self.prompt_type)().train_epoch(self._edge_prompt_ctx(), train_loader)
             elif self.prompt_type == "UniPrompt":
                 loss = get_strategy("UniPrompt")().train_epoch(self._uni_prompt_ctx(), train_loader)
+            elif self.prompt_type == "DAGPrompT":
+                loss = dagprompt_strategy.train_epoch(self._dagprompt_ctx(), train_loader)
 
             if loss < best:
                 best = loss
@@ -378,6 +381,8 @@ class GraphTask(BaseTask):
             )
         elif self.prompt_type == "Gprompt":
             test_acc, f1, roc, prc = gprompt_strategy.evaluate(self._gprompt_ctx(), test_loader)
+        elif self.prompt_type == "DAGPrompT":
+            test_acc, f1, roc, prc = dagprompt_strategy.evaluate(self._dagprompt_ctx(), test_loader)
 
         logger.info(
             f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}"
@@ -486,6 +491,20 @@ class GraphTask(BaseTask):
                 "wd": self.decay,
                 "tau": getattr(self, "tau", 0.99),
             },
+        )
+
+    def _dagprompt_ctx(self):
+        """Build a TaskContext for the DAGPrompT strategy."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            param_center_embeddings=self.param_center_embeddings,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "GraphTask"},
         )
 
     def _prodigy_ctx(self):

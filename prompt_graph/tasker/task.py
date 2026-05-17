@@ -101,6 +101,12 @@ class BaseTask:
             for p in self.gnn.parameters():
                 p.requires_grad = False
             self.optimizer = optim.Adam(self.prompt.parameters(), lr=self.lr, weight_decay=self.wd)
+        elif self.prompt_type == "DAGPrompT":
+            params = [
+                *self.prompt.parameters(),
+                *self.param_center_embeddings.parameters(),
+            ]
+            self.optimizer = optim.Adam(params, lr=self.lr, weight_decay=self.wd)
         elif self.prompt_type == "MultiGprompt":
             self.optimizer = optim.Adam(
                 [*self.DownPrompt.parameters(), *self.feature_prompt.parameters()], lr=self.lr
@@ -174,6 +180,17 @@ class BaseTask:
                 neighbors_2hop=neighbors_2hop,
                 nb_classes=self.output_dim,
                 hidden_size=self.hid_dim,
+            ).to(self.device)
+        elif self.prompt_type == "DAGPrompT":
+            from prompt_graph.prompt.DAGPrompT import (
+                DAGPrompt,
+                ParameterizedMultiHopCenterEmbedding,
+            )
+            hop_range = self.num_layer + 1
+            dim_list = [self.input_dim] + [self.hid_dim] * self.num_layer
+            self.prompt = DAGPrompt(dim_list).to(self.device)
+            self.param_center_embeddings = ParameterizedMultiHopCenterEmbedding(
+                hop_num=hop_range, label_num=self.output_dim, hidden_dim=self.hid_dim
             ).to(self.device)
         elif self.prompt_type == "MultiGprompt":
             nonlinearity = "prelu"

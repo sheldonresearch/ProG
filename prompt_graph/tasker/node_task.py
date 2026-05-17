@@ -338,6 +338,20 @@ class NodeTask(BaseTask):
             extra={"task_type": "NodeTask", "data": self.data},
         )
 
+    def _dagprompt_ctx(self):
+        """Build a TaskContext for the DAGPrompT strategy."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            param_center_embeddings=self.param_center_embeddings,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "NodeTask"},
+        )
+
     def _prodigy_ctx(self):
         """Build a TaskContext for the Prodigy strategy on this NodeTask."""
         return TaskContext(
@@ -435,7 +449,7 @@ class NodeTask(BaseTask):
                     node_embedding, self.data.edge_index, self.data.y, idx_train
                 )
 
-            if self.prompt_type in ["Gprompt", "All-in-one", "GPF", "GPF-plus"]:
+            if self.prompt_type in ["Gprompt", "All-in-one", "GPF", "GPF-plus", "DAGPrompT"]:
                 train_graphs = []
                 test_graphs = []
                 # self.graphs_list.to(self.device)
@@ -467,6 +481,7 @@ class NodeTask(BaseTask):
             # Stateful strategies (e.g. Gprompt's mean_centers) need a single
             # instance reused across this fold's train_epoch + evaluate calls.
             gprompt_strategy = get_strategy("Gprompt")() if self.prompt_type == "Gprompt" else None
+            dagprompt_strategy = get_strategy("DAGPrompT")() if self.prompt_type == "DAGPrompT" else None
 
             for epoch in range(1, self.epochs + 1):
                 t0 = time.time()
@@ -499,6 +514,8 @@ class NodeTask(BaseTask):
                     loss = get_strategy("ProNoG")().train_epoch(
                         self._pro_no_g_ctx(), (self.data, idx_train)
                     )
+                elif self.prompt_type == "DAGPrompT":
+                    loss = dagprompt_strategy.train_epoch(self._dagprompt_ctx(), train_loader)
                 elif self.prompt_type == "All-in-one":
                     loss = get_strategy("All-in-one")().train_epoch(
                         self._all_in_one_ctx(), train_loader
@@ -563,6 +580,8 @@ class NodeTask(BaseTask):
                     test_acc, f1, roc, prc = get_strategy("ProNoG")().evaluate(
                         self._pro_no_g_ctx(), (self.data, idx_test)
                     )
+                elif self.prompt_type == "DAGPrompT":
+                    test_acc, f1, roc, prc = dagprompt_strategy.evaluate(self._dagprompt_ctx(), test_loader)
                 elif self.prompt_type == "All-in-one":
                     test_acc, f1, roc, prc = get_strategy("All-in-one")().evaluate(
                         self._all_in_one_ctx(), test_loader

@@ -137,6 +137,9 @@ class GNN(torch.nn.Module):
             node_emb = torch.sum(torch.cat(h_list[1:], dim=0), dim=0)[0]
 
         if batch is None:
+            if prompt_type == "DAGPrompT":
+                # Return multi-hop node embeddings for node-level prototype tuning
+                return h_list
             return node_emb
         else:
             if prompt_type == "Gprompt":
@@ -146,8 +149,29 @@ class GNN(torch.nn.Module):
             elif prompt_type in ("EdgePrompt", "EdgePromptplus"):
                 # EdgePrompt augments source-node features before readout.
                 node_emb = prompt(node_emb, edge_index, layer=len(self.conv_layers) - 1)
+            elif prompt_type == "DAGPrompT":
+                # Multi-hop graph-level embeddings
+                h_list = prompt(h_list)
+                graph_embeddings = [self.pool(h, batch.long()) for h in h_list]
+                return torch.stack(graph_embeddings)
             graph_emb = self.pool(node_emb, batch.long())
             return graph_emb
+
+    def forward_multihop(self, x, edge_index, edge_weight=None):
+        """Return a list of node embeddings after each layer (including input).
+
+        Used by DAGPrompT and other multi-hop prompt methods.
+        """
+        h_list = [x]
+        for idx, conv in enumerate(self.conv_layers[0:-1]):
+            x = conv(x, edge_index, edge_weight) if edge_weight is not None else conv(x, edge_index)
+            x = act(x)
+            x = F.dropout(x, self.drop_ratio, training=self.training)
+            h_list.append(x)
+        last_conv = self.conv_layers[-1]
+        x = last_conv(x, edge_index, edge_weight) if edge_weight is not None else last_conv(x, edge_index)
+        h_list.append(x)
+        return h_list
 
     def decode(self, z, edge_label_index):
         return (z[edge_label_index[0]] * z[edge_label_index[1]]).sum(dim=-1)
