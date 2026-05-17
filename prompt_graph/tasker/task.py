@@ -96,6 +96,11 @@ class BaseTask:
             for p in self.gnn.parameters():
                 p.requires_grad = False
             self.optimizer = optim.Adam(self.prompt.parameters(), lr=self.lr, weight_decay=self.wd)
+        elif self.prompt_type == "ProNoG":
+            # Freeze GNN; only optimise prompt parameters
+            for p in self.gnn.parameters():
+                p.requires_grad = False
+            self.optimizer = optim.Adam(self.prompt.parameters(), lr=self.lr, weight_decay=self.wd)
         elif self.prompt_type == "MultiGprompt":
             self.optimizer = optim.Adam(
                 [*self.DownPrompt.parameters(), *self.feature_prompt.parameters()], lr=self.lr
@@ -154,6 +159,22 @@ class BaseTask:
         elif self.prompt_type == "SelfPro":
             from prompt_graph.prompt.SelfProPrompt import SelfProPrompt
             self.prompt = SelfProPrompt(self.hid_dim, self.hid_dim, num_layers=1).to(self.device)
+        elif self.prompt_type == "ProNoG":
+            from prompt_graph.prompt.ProNoGPrompt import ProNoGPrompt
+            self.gnn.eval()
+            with torch.no_grad():
+                embeds = self.gnn(self.data.x, self.data.edge_index).detach()
+            from prompt_graph.tasker.strategies.pro_no_g import _build_neighbor_lists
+            neighbors, neighbors_2hop = _build_neighbor_lists(
+                self.data.edge_index, self.data.num_nodes, self.device
+            )
+            self.prompt = ProNoGPrompt(
+                embeds=embeds,
+                neighbors=neighbors,
+                neighbors_2hop=neighbors_2hop,
+                nb_classes=self.output_dim,
+                hidden_size=self.hid_dim,
+            ).to(self.device)
         elif self.prompt_type == "MultiGprompt":
             nonlinearity = "prelu"
             self.Preprompt = NodePrePrompt(

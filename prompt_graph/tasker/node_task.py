@@ -325,6 +325,19 @@ class NodeTask(BaseTask):
             extra={"task_type": "NodeTask", "temp": getattr(self, "temp", 0.8)},
         )
 
+    def _pro_no_g_ctx(self):
+        """Build a TaskContext for the ProNoG strategy."""
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={"task_type": "NodeTask", "data": self.data},
+        )
+
     def _prodigy_ctx(self):
         """Build a TaskContext for the Prodigy strategy on this NodeTask."""
         return TaskContext(
@@ -482,6 +495,10 @@ class NodeTask(BaseTask):
                     loss = get_strategy("SelfPro")().train_epoch(
                         self._self_pro_ctx(), (self.data, idx_train)
                     )
+                elif self.prompt_type == "ProNoG":
+                    loss = get_strategy("ProNoG")().train_epoch(
+                        self._pro_no_g_ctx(), (self.data, idx_train)
+                    )
                 elif self.prompt_type == "All-in-one":
                     loss = get_strategy("All-in-one")().train_epoch(
                         self._all_in_one_ctx(), train_loader
@@ -541,6 +558,10 @@ class NodeTask(BaseTask):
                 elif self.prompt_type == "SelfPro":
                     test_acc, f1, roc, prc = get_strategy("SelfPro")().evaluate(
                         self._self_pro_ctx(), (self.data, idx_test)
+                    )
+                elif self.prompt_type == "ProNoG":
+                    test_acc, f1, roc, prc = get_strategy("ProNoG")().evaluate(
+                        self._pro_no_g_ctx(), (self.data, idx_test)
                     )
                 elif self.prompt_type == "All-in-one":
                     test_acc, f1, roc, prc = get_strategy("All-in-one")().evaluate(
