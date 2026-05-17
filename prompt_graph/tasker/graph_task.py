@@ -44,16 +44,14 @@ class GraphTask(BaseTask):
     def create_few_data_folder(self):
         # 创建文件夹并保存数据
         k = self.shot_num
-        task_num = self.task_num
-        for k in range(1, task_num + 1):
-            k_shot_folder = str(sample_dir("Graph", k, self.dataset_name))
-            os.makedirs(k_shot_folder, exist_ok=True)
-            for i in range(1, task_num + 1):
-                folder = os.path.join(k_shot_folder, str(i))
-                if not os.path.exists(folder):
-                    os.makedirs(folder, exist_ok=True)
-                    graph_sample_and_save(self.dataset, k, folder, self.output_dim)
-                    logger.info(str(k) + " shot " + str(i) + " th is saved!!")
+        k_shot_folder = str(sample_dir("Graph", k, self.dataset_name))
+        os.makedirs(k_shot_folder, exist_ok=True)
+        for i in range(1, self.task_num + 1):
+            folder = os.path.join(k_shot_folder, str(i))
+            if not os.path.exists(folder):
+                os.makedirs(folder, exist_ok=True)
+                graph_sample_and_save(self.dataset, k, folder, self.output_dim)
+                logger.info(str(k) + " shot " + str(i) + " th is saved!!")
 
     def load_data(self):
         if self.dataset_name in GRAPH_TASKS:
@@ -463,19 +461,16 @@ class GraphTask(BaseTask):
             rocs = []
             prcs = []
             batch_best_loss = []
-            for i in range(1, 6):
+            for i in range(1, self.task_num + 1):
+                split_dir = sample_dir("Graph", self.shot_num, self.dataset_name) / str(i)
                 idx_train = (
-                    torch.load(
-                        f"./Experiment/sample_data/Graph/{self.dataset_name}/{self.shot_num}_shot/{i}/train_idx.pt"
-                    )
+                    torch.load(str(split_dir / "train_idx.pt"))
                     .type(torch.long)
                     .to(self.device)
                 )
                 logger.debug(f"idx_train {idx_train}")
                 train_lbls = (
-                    torch.load(
-                        f"./Experiment/sample_data/Graph/{self.dataset_name}/{self.shot_num}_shot/{i}/train_labels.pt"
-                    )
+                    torch.load(str(split_dir / "train_labels.pt"))
                     .type(torch.long)
                     .squeeze()
                     .to(self.device)
@@ -483,9 +478,7 @@ class GraphTask(BaseTask):
                 logger.debug(f"true {i} {train_lbls}")
 
                 idx_test = (
-                    torch.load(
-                        f"./Experiment/sample_data/Graph/{self.dataset_name}/{self.shot_num}_shot/{i}/test_idx.pt"
-                    )
+                    torch.load(str(split_dir / "test_idx.pt"))
                     .type(torch.long)
                     .to(self.device)
                 )

@@ -49,18 +49,16 @@ class NodeTask(BaseTask):
 
     def create_few_data_folder(self):
         # 创建文件夹并保存数据
-        k = self.shot_num  # shot_num 可变
-        task_num = self.task_num  # task_num 可变
-        for k in range(1, task_num + 1):
-            k_shot_folder = str(sample_dir("Node", k, self.dataset_name))
-            os.makedirs(k_shot_folder, exist_ok=True)
+        k = self.shot_num
+        k_shot_folder = str(sample_dir("Node", k, self.dataset_name))
+        os.makedirs(k_shot_folder, exist_ok=True)
 
-            for i in range(1, task_num + 1):
-                folder = os.path.join(k_shot_folder, str(i))
-                if not os.path.exists(folder):
-                    os.makedirs(folder)
-                    node_sample_and_save(self.data, k, folder, self.output_dim)
-                    logger.info(str(k) + " shot " + str(i) + " th is saved!!")
+        for i in range(1, self.task_num + 1):
+            folder = os.path.join(k_shot_folder, str(i))
+            if not os.path.exists(folder):
+                os.makedirs(folder, exist_ok=True)
+                node_sample_and_save(self.data, k, folder, self.output_dim)
+                logger.info(str(k) + " shot " + str(i) + " th is saved!!")
 
     def load_multigprompt_data(self):
         adj, features, labels = process.load_data(self.dataset_name)
@@ -317,8 +315,8 @@ class NodeTask(BaseTask):
             self.prompt_epoch = 50
             self.epochs = max(1, int(self.epochs / self.answer_epoch))
         for i in range(1, self.task_num + 1):
-            sample_data_foler_path = (
-                f"./Experiment/sample_data/Node/{self.dataset_name}/{self.shot_num}_shot/{i}"
+            sample_data_foler_path = str(
+                sample_dir("Node", self.shot_num, self.dataset_name) / str(i)
             )
 
             if not os.path.exists(sample_data_foler_path):
