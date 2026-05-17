@@ -1,57 +1,131 @@
-"""GraphPrompterPrompt: adaptive prompt selection (KDD 2025).
+"""GraphPrompterPrompt: adaptive prompt selection (KDD 2025) full version.
 
-GraphPrompter learns a scoring MLP (select_layers) that ranks candidate
-prompt supernodes.  This ProG port keeps the scoring MLP as the core
-learnable component and drops the heavy kNN cache / text-embedding / metagraph
-pipeline.
+This module wraps :class:`GraphPrompterModel` and exposes a unified interface
+compatible with ProG's ``gnn.py`` dispatch logic.
+
+* **Graph-level** (``batch is not None``): returns per-graph logits directly.
+* **Node-level** (``batch is None``): returns prompt-augmented node embeddings.
 """
 
 from __future__ import annotations
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+
+from prompt_graph.prompt.GraphPrompter import GraphPrompterModel
 
 
 class GraphPrompterPrompt(nn.Module):
-    """Scoring MLP that selects adaptive prompt embeddings.
+    """Adaptive prompt selection via metagraph propagation.
 
     Args:
         emb_dim: Dimension of node / graph embeddings.
-        hidden_dim: Hidden dimension of the scoring MLP.
-        num_prompts: Number of candidate prompt vectors to maintain.
+        num_classes: Number of target classes.
+        num_prompts: Candidate prompts per class.
+        shots: Support-set size (scales kNN top-k).
+        temp: kNN temperature.
+        select_lambda: Weight for scoring-MLP in kNN voting.
+        use_knn: Enable adaptive kNN prompt selection.
+        use_select: Enable scoring MLP.
+        use_cache: Enable LFU embedding cache.
+        cache_cap: Cache capacity per class.
+        meta_layers: Number of metagraph GNN layers.
+        meta_heads: Attention heads in metagraph GNN.
+        task_type: ``"graph"`` or ``"node"``.
     """
 
-    def __init__(self, emb_dim: int, hidden_dim: int = 256, num_prompts: int = 10):
+    def __init__(
+        self,
+        emb_dim: int,
+        num_classes: int,
+        num_prompts: int = 10,
+        shots: int = 10,
+        temp: float = 1.0,
+        select_lambda: float = 0.5,
+        use_knn: bool = True,
+        use_select: bool = True,
+        use_cache: bool = False,
+        cache_cap: int = 5,
+        meta_layers: int = 1,
+        meta_heads: int = 4,
+        task_type: str = "graph",
+    ):
         super().__init__()
-        self.prompts = nn.Parameter(torch.zeros(num_prompts, emb_dim))
-        self.select_layers = nn.Sequential(
-            nn.Linear(emb_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1),
+        self.model = GraphPrompterModel(
+            emb_dim=emb_dim,
+            num_classes=num_classes,
+            num_prompts=num_prompts,
+            shots=shots,
+            temp=temp,
+            select_lambda=select_lambda,
+            use_knn=use_knn,
+            use_select=use_select,
+            use_cache=use_cache,
+            cache_cap=cache_cap,
+            meta_layers=meta_layers,
+            meta_heads=meta_heads,
+            task_type=task_type,
         )
-        self.reset_parameters()
+        self.task_type = task_type
 
     def reset_parameters(self):
-        nn.init.xavier_uniform_(self.prompts)
-        for layer in self.select_layers:
-            if isinstance(layer, nn.Linear):
-                nn.init.xavier_uniform_(layer.weight)
+        self.model.reset_parameters()
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Score and aggregate prompt vectors for the input embeddings.
+    def forward(
+        self,
+        x: torch.Tensor,
+        batch: torch.Tensor | None = None,
+        edge_index: torch.Tensor | None = None,
+        y: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        """Run GraphPrompter forward.
 
         Args:
-            x: [N, emb_dim] node embeddings.
+            x: Node embeddings ``[N, emb_dim]``.
+            batch: Batch vector for graph-level tasks.
+            edge_index: Background graph edge index.
+            y: Ground-truth labels (for cache updates).
 
         Returns:
-            [N, emb_dim] prompt-augmented embeddings.
+            Graph-level → logits ``[B, num_classes]``.
+            Node-level → enhanced embeddings ``[N, emb_dim]``.
         """
-        # Score each candidate prompt for each node
-        scores = self.select_layers(self.prompts).squeeze(-1)  # [num_prompts]
-        weights = F.softmax(scores, dim=0)
-        aggregated = weights.unsqueeze(1) * self.prompts  # [num_prompts, emb_dim]
-        prompt_vec = aggregated.sum(0)  # [emb_dim]
-        return x + prompt_vec
+        if batch is not None or self.task_type == "graph":
+            # Graph-level: return logits directly
+            return self.model(
+                node_emb=x,
+                batch=batch,
+                edge_index=edge_index,
+                y=y,
+                training=self.training,
+            )
+        # Node-level: return enhanced embeddings
+        # Treat each node as its own supernode for metagraph propagation
+        num_nodes = x.shape[0]
+        device = x.device
+        supernode_idx = torch.arange(num_nodes, device=device)
+        # Build trivial supernode_edge_index (each node connects to itself)
+        supernode_edge_index = torch.stack([
+            torch.arange(num_nodes, device=device),
+            torch.arange(num_nodes, device=device),
+        ], dim=0)
+
+        # Temporarily disable kNN for node-level (kNN changes supernode count)
+        old_use_knn = self.model.use_knn
+        self.model.use_knn = False
+        logits = self.model(
+            node_emb=x,
+            edge_index=edge_index,
+            supernode_edge_index=supernode_edge_index,
+            supernode_idx=supernode_idx,
+            y=y,
+            training=self.training,
+        )
+        self.model.use_knn = old_use_knn
+        # logits: [num_nodes, num_classes]
+        # Convert back to embedding space via linear combination of label embeddings
+        # This preserves the prompt-augmented signal while staying in emb_dim space
+        label_embs = self.model.learned_label_embedding.weight  # [num_classes, emb_dim]
+        probs = torch.softmax(logits, dim=-1)
+        enhanced = torch.mm(probs, label_embs)  # [num_nodes, emb_dim]
+        return x + enhanced

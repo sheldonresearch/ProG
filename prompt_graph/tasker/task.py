@@ -207,7 +207,22 @@ class BaseTask:
             self.prompt = RELIEFPrompt(self.data.num_nodes, self.input_dim).to(self.device)
         elif self.prompt_type == "GraphPrompter":
             from prompt_graph.prompt.GraphPrompterPrompt import GraphPrompterPrompt
-            self.prompt = GraphPrompterPrompt(self.hid_dim).to(self.device)
+            task_type_str = "graph" if self.task_type == "GraphTask" else "node"
+            self.prompt = GraphPrompterPrompt(
+                emb_dim=self.hid_dim,
+                num_classes=self.output_dim,
+                num_prompts=getattr(self, "gp_num_prompts", 10),
+                shots=getattr(self, "shot_num", 10),
+                temp=getattr(self, "gp_temp", 1.0),
+                select_lambda=getattr(self, "gp_select_lambda", 0.5),
+                use_knn=getattr(self, "gp_use_knn", True),
+                use_select=getattr(self, "gp_use_select", True),
+                use_cache=getattr(self, "gp_use_cache", False),
+                cache_cap=getattr(self, "gp_cache_cap", 5),
+                meta_layers=getattr(self, "gp_meta_layers", 1),
+                meta_heads=getattr(self, "gp_meta_heads", 4),
+                task_type=task_type_str,
+            ).to(self.device)
         elif self.prompt_type == "MultiGprompt":
             nonlinearity = "prelu"
             self.Preprompt = NodePrePrompt(

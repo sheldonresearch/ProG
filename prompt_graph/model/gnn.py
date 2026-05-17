@@ -174,7 +174,8 @@ class GNN(torch.nn.Module):
                 graph_embeddings = [self.pool(h, batch.long()) for h in h_list]
                 return torch.stack(graph_embeddings)
             elif prompt_type == "GraphPrompter":
-                node_emb = prompt(node_emb)
+                # GraphPrompter handles readout + metagraph + decode internally
+                return prompt(node_emb, batch=batch, edge_index=edge_index)
             graph_emb = self.pool(node_emb, batch.long())
             return graph_emb
 
