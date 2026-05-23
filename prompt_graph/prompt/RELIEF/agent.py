@@ -152,8 +152,13 @@ class H_PPO:
         self.ensemble_num = ensemble_num
         self.penalty_alpha_d = penalty_alpha_d
         self.penalty_alpha_c = penalty_alpha_c
-        self.actor_ds = [copy.deepcopy(ActorDiscrete(hid_dim).to(device)) for _ in range(ensemble_num)]
-        self.actor_cs = [copy.deepcopy(ActorContinuous(hid_dim, x_dim, max_action, init_log_std).to(device)) for _ in range(ensemble_num)]
+        self.actor_ds = [
+            copy.deepcopy(ActorDiscrete(hid_dim).to(device)) for _ in range(ensemble_num)
+        ]
+        self.actor_cs = [
+            copy.deepcopy(ActorContinuous(hid_dim, x_dim, max_action, init_log_std).to(device))
+            for _ in range(ensemble_num)
+        ]
         self.critic = Critic(hid_dim, max_num_nodes).to(device)
 
         self.eps_clip_d = eps_clip_d
@@ -184,7 +189,11 @@ class H_PPO:
 
     def _node_to_state(self, batch_data, prompt, nodes_per_graph):
         with torch.no_grad():
-            node_emb = self.gnn(batch_data.x, batch_data.edge_index, prompt)
+            # NOTE: pass prompt/ batch as kwargs because GNN.forward signature
+            # is (x, edge_index, batch=None, prompt=None, prompt_type=None, ...);
+            # positional ``prompt`` here would land in ``batch`` and trigger
+            # ``self.pool(node_emb, batch.long())`` with a 2-D tensor.
+            node_emb = self.gnn(batch_data.x, batch_data.edge_index, prompt=prompt)
         state_slices = torch.split(node_emb, nodes_per_graph.tolist(), dim=0)
         for i, ss in enumerate(state_slices):
             self.step_state[i, : ss.size(0), :] = ss
@@ -193,9 +202,15 @@ class H_PPO:
     def train_prompt(self, a_idx, batch_data, nodes_per_graph, step):
         with torch.no_grad():
             self.gnn.eval()
-            batch_state = self._node_to_state(batch_data, torch.cat(self.prompt_slices), nodes_per_graph)
-            batch_action_d, batch_logp_d = self.actor_ds[a_idx].get_action_logprob(batch_state, self.batch_mask)
-            batch_action_c, batch_logp_c = self.actor_cs[a_idx].get_action_logprob(batch_state, batch_action_d)
+            batch_state = self._node_to_state(
+                batch_data, torch.cat(self.prompt_slices), nodes_per_graph
+            )
+            batch_action_d, batch_logp_d = self.actor_ds[a_idx].get_action_logprob(
+                batch_state, self.batch_mask
+            )
+            batch_action_c, batch_logp_c = self.actor_cs[a_idx].get_action_logprob(
+                batch_state, batch_action_d
+            )
             for i in range(len(self.prompt_slices)):
                 if step < nodes_per_graph[i]:
                     self.prompt_slices[i][batch_action_d[i]] += batch_action_c[i]
@@ -222,7 +237,9 @@ class H_PPO:
     def eval_prompt(self, batch_data, nodes_per_graph, step, truncate_flag):
         with torch.no_grad():
             self.gnn.eval()
-            batch_state = self._node_to_state(batch_data, torch.cat(self.prompt_slices), nodes_per_graph)
+            batch_state = self._node_to_state(
+                batch_data, torch.cat(self.prompt_slices), nodes_per_graph
+            )
             batch_action_d = self._get_eval_action_d(batch_state, self.batch_mask)
             batch_action_c = self._get_eval_action_c(batch_state, batch_action_d)
         for i in range(len(self.prompt_slices)):
@@ -240,7 +257,9 @@ class H_PPO:
             ens_pi = F.normalize(ens_max_pi, p=1, dim=-1)
         cur_pi = F.normalize(pis[a_idx] + 1e-10, p=1, dim=-1)
         ens_pi = F.normalize(ens_pi + 1e-10, p=1, dim=-1)
-        kl_penalty_d = F.kl_div(torch.log(cur_pi), ens_pi, log_target=False, reduction="none").sum(dim=-1)
+        kl_penalty_d = F.kl_div(torch.log(cur_pi), ens_pi, log_target=False, reduction="none").sum(
+            dim=-1
+        )
         ens_action_d = torch.argmax(ens_max_pi, dim=-1)
         return kl_penalty_d * self.penalty_alpha_d, ens_action_d
 
@@ -263,7 +282,9 @@ class H_PPO:
         kl_penalty_c = torch.distributions.kl.kl_divergence(cur_dist, ens_dist).sum(dim=-1)
         return kl_penalty_c * self.penalty_alpha_c
 
-    def _actor_loss(self, a_idx, state, action_d, action_c, adv, logprob_old_d, logprob_old_c, node_num):
+    def _actor_loss(
+        self, a_idx, state, action_d, action_c, adv, logprob_old_d, logprob_old_c, node_num
+    ):
         base_mask = torch.zeros(state.size(0), self.max_num_nodes).to(self.device)
         base_idx = torch.arange(0, self.max_num_nodes).to(self.device)
         mask = torch.where(base_idx < node_num.unsqueeze(-1), base_mask, torch.ones_like(base_mask))
@@ -308,7 +329,9 @@ class H_PPO:
         state_value = self.critic(state).squeeze(-1)
         return F.mse_loss(ret.float(), state_value.float()) * self.coeff_critic
 
-    def train_policy(self, args, a_idx, experience, node_num, optim, ret0, scaled_reward, batch_id, total_batch):
+    def train_policy(
+        self, args, a_idx, experience, node_num, optim, ret0, scaled_reward, batch_id, total_batch
+    ):
         state, action_d, logprob_old_d, action_c, logprob_old_c, adv, ret = experience
         node_num = torch.stack([x for x in node_num for _ in range(x)])
         adv = (adv - adv.mean()) / (adv.std() + 1e-8)
@@ -323,9 +346,17 @@ class H_PPO:
             kl_d_minibatch = kl_c_minibatch = 0.0
             for minibatch in range(minibatch_num):
                 idx = index[minibatch * args.minibatch_size : (minibatch + 1) * args.minibatch_size]
-                actor_loss_d, actor_loss_c, _, _, ens_pen_d, ens_pen_c, kl_d, kl_c = self._actor_loss(
-                    a_idx, state[idx], action_d[idx], action_c[idx], adv[idx],
-                    logprob_old_d[idx], logprob_old_c[idx], node_num[idx],
+                actor_loss_d, actor_loss_c, _, _, ens_pen_d, ens_pen_c, kl_d, kl_c = (
+                    self._actor_loss(
+                        a_idx,
+                        state[idx],
+                        action_d[idx],
+                        action_c[idx],
+                        adv[idx],
+                        logprob_old_d[idx],
+                        logprob_old_c[idx],
+                        node_num[idx],
+                    )
                 )
                 kl_d_minibatch += kl_d
                 kl_c_minibatch += kl_c
@@ -362,8 +393,8 @@ class H_PPO:
 
         if not getattr(args, "sh_mode", False):
             print(
-                f"[Actor{a_idx+1} Batch{batch_id:02d}/{total_batch}] "
-                f"Loss {actor_loss_d_batch/minibatch_num/update_num_cnt:.3f} "
-                f"{actor_loss_c_batch/minibatch_num/update_num_cnt:.3f} "
-                f"{critic_loss_batch/minibatch_num/update_num_cnt:.2f}"
+                f"[Actor{a_idx + 1} Batch{batch_id:02d}/{total_batch}] "
+                f"Loss {actor_loss_d_batch / minibatch_num / update_num_cnt:.3f} "
+                f"{actor_loss_c_batch / minibatch_num / update_num_cnt:.3f} "
+                f"{critic_loss_batch / minibatch_num / update_num_cnt:.2f}"
             )

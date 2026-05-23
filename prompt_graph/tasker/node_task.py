@@ -290,7 +290,12 @@ class NodeTask(BaseTask):
             device=self.device,
             hid_dim=self.hid_dim,
             output_dim=self.output_dim,
-            extra={"task_type": "NodeTask", "lr": self.lr, "wd": self.decay, "prompt_type": self.prompt_type},
+            extra={
+                "task_type": "NodeTask",
+                "lr": self.lr,
+                "wd": self.wd,
+                "prompt_type": self.prompt_type,
+            },
         )
 
     def _uni_prompt_ctx(self):
@@ -307,7 +312,7 @@ class NodeTask(BaseTask):
             extra={
                 "task_type": "NodeTask",
                 "lr": self.lr,
-                "wd": self.decay,
+                "wd": self.wd,
                 "tau": getattr(self, "tau", 0.99),
             },
         )
@@ -367,7 +372,32 @@ class NodeTask(BaseTask):
         )
 
     def _relief_ctx(self):
-        """Build a TaskContext for the RELIEF strategy."""
+        """Build a TaskContext for the RELIEF strategy.
+
+        **Why NodeTask uses task_type='NodeTask' (single-graph path)**:
+
+        We attempted an architectural rework (P2.2) routing NodeTask RELIEF
+        through ``task_type='GraphTask'`` with induced subgraphs (mirroring
+        Gprompt/GPF/All-in-one). Empirically this was both **slower**
+        (13 min/fold vs 7 min/fold on Cora) and **less accurate**
+        (acc 0.14 vs 0.19), because:
+
+        1. The eval set has ~2400 induced subgraphs. Even with the step
+           cap at 30, each batch (~64 subgraphs of ~174 nodes ≈ 11k
+           batched nodes) makes the GNN forward dominate the savings
+           from a smaller inner loop. Net: per-iteration cost up, total
+           iterations up.
+        2. Subgraph-pool readout is semantically wrong for NodeTask —
+           each subgraph's ``batch.y`` is the center node's label, but
+           the tasknet reads whole-graph pool embedding (not the centre
+           node embedding). Loss signal is diluted.
+
+        So we keep the single-graph path with the ``attach_prompt``
+        step cap (``relief_max_attach_steps=50``). RELIEF on dense
+        single-graph NodeTasks is inherently slow — proper fix is to
+        replace it with one of the lighter-weight prompt families
+        (``Prodigy`` / ``GPPT`` / ``ProNoG``) for this scale.
+        """
         return TaskContext(
             gnn=self.gnn,
             prompt=self.prompt,
@@ -377,7 +407,12 @@ class NodeTask(BaseTask):
             device=self.device,
             hid_dim=self.hid_dim,
             output_dim=self.output_dim,
-            extra={"task_type": "NodeTask"},
+            extra={
+                "task_type": "NodeTask",
+                "svd_dim_override": self.input_dim,
+                "max_num_nodes": self.data.num_nodes,
+                "relief_max_attach_steps": getattr(self, "relief_max_attach_steps", 50),
+            },
         )
 
     def _graph_prompter_ctx(self):
@@ -405,7 +440,7 @@ class NodeTask(BaseTask):
             device=self.device,
             hid_dim=self.hid_dim,
             output_dim=self.output_dim,
-            extra={"task_type": "NodeTask", "lr": self.lr, "wd": self.decay},
+            extra={"task_type": "NodeTask", "lr": self.lr, "wd": self.wd},
         )
 
     def _multi_gprompt_ctx(self, pretrain_embs, test_embs):
@@ -491,7 +526,13 @@ class NodeTask(BaseTask):
                     node_embedding, self.data.edge_index, self.data.y, idx_train
                 )
 
-            if self.prompt_type in ["Gprompt", "All-in-one", "GPF", "GPF-plus", "DAGPrompT"]:
+            if self.prompt_type in [
+                "Gprompt",
+                "All-in-one",
+                "GPF",
+                "GPF-plus",
+                "DAGPrompT",
+            ]:
                 train_graphs = []
                 test_graphs = []
                 # self.graphs_list.to(self.device)
@@ -523,7 +564,9 @@ class NodeTask(BaseTask):
             # Stateful strategies (e.g. Gprompt's mean_centers) need a single
             # instance reused across this fold's train_epoch + evaluate calls.
             gprompt_strategy = get_strategy("Gprompt")() if self.prompt_type == "Gprompt" else None
-            dagprompt_strategy = get_strategy("DAGPrompT")() if self.prompt_type == "DAGPrompT" else None
+            dagprompt_strategy = (
+                get_strategy("DAGPrompT")() if self.prompt_type == "DAGPrompT" else None
+            )
 
             for epoch in range(1, self.epochs + 1):
                 t0 = time.time()
@@ -559,11 +602,17 @@ class NodeTask(BaseTask):
                 elif self.prompt_type == "DAGPrompT":
                     loss = dagprompt_strategy.train_epoch(self._dagprompt_ctx(), train_loader)
                 elif self.prompt_type == "PSP":
-                    loss = get_strategy("PSP")().train_epoch(self._psp_ctx(), (self.data, idx_train))
+                    loss = get_strategy("PSP")().train_epoch(
+                        self._psp_ctx(), (self.data, idx_train)
+                    )
                 elif self.prompt_type == "RELIEF":
-                    loss = get_strategy("RELIEF")().train_epoch(self._relief_ctx(), (self.data, idx_train))
+                    loss = get_strategy("RELIEF")().train_epoch(
+                        self._relief_ctx(), (self.data, idx_train)
+                    )
                 elif self.prompt_type == "GraphPrompter":
-                    loss = get_strategy("GraphPrompter")().train_epoch(self._graph_prompter_ctx(), (self.data, idx_train))
+                    loss = get_strategy("GraphPrompter")().train_epoch(
+                        self._graph_prompter_ctx(), (self.data, idx_train)
+                    )
                 elif self.prompt_type == "All-in-one":
                     loss = get_strategy("All-in-one")().train_epoch(
                         self._all_in_one_ctx(), train_loader
@@ -629,13 +678,21 @@ class NodeTask(BaseTask):
                         self._pro_no_g_ctx(), (self.data, idx_test)
                     )
                 elif self.prompt_type == "DAGPrompT":
-                    test_acc, f1, roc, prc = dagprompt_strategy.evaluate(self._dagprompt_ctx(), test_loader)
+                    test_acc, f1, roc, prc = dagprompt_strategy.evaluate(
+                        self._dagprompt_ctx(), test_loader
+                    )
                 elif self.prompt_type == "PSP":
-                    test_acc, f1, roc, prc = get_strategy("PSP")().evaluate(self._psp_ctx(), (self.data, idx_test))
+                    test_acc, f1, roc, prc = get_strategy("PSP")().evaluate(
+                        self._psp_ctx(), (self.data, idx_test)
+                    )
                 elif self.prompt_type == "RELIEF":
-                    test_acc, f1, roc, prc = get_strategy("RELIEF")().evaluate(self._relief_ctx(), (self.data, idx_test))
+                    test_acc, f1, roc, prc = get_strategy("RELIEF")().evaluate(
+                        self._relief_ctx(), (self.data, idx_test)
+                    )
                 elif self.prompt_type == "GraphPrompter":
-                    test_acc, f1, roc, prc = get_strategy("GraphPrompter")().evaluate(self._graph_prompter_ctx(), (self.data, idx_test))
+                    test_acc, f1, roc, prc = get_strategy("GraphPrompter")().evaluate(
+                        self._graph_prompter_ctx(), (self.data, idx_test)
+                    )
                 elif self.prompt_type == "All-in-one":
                     test_acc, f1, roc, prc = get_strategy("All-in-one")().evaluate(
                         self._all_in_one_ctx(), test_loader

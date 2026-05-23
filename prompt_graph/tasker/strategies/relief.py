@@ -15,7 +15,6 @@ import torch.optim as optim
 from prompt_graph.prompt.RELIEF.agent import H_PPO
 from prompt_graph.prompt.RELIEF.base import (
     attach_prompt,
-    evaluate_policy,
     tasknet_loss,
     train_policy_epoch,
 )
@@ -36,6 +35,28 @@ class RELIEFStrategy(PromptStrategy):
     def setup(self, ctx: TaskContext) -> None:
         """Build H_PPO agent, tasknet and optimizers."""
         args = ctx.extra.get("relief_args", self._default_args())
+        # ``hid_dim`` is required by attach_prompt / train_policy_epoch but
+        # belongs to the surrounding task config rather than RELIEF's own
+        # hyperparameters; inject it from the TaskContext if absent.
+        if not hasattr(args, "hid_dim") or args.hid_dim is None:
+            args.hid_dim = ctx.hid_dim
+        # Allow the task to override ``svd_dim`` (RELIEF's prompt feature
+        # dimension); needed so the policy's prompt slices match the GNN's
+        # ``x + prompt`` perturbation width. NodeTask currently passes
+        # ``svd_dim_override = input_dim`` so the prompt directly perturbs
+        # input features.
+        svd_override = ctx.extra.get("svd_dim_override")
+        if svd_override is not None:
+            args.svd_dim = svd_override
+        # Optional cap on attach_prompt roll-out length (see node_task.py
+        # `_relief_ctx` for the rationale). Plumbed through args because
+        # base.py:attach_prompt reads ``args.max_attach_steps``.
+        cap = ctx.extra.get("relief_max_attach_steps")
+        if cap is not None:
+            args.max_attach_steps = cap
+        # ``max_num_nodes`` defaults to 200 (graph-classification scale);
+        # override from ctx.extra if the task knows the actual graph size.
+        max_num_nodes = ctx.extra.get("max_num_nodes", 200)
         device = ctx.device
 
         # Tasknet (downstream classifier)
@@ -43,8 +64,7 @@ class RELIEFStrategy(PromptStrategy):
             nn.Linear(ctx.hid_dim, ctx.output_dim),
         ).to(device)
 
-        # H_PPO agent
-        max_num_nodes = ctx.extra.get("max_num_nodes", 200)
+        # H_PPO agent (max_num_nodes resolved above from ctx.extra)
         self.policy = H_PPO(
             gnn=ctx.gnn,
             ensemble_num=args.ensemble_num,
@@ -66,11 +86,25 @@ class RELIEFStrategy(PromptStrategy):
         # Optimizers
         self.policy_optims = []
         for i in range(args.ensemble_num):
-            opt = optim.Adam([
-                {"params": self.policy.actor_ds[i].parameters(), "name": "actor_d", "lr": args.actor_d_lr},
-                {"params": self.policy.actor_cs[i].parameters(), "name": "actor_c", "lr": args.actor_c_lr},
-                {"params": self.policy.critic.parameters(), "name": "critic", "lr": args.critic_lr},
-            ])
+            opt = optim.Adam(
+                [
+                    {
+                        "params": self.policy.actor_ds[i].parameters(),
+                        "name": "actor_d",
+                        "lr": args.actor_d_lr,
+                    },
+                    {
+                        "params": self.policy.actor_cs[i].parameters(),
+                        "name": "actor_c",
+                        "lr": args.actor_c_lr,
+                    },
+                    {
+                        "params": self.policy.critic.parameters(),
+                        "name": "critic",
+                        "lr": args.critic_lr,
+                    },
+                ]
+            )
             self.policy_optims.append(opt)
 
         self.tasknet_optim = optim.Adam(self.tasknet.parameters(), lr=args.tasknet_lr)
@@ -110,7 +144,16 @@ class RELIEFStrategy(PromptStrategy):
         epoch_loss = 0.0
         for _ in range(self.args.tasknet_epochs):
             # single "batch" = the whole graph
-            prompt, _, _ = attach_prompt(self.args, self.policy, data, "train", ctx.gnn, self.tasknet, compute_reward=0, compute_prr=0)
+            prompt, _, _ = attach_prompt(
+                self.args,
+                self.policy,
+                data,
+                "train",
+                ctx.gnn,
+                self.tasknet,
+                compute_reward=0,
+                compute_prr=0,
+            )
             loss, _, _ = tasknet_loss(ctx.gnn, self.tasknet, data, prompt)
             self.tasknet_optim.zero_grad()
             loss.backward()
@@ -123,7 +166,16 @@ class RELIEFStrategy(PromptStrategy):
         self.tasknet.eval()
         self.policy.train_or_eval("eval")
         with torch.no_grad():
-            prompt, _, _ = attach_prompt(self.args, self.policy, data, "test", ctx.gnn, self.tasknet, compute_reward=0, compute_prr=0)
+            prompt, _, _ = attach_prompt(
+                self.args,
+                self.policy,
+                data,
+                "test",
+                ctx.gnn,
+                self.tasknet,
+                compute_reward=0,
+                compute_prr=0,
+            )
             _, logit, _ = tasknet_loss(ctx.gnn, self.tasknet, data, prompt, require_grad=False)
             pred = logit.argmax(dim=1)
         acc = (pred[idx_test] == data.y[idx_test]).float().mean().item()
@@ -137,19 +189,92 @@ class RELIEFStrategy(PromptStrategy):
         ens_loaders = [train_loader for _ in range(self.args.ensemble_num)]
         # Dummy val/test loaders (reuse train for simplicity in few-shot)
         train_acc, val_acc, test_acc, train_loss, val_loss, test_loss = train_policy_epoch(
-            self.args, 1, ctx.gnn, self.tasknet, self.tasknet_optim,
-            self.policy, self.policy_optims, ens_loaders,
-            train_loader, train_loader, train_loader, ctx.device,
+            self.args,
+            1,
+            ctx.gnn,
+            self.tasknet,
+            self.tasknet_optim,
+            self.policy,
+            self.policy_optims,
+            ens_loaders,
+            train_loader,
+            train_loader,
+            train_loader,
+            ctx.device,
         )
         return train_loss
 
     def _eval_graph(self, ctx, test_loader):
-        acc, loss = evaluate_policy(self.args, ctx.gnn, self.tasknet, self.policy, test_loader, "test", ctx.device)
-        return acc, 0.0, 0.0, loss
+        """GraphTask eval — reimplemented locally to compute F1/AUROC/AUPRC
+        in addition to accuracy. The bundled ``evaluate_policy`` helper only
+        returns ``(acc_percent, loss)``; we accumulate predictions ourselves
+        and reuse the macro-metric idiom from
+        ``GraphPrompterStrategy._eval_graph``.
+        """
+        ctx.gnn.eval()
+        self.tasknet.eval()
+        self.policy.train_or_eval(mode="eval")
+        pred_labels = []
+        true_labels = []
+        total_loss = 0.0
+        num_batches = 0
+        for batch in test_loader:
+            batch = batch.to(ctx.device)
+            prompt, _, _ = attach_prompt(
+                self.args,
+                self.policy,
+                batch,
+                "test",
+                ctx.gnn,
+                self.tasknet,
+                compute_reward=0,
+                compute_prr=0,
+            )
+            loss, logit, _ = tasknet_loss(ctx.gnn, self.tasknet, batch, prompt, require_grad=False)
+            pred = logit.argmax(dim=1)
+            pred_labels.extend(pred.cpu().tolist())
+            true_labels.extend(batch.y.cpu().tolist())
+            total_loss += float(loss.item())
+            num_batches += 1
+
+        import numpy as np
+        from sklearn.metrics import (
+            accuracy_score,
+            average_precision_score,
+            f1_score,
+            roc_auc_score,
+        )
+
+        pred_labels = np.array(pred_labels)
+        true_labels = np.array(true_labels)
+        n_classes = ctx.output_dim
+        if n_classes == 2:
+            try:
+                roc = roc_auc_score(true_labels, pred_labels)
+                prc = average_precision_score(true_labels, pred_labels)
+            except ValueError:
+                roc, prc = 0.0, 0.0
+        else:
+            try:
+                roc = roc_auc_score(true_labels, pred_labels, multi_class="ovr", average="macro")
+                prc = average_precision_score(
+                    np.eye(n_classes)[true_labels],
+                    np.eye(n_classes)[pred_labels],
+                    average="macro",
+                )
+            except ValueError:
+                roc, prc = 0.0, 0.0
+        acc = accuracy_score(true_labels, pred_labels)
+        f1 = f1_score(true_labels, pred_labels, average="macro")
+        # Final tuple shape matches ProG contract (acc, f1, roc, prc).
+        # Loss isn't part of the eval contract here (logged separately).
+        del total_loss, num_batches  # silence unused-var lint
+        return acc, f1, roc, prc
 
     @staticmethod
     def _default_args():
         """Hyper-parameter defaults matching the original RELIEF paper."""
+
         class Args:
             ensemble_num = 3
             penalty_alpha_d = 0.01
@@ -181,4 +306,8 @@ class RELIEFStrategy(PromptStrategy):
             skip_epoch = 0
             check_freq = 1
             warmup_epochs = 0
+            # Populated from TaskContext in ``setup`` (kept here for IDE/lint
+            # discoverability rather than relying on dynamic attribute add).
+            hid_dim = None
+
         return Args()

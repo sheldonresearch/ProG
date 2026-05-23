@@ -108,7 +108,9 @@ class GraphPrompterModel(nn.Module):
         self.logit_scale = nn.Parameter(torch.ones([]) * 1.0)
 
         # LFU cache
-        self.cache_strategy = LFUCacheE(capacity=cache_cap * num_classes, ways=num_classes) if use_cache else None
+        self.cache_strategy = (
+            LFUCacheE(capacity=cache_cap * num_classes, ways=num_classes) if use_cache else None
+        )
 
         self.reset_parameters()
 
@@ -219,13 +221,19 @@ class GraphPrompterModel(nn.Module):
             supernode_idx = torch.arange(node_emb.shape[0], device=device)
 
         num_supernodes = x_input.shape[0]
+        # Remember the actual supernode count so that, after kNN augmentation
+        # (which prepends selected prompts to ``x_input`` below), we can slice
+        # logits back down to one row per real supernode. Without this slice,
+        # the returned logits include rows for the kNN candidate prompts and
+        # the batch_size of ``logits`` would no longer match ``batch.y`` --
+        # the strategy's cross_entropy then raises
+        # ``ValueError: input batch_size (X) to match target batch_size (Y)``.
+        num_actual_supernodes = num_supernodes
 
         # ------------------------------------------------------------------
         # 2. Initialise label embeddings
         # ------------------------------------------------------------------
-        x_label = self.learned_label_embedding(
-            torch.arange(num_labels, device=device)
-        )
+        x_label = self.learned_label_embedding(torch.arange(num_labels, device=device))
         x_label = self.initial_label_mlp(x_label)
 
         # ------------------------------------------------------------------
@@ -248,7 +256,9 @@ class GraphPrompterModel(nn.Module):
                 selected_prompts.append(prompt_embs[topk_idx])
 
             if selected_prompts:
-                selected_prompts = torch.cat(selected_prompts, dim=0)  # [num_supernodes*n_k, emb_dim]
+                selected_prompts = torch.cat(
+                    selected_prompts, dim=0
+                )  # [num_supernodes*n_k, emb_dim]
                 # Rebuild x_input to include selected prompts + original supernodes
                 x_input = torch.cat([selected_prompts, x_input], dim=0)
                 num_supernodes = x_input.shape[0]
@@ -289,6 +299,16 @@ class GraphPrompterModel(nn.Module):
         x_label = self.final_label_mlp(x_label)
 
         logits = self.decode(x_input, x_label, metagraph_edge_index, edgelist_bipartite=False)
+
+        # Slice out logits for the original supernodes only (drop kNN-augmented
+        # prompt rows). ``x_input`` ordering after kNN is
+        # ``[selected_prompts, original_supernodes]`` so the real rows are the
+        # last ``num_actual_supernodes`` of the leading-supernode block.
+        if logits.shape[0] >= num_actual_supernodes:
+            # ``decode`` may return either [num_supernodes, num_labels] or
+            # [num_supernodes * num_labels] depending on edgelist_bipartite=False
+            # path; here it's the matrix form -- take the trailing real rows.
+            logits = logits[num_supernodes - num_actual_supernodes : num_supernodes]
 
         # ------------------------------------------------------------------
         # 7. Cache update (training only)

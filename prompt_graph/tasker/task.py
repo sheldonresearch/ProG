@@ -107,7 +107,15 @@ class BaseTask:
                 *self.param_center_embeddings.parameters(),
             ]
             self.optimizer = optim.Adam(params, lr=self.lr, weight_decay=self.wd)
-        elif self.prompt_type in ("PSP", "RELIEF", "GraphPrompter"):
+        elif self.prompt_type in (
+            "PSP",
+            "RELIEF",
+            "GraphPrompter",
+            "Prodigy",
+            "EdgePrompt",
+            "EdgePromptplus",
+            "UniPrompt",
+        ):
             model_param_group = []
             model_param_group.append({"params": self.prompt.parameters()})
             model_param_group.append({"params": self.answering.parameters()})
@@ -155,27 +163,43 @@ class BaseTask:
             self.prompt = Gprompt(self.hid_dim).to(self.device)
         elif self.prompt_type == "Prodigy":
             from prompt_graph.prompt.ProdigyPrompt import ProdigyPrompt
+
             self.prompt = ProdigyPrompt(self.hid_dim).to(self.device)
         elif self.prompt_type == "EdgePrompt":
             from prompt_graph.prompt.EdgePrompt import EdgePrompt
-            dim_list = [self.hid_dim] * (self.num_layer - 1) + [self.hid_dim]
+
+            # EdgePrompt is applied BEFORE each conv (see model/gnn.py
+            # forward()), so dim_list[i] must match the input width of
+            # conv layer i: layer 0 receives x of shape [N, input_dim],
+            # later layers receive [N, hid_dim].
+            dim_list = [self.input_dim] + [self.hid_dim] * (self.num_layer - 1)
             self.prompt = EdgePrompt(dim_list).to(self.device)
         elif self.prompt_type == "EdgePromptplus":
             from prompt_graph.prompt.EdgePrompt import EdgePromptplus
-            dim_list = [self.hid_dim] * (self.num_layer - 1) + [self.hid_dim]
+
+            dim_list = [self.input_dim] + [self.hid_dim] * (self.num_layer - 1)
             self.prompt = EdgePromptplus(dim_list, num_anchors=20).to(self.device)
         elif self.prompt_type == "UniPrompt":
             from prompt_graph.prompt.UniPrompt import UniPrompt
-            self.prompt = UniPrompt(self.data.x, num_nodes=self.data.num_nodes).to(self.device)
+
+            uniprompt_k = getattr(self, "uniprompt_k", 5)
+            self.prompt = UniPrompt(
+                self.data.x,
+                k=uniprompt_k,
+                num_nodes=self.data.num_nodes,
+            ).to(self.device)
         elif self.prompt_type == "SelfPro":
             from prompt_graph.prompt.SelfProPrompt import SelfProPrompt
+
             self.prompt = SelfProPrompt(self.hid_dim, self.hid_dim, num_layers=1).to(self.device)
         elif self.prompt_type == "ProNoG":
             from prompt_graph.prompt.ProNoGPrompt import ProNoGPrompt
+
             self.gnn.eval()
             with torch.no_grad():
                 embeds = self.gnn(self.data.x, self.data.edge_index).detach()
             from prompt_graph.tasker.strategies.pro_no_g import _build_neighbor_lists
+
             neighbors, neighbors_2hop = _build_neighbor_lists(
                 self.data.edge_index, self.data.num_nodes, self.device
             )
@@ -191,6 +215,7 @@ class BaseTask:
                 DAGPrompt,
                 ParameterizedMultiHopCenterEmbedding,
             )
+
             hop_range = self.num_layer + 1
             dim_list = [self.input_dim] + [self.hid_dim] * self.num_layer
             self.prompt = DAGPrompt(dim_list).to(self.device)
@@ -199,14 +224,32 @@ class BaseTask:
             ).to(self.device)
         elif self.prompt_type == "PSP":
             from prompt_graph.prompt.PSPPrompt import PSPPrompt
+
             self.prompt = PSPPrompt(
                 self.data.num_nodes, self.output_dim, self.input_dim, self.hid_dim
             ).to(self.device)
         elif self.prompt_type == "RELIEF":
             from prompt_graph.prompt.RELIEFPrompt import RELIEFPrompt
-            self.prompt = RELIEFPrompt(self.data.num_nodes, self.input_dim).to(self.device)
+
+            if self.task_type == "NodeTask":
+                num_nodes = self.data.num_nodes
+            else:
+                # GraphTask: there's no single ``self.data``; size the
+                # perturbation by the largest graph in the dataset so we
+                # never under-allocate.  RELIEFPrompt's ``forward(x)``
+                # just adds ``perturbation[: x.size(0)]`` semantically
+                # (it's broadcast-compatible after the slice in the
+                # strategy), and the real per-batch RL prompt is built
+                # inside ``attach_prompt`` from ``policy.prompt_slices``,
+                # so this is mostly a placeholder buffer.
+                try:
+                    num_nodes = max(int(d.num_nodes) for d in self.dataset)
+                except Exception:
+                    num_nodes = 200  # safe default; matches max_num_nodes default
+            self.prompt = RELIEFPrompt(num_nodes, self.input_dim).to(self.device)
         elif self.prompt_type == "GraphPrompter":
             from prompt_graph.prompt.GraphPrompterPrompt import GraphPrompterPrompt
+
             task_type_str = "graph" if self.task_type == "GraphTask" else "node"
             self.prompt = GraphPrompterPrompt(
                 emb_dim=self.hid_dim,

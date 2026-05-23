@@ -38,6 +38,10 @@ class TaskContext:
     answer_opi: Any = field(default=None)
     data: Any = field(default=None)
     dataset_name: str = field(default=None)
+    # DAGPrompT requires a parameterised multi-hop centre module alongside
+    # the prompt; keep it as a first-class field so DAGPrompTStrategy can
+    # access it via ``ctx.param_center_embeddings``.
+    param_center_embeddings: Any = field(default=None)
     extra: dict = field(default_factory=dict)
 
 

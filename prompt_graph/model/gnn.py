@@ -128,7 +128,11 @@ class GNN(torch.nn.Module):
         if prompt_type in ("EdgePrompt", "EdgePromptplus"):
             x = prompt(x, edge_index, layer=len(self.conv_layers) - 1)
         last_conv = self.conv_layers[-1]
-        x = last_conv(x, edge_index, edge_weight) if edge_weight is not None else last_conv(x, edge_index)
+        x = (
+            last_conv(x, edge_index, edge_weight)
+            if edge_weight is not None
+            else last_conv(x, edge_index)
+        )
         h_list.append(x)
         if self.JK == "last":
             node_emb = h_list[-1]
@@ -137,17 +141,32 @@ class GNN(torch.nn.Module):
             node_emb = torch.sum(torch.cat(h_list[1:], dim=0), dim=0)[0]
 
         if prompt is not None and prompt_type is None:
-            # Direct feature perturbation (RELIEF style)
-            x = x + prompt
+            # Direct feature perturbation (RELIEF style): perturb the *input*
+            # features, then re-run the full GNN from scratch on the perturbed
+            # input. Previously this added the prompt to the post-last-conv
+            # embedding (``x = x + prompt``), which (a) shape-mismatches when
+            # ``prompt`` is sized to input_dim and (b) feeds hid_dim tensors
+            # into conv_0 (which expects input_dim) on the rerun. Using
+            # ``h_list[0]`` (the original input) makes the perturbation
+            # semantically correct.
+            x = h_list[0] + prompt
             # Recompute embeddings after perturbation
             h_list = [x]
             for idx, conv in enumerate(self.conv_layers[0:-1]):
-                x = conv(x, edge_index, edge_weight) if edge_weight is not None else conv(x, edge_index)
+                x = (
+                    conv(x, edge_index, edge_weight)
+                    if edge_weight is not None
+                    else conv(x, edge_index)
+                )
                 x = act(x)
                 x = F.dropout(x, self.drop_ratio, training=self.training)
                 h_list.append(x)
             last_conv = self.conv_layers[-1]
-            x = last_conv(x, edge_index, edge_weight) if edge_weight is not None else last_conv(x, edge_index)
+            x = (
+                last_conv(x, edge_index, edge_weight)
+                if edge_weight is not None
+                else last_conv(x, edge_index)
+            )
             h_list.append(x)
             if self.JK == "last":
                 node_emb = h_list[-1]
@@ -191,7 +210,11 @@ class GNN(torch.nn.Module):
             x = F.dropout(x, self.drop_ratio, training=self.training)
             h_list.append(x)
         last_conv = self.conv_layers[-1]
-        x = last_conv(x, edge_index, edge_weight) if edge_weight is not None else last_conv(x, edge_index)
+        x = (
+            last_conv(x, edge_index, edge_weight)
+            if edge_weight is not None
+            else last_conv(x, edge_index)
+        )
         h_list.append(x)
         return h_list
 

@@ -318,7 +318,9 @@ class GraphTask(BaseTask):
         # Stateful strategies (e.g. Gprompt's mean_centers) need a single
         # instance reused across this fold's train_epoch + evaluate calls.
         gprompt_strategy = get_strategy("Gprompt")() if self.prompt_type == "Gprompt" else None
-        dagprompt_strategy = get_strategy("DAGPrompT")() if self.prompt_type == "DAGPrompT" else None
+        dagprompt_strategy = (
+            get_strategy("DAGPrompT")() if self.prompt_type == "DAGPrompT" else None
+        )
 
         for epoch in range(1, self.epochs + 1):
             t0 = time.time()
@@ -339,13 +341,19 @@ class GraphTask(BaseTask):
             elif self.prompt_type == "Prodigy":
                 loss = get_strategy("Prodigy")().train_epoch(self._prodigy_ctx(), train_loader)
             elif self.prompt_type in ("EdgePrompt", "EdgePromptplus"):
-                loss = get_strategy(self.prompt_type)().train_epoch(self._edge_prompt_ctx(), train_loader)
+                loss = get_strategy(self.prompt_type)().train_epoch(
+                    self._edge_prompt_ctx(), train_loader
+                )
             elif self.prompt_type == "UniPrompt":
                 loss = get_strategy("UniPrompt")().train_epoch(self._uni_prompt_ctx(), train_loader)
             elif self.prompt_type == "DAGPrompT":
                 loss = dagprompt_strategy.train_epoch(self._dagprompt_ctx(), train_loader)
             elif self.prompt_type == "GraphPrompter":
-                loss = get_strategy("GraphPrompter")().train_epoch(self._graph_prompter_ctx(), train_loader)
+                loss = get_strategy("GraphPrompter")().train_epoch(
+                    self._graph_prompter_ctx(), train_loader
+                )
+            elif self.prompt_type == "RELIEF":
+                loss = get_strategy("RELIEF")().train_epoch(self._relief_ctx(), train_loader)
 
             if loss < best:
                 best = loss
@@ -367,11 +375,17 @@ class GraphTask(BaseTask):
         elif self.prompt_type == "GPPT":
             test_acc, f1, roc, prc = get_strategy("GPPT")().evaluate(self._gppt_ctx(), test_loader)
         elif self.prompt_type == "Prodigy":
-            test_acc, f1, roc, prc = get_strategy("Prodigy")().evaluate(self._prodigy_ctx(), test_loader)
+            test_acc, f1, roc, prc = get_strategy("Prodigy")().evaluate(
+                self._prodigy_ctx(), test_loader
+            )
         elif self.prompt_type in ("EdgePrompt", "EdgePromptplus"):
-            test_acc, f1, roc, prc = get_strategy(self.prompt_type)().evaluate(self._edge_prompt_ctx(), test_loader)
+            test_acc, f1, roc, prc = get_strategy(self.prompt_type)().evaluate(
+                self._edge_prompt_ctx(), test_loader
+            )
         elif self.prompt_type == "UniPrompt":
-            test_acc, f1, roc, prc = get_strategy("UniPrompt")().evaluate(self._uni_prompt_ctx(), test_loader)
+            test_acc, f1, roc, prc = get_strategy("UniPrompt")().evaluate(
+                self._uni_prompt_ctx(), test_loader
+            )
         elif self.prompt_type == "All-in-one":
             test_acc, f1, roc, prc = get_strategy("All-in-one")().evaluate(
                 self._all_in_one_ctx(answer_epoch, prompt_epoch),
@@ -385,6 +399,14 @@ class GraphTask(BaseTask):
             test_acc, f1, roc, prc = gprompt_strategy.evaluate(self._gprompt_ctx(), test_loader)
         elif self.prompt_type == "DAGPrompT":
             test_acc, f1, roc, prc = dagprompt_strategy.evaluate(self._dagprompt_ctx(), test_loader)
+        elif self.prompt_type == "GraphPrompter":
+            test_acc, f1, roc, prc = get_strategy("GraphPrompter")().evaluate(
+                self._graph_prompter_ctx(), test_loader
+            )
+        elif self.prompt_type == "RELIEF":
+            test_acc, f1, roc, prc = get_strategy("RELIEF")().evaluate(
+                self._relief_ctx(), test_loader
+            )
 
         logger.info(
             f"Final True Accuracy: {test_acc:.4f} | Macro F1 Score: {f1:.4f} | AUROC: {roc:.4f} | AUPRC: {prc:.4f}"
@@ -473,7 +495,12 @@ class GraphTask(BaseTask):
             device=self.device,
             hid_dim=self.hid_dim,
             output_dim=self.output_dim,
-            extra={"task_type": "GraphTask", "lr": self.lr, "wd": self.decay, "prompt_type": self.prompt_type},
+            extra={
+                "task_type": "GraphTask",
+                "lr": self.lr,
+                "wd": self.wd,
+                "prompt_type": self.prompt_type,
+            },
         )
 
     def _uni_prompt_ctx(self):
@@ -490,7 +517,7 @@ class GraphTask(BaseTask):
             extra={
                 "task_type": "GraphTask",
                 "lr": self.lr,
-                "wd": self.decay,
+                "wd": self.wd,
                 "tau": getattr(self, "tau", 0.99),
             },
         )
@@ -534,7 +561,40 @@ class GraphTask(BaseTask):
             device=self.device,
             hid_dim=self.hid_dim,
             output_dim=self.output_dim,
-            extra={"task_type": "GraphTask", "lr": self.lr, "wd": self.decay},
+            extra={"task_type": "GraphTask", "lr": self.lr, "wd": self.wd},
+        )
+
+    def _relief_ctx(self):
+        """Build a TaskContext for the RELIEF strategy on this GraphTask.
+
+        On the GraphTask path each batch is already a small disjoint union of
+        ~17-node molecules (e.g. MUTAG) — the natural use-case for the
+        original RELIEF paper — so no perf cap is needed (the per-graph node
+        count drives the inner loop). ``max_num_nodes`` is sized to the
+        largest single graph in the dataset; ``svd_dim`` is left at its
+        default (16) because RELIEF's prompt is mixed into ``model/gnn.py``'s
+        direct-perturbation path which adds to the original ``input_dim``
+        features — but for graph tasks RELIEFStrategy.train_epoch follows the
+        ``train_policy_epoch`` path which uses ``svd_dim`` independently.
+        """
+        try:
+            max_num_nodes = max(int(d.num_nodes) for d in self.dataset)
+        except Exception:
+            max_num_nodes = 200
+        return TaskContext(
+            gnn=self.gnn,
+            prompt=self.prompt,
+            answering=self.answering,
+            criterion=self.criterion,
+            optimizer=self.optimizer,
+            device=self.device,
+            hid_dim=self.hid_dim,
+            output_dim=self.output_dim,
+            extra={
+                "task_type": "GraphTask",
+                "svd_dim_override": self.input_dim,
+                "max_num_nodes": max_num_nodes,
+            },
         )
 
     def run(self):
@@ -558,9 +618,7 @@ class GraphTask(BaseTask):
             for i in range(1, self.task_num + 1):
                 split_dir = sample_dir("Graph", self.shot_num, self.dataset_name) / str(i)
                 idx_train = (
-                    torch.load(str(split_dir / "train_idx.pt"))
-                    .type(torch.long)
-                    .to(self.device)
+                    torch.load(str(split_dir / "train_idx.pt")).type(torch.long).to(self.device)
                 )
                 logger.debug(f"idx_train {idx_train}")
                 train_lbls = (
@@ -572,9 +630,7 @@ class GraphTask(BaseTask):
                 logger.debug(f"true {i} {train_lbls}")
 
                 idx_test = (
-                    torch.load(str(split_dir / "test_idx.pt"))
-                    .type(torch.long)
-                    .to(self.device)
+                    torch.load(str(split_dir / "test_idx.pt")).type(torch.long).to(self.device)
                 )
 
                 train_dataset = self.dataset[idx_train]
