@@ -36,6 +36,14 @@ ignore = ["E501"]
 
 [tool.ruff.format]
 
+[tool.pytest.ini_options]
+markers = [
+    "slow: opt-in tests that take >30s per case (RL loops, heavy benchmarks). Run via `pytest -m slow`.",
+]
+# Exclude slow tests by default. Override with ``pytest -m slow`` or
+# ``pytest -m 'slow or not slow'`` to include them.
+addopts = "-m 'not slow'"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["prompt_graph*"]

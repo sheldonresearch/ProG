@@ -75,3 +75,46 @@ def test_task_context_accepts_fields():
     assert ctx.hid_dim == 128
     assert ctx.output_dim == 7
     assert ctx.dataset_name == "Cora"
+
+
+def test_all_bundled_strategies_register_on_import():
+    """Importing ``prompt_graph.tasker.strategies`` must register every
+    bundled strategy. This catches the common mistake of adding a strategy
+    file but forgetting the ``from . import <name>`` line in
+    ``strategies/__init__.py``.
+
+    If this list legitimately changes (added or removed a strategy), update
+    ``EXPECTED`` below and ``Docs/architecture.md`` §3 in the same PR.
+    """
+    # Re-import to fire the registration side effect even if a prior test
+    # cleared the registry.
+    import importlib
+
+    from prompt_graph.tasker import strategies as strategies_pkg
+
+    importlib.reload(strategies_pkg)
+
+    EXPECTED = {
+        "None",
+        "GPF",
+        "GPF-plus",
+        "Gprompt",
+        "All-in-one",
+        "GPPT",
+        "MultiGprompt",
+        "Prodigy",
+        "UniPrompt",
+        "SelfPro",
+        "ProNoG",
+        "DAGPrompT",
+        "PSP",
+        "RELIEF",
+        "GraphPrompter",
+        "EdgePrompt",
+        "EdgePromptplus",
+    }
+    missing = EXPECTED - set(STRATEGY_REGISTRY.keys())
+    assert not missing, (
+        f"Strategies missing from STRATEGY_REGISTRY: {sorted(missing)}. "
+        f"Check strategies/__init__.py imports."
+    )
