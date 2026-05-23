@@ -95,19 +95,28 @@ def get_strategy(name: str):
     ...
 ```
 
-### 当前已注册的 6 个 strategy
+### 当前已注册的 strategy（16 个，按注册时间）
 
-| `prompt_type` | 类 | 文件 |
-|---|---|---|
-| `None` | `NoneStrategy` | `prompt_graph/tasker/strategies/none.py` |
-| `GPF` | `GPFStrategy` | `prompt_graph/tasker/strategies/gpf.py` |
-| `GPF-plus` | `GPFPlusStrategy` | `prompt_graph/tasker/strategies/gpf.py` |
-| `Gprompt` | `GpromptStrategy` | `prompt_graph/tasker/strategies/gprompt.py` |
-| `All-in-one` | `AllInOneStrategy` | `prompt_graph/tasker/strategies/all_in_one.py` |
-| `GPPT` | `GPPTStrategy` | `prompt_graph/tasker/strategies/gppt.py` |
-| `MultiGprompt` | `MultiGpromptStrategy` | `prompt_graph/tasker/strategies/multi_gprompt.py` |
+| `prompt_type` | 类 | 文件 | 备注 |
+|---|---|---|---|
+| `None` | `NoneStrategy` | `strategies/none.py` | 无 prompt，纯标准微调 |
+| `GPF` | `GPFStrategy` | `strategies/gpf.py` | GPF (Fang et al., 2022) |
+| `GPF-plus` | `GPFPlusStrategy` | `strategies/gpf.py` | GPF+ (NeurIPS 2023) |
+| `Gprompt` | `GpromptStrategy` | `strategies/gprompt.py` | GraphPrompt (WWW 2023) |
+| `All-in-one` | `AllInOneStrategy` | `strategies/all_in_one.py` | KDD 2023 Best Paper |
+| `GPPT` | `GPPTStrategy` | `strategies/gppt.py` | KDD 2022 |
+| `MultiGprompt` | `MultiGpromptStrategy` | `strategies/multi_gprompt.py` | 与 `prompt/MultiGprompt.py` 强耦合 |
+| `Prodigy` | `ProdigyStrategy` | `strategies/prodigy.py` | ICML 2023 SPIGM；commit `393cb08`，light-weight port |
+| `UniPrompt` | `UniPromptStrategy` | `strategies/uni_prompt.py` | NeurIPS 2025 |
+| `SelfPro` | `SelfProStrategy` | `strategies/self_pro.py` | ICML 2024 |
+| `ProNoG` | `ProNoGStrategy` | `strategies/pro_no_g.py` | KDD 2025 |
+| `DAGPrompT` | `DAGPrompTStrategy` | `strategies/dagprompt.py` | NeurIPS 2024 |
+| `PSP` | `PSPStrategy` | `strategies/psp.py` | — |
+| `RELIEF` | `RELIEFStrategy` | `strategies/relief.py` | NeurIPS 2024（MVP→full version commit `30401ca`） |
+| `GraphPrompter` | `GraphPrompterStrategy` | `strategies/graph_prompter.py` | KDD 2025（MVP→full version commit `a2abd91`） |
+| `EdgePrompt` / `EdgePromptplus` | `EdgePromptStrategy` | `strategies/edge_prompt.py` | 一个文件注册两个名字 |
 
-注册通过 import 副作用完成 —— `prompt_graph/tasker/strategies/__init__.py` 仅做 `from . import none, gpf, ...`，所以"导入 tasker 包"就等价于"注册全部 strategy"。
+> 注册通过 import 副作用完成 —— `prompt_graph/tasker/strategies/__init__.py` 仅做 `from . import none, gpf, ...`，"导入 tasker 包"等价于"注册全部 strategy"。`STRATEGY_REGISTRY` 的真实大小以 import 后的 `len()` 为准；本表如果又落后于代码，请直接查 `STRATEGY_REGISTRY.keys()`。
 
 ### 添加一个新 strategy
 

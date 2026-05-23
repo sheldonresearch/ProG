@@ -130,13 +130,13 @@ doc §1.x 标注为"可疑但暂不动语义"，因为改动会让现有 baselin
 
 Apple Silicon 的 MPS 后端不支持 `scatter_add_` 的 placeholder 路径。`GraphTask + All-in-one + MUTAG` 在 MPS 上会抛 `NotImplementedError`。修方法是显式 `--device cpu`；不要去 monkey-patch torch。
 
-### 4.7 `LinkTask` 还未接入 strategy 框架
+### 4.7 `LinkTask` 已从公共 API 移除（文件保留）
 
-`prompt_graph/tasker/link_task.py` 存在但不属于 PromptStrategy 体系。顶层 README 上不要再写"支持 LinkTask"，直到 [`Docs/IMPROVEMENTS.md`](./Docs/IMPROVEMENTS.md) §1.10 被真正修复。
+`prompt_graph/tasker/link_task.py` 文件还在仓库里，但 commit `e76e20f` 已经把它从 `prompt_graph/tasker/__init__.py` 的 `__all__` 中删掉了——所以 `from prompt_graph.tasker import LinkTask` 现在会失败。它也没有接入 `PromptStrategy` 体系。如果未来要复活：先按 [`Docs/IMPROVEMENTS.md`](./Docs/IMPROVEMENTS.md) §1.10 的清单（接 `args.dataset_name`、走 `load4link_prediction_*`、支持 `prompt_type`），再把它写成一个 strategy 重新 export。
 
-### 4.8 `GraphMultiGprompt` 预训练未实现
+### 4.8 `GraphMultiGprompt` 预训练已实现
 
-`pre_train.py:get_pretrain_task_delegate` 对 `GraphMultiGprompt` 显式抛 `NotImplementedError`，注释提到"等数据加载收敛后再补"。要碰这块前，先看 `load4graph(pretrained=True)` 的现状。
+`pre_train.py:get_pretrain_task_delegate` 自 commit `647d6c4` 起对 `GraphMultiGprompt`（以及 `dataset_name in GRAPH_TASKS` 的 `MultiGprompt` 别名）走 `load4graph(args.dataset_name, pretrained=True)` → `GraphPrePrompt(...)` 的实路径，不再抛 `NotImplementedError`。改这块前先看 `load4graph(pretrained=True)` 的返回签名：`(input_dim, out_dim, graph_list)`，顺序和 NodeMultiGprompt 不同。
 
 ---
 

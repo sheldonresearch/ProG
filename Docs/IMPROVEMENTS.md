@@ -24,7 +24,11 @@
 
 **建议**：把 `return` 退一级缩进。
 
-### 1.2 `pre_train.py` 中 MultiGprompt 分支引用未定义变量
+### 1.2 `pre_train.py` 中 MultiGprompt 分支引用未定义变量 ✅ 已修
+
+> **状态**：已修（commit `647d6c4` `fix(pretrain): wire up GraphMultiGprompt using load4graph and GraphPrePrompt`）。`pre_train.py:80-115` 现在走 `load4graph(args.dataset_name, pretrained=True)` → `GraphPrePrompt(...)` 的真实路径，分支条件覆盖 `NodeMultiGprompt` / `MultiGprompt` / `GraphMultiGprompt` 三种 task 名。
+
+原报告：
 
 `pre_train.py:33-37`：
 ```python
@@ -34,9 +38,7 @@ elif args.pretrain_task == 'GraphMultiGprompt' or args.dataset_name in GRAPH_TAS
     #graph_list, input_dim, out_dim = load4graph(args.dataset_name, pretrained=True)
     pt = GraphPrePrompt(graph_list, input_dim, out_dim, ...)
 ```
-`load4graph` 调用被注释掉，下面却继续引用 `graph_list / input_dim / out_dim`。任何走到这条分支的命令都会 `NameError`。代码作者自己加了 `#TODO: Bugged` 但没有修复。
-
-**建议**：恢复 `load4graph(...)` 调用，或显式 `raise NotImplementedError("GraphMultiGprompt pretrain is not wired up yet")` 防止悄悄崩溃。
+`load4graph` 调用被注释掉，下面却继续引用 `graph_list / input_dim / out_dim`。任何走到这条分支的命令都会 `NameError`。
 
 ### 1.3 `BaseTask.return_pre_train_type` 在没有命中名字时返回 `None`
 
@@ -110,15 +112,16 @@ NumPy ≥ 1.20 起 `np.bool` 已被弃用，在 1.24 中被移除。一旦 Multi
 
 **建议**：要么显式离散网格 + `random.choice`，要么换成 Optuna/Ray Tune；现有写法实际等价于固定值，跑 `num_iter` 次只是不同 lr/wd 的随机点。
 
-### 1.10 `LinkTask` 已基本失修
+### 1.10 `LinkTask` 已基本失修 ✅ 已从公共 API 移除
+
+> **状态**：commit `e76e20f` (`chore: drop LinkTask from public API and expose --num_iter CLI arg`) 把 `LinkTask` 从 `prompt_graph/tasker/__init__.py` 的 `__all__` 中移除，`from prompt_graph.tasker import LinkTask` 不再可用；`link_task.py` 文件本身保留作为未来重做的起点。若要复活，需按下面列的清单做。
 
 `prompt_graph/tasker/link_task.py`：
 - 数据集硬编码为 `Planetoid('data/Planetoid', name='Cora')`，完全忽略 `args.dataset_name`。
 - 不支持任何 `prompt_type`，只跑 GNN。
 - `epochs` 硬编码 101。
-- `tasker/__init__.py` 把它导出了，意味着对外 API 仍声称支持 Link 任务。
 
-**建议**：要么补完（接 `args.dataset_name`、走 `load4link_prediction_*`、支持 prompt_type），要么暂时从 `__init__.py` 删除并在 README 中说明。
+**复活清单**：接 `args.dataset_name`、走 `load4link_prediction_*`、支持 `prompt_type`、改写为 `PromptStrategy` 实现、再重新 export。
 
 ---
 
@@ -498,6 +501,23 @@ trial_count: 10
 - `python downstream_task.py --dataset_name MUTAG --gnn_type GCN --prompt_type All-in-one --downstream_task GraphTask --epochs 2 --shot_num 5 --seed 42 --device cpu` — PASS
 - 同上 `--device 0`（MPS）— FAIL：`scatter_add_` on MPS 的 placeholder 限制，**非本批次引入**
 
+#### 6.0.2 2026-05-12 之后的增量进度（截至 2026-05-22）
+
+| 类别 | 内容 | commit / PR |
+|---|---|---|
+| Bug fix | `pre_train.py:GraphMultiGprompt` 已接通 `load4graph(pretrained=True)` + `GraphPrePrompt`，解决 §1.2 | `647d6c4` |
+| Bug fix | Tutorial `node_graph.py` / `node_edge.py` 的 `edge_index` 未定义 | `ae04566` |
+| Bug fix | `tasker` 移除 `task_num` 硬编码外层循环 + 统一 sample 路径，解决 §1.4 | `19f071f` |
+| Refactor | `induced_graph.py` 抽出 `core builder` + 统一 `load_induced_graphs` 入口（§2.x） | `556e1e7` + `d35df5e` 配 smoke test |
+| Refactor | `AllInOnePrompt.forward` 去掉 `to_data_list` 往返；contrast temperature 校验 | `cfbbdfb` |
+| Feature | `FrontAndHead` 支持 multi_class / binary / regression | `ecc88b4` |
+| Feature | `GPPT` k-means 支持 cosine / manhattan 距离 | `f9c2b61` |
+| API cleanup | `LinkTask` 从公共 API 移除（§1.10）；`--num_iter` CLI 暴露 | `e76e20f` |
+| New prompts | 9 个新 `prompt_type` 进入 `STRATEGY_REGISTRY`：`Prodigy` (`393cb08`) / `UniPrompt` (`7846e58`) / `SelfPro` (`a61b427`) / `ProNoG` (`4e63684`) / `DAGPrompT` (`92256f4`) / `PSP` + `RELIEF` + `GraphPrompter` MVP (`5178859`) / `RELIEF` full (`30401ca`) / `GraphPrompter` full (`a2abd91`) / `EdgePrompt` + `EdgePromptplus`（`strategies/edge_prompt.py`） | 见左 |
+| Docs | baseline_logs gitignored | `5b561d5` |
+
+---
+
 **通用约定**（所有 Phase 都要遵守）：
 - 每个 PR 一个目标，方便回滚。Phase 1 每条 Bug 一个 PR；Phase 3、4 每个抽象一个 PR。
 - 旧 import 路径必须保留 alias，禁止"破坏式重命名"。重命名走两步：先加新名 + `DeprecationWarning`，下个版本再删旧名。
@@ -783,7 +803,109 @@ trial_count: 10
 - `prompt_graph/data/batch.py`、`pooling.py` — 未读。
 - `Tutorial/downstream_task.ipynb` — 未读，可能也存在过期 API。
 
+> 截至 2026-05-22，附录 A 列出的 4 类未深审项**仍未深审**；2026-05-12 之后新增的 9 个 strategy（`Prodigy` / `UniPrompt` / `SelfPro` / `ProNoG` / `DAGPrompT` / `PSP` / `RELIEF` / `GraphPrompter` / `EdgePrompt(+plus)`）也只有 smoke test 覆盖，未做算法层 review，建议下一轮一并审。
+
+---
+
+## 7. 当前未完成项清单（生成于 2026-05-22）
+
+> 这一节是 §1-§5 + 附录 A + README TODO List + 源码 grep `TODO` 的一个**当前快照**。每条都有所属类别、优先级。每个 Phase 收尾或大版本发布时刷新本表。
+
+**优先级口径**：
+
+- **P0**：当前文档与代码强烈不一致，会直接误导新用户 / agent，必须立刻修。
+- **P1**：架构/质量遗留，影响后续维护或回归守护，应该尽快排期。
+- **P2**：长期 TODO，对正确性 / 用户体验有可衡量影响，下一个迭代周期内做。
+- **P3**：锦上添花、研究类 follow-up、或仅在特定场景下踩到的边缘问题。
+
+**类别速查**：A.README 残留 / B.重构遗留 / C.待深审 / D.源码 TODO / E.文档同步 / F.回归守护。
+
+| P | 类别 | ID | 标题 | 来源 / 备注 |
+|---|---|---|---|---|
+| P0 | E.文档同步 | `docs-new-prompts-not-listed` | `Docs/{architecture,running}.md` + `.github/copilot-instructions.md` 仍只列 6-7 个 strategy，未涵盖 9 个新方法 | 本批次（2026-05-22）已修，`architecture.md` §3 / `running.md` §1 / `copilot-instructions.md` 同步 |
+| P1 | E.文档同步 | `docs-improvements-status-sync` | IMPROVEMENTS §1.2 / §1.10 / 附录 A 状态需同步 | 本批次已修 |
+| P1 | E.文档同步 | `docs-copilot-instructions-sync` | `.github/copilot-instructions.md` 沿用了 `CLAUDE.md` 的旧措辞（LinkTask / GraphMultiGprompt） | 本批次已修 |
+| P1 | B.重构遗留 | `claude-initialize-prompt-optimizer` | `tasker/task.py:initialize_prompt` & `initialize_optimizer` 仍 if/elif 分发，未迁入 `PromptStrategy` —— Phase 4 收尾的 follow-up | `Docs/architecture.md` §4 备注 + `CLAUDE.md` §4.2 |
+| P1 | B.重构遗留 | `graphmultigprompt-now-done` | 已 ✅（commit `647d6c4`），相关文档段落已同步 | 本批次完结 |
+| P1 | F.回归守护 | `docs-baseline-metrics-empty` | `Docs/baseline_metrics.md` phase-1 ~ phase-6 列全空，每次 PR 应跑 `scripts/baseline.sh --tag <phase-X>` 回填 | 影响回归判定 |
+| P2 | A.README 残留 | `readme-pretrain-infograph` | 新增 InfoGraph / ContextPred / AttrMasking / GraphLoG / JOAO 5-6 种预训练范式 | README §405-415 |
+| P2 | A.README 残留 | `readme-induced-graph` | 改进 induced graph 生成算法 + 简化 3 类 generate-func | 已部分（`556e1e7` 抽 core builder），算法本身未改 |
+| P2 | A.README 残留 | `readme-tutorial-notebook` | `Tutorial/` 脚本 → notebook + 数据处理 demo | README §405-415 |
+| P2 | B.重构遗留 | `claude-enzymes-labelcols` | `load4node('ENZYMES')` 用最后 3 列做 one-hot label 的隐式约定要在代码里加注释 | `CLAUDE.md` §4.5 + `Docs/datasets.md` §5.1 |
+| P2 | B.重构遗留 | `claude-mps-allinone-mutag` | MPS 上 `GraphTask + All-in-one + MUTAG` 的 `scatter_add_` `NotImplementedError`，需要替代实现或显式 dispatch | `CLAUDE.md` §4.6 |
+| P2 | B.重构遗留 | `linktask-stale` | `link_task.py` 文件保留但已从公共 API 删除；若要复活按 §1.10 清单走 | 本节 §1.10 |
+| P2 | D.源码 TODO | `code-edgepred-gprompt-todo` | `pretrain/Edgepred_Gprompt.py:100` — `GraphPrompt customized node embedding computation` 未实现 | grep TODO 唯一存活项 |
+| P3 | A.README 残留 | `readme-comprehensive-doc` | 参照 PyG 写完整 usage doc | README §405-415 |
+| P3 | A.README 残留 | `readme-deepgcn` | 支持 `DeepGCNLayer`（PyG `nn.models.DeepGCNLayer`） | README §405-415 |
+| P3 | B.重构遗留 | `claude-allinone-return-asymmetry` | `AllInOneStrategy.train_epoch` NodeTask 返 `answer_loss`、GraphTask 返 `pg_loss` —— 改之前需先加 baseline 列 | `CLAUDE.md` §4.3 |
+| P3 | B.重构遗留 | `claude-graphtask-tuple-shape` | `GraphTask.run` 返回 9-tuple / 4-tuple（few-shot vs full）—— 文档要求"不要为了优雅而统一" | `CLAUDE.md` §4.4 |
+| P3 | C.待深审 | `audit-pretrain-internals` | 深审 `pretrain/{GraphMAE,SimGRACE,Edgepred_GPPT,Edgepred_Gprompt}` 算法正确性 | 附录 A |
+| P3 | C.待深审 | `audit-prompt-math` | 深审 `prompt/{MultiGprompt,SUPT,GPPTPrompt}` 数学实现 | 附录 A |
+| P3 | C.待深审 | `audit-data-batch-pooling` | 深审 `data/batch.py` + `pooling.py` | 附录 A |
+| P3 | C.待深审 | `audit-tutorial-notebook` | `Tutorial/downstream_task.ipynb` 可能有过期 API | 附录 A |
+| P3 | C.待深审 | `audit-new-strategies` | 9 个新 strategy（`Prodigy` / `UniPrompt` / `SelfPro` / `ProNoG` / `DAGPrompT` / `PSP` / `RELIEF` / `GraphPrompter` / `EdgePrompt(+plus)`）只有 smoke test 覆盖，未做算法层 review | 2026-05-12 之后增量，附录 A 延伸 |
+| P1 | B.重构遗留 | `strategy-initialize-optimizer-missing-branches` | ✅ **已修 2026-05-22**：`tasker/task.py:initialize_optimizer` 在 `("PSP", "RELIEF", "GraphPrompter")` 分支里追加了 `Prodigy` / `EdgePrompt` / `EdgePromptplus` / `UniPrompt`。同时把 `node_task.py` / `graph_task.py` 的 `_*_ctx()` 里 `self.decay` 全部改成 `self.wd`（typo） | `tests/test_strategy_new_prompts.py` 8 个 XFAIL → PASS |
+| P1 | B.重构遗留 | `strategy-uniprompt-init-missing-k` | ✅ **已修 2026-05-22**：`BaseTask.initialize_prompt` 用 `k=getattr(self, "uniprompt_k", 5)` 显式传 k | Node/Cora/UniPrompt XFAIL → PASS |
+| P1 | B.重构遗留 | `strategy-dagprompt-graph-init-mismatch` | ✅ **已修 2026-05-22**：`TaskContext` 加 `param_center_embeddings` 字段；`DAGPrompTStrategy.train_epoch` 先用 `center_embedding_multihop` 算 empirical centers 再 apply learnable residual（之前 `param_center_embeddings(out, y)` 的两参调用对不上 `forward(centers)` 的单参签名） | Graph/MUTAG/DAGPrompT XFAIL → PASS |
+| P1 | B.重构遗留 | `strategy-relief-args-missing-hid-dim` | ✅ **已修 2026-05-22**：RELIEF Args 类加 `hid_dim = None` 字段，`setup()` 在生效前从 `ctx.hid_dim` 注入 | RELIEF 第一层 init 通过，但 attach_prompt 内仍有 scatter 2-D 问题，详见下条 |
+| P1 | B.重构遗留 | `strategy-edgeprompt-dim-list-mismatch` | ✅ **已修 2026-05-22**：`BaseTask.initialize_prompt` 把 `EdgePrompt` / `EdgePromptplus` 的 `dim_list` 从 `[hid_dim] * num_layer` 改成 `[input_dim] + [hid_dim] * (num_layer - 1)`，匹配 `model/gnn.py` "prompt applied before each conv" 的语义 | Graph/MUTAG/EdgePrompt + EdgePromptplus XFAIL → PASS |
+| P1 | B.重构遗留 | `strategy-graphprompter-graph-readout` | ✅ **已修 2026-05-22 (Bugfix 第二批)**：`GraphPrompterModel.forward` 末尾 slice 出真实 supernode 的 logits 行（去掉 kNN-augmented prompt 行）；`GraphTask.run` 加 GraphPrompter eval 分支（之前漏写 → `UnboundLocalError`） | Graph/MUTAG/GraphPrompter XFAIL → PASS（acc 0.3987） |
+| P1 | B.重构遗留 | `strategy-relief-scatter-shape` | ✅ **已修 2026-05-22 (Bugfix 第二批)**：根因是 `_node_to_state` 把 prompt 当作 `batch` positional arg 传给 GNN（→ 触发 pool 的 2-D scatter）；改成 `gnn(..., prompt=prompt)` kwarg。配套修了 `gnn.py` RELIEF 直接扰动路径（之前 `x + prompt` 在 hid_dim 上，且漏掉 input → conv 维度），改成 `h_list[0] + prompt`；`node_task.py:_relief_ctx` 注入 `svd_dim=input_dim`、`max_num_nodes=data.num_nodes`、`relief_max_attach_steps=50`（cap 否则 Cora 一个 epoch 2708 GNN forward，太慢） | RELIEF NodeTask Cora 跑通（slow opt-in），acc 0.1903，单 fold ~7 分钟 |
+| P2 | B.重构遗留 | `strategy-relief-graphtask-no-init` | ✅ **已修 2026-05-22 (Batch-3 / P2.1)**：`task.py:initialize_prompt` 加 GraphTask 分支（用 `max(d.num_nodes for d in self.dataset)` 推 num_nodes），`graph_task.py` 加 `_relief_ctx()` + train/eval dispatch | Graph/MUTAG/RELIEF acc=0.4867 |
+| P2 | B.重构遗留 | `strategy-relief-perf-cap` | ⚠️ **架构性重做尝试失败 (Batch-3 / P2.2)**：用 induced subgraph 路径替代单图路径，结果**慢且差**（13min/fold vs 7min/fold，acc 0.14 vs 0.19）。原因：(1) 2400+ eval subgraph × 174 nodes/sub → per-batch GNN forward 在 11k-node tensor 上耗时抵消了内层循环 cap 的收益；(2) NodeTask 下每个 subgraph.y 是 center node label，但 tasknet 读 graph_emb（whole-subgraph pool），loss signal 错位。**已回退**，保持单图 + `attach_prompt` step cap=50 路径。**副作用 ✅**：把 step cap 同样接到 `train_policy_epoch`（带 `effective_nodes_per_graph` clamp 保证 index 在 bound 内），改善 GraphTask 大图 RELIEF 的最坏情况 | `Node/Cora/RELIEF` 仍 SKIP（在 sweep 中标 functional but slow） |
+
+**类别速查**：A.README 残留 / B.重构遗留 / C.待深审 / D.源码 TODO / E.文档同步 / F.回归守护。
+
+### 7.1 Benchmark 覆盖现状（2026-05-22 末次更新）
+
+测试 / 跑分双通道：
+
+| 通道 | 入口 | 范围 | 跑一次的耗时 | 状态（2026-05-22 末次） |
+|---|---|---|---|---|
+| 1-epoch pytest smoke | `tests/test_strategy_new_prompts.py` + `tests/test_strategy_*.py` | 全 17 个 strategy × {Node Cora / Graph MUTAG} 的可用组合 | ~14 分钟（**54 passed + 1 skipped + 2 xfailed**） | CI 跑；xfail 守护下面 7.3 的 2 条 P1 |
+| Phase-0 金标准 | `scripts/baseline.sh` | 3 个冻结 case：Cora+GPF / MUTAG+All-in-one / PubMed+Gprompt | ~30-60 分钟（200 epoch） | metric 漂移 > 1e-4 阻止合并；case 集合**不可扩** |
+| 全 prompt 覆盖 sweep | `scripts/benchmark_all_prompts.sh` | 14 Node + 10 Graph + 3 SKIP（默认）/ 总 27 | `--fast` ~3.5 分钟（CPU, num_iter=1, 50 epoch） | 失败不 abort；不写 `baseline_metrics.md` |
+
+> 通道 3 是新加的。它解决了"baseline.sh 只覆盖 3 个 prompt"的盲区，同时不影响 Phase-0 漂移守护。
+
+### 7.2 末次 sweep 结果（`bash scripts/benchmark_all_prompts.sh --fast --tag bugfix3-final`，2026-05-22 第三批 bugfix / P2 round 后）
+
+- **26 PASS / 0 FAIL / 2 SKIP**（log: `scripts/baseline_logs/bugfix3-final_20260523_000355_all_prompts.log`；条目级表：`scripts/baseline_logs/bugfix3-final_summary.md`）。
+- 2 个 SKIP：
+  - `Node/Cora/MultiGprompt` — 设计上需要 pretrained checkpoint，设 `MULTIGPROMPT_PRETRAIN_PATH` 后会自动跑。
+  - `Node/Cora/RELIEF` — functional 但慢（~7 min/epoch on Cora）。架构性重做尝试失败（见 §7.3 P2.2），保留 step cap + 单图路径。
+- pytest：**56 passed, 1 skipped, 1 deselected, 0 xfailed**（新加 Graph/MUTAG/RELIEF 参数化）。
+- 关键数字（**仅 P2 影响以下条目**，其余 unchanged）：
+  - `Graph/MUTAG/DAGPrompT`：F1 0.6198（之前 0.0000 占位）、AUROC 0.6270（之前 0.0000）。 ✅ P2.3 修复
+  - `Graph/MUTAG/RELIEF`：**NEW** acc=0.4867 / F1=0.3195。✅ P2.1 修复
+- 顶部三甲不变：NodeTask `Gprompt` 0.6328，GraphTask `All-in-one` 0.7747 (AUROC 0.8753)，`None` 0.7240。
+
+### 7.3 当前仍 open 的 P1/P2 复盘（2026-05-22 末次）
+
+#### P1 strategy bugs：7/7 全部 ✅
+
+| ID | 状态 |
+|---|---|
+| `strategy-initialize-optimizer-missing-branches` | ✅ 已修 (batch-1) |
+| `strategy-uniprompt-init-missing-k` | ✅ 已修 (batch-1) |
+| `strategy-dagprompt-graph-init-mismatch` | ✅ 已修 (batch-1) |
+| `strategy-relief-args-missing-hid-dim` | ✅ 已修 (batch-1) |
+| `strategy-edgeprompt-dim-list-mismatch` | ✅ 已修 (batch-1) |
+| `strategy-graphprompter-graph-readout` | ✅ 已修 (batch-2) |
+| `strategy-relief-scatter-shape` | ✅ 已修 (batch-2) |
+
+#### P2 strategy follow-ups：2/3 ✅，1 个 documented 为 design constraint
+
+| ID | 状态 |
+|---|---|
+| `strategy-relief-graphtask-no-init` (P2.1) | ✅ 已修 (batch-3) — GraphTask 路径接通，Graph/MUTAG/RELIEF acc=0.4867 |
+| `strategy-relief-perf-cap` (P2.2) | ⚠️ 架构性重做尝试失败 → 保留单图 + step cap=50；副作用是把 cap 接到了 `train_policy_epoch`（带 clamp）。`Node/Cora/RELIEF` 在大单图上是 design constraint：~7 min/fold 是 RL 算法基本开销。建议在大单图 NodeTask 上**用 Prodigy / GPPT / ProNoG / Gprompt 替代**（这些都秒级跑完） |
+| `strategy-dagprompt-eval-placeholders` (P2.3) | ✅ 已修 (batch-3) — F1/AUROC/AUPRC 现在用 sklearn 计算，Graph/MUTAG/DAGPrompT 报出 F1=0.6198、AUROC=0.6270 |
+
+**结论**：7 条 P1 + 2 条 P2 已修；剩 1 条 P2（RELIEF 单图 perf）登记为 design constraint，不阻塞功能。所有 26 个 (task × prompt) 组合在 sweep 里 PASS（除按设计 SKIP 的 2 个）。
+
 ---
 
 *文档创建：2026-05-12  
-扫描参考：`bench.py` `prompt_graph/` 全包 + 顶层脚本。*
+扫描参考：`bench.py` `prompt_graph/` 全包 + 顶层脚本。  
+末次状态更新：2026-05-22（bugfix sweep）。*

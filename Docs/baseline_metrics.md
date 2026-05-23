@@ -73,3 +73,19 @@ bash scripts/baseline.sh --tag phase-0-fast --fast
 
 每次 `baseline.sh` 都会写入 `scripts/baseline_logs/<tag>_<datetime>.log`，
 合并 PR 时把这份日志一起提交（或在 PR 描述里贴出 commit hash + 日志路径）。
+
+## 8. 当前回填状态（截至 2026-05-22）
+
+> phase-1 ~ phase-6 列**全部仍空**。Phase 1 完成于 commit `e276670`，Phase 2-3 完成于 `87b01c2`，Phase 4 完成于 PR #1-#8，Phase 5 完成于 PR #9-#15，Phase 6 完成于 `e0d9d4c` + PR #19；但合并各 Phase 时未跑 `bash scripts/baseline.sh` 回填本表。
+>
+> 这是 `Docs/IMPROVEMENTS.md` §7 中 P1 项 `docs-baseline-metrics-empty` 的具体表现。下次跑回归时建议批量补齐：
+>
+> ```bash
+> for tag in phase-1 phase-2 phase-3 phase-4 phase-5 phase-6; do
+>   bash scripts/baseline.sh --tag "$tag" --fast
+> done
+> ```
+>
+> 然后把每个 case 的 `test_acc` / `test_f1` / `test_auc` / `wall_time_s` 从 `scripts/baseline_logs/<tag>_*.log` 摘出来填进上面 §3 / §4 / §5 的对应行。`peak_mem_mb` 暂无统一采集脚本，可留 `-`。
+>
+> 若想直接对当前 HEAD 跑一次完整基线、覆盖 phase-0 列，请用 `--tag phase-0-current`，并在备注里注明 host + device，避免和 2026-05-12 的 fast-run 列直接比较。

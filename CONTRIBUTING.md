@@ -141,19 +141,34 @@ ruff format .
 ### 5.1 跑测试
 
 ```bash
-pytest tests/ -v             # 全量
-pytest tests/test_strategy_gpf.py -v   # 单个文件
-pytest tests/ -k smoke -v    # 只跑带 'smoke' 字样的
+pytest tests/ -v                            # 全量 (~12 分钟)
+pytest tests/test_strategy_gpf.py -v        # 单个文件
+pytest tests/ -k smoke -v                   # 只跑带 'smoke' 字样的
+pytest tests/ -m slow                       # 跑 RL-heavy 等 opt-in 慢测试
+pytest tests/test_strategy_new_prompts.py -v  # 所有新 prompt 的 1-epoch coverage
 ```
 
 ### 5.2 测试规约
 
 - **不 mock dataset**：smoke / integration test 必须跑真 dataset（Cora / MUTAG 是最便宜的）。Phase 5.2 引入的 smoke test 暴露过 `range(1, self.epochs)` off-by-one 等真 bug，mock 都掩盖不了。详见 [`CLAUDE.md`](./CLAUDE.md) §3.5。
 - **不全局 monkey-patch**：`torch.load` / `torch.device` / `os.environ` 都不要全局打 monkey patch；用 `monkeypatch.setenv` / `monkeypatch.chdir` 等 pytest fixtures。
-- **每个新 prompt_type / strategy 都要带 smoke test**：至少一个 2-epoch NodeTask Cora 跑、GraphTask 必要时配一个。
+- **每个新 prompt_type / strategy 都要带 smoke test**：模板见 [`tests/test_strategy_new_prompts.py`](./tests/test_strategy_new_prompts.py)；至少一个 1-epoch NodeTask Cora 跑、再视情况配 GraphTask MUTAG。
+- **新 strategy 进 STRATEGY_REGISTRY 时**：在 `tests/test_strategy_registry.py::test_all_bundled_strategies_register_on_import` 的 `EXPECTED` 集合里加一行，并同步 [`Docs/architecture.md`](./Docs/architecture.md) §3 的表格。
+- **已知 bug 必须 XFAIL 而非 SKIP**：用 `pytest.mark.xfail(strict=False, reason="...")` 引用 [`Docs/IMPROVEMENTS.md`](./Docs/IMPROVEMENTS.md) §7 的条目，方便修好后 XPASS 自动通知。
 - **改 strategy 必须跑 loss-diff 校验**：5 epoch 训练，epoch 1-5 loss 与 dev 基线误差 ≤ 1e-3。在 PR body 贴 diff 表。
 
-### 5.3 CI
+### 5.3 全 prompt 覆盖 sweep
+
+`scripts/benchmark_all_prompts.sh` 用 `bench.py` 把每个 prompt 在 Cora（NodeTask）/ MUTAG（GraphTask）上跑一遍，用来摸底"哪些 prompt 真的能 end-to-end 跑通"：
+
+```bash
+bash scripts/benchmark_all_prompts.sh --fast                # 50 epoch，~10-15 分钟
+bash scripts/benchmark_all_prompts.sh --include-broken      # 也跑当前 XFAIL 的组合，用来验证你的修复
+```
+
+与 `scripts/baseline.sh` 的关键区别：失败**不会 abort sweep**，结尾给 PASS/FAIL/SKIP 汇总；并且不写 `Docs/baseline_metrics.md`（所以可以放心扩 case）。
+
+### 5.4 CI
 
 `.github/workflows/ci.yml`：matrix `python-version: ['3.9', '3.11']`，跑 `ruff check` + `pytest`。本地通过不代表 CI 通过——尤其是 3.9 上某些 typing 语法（`X | Y`、`list[str]`）会挂。
 

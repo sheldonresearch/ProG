@@ -23,7 +23,7 @@
 | `--downstream_task` | str | —— | `NodeTask` / `GraphTask` |
 | `--dataset_name` | str | `Cora` | 详见 [`Docs/datasets.md`](./datasets.md) |
 | `--gnn_type` | str | `GCN` | `GCN` / `GAT` / `GIN` / `GraphSAGE` / `GCov` / `GraphTransformer` |
-| `--prompt_type` | str | `None` | `None` / `GPF` / `GPF-plus` / `Gprompt` / `All-in-one` / `GPPT` / `MultiGprompt` |
+| `--prompt_type` | str | `None` | 通过 `STRATEGY_REGISTRY` 注册。当前已注册 16 个：`None` / `GPF` / `GPF-plus` / `Gprompt` / `All-in-one` / `GPPT` / `MultiGprompt` / `Prodigy` / `UniPrompt` / `SelfPro` / `ProNoG` / `DAGPrompT` / `PSP` / `RELIEF` / `GraphPrompter` / `EdgePrompt` / `EdgePromptplus`。最新清单见 [`Docs/architecture.md`](./architecture.md) §3 或 `STRATEGY_REGISTRY.keys()` |
 | `--hid_dim` | int | 128 | GNN 隐层维度 |
 | `--num_layer` | int | 2 | GNN 层数 |
 | `--epochs` | int | 1000 | 下游 / 预训练 epoch 数 |
@@ -112,7 +112,7 @@ python pre_train.py --pretrain_task GraphCL --dataset_name Cora --gnn_type GCN \
 支持的 `--pretrain_task`：
 
 - `DGI` / `GraphCL` / `SimGRACE` / `Edgepred_GPPT` / `Edgepred_Gprompt` / `GraphMAE`
-- `MultiGprompt`（node-only；`GraphMultiGprompt` 尚未接入，见 [`pre_train.py`](../pre_train.py) `get_pretrain_task_delegate`）
+- `MultiGprompt` / `NodeMultiGprompt` / `GraphMultiGprompt`：自 commit `647d6c4` 起，`GraphMultiGprompt`（或当 `dataset_name in GRAPH_TASKS` 时的 `MultiGprompt`）走 `load4graph(args.dataset_name, pretrained=True)` → `GraphPrePrompt(...)` 真实路径，不再 `NotImplementedError`。
 
 `get_pretrain_task_by_dataset_name` 会按 dataset 自动推断是 NodeTask 还是 GraphTask；图级数据集走 `GraphPrePrompt` / `Graph*` 实现。
 
@@ -175,6 +175,29 @@ bash scripts/baseline.sh --tag phase-6
 
 `scripts/baseline.sh` 内部就是上面三份 YAML 对应的命令，同时把 stdout 落盘到 `scripts/baseline_logs/<tag>_<datetime>.log`。每个 Phase 合并前都应跑一遍，把 metric 对照[`Docs/baseline_metrics.md`](./baseline_metrics.md) 更新。
 
+> 注意：`baseline.sh` 是 **Phase-0 金标准**，case 集合是冻结的，metric 漂移 > 1e-4 会被 review push back。**不要往里加 case**——所有新增 prompt 方法的覆盖跑请用下面 §7.1 的 `benchmark_all_prompts.sh`。
+
+### 7.1 全 prompt 覆盖跑（`scripts/benchmark_all_prompts.sh`）
+
+```bash
+# 跑所有"目前能正常工作"的 prompt × {NodeTask Cora, GraphTask MUTAG}（默认 200 epoch）
+bash scripts/benchmark_all_prompts.sh
+
+# 快速回归（50 epoch，~5-10 分钟）
+bash scripts/benchmark_all_prompts.sh --fast
+
+# 给本次 run 一个 tag
+bash scripts/benchmark_all_prompts.sh --tag dev-2026-05
+
+# 同时跑当前 XFAIL 的组合（参考 tests/test_strategy_new_prompts.py 已知 bug 列表），
+# 用来验证你刚修的 prompt fix 真的把 SKIP/FAIL 转成 PASS
+bash scripts/benchmark_all_prompts.sh --include-broken
+```
+
+脚本会把每个 case 的 PASS/FAIL/SKIP 汇总到 `scripts/baseline_logs/<tag>_<stamp>_all_prompts.log`。失败不会 abort sweep（区别于 `baseline.sh` 的 `set -e`），所以你能一次性看到全部覆盖结果。case 列表写在脚本里，不抽成 YAML —— 每加一个 strategy / 修一个 bug 就直接 diff 这个 shell 文件，可读性更高。
+
+对应的"快速 smoke"是 `pytest tests/test_strategy_new_prompts.py`，1 epoch、~30 秒、用 `pytest.mark.xfail` 守护已知 bug；CI 跑的就是它，不跑全 sweep。
+
 ---
 
 ## 8. 日志控制
@@ -200,3 +223,5 @@ python downstream_task.py --config configs/cora_gpf.yaml --quiet
 - [`Docs/IMPROVEMENTS.md`](./IMPROVEMENTS.md) — 已知 bug、deprecated 标志、roadmap；
 - [`Docs/baseline_metrics.md`](./baseline_metrics.md) — 历次 baseline 跑出的指标快照；
 - [`scripts/baseline.sh`](../scripts/baseline.sh) — Phase 0 金标准命令。
+- [`scripts/benchmark_all_prompts.sh`](../scripts/benchmark_all_prompts.sh) — 全 prompt 覆盖 sweep（§7.1）。
+- [`tests/test_strategy_new_prompts.py`](../tests/test_strategy_new_prompts.py) — 全 prompt 的 1-epoch pytest smoke（带 XFAIL 已知 bug 列表）。
