@@ -49,7 +49,10 @@ def _build_single_induced_graph(
         need_node_num = smallest_size - len(subset)
         label_mask = data.y == label
         if candidate_mask is not None:
-            label_mask = label_mask & candidate_mask
+            # candidate_mask is intentionally kept on CPU by callers (see
+            # split_induced_graphs), but data.y may live on CUDA. Align the
+            # masks before AND-ing to avoid a cross-device RuntimeError.
+            label_mask = label_mask & candidate_mask.to(label_mask.device)
         pos_nodes = torch.argwhere(label_mask)
         subset_cpu = subset.detach().cpu()
         candidate_nodes = torch.from_numpy(
@@ -150,9 +153,7 @@ def induced_graph_cache_path(dir_path, smallest_size, largest_size, leak_safe=Tr
     )
 
 
-def load_induced_graphs(
-    dataset_name, data, device, smallest_size=100, largest_size=300
-):
+def load_induced_graphs(dataset_name, data, device, smallest_size=100, largest_size=300):
     """Unified induced-graph loader with caching.
 
     Replaces the copy-pasted ``load_induced_graph`` functions previously
