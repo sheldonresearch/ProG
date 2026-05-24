@@ -56,7 +56,7 @@ cd "$REPO_ROOT"
 # ---- project grid -----------------------------------------------------------
 ALL_NODE_DATASETS=(Cora CiteSeer PubMed Wisconsin Texas Actor Computers Photo Reddit WikiCS Flickr ogbn-arxiv)
 ALL_GRAPH_DATASETS=(MUTAG ENZYMES COLLAB PROTEINS IMDB-BINARY REDDIT-BINARY COX2 BZR PTC_MR DD ogbg-ppa)
-ALL_PRETRAINS=(None DGI GraphMAE Edgepred_GPPT Edgepred_Gprompt GraphCL SimGRACE)
+ALL_PRETRAINS=(None DGI GraphMAE Edgepred_GPPT Edgepred_Gprompt GraphCL SimGRACE MultiGprompt)
 ALL_PROMPTS=(None GPF GPF-plus Gprompt All-in-one GPPT Prodigy GraphPrompter EdgePrompt EdgePromptplus RELIEF MultiGprompt UniPrompt SelfPro ProNoG PSP DAGPrompT)
 DEFAULT_SHOTS=(1 3 5)
 OGB_DATASETS=(ogbn-arxiv ogbg-ppa)
