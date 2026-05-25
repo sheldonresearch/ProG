@@ -178,6 +178,7 @@ class RELIEFStrategy(PromptStrategy):
             )
             _, logit, _ = tasknet_loss(ctx.gnn, self.tasknet, data, prompt, require_grad=False)
             pred = logit.argmax(dim=1)
+        idx_test = idx_test.to(data.y.device)
         acc = (pred[idx_test] == data.y[idx_test]).float().mean().item()
         return acc, 0.0, 0.0, 0.0
 
