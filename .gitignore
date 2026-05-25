@@ -39,7 +39,10 @@ amlt_logs/
 # amlt sweep raw outputs (per-shard downloads — regenerable via `amlt results download`)
 amulet_plan_a_out/
 amulet_plan_a_cora_fixup_out/
+amulet_plan_b_out/
+amulet_plan_b_3shot_out/
 all_shards/
+all_shards_b/
 
 # Merged sweep results (regenerable via scripts/merge_shard_excels.py)
 merged_results/
