@@ -330,6 +330,7 @@ class BaseTask:
             "Edgepred_Gprompt",
             "GraphCL",
             "SimGRACE",
+            "MultiGprompt",
         }
         if pre_train_model_path == "None":
             return "None"

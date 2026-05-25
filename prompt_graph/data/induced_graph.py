@@ -116,6 +116,11 @@ def split_induced_graphs(
         train_mask_cpu = None
     else:
         train_mask_cpu = train_mask.detach().to("cpu").bool()
+        # WebKB datasets (Wisconsin/Texas/Cornell) ship with multi-split masks
+        # of shape (num_nodes, num_splits) — take the first split so downstream
+        # AND with label_mask (shape (num_nodes,)) works correctly.
+        if train_mask_cpu.dim() > 1:
+            train_mask_cpu = train_mask_cpu[:, 0]
 
     for index in range(data.x.size(0)):
         graph = _build_single_induced_graph(
