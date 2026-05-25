@@ -41,8 +41,10 @@ amulet_plan_a_out/
 amulet_plan_a_cora_fixup_out/
 amulet_plan_b_out/
 amulet_plan_b_3shot_out/
+amulet_plan_b_fixup_out/
 all_shards/
 all_shards_b/
+all_shards_b_final/
 
 # Merged sweep results (regenerable via scripts/merge_shard_excels.py)
 merged_results/
