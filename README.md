@@ -1,5 +1,9 @@
 # ProG-V2: A Reproducible Graph Prompt Learning Benchmark
 
+<p align="center">
+  <img src="assets/logo.jpg" height="120" alt="ProG logo" />
+</p>
+
 ProG-V2 is an engineering-focused extension of the original
 [ProG benchmark](https://github.com/sheldonresearch/ProG) for graph prompt
 learning. It keeps the standard **pre-train → prompt-tune → evaluate** workflow,
@@ -17,6 +21,12 @@ merged result reports.
   prompt-task smoke runs.
 - Fixes for several benchmark-blocking edge cases in WebKB, MultiGprompt,
   RELIEF, and GraphMAE.
+
+## Architecture
+
+<p align="center">
+  <img src="assets/prog-pipeline.jpg" width="720" alt="ProG pipeline" />
+</p>
 
 ## Overall Performance Results
 

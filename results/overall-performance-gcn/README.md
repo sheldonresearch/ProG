@@ -1,4 +1,4 @@
-# Plan B Overall Performance Results
+# Overall Performance Results
 
 This directory contains the public merged Overall Performance report for ProG-V2.
 The report covers a representative GCN benchmark grid over node- and graph-level
