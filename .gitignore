@@ -1,8 +1,9 @@
 # Project exclude paths
 .idea/*
 .idea/workspace.xml
-/ProG/__pycache__
-*.pyc
+__pycache__/
+**/__pycache__/
+*.py[cod]
 .DS_Store
 /data
 /dataset
