@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Phase 0 金标准命令：固定 3 组覆盖三种数据规模的 bench 调用。
-# 每个 Phase 合并前都跑一次，把指标更新到 Docs/baseline_metrics.md。
+# 每个 Phase 合并前都跑一次；如维护指标快照，可记录本次输出列。
 #
 # 用法：
 #   bash scripts/baseline.sh                # 跑完整 baseline（耗时较长）
@@ -16,6 +16,7 @@ cd "$REPO_ROOT"
 
 FAST=0
 TAG="manual"
+GNN_TYPE="GCN"
 EXTRA_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -26,6 +27,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --tag)
             TAG="$2"
+            shift 2
+            ;;
+        --gnn_type|--gnn-type)
+            GNN_TYPE="$2"
             shift 2
             ;;
         --)
@@ -56,13 +61,14 @@ LOG_FILE="$LOG_DIR/${TAG}_${STAMP}.log"
 echo "=== Phase 0 baseline run ===" | tee "$LOG_FILE"
 echo "Tag:       $TAG"             | tee -a "$LOG_FILE"
 echo "Fast mode: $FAST"             | tee -a "$LOG_FILE"
+echo "GNN type:  $GNN_TYPE"         | tee -a "$LOG_FILE"
 echo "Repo:      $REPO_ROOT"        | tee -a "$LOG_FILE"
 echo "Log:       $LOG_FILE"         | tee -a "$LOG_FILE"
 echo                                | tee -a "$LOG_FILE"
 
 # Excel templates are required by bench.py; bootstrap once.
 echo "--- Bootstrap Excel templates ---" | tee -a "$LOG_FILE"
-python create_excel_for_bench.py 2>&1 | tee -a "$LOG_FILE"
+python scripts/bootstrap_excel_full.py --gnn_type "$GNN_TYPE" 2>&1 | tee -a "$LOG_FILE"
 echo                                    | tee -a "$LOG_FILE"
 
 run_case() {
@@ -78,11 +84,11 @@ run_case "Case 1: Cora + GraphCL + GPF (NodeTask)" \
     --pretrain_task NodeTask \
     --dataset_name  Cora \
     --prompt_type   GPF \
-    --gnn_type      GCN \
+    --gnn_type      "$GNN_TYPE" \
     --shot_num      5 \
     --seed          42 \
     --epochs        "$EPOCHS_NODE" \
-    --pre_train_model_path ./Experiment/pre_trained_model/Cora/GraphCL.GCN.128hidden_dim.pth \
+    --pre_train_model_path "./Experiment/pre_trained_model/Cora/GraphCL.${GNN_TYPE}.128hidden_dim.pth" \
     "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
 
 # Case 2 — MUTAG / All-in-one (GraphTask, small molecular dataset)
@@ -90,11 +96,11 @@ run_case "Case 2: MUTAG + GraphCL + All-in-one (GraphTask)" \
     --pretrain_task GraphTask \
     --dataset_name  MUTAG \
     --prompt_type   All-in-one \
-    --gnn_type      GCN \
+    --gnn_type      "$GNN_TYPE" \
     --shot_num      5 \
     --seed          42 \
     --epochs        "$EPOCHS_GRAPH" \
-    --pre_train_model_path ./Experiment/pre_trained_model/MUTAG/GraphCL.GCN.128hidden_dim.pth \
+    --pre_train_model_path "./Experiment/pre_trained_model/MUTAG/GraphCL.${GNN_TYPE}.128hidden_dim.pth" \
     "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
 
 # Case 3 — PubMed / Gprompt (NodeTask, mid-size citation network)
@@ -102,12 +108,12 @@ run_case "Case 3: PubMed + GraphCL + Gprompt (NodeTask)" \
     --pretrain_task NodeTask \
     --dataset_name  PubMed \
     --prompt_type   Gprompt \
-    --gnn_type      GCN \
+    --gnn_type      "$GNN_TYPE" \
     --shot_num      1 \
     --seed          42 \
     --epochs        "$EPOCHS_NODE" \
-    --pre_train_model_path ./Experiment/pre_trained_model/PubMed/GraphCL.GCN.128hidden_dim.pth \
+    --pre_train_model_path "./Experiment/pre_trained_model/PubMed/GraphCL.${GNN_TYPE}.128hidden_dim.pth" \
     "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
 
 echo "=== baseline done. metrics excel: ./Experiment/ExcelResults/ ===" | tee -a "$LOG_FILE"
-echo "Update Docs/baseline_metrics.md with the new column ($TAG)."      | tee -a "$LOG_FILE"
+echo "Record the new baseline column ($TAG) if you track metric snapshots." | tee -a "$LOG_FILE"

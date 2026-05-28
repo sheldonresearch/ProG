@@ -9,7 +9,7 @@
 #                    GraphCL, SimGRACE}    (None = train from scratch)
 #
 # For each cell, calls bench.py once. Results are appended into the Excel files
-# at Experiment/ExcelResults/<task>/<shot>shot/<dataset>/GCN_total_results.xlsx
+# at Experiment/ExcelResults/<task>/<shot>shot/<dataset>/<gnn_type>_total_results.xlsx
 # under the column "{pretrain}+{prompt}".
 #
 # Prerequisite: run scripts/pretrain_paper_grid.sh FIRST to produce all .pth
@@ -25,10 +25,11 @@
 #   bash scripts/bench_overall_performance.sh --prompts "GPF GPF-plus"
 #   bash scripts/bench_overall_performance.sh --pretrains "DGI None"
 #   bash scripts/bench_overall_performance.sh --device 0              # GPU 0
+#   bash scripts/bench_overall_performance.sh --gnn_type GAT          # backbone
 #   bash scripts/bench_overall_performance.sh --allow-missing         # train from scratch when .pth missing
 #
 # Output:
-#   - Excel: Experiment/ExcelResults/<Node|Graph>/<shot>shot/<dataset>/GCN_total_results.xlsx
+#   - Excel: Experiment/ExcelResults/<Node|Graph>/<shot>shot/<dataset>/<gnn_type>_total_results.xlsx
 #   - Log:   scripts/baseline_logs/${TAG}_${STAMP}_overall_performance.log
 #
 # Cost note: 3 shots × 15 datasets × 6 prompts × 7 pretrain-variants ≈ 1890
@@ -50,6 +51,7 @@ DEFAULT_SHOTS=(1 3 5)
 TASK="all"
 EPOCHS=200
 DEVICE="cpu"
+GNN_TYPE="GCN"
 TAG="overall-perf"
 FAST=0
 ALLOW_MISSING=0
@@ -64,6 +66,7 @@ while [[ $# -gt 0 ]]; do
         --task)        TASK="$2"; shift 2 ;;
         --epochs)      EPOCHS="$2"; shift 2 ;;
         --device)      DEVICE="$2"; shift 2 ;;
+        --gnn_type|--gnn-type) GNN_TYPE="$2"; shift 2 ;;
         --tag)         TAG="$2"; shift 2 ;;
         --fast)        FAST=1; shift ;;
         --shots)       read -ra SHOTS     <<< "$2"; shift 2 ;;
@@ -98,13 +101,14 @@ echo "Prompts:    ${PROMPTS[*]}"                       | tee -a "$LOG_FILE"
 echo "Pretrains:  ${PRETRAINS[*]}"                     | tee -a "$LOG_FILE"
 echo "Epochs:     $EPOCHS  (fast=$FAST)"               | tee -a "$LOG_FILE"
 echo "Device:     $DEVICE"                             | tee -a "$LOG_FILE"
+echo "GNN type:   $GNN_TYPE"                           | tee -a "$LOG_FILE"
 echo "Num iter:   ${NUM_ITER:-bench-default}"          | tee -a "$LOG_FILE"
 echo "Allow miss: $ALLOW_MISSING"                      | tee -a "$LOG_FILE"
 echo "Log:        $LOG_FILE"                           | tee -a "$LOG_FILE"
 echo                                                   | tee -a "$LOG_FILE"
 
 echo "--- Bootstrap Excel templates ---" | tee -a "$LOG_FILE"
-python create_excel_for_bench.py 2>&1 | tee -a "$LOG_FILE" || true
+python scripts/bootstrap_excel_full.py --gnn_type "$GNN_TYPE" 2>&1 | tee -a "$LOG_FILE" || true
 echo | tee -a "$LOG_FILE"
 
 PASS=()
@@ -152,7 +156,7 @@ for shot in "${SHOTS[@]}"; do
                 fi
 
                 label="${task_kind}/${dataset}/${shot}shot/${pretrain}+${prompt}"
-                ckpt="$REPO_ROOT/Experiment/pre_trained_model/${dataset}/${pretrain}.GCN.128hidden_dim.pth"
+                ckpt="$REPO_ROOT/Experiment/pre_trained_model/${dataset}/${pretrain}.${GNN_TYPE}.128hidden_dim.pth"
                 ckpt_arg="None"
 
                 if [[ "$pretrain" != "None" ]]; then
@@ -175,7 +179,7 @@ for shot in "${SHOTS[@]}"; do
                     --pretrain_task "$task_kind"
                     --dataset_name  "$dataset"
                     --prompt_type   "$prompt"
-                    --gnn_type      GCN
+                    --gnn_type      "$GNN_TYPE"
                     --shot_num      "$shot"
                     --seed          42
                     --epochs        "$EPOCHS"

@@ -84,7 +84,7 @@ def test_all_bundled_strategies_register_on_import():
     ``strategies/__init__.py``.
 
     If this list legitimately changes (added or removed a strategy), update
-    ``EXPECTED`` below and ``Docs/architecture.md`` §3 in the same PR.
+    ``EXPECTED`` below and the public README's supported strategy list in the same PR.
     """
     # Re-import to fire the registration side effect even if a prior test
     # cleared the registry.

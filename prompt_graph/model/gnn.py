@@ -1,10 +1,9 @@
 """Unified GNN backbone parameterized by ``conv_type``.
 
-Phase 3 refactor (see ``Docs/IMPROVEMENTS.md`` §2.1/§2.2): the six per-conv
-files under ``prompt_graph/model/`` were byte-equivalent except for the conv
-class and a single ``GraphConv = <ConvClass>`` line.  They now collapse into
-this single module + a registry, and the six original modules are kept as
-thin backward-compatible shims.
+The six per-conv files under ``prompt_graph/model/`` were byte-equivalent
+except for the conv class and a single ``GraphConv = <ConvClass>`` line. They
+now collapse into this single module + a registry, and the six original modules
+are kept as thin backward-compatible shims.
 """
 
 import torch

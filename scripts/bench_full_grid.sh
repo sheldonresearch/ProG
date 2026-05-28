@@ -36,12 +36,13 @@
 #   bash scripts/bench_full_grid.sh --prompts "GPF GPF-plus All-in-one"
 #   bash scripts/bench_full_grid.sh --pretrains "DGI GraphCL"
 #   bash scripts/bench_full_grid.sh --device 0                   # GPU 0
+#   bash scripts/bench_full_grid.sh --gnn_type GAT               # backbone
 #   bash scripts/bench_full_grid.sh --include-slow               # enable RELIEF/NodeTask
 #   bash scripts/bench_full_grid.sh --exclude-ogb                # skip ogbn-arxiv + ogbg-ppa
 #   bash scripts/bench_full_grid.sh --allow-missing              # train from scratch when .pth missing
 #
 # Output:
-#   - Excel: Experiment/ExcelResults/<Node|Graph>/<shot>shot/<dataset>/GCN_total_results.xlsx
+#   - Excel: Experiment/ExcelResults/<Node|Graph>/<shot>shot/<dataset>/<gnn_type>_total_results.xlsx
 #       columns appended as "{pretrain}+{prompt}"
 #       rows: Final Accuracy, Final F1, Final AUROC
 #   - Log:   scripts/baseline_logs/${TAG}_${STAMP}_bench_full.log
@@ -72,6 +73,7 @@ SLOW_NODE_PROMPTS=(RELIEF)
 TASK="all"
 EPOCHS=200
 DEVICE="cpu"
+GNN_TYPE="GCN"
 TAG="bench-full"
 FAST=0
 ALLOW_MISSING=0
@@ -88,6 +90,7 @@ while [[ $# -gt 0 ]]; do
         --task)          TASK="$2"; shift 2 ;;
         --epochs)        EPOCHS="$2"; shift 2 ;;
         --device)        DEVICE="$2"; shift 2 ;;
+        --gnn_type|--gnn-type) GNN_TYPE="$2"; shift 2 ;;
         --tag)           TAG="$2"; shift 2 ;;
         --fast)          FAST=1; shift ;;
         --shots)         read -ra SHOTS     <<< "$2"; shift 2 ;;
@@ -126,7 +129,7 @@ ckpt_path() {
     if [[ "$method" == "MultiGprompt" ]]; then
         echo "$REPO_ROOT/Experiment/pre_trained_model/${dataset}/MultiGprompt.pth"
     else
-        echo "$REPO_ROOT/Experiment/pre_trained_model/${dataset}/${method}.GCN.128hidden_dim.pth"
+        echo "$REPO_ROOT/Experiment/pre_trained_model/${dataset}/${method}.${GNN_TYPE}.128hidden_dim.pth"
     fi
 }
 
@@ -143,6 +146,7 @@ echo "Prompts:       ${PROMPTS[*]}"                  | tee -a "$LOG_FILE"
 echo "Pretrains:     ${PRETRAINS[*]}"                | tee -a "$LOG_FILE"
 echo "Epochs:        $EPOCHS  (fast=$FAST)"          | tee -a "$LOG_FILE"
 echo "Device:        $DEVICE"                        | tee -a "$LOG_FILE"
+echo "GNN type:      $GNN_TYPE"                      | tee -a "$LOG_FILE"
 echo "Num iter:      ${NUM_ITER:-bench-default}"     | tee -a "$LOG_FILE"
 echo "Include slow:  $INCLUDE_SLOW"                  | tee -a "$LOG_FILE"
 echo "Exclude OGB:   $EXCLUDE_OGB"                   | tee -a "$LOG_FILE"
@@ -151,7 +155,7 @@ echo "Log:           $LOG_FILE"                      | tee -a "$LOG_FILE"
 echo                                                 | tee -a "$LOG_FILE"
 
 echo "--- Bootstrap Excel templates (all 23 datasets, 3 shots) ---" | tee -a "$LOG_FILE"
-python scripts/bootstrap_excel_full.py 2>&1 | tee -a "$LOG_FILE" || true
+python scripts/bootstrap_excel_full.py --gnn_type "$GNN_TYPE" 2>&1 | tee -a "$LOG_FILE" || true
 echo | tee -a "$LOG_FILE"
 
 # Build (task_kind, dataset) cases ------------------------------------------
@@ -244,7 +248,7 @@ for shot in "${SHOTS[@]}"; do
                     --pretrain_task "$task_kind"
                     --dataset_name  "$dataset"
                     --prompt_type   "$prompt"
-                    --gnn_type      GCN
+                    --gnn_type      "$GNN_TYPE"
                     --shot_num      "$shot"
                     --seed          42
                     --epochs        "$EPOCHS"

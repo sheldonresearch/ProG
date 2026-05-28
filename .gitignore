@@ -7,8 +7,9 @@
 /data
 /dataset
 
-# /Docs is tracked; uncomment to ignore private notes
-# Docs/private/
+Docs/
+CLAUDE.md
+.github/copilot-instructions.md
 
 /Experiment
 /Utility
@@ -36,8 +37,9 @@ ProG_pipeline.jpg
 # Raw benchmark downloads and temporary merge workspaces
 raw_results/
 tmp_results/
+local_results/
 
-# Merged benchmark results: keep the published Plan-B report, ignore other local merges.
-merged_results/*
-!merged_results/plan-b-combined/
-!merged_results/plan-b-combined/**
+# Local result workspaces. Public reports live under results/.
+results/*
+!results/overall-performance-gcn/
+!results/overall-performance-gcn/**

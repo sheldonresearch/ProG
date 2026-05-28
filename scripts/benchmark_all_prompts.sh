@@ -10,6 +10,7 @@
 #   bash scripts/benchmark_all_prompts.sh            # full run (200 epochs)
 #   bash scripts/benchmark_all_prompts.sh --fast     # 50 epochs (CI-friendly)
 #   bash scripts/benchmark_all_prompts.sh --tag T    # set log column name
+#   bash scripts/benchmark_all_prompts.sh --gnn_type GAT
 #   bash scripts/benchmark_all_prompts.sh --include-broken  # also run combos
 #                                                          # currently broken
 #                                                          # (see XFAIL list)
@@ -20,8 +21,7 @@
 #   - Excel results in Experiment/ExcelResults/...
 #
 # Differences from scripts/baseline.sh:
-#   - baseline.sh is the 3-case Phase-0 regression set (frozen, must match
-#     baseline_metrics.md). DO NOT add to it.
+#   - baseline.sh is the small frozen regression set. DO NOT add to it.
 #   - This script is the coverage sweep. It is allowed to grow / shrink as
 #     strategies are added or fixed. Failures here block neither CI nor merges.
 
@@ -33,11 +33,13 @@ cd "$REPO_ROOT"
 FAST=0
 TAG="all-prompts"
 INCLUDE_BROKEN=0
+GNN_TYPE="GCN"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --fast) FAST=1; shift ;;
         --tag) TAG="$2"; shift 2 ;;
+        --gnn_type|--gnn-type) GNN_TYPE="$2"; shift 2 ;;
         --include-broken) INCLUDE_BROKEN=1; shift ;;
         *) echo "unknown arg: $1" >&2; exit 1 ;;
     esac
@@ -57,12 +59,13 @@ LOG_FILE="$LOG_DIR/${TAG}_${STAMP}_all_prompts.log"
 echo "=== All-prompts benchmark sweep ===" | tee "$LOG_FILE"
 echo "Tag:            $TAG"                 | tee -a "$LOG_FILE"
 echo "Fast mode:      $FAST (epochs=$EPOCHS)" | tee -a "$LOG_FILE"
+echo "GNN type:       $GNN_TYPE"             | tee -a "$LOG_FILE"
 echo "Include broken: $INCLUDE_BROKEN"       | tee -a "$LOG_FILE"
 echo "Log:            $LOG_FILE"             | tee -a "$LOG_FILE"
 echo                                          | tee -a "$LOG_FILE"
 
 echo "--- Bootstrap Excel templates ---" | tee -a "$LOG_FILE"
-python create_excel_for_bench.py 2>&1 | tee -a "$LOG_FILE" || true
+python scripts/bootstrap_excel_full.py --gnn_type "$GNN_TYPE" 2>&1 | tee -a "$LOG_FILE" || true
 echo | tee -a "$LOG_FILE"
 
 PASS=()
@@ -82,7 +85,7 @@ run_case() {
         --pretrain_task "$task"
         --dataset_name  "$dataset"
         --prompt_type   "$prompt"
-        --gnn_type      GCN
+        --gnn_type      "$GNN_TYPE"
         --shot_num      5
         --seed          42
         --epochs        "$EPOCHS"

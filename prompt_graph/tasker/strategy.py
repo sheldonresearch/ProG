@@ -6,7 +6,7 @@ strategy classes are added in subsequent Phase 4 units and registered via
 ``@register_strategy('<name>')`` on import (see
 ``prompt_graph/tasker/strategies/__init__.py``).
 
-See ``Docs/IMPROVEMENTS.md`` section 2.4 for the rationale.
+The registry keeps prompt-specific train/eval logic isolated from task runners.
 """
 
 from __future__ import annotations

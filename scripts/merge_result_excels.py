@@ -1,10 +1,10 @@
 """Merge per-run Excel results from a distributed sweep into one file
-per (task_kind, shot, dataset).
+per (task_kind, shot, dataset, backbone result file).
 
 Each run output directory contains an ``excel/`` subdir that mirrors
 the standard ``Experiment/ExcelResults/`` layout::
 
-    excel/{Node,Graph}/{shot}shot/{dataset}/GCN_total_results.xlsx
+    excel/{Node,Graph}/{shot}shot/{dataset}/{gnn_type}_total_results.xlsx
 
 Each xlsx is populated only for the (prompt, pretrain) cells that
 run was responsible for. Merging is a per-cell union: for each (row, col)
@@ -17,7 +17,8 @@ Usage
 
   python scripts/merge_result_excels.py \\
       --input-root raw_results/overall-performance \\
-      --output-root merged_results/overall-performance
+      --output-root results/overall-performance-gcn \\
+      --gnn_type GCN
 """
 
 from __future__ import annotations
@@ -30,16 +31,18 @@ from collections import defaultdict
 import pandas as pd
 
 
-def find_xlsx_files(input_root: pathlib.Path) -> dict[tuple[str, str, str], list[pathlib.Path]]:
+def find_xlsx_files(
+    input_root: pathlib.Path,
+) -> dict[tuple[str, str, str, str], list[pathlib.Path]]:
     """Walk ``input_root`` and group xlsx files by (task_kind, shot, dataset).
 
-    Returns ``{(task, shot_dir, dataset): [path, ...]}``.
+    Returns ``{(task, shot_dir, dataset, result_name): [path, ...]}``.
     """
-    groups: dict[tuple[str, str, str], list[pathlib.Path]] = defaultdict(list)
-    # Layout: <input_root>/<run_dir>/excel/{Node|Graph}/<shot>shot/<dataset>/GCN_total_results.xlsx
+    groups: dict[tuple[str, str, str, str], list[pathlib.Path]] = defaultdict(list)
+    # Layout: <input_root>/<run_dir>/excel/{Node|Graph}/<shot>shot/<dataset>/*_total_results.xlsx
     # We accept any depth of <run_dir> nesting and look for ``excel/Node`` or ``excel/Graph``
     # anywhere underneath.
-    for xlsx in input_root.rglob("GCN_total_results.xlsx"):
+    for xlsx in input_root.rglob("*_total_results.xlsx"):
         # Walk up to find /excel/ and then identify the task/shot/dataset trio.
         try:
             parts = xlsx.relative_to(input_root).parts
@@ -57,7 +60,7 @@ def find_xlsx_files(input_root: pathlib.Path) -> dict[tuple[str, str, str], list
             continue
         if task not in {"Node", "Graph"}:
             continue
-        groups[(task, shot, dataset)].append(xlsx)
+        groups[(task, shot, dataset, xlsx.name)].append(xlsx)
     return groups
 
 
@@ -120,6 +123,12 @@ def main() -> int:
         default=None,
         help="Optional: write a flat CSV summary (one row per (dataset, shot, col)).",
     )
+    ap.add_argument(
+        "--gnn_type",
+        "--gnn-type",
+        default=None,
+        help="Optional: only merge files named <gnn_type>_total_results.xlsx.",
+    )
     args = ap.parse_args()
 
     if not args.input_root.exists():
@@ -127,8 +136,14 @@ def main() -> int:
         return 1
 
     groups = find_xlsx_files(args.input_root)
+    if args.gnn_type is not None:
+        suffix = f"{args.gnn_type}_total_results.xlsx"
+        groups = {
+            key: [path for path in paths if path.name == suffix] for key, paths in groups.items()
+        }
+        groups = {key: paths for key, paths in groups.items() if paths}
     if not groups:
-        print(f"ERROR: no GCN_total_results.xlsx found under {args.input_root}", file=sys.stderr)
+        print(f"ERROR: no result xlsx files found under {args.input_root}", file=sys.stderr)
         return 1
 
     print(
@@ -140,8 +155,8 @@ def main() -> int:
     args.output_root.mkdir(parents=True, exist_ok=True)
     summary_rows: list[dict] = []
 
-    for (task, shot, dataset), paths in sorted(groups.items()):
-        out_path = args.output_root / task / shot / dataset / "GCN_total_results.xlsx"
+    for (task, shot, dataset, result_name), paths in sorted(groups.items()):
+        out_path = args.output_root / task / shot / dataset / result_name
         out_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"== {task} / {shot} / {dataset}  ({len(paths)} input file(s)) ==")
         merged = merge_one(paths)

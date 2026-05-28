@@ -4,7 +4,7 @@
 #
 # Iterates 6 pretrain methods × 15 paper datasets = up to 90 checkpoints.
 # Idempotent: skips combos whose .pth already exists under
-#   Experiment/pre_trained_model/<dataset>/<method>.GCN.128hidden_dim.pth
+#   Experiment/pre_trained_model/<dataset>/<method>.<gnn_type>.128hidden_dim.pth
 #
 # This is the prerequisite for scripts/bench_overall_performance.sh — bench.py
 # expects those .pth files to exist for every (pretrain_method, dataset) cell.
@@ -17,10 +17,11 @@
 #   bash scripts/pretrain_paper_grid.sh --methods "DGI GraphCL"  # subset
 #   bash scripts/pretrain_paper_grid.sh --datasets "Cora MUTAG"  # subset
 #   bash scripts/pretrain_paper_grid.sh --device 0               # GPU 0
+#   bash scripts/pretrain_paper_grid.sh --gnn_type GAT           # backbone
 #   bash scripts/pretrain_paper_grid.sh --epochs 500             # override
 #
 # Output:
-#   - Checkpoints: Experiment/pre_trained_model/<dataset>/<method>.GCN.128hidden_dim.pth
+#   - Checkpoints: Experiment/pre_trained_model/<dataset>/<method>.<gnn_type>.128hidden_dim.pth
 #   - Log: scripts/baseline_logs/${TAG}_${STAMP}_pretrain_grid.log
 
 set -uo pipefail
@@ -37,6 +38,7 @@ PAPER_PRETRAINS=(DGI GraphMAE Edgepred_GPPT Edgepred_Gprompt GraphCL SimGRACE)
 TASK="all"
 EPOCHS=1000
 DEVICE="cpu"
+GNN_TYPE="GCN"
 TAG="pretrain-grid"
 METHODS=()
 DATASETS=()
@@ -47,6 +49,7 @@ while [[ $# -gt 0 ]]; do
         --task)     TASK="$2"; shift 2 ;;
         --epochs)   EPOCHS="$2"; shift 2 ;;
         --device)   DEVICE="$2"; shift 2 ;;
+        --gnn_type|--gnn-type) GNN_TYPE="$2"; shift 2 ;;
         --tag)      TAG="$2"; shift 2 ;;
         --fast)     FAST=1; shift ;;
         --methods)  read -ra METHODS  <<< "$2"; shift 2 ;;
@@ -82,6 +85,7 @@ echo "Tag:      $TAG"                         | tee -a "$LOG_FILE"
 echo "Task:     $TASK"                        | tee -a "$LOG_FILE"
 echo "Epochs:   $EPOCHS  (fast=$FAST)"        | tee -a "$LOG_FILE"
 echo "Device:   $DEVICE"                      | tee -a "$LOG_FILE"
+echo "GNN type: $GNN_TYPE"                    | tee -a "$LOG_FILE"
 echo "Methods:  ${METHODS[*]}"                | tee -a "$LOG_FILE"
 echo "Datasets: ${DATASETS[*]}"               | tee -a "$LOG_FILE"
 echo "Log:      $LOG_FILE"                    | tee -a "$LOG_FILE"
@@ -93,7 +97,7 @@ SKIP=()
 
 for dataset in "${DATASETS[@]}"; do
     for method in "${METHODS[@]}"; do
-        ckpt="$REPO_ROOT/Experiment/pre_trained_model/${dataset}/${method}.GCN.128hidden_dim.pth"
+        ckpt="$REPO_ROOT/Experiment/pre_trained_model/${dataset}/${method}.${GNN_TYPE}.128hidden_dim.pth"
         label="${method} @ ${dataset}"
         if [[ -f "$ckpt" ]]; then
             echo "--- SKIP (exists): $label -> $ckpt ---" | tee -a "$LOG_FILE"
@@ -105,7 +109,7 @@ for dataset in "${DATASETS[@]}"; do
             python pre_train.py
             --pretrain_task "$method"
             --dataset_name  "$dataset"
-            --gnn_type      GCN
+            --gnn_type      "$GNN_TYPE"
             --hid_dim       128
             --num_layer     2
             --epochs        "$EPOCHS"

@@ -12,7 +12,7 @@
 #          COX2 BZR PTC_MR DD ogbg-ppa
 #
 # Output file naming (matches bench.py expectations):
-#   - Standard 6 methods:  Experiment/pre_trained_model/<dataset>/<method>.GCN.128hidden_dim.pth
+#   - Standard 6 methods:  Experiment/pre_trained_model/<dataset>/<method>.<gnn_type>.128hidden_dim.pth
 #   - MultiGprompt:        Experiment/pre_trained_model/<dataset>/MultiGprompt.pth
 #
 # Idempotent: skips combos whose .pth already exists.
@@ -25,6 +25,7 @@
 #   bash scripts/pretrain_full_grid.sh --exclude-ogb                  # skip ogbn-arxiv + ogbg-ppa
 #   bash scripts/pretrain_full_grid.sh --methods "DGI GraphCL"        # subset
 #   bash scripts/pretrain_full_grid.sh --datasets "Cora MUTAG"        # subset
+#   bash scripts/pretrain_full_grid.sh --gnn_type GAT                 # backbone
 #   bash scripts/pretrain_full_grid.sh --fast                         # 200 epochs (default 1000)
 #   bash scripts/pretrain_full_grid.sh --epochs 500                   # custom
 #
@@ -46,6 +47,7 @@ OGB_DATASETS=(ogbn-arxiv ogbg-ppa)
 TASK="all"
 EPOCHS=1000
 DEVICE="cpu"
+GNN_TYPE="GCN"
 TAG="pretrain-full"
 EXCLUDE_OGB=0
 FAST=0
@@ -57,6 +59,7 @@ while [[ $# -gt 0 ]]; do
         --task)        TASK="$2"; shift 2 ;;
         --epochs)      EPOCHS="$2"; shift 2 ;;
         --device)      DEVICE="$2"; shift 2 ;;
+        --gnn_type|--gnn-type) GNN_TYPE="$2"; shift 2 ;;
         --tag)         TAG="$2"; shift 2 ;;
         --fast)        FAST=1; shift ;;
         --exclude-ogb) EXCLUDE_OGB=1; shift ;;
@@ -96,7 +99,7 @@ ckpt_path() {
     if [[ "$method" == "MultiGprompt" ]]; then
         echo "$REPO_ROOT/Experiment/pre_trained_model/${dataset}/MultiGprompt.pth"
     else
-        echo "$REPO_ROOT/Experiment/pre_trained_model/${dataset}/${method}.GCN.128hidden_dim.pth"
+        echo "$REPO_ROOT/Experiment/pre_trained_model/${dataset}/${method}.${GNN_TYPE}.128hidden_dim.pth"
     fi
 }
 
@@ -110,6 +113,7 @@ echo "Tag:         $TAG"                           | tee -a "$LOG_FILE"
 echo "Task:        $TASK"                          | tee -a "$LOG_FILE"
 echo "Epochs:      $EPOCHS  (fast=$FAST)"          | tee -a "$LOG_FILE"
 echo "Device:      $DEVICE"                        | tee -a "$LOG_FILE"
+echo "GNN type:    $GNN_TYPE"                      | tee -a "$LOG_FILE"
 echo "Methods:     ${METHODS[*]}"                  | tee -a "$LOG_FILE"
 echo "Datasets:    ${DATASETS[*]}"                 | tee -a "$LOG_FILE"
 echo "Exclude OGB: $EXCLUDE_OGB"                   | tee -a "$LOG_FILE"
@@ -140,7 +144,7 @@ for dataset in "${DATASETS[@]}"; do
             python pre_train.py
             --pretrain_task "$method"
             --dataset_name  "$dataset"
-            --gnn_type      GCN
+            --gnn_type      "$GNN_TYPE"
             --hid_dim       128
             --num_layer     2
             --epochs        "$EPOCHS"

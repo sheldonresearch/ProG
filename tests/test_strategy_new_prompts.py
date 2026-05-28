@@ -21,7 +21,7 @@ and returns a finite-looking accuracy in ``[0, 1]``.
 Known-broken combos are wrapped in ``pytest.mark.xfail(strict=False)`` with a
 ``reason=`` that names the underlying bug. When the bug is fixed, the test
 will start XPASSing -- please drop the xfail marker in the same PR. The
-bugs are mirrored in ``Docs/IMPROVEMENTS.md`` §7 as P1 follow-ups.
+known gaps should be tracked in issues and covered by xfail tests.
 """
 
 import argparse
