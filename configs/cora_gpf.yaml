@@ -1,0 +1,11 @@
+# Baseline config: Cora + GraphCL + GPF (NodeTask)
+# Mirrors scripts/baseline.sh Case 1.
+# Usage: python bench.py --config configs/cora_gpf.yaml
+pretrain_task: NodeTask
+dataset_name: Cora
+prompt_type: GPF
+gnn_type: GCN
+shot_num: 5
+seed: 42
+epochs: 200
+pre_train_model_path: ./Experiment/pre_trained_model/Cora/GraphCL.GCN.128hidden_dim.pth

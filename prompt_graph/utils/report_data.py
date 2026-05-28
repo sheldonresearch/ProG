@@ -1,23 +1,19 @@
 from dataclasses import dataclass, field
-from typing import Optional
-
-
 
 
 @dataclass
 class ConfigBenchResult:
-    pretrain_task_type:str
-    dataset_name:str
-    prompt_type:str
+    pretrain_task_type: str
+    pre_train_type: str
+    dataset_name: str
+    prompt_type: str
 
-    best_params: dict[str, float] = field(
-        default_factory=lambda: {}
-    )
+    best_params: dict[str, float] = field(default_factory=lambda: {})
 
-    best_loss:float = float('inf')
-    final_acc_mean:float = 0.
-    final_acc_std:float = 0.
-    final_f1_mean:float = 0.
-    final_f1_std:float = 0.
-    final_roc_mean:float = 0.
-    final_roc_std:float = 0.
+    best_loss: float = float("inf")
+    final_acc_mean: float = 0.0
+    final_acc_std: float = 0.0
+    final_f1_mean: float = 0.0
+    final_f1_std: float = 0.0
+    final_roc_mean: float = 0.0
+    final_roc_std: float = 0.0

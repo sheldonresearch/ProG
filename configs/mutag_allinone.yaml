@@ -1,0 +1,11 @@
+# Baseline config: MUTAG + GraphCL + All-in-one (GraphTask)
+# Mirrors scripts/baseline.sh Case 2.
+# Usage: python bench.py --config configs/mutag_allinone.yaml
+pretrain_task: GraphTask
+dataset_name: MUTAG
+prompt_type: All-in-one
+gnn_type: GCN
+shot_num: 5
+seed: 42
+epochs: 200
+pre_train_model_path: ./Experiment/pre_trained_model/MUTAG/GraphCL.GCN.128hidden_dim.pth

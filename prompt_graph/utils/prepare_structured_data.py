@@ -1,6 +1,7 @@
-import torch 
-from torch_geometric.utils import structured_negative_sampling
+import torch
 from torch_geometric.data import Data
+from torch_geometric.utils import structured_negative_sampling
+
 
 def prepare_structured_data(graph_data: Data):
     r"""Prepare structured <i,k,j> format link prediction data"""

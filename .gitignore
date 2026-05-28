@@ -1,12 +1,16 @@
 # Project exclude paths
 .idea/*
 .idea/workspace.xml
-/ProG/__pycache__
-*.pyc
+__pycache__/
+**/__pycache__/
+*.py[cod]
 .DS_Store
 /data
 /dataset
-/Docs
+
+Docs/
+CLAUDE.md
+.github/copilot-instructions.md
 
 /Experiment
 /Utility
@@ -21,3 +25,21 @@ batch_run_pretrain.py
 c_bench.py
 
 mcr_*.py
+
+/scripts/baseline_logs/
+
+# Binary assets (moved out of main repo — see README.md)
+Node.zip
+/ref
+
+.vscode/
+
+# Raw benchmark downloads and temporary merge workspaces
+raw_results/
+tmp_results/
+local_results/
+
+# Local result workspaces. Public reports live under results/.
+results/*
+!results/overall-performance-gcn/
+!results/overall-performance-gcn/**

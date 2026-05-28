@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prog"
+version = "0.1.0"
+description = "ProG: A Unified Library for Graph Prompt Learning"
+requires-python = ">=3.9"
+dependencies = [
+    "torch>=1.13,<3",
+    "torch_geometric",
+    "ogb",
+    "pandas",
+    "openpyxl",
+    "scikit-learn",
+    "torchmetrics",
+    "networkx",
+    "numpy<2",
+    "deprecated",
+    "tqdm",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "pre-commit", "mypy"]
+ogb = ["ogb", "outdated"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: opt-in tests that take >30s per case (RL loops, heavy benchmarks). Run via `pytest -m slow`.",
+]
+# Exclude slow tests by default. Override with ``pytest -m slow`` or
+# ``pytest -m 'slow or not slow'`` to include them.
+addopts = "-m 'not slow'"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["prompt_graph*"]
