@@ -32,20 +32,12 @@ ProG_pipeline.jpg
 /ref
 
 .vscode/
-.amltconfig
-.amlt/
-amlt_logs/
 
-# amlt sweep raw outputs (per-shard downloads — regenerable via `amlt results download`)
-amulet_plan_a_out/
-amulet_plan_a_cora_fixup_out/
-amulet_plan_b_out/
-amulet_plan_b_3shot_out/
-amulet_plan_b_fixup_out/
-all_shards/
-all_shards_b/
-all_shards_b_final/
+# Raw benchmark downloads and temporary merge workspaces
+raw_results/
+tmp_results/
 
-# Merged sweep results (regenerable via scripts/merge_shard_excels.py)
-merged_results/
-tmp_amlt_out/
+# Merged benchmark results: keep the published Plan-B report, ignore other local merges.
+merged_results/*
+!merged_results/plan-b-combined/
+!merged_results/plan-b-combined/**

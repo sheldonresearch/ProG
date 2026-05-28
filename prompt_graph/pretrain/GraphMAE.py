@@ -138,17 +138,25 @@ class GraphMAELoss(nn.Module):
         perm = torch.randperm(num_nodes, device=x.device)
         # random masking
         num_mask_nodes = int(mask_rate * num_nodes)
+        if mask_rate > 0 and num_nodes > 0:
+            num_mask_nodes = max(1, num_mask_nodes)
         mask_nodes = perm[:num_mask_nodes]
         keep_nodes = perm[num_mask_nodes:]
         if self._replace_rate > 0:
             num_noise_nodes = int(self._replace_rate * num_mask_nodes)
             perm_mask = torch.randperm(num_mask_nodes, device=x.device)
-            token_nodes = mask_nodes[perm_mask[: int(self._mask_token_rate * num_mask_nodes)]]
-            noise_nodes = mask_nodes[perm_mask[-int(self._replace_rate * num_mask_nodes) :]]
+            num_token_nodes = num_mask_nodes - num_noise_nodes
+            token_nodes = mask_nodes[perm_mask[:num_token_nodes]]
+            noise_nodes = (
+                mask_nodes[perm_mask[-num_noise_nodes:]]
+                if num_noise_nodes > 0
+                else mask_nodes.new_empty(0)
+            )
             noise_to_be_chosen = torch.randperm(num_nodes, device=x.device)[:num_noise_nodes]
             out_x = x.clone()
             out_x[token_nodes] = 0.0
-            out_x[noise_nodes] = x[noise_to_be_chosen]
+            if num_noise_nodes > 0:
+                out_x[noise_nodes] = x[noise_to_be_chosen]
         else:
             out_x = x.clone()
             token_nodes = mask_nodes

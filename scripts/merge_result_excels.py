@@ -1,23 +1,23 @@
-"""Merge per-shard Excel results from a multi-shard amlt sweep into one file
+"""Merge per-run Excel results from a distributed sweep into one file
 per (task_kind, shot, dataset).
 
-Each shard's amlt output directory contains an ``excel/`` subdir that mirrors
+Each run output directory contains an ``excel/`` subdir that mirrors
 the standard ``Experiment/ExcelResults/`` layout::
 
     excel/{Node,Graph}/{shot}shot/{dataset}/GCN_total_results.xlsx
 
-Each shard's xlsx is populated only for the (prompt, pretrain) cells that
-shard was responsible for. Merging is a per-cell union: for each (row, col)
-take the non-empty value from any shard. Conflicting non-empty values (same
-cell written by two shards with different numbers) print a warning and keep
+Each xlsx is populated only for the (prompt, pretrain) cells that
+run was responsible for. Merging is a per-cell union: for each (row, col)
+take the non-empty value from any input. Conflicting non-empty values (same
+cell written by two inputs with different numbers) print a warning and keep
 the first.
 
 Usage
 -----
 
-  python scripts/merge_shard_excels.py \\
-      --input-root amulet_plan_a_out/plan-a-20260528 \\
-      --output-root merged_results/plan-a-20260528
+  python scripts/merge_result_excels.py \\
+      --input-root raw_results/overall-performance \\
+      --output-root merged_results/overall-performance
 """
 
 from __future__ import annotations
@@ -36,8 +36,8 @@ def find_xlsx_files(input_root: pathlib.Path) -> dict[tuple[str, str, str], list
     Returns ``{(task, shot_dir, dataset): [path, ...]}``.
     """
     groups: dict[tuple[str, str, str], list[pathlib.Path]] = defaultdict(list)
-    # Layout: <input_root>/<shard_dir>/excel/{Node|Graph}/<shot>shot/<dataset>/GCN_total_results.xlsx
-    # We accept any depth of <shard_dir> nesting and look for ``excel/Node`` or ``excel/Graph``
+    # Layout: <input_root>/<run_dir>/excel/{Node|Graph}/<shot>shot/<dataset>/GCN_total_results.xlsx
+    # We accept any depth of <run_dir> nesting and look for ``excel/Node`` or ``excel/Graph``
     # anywhere underneath.
     for xlsx in input_root.rglob("GCN_total_results.xlsx"):
         # Walk up to find /excel/ and then identify the task/shot/dataset trio.
@@ -62,7 +62,7 @@ def find_xlsx_files(input_root: pathlib.Path) -> dict[tuple[str, str, str], list
 
 
 def merge_one(paths: list[pathlib.Path]) -> pd.DataFrame:
-    """Union columns of the per-shard xlsx files. Last non-empty wins on conflict."""
+    """Union columns of the per-run xlsx files. Last non-empty wins on conflict."""
     merged: pd.DataFrame | None = None
     conflicts: list[str] = []
     for p in paths:
@@ -106,7 +106,7 @@ def main() -> int:
         "--input-root",
         required=True,
         type=pathlib.Path,
-        help="Root containing per-shard amlt output dirs (each with excel/...).",
+        help="Root containing per-run output dirs (each with excel/...).",
     )
     ap.add_argument(
         "--output-root",
@@ -143,7 +143,7 @@ def main() -> int:
     for (task, shot, dataset), paths in sorted(groups.items()):
         out_path = args.output_root / task / shot / dataset / "GCN_total_results.xlsx"
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        print(f"== {task} / {shot} / {dataset}  ({len(paths)} shard file(s)) ==")
+        print(f"== {task} / {shot} / {dataset}  ({len(paths)} input file(s)) ==")
         merged = merge_one(paths)
         merged.to_excel(out_path)
         n_cells = int(merged.notna().sum().sum())

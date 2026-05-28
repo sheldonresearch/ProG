@@ -6,17 +6,18 @@
   </a>
 </div>
 
-<h3 align="center">🌟ProG: A Unified Python Library for Graph Prompting🌟</h3>
+<h3 align="center">🌟ProG-V2: A Reproducible Graph Prompt Learning Benchmark🌟</h3>
 
 <div align="center">
   
+| **[ProG-V2](#prog-v2)** 
+| **[Overall Performance](#overall-performance-results)**
 | **[Quick Start](#quick-start)** 
 | **[Paper](#paper)**
-| **[Media Coverage](#media-coverage)**
 | **[Call For Contribution](#call-for-contributors)** |
 
-![](https://img.shields.io/badge/Latest_version-v0.2-red)
-![Testing Status](https://img.shields.io/badge/PyTorch-v1.13.1-red)
+![](https://img.shields.io/badge/Latest_version-ProG--V2-red)
+![Testing Status](https://img.shields.io/badge/PyTorch->=2.0-red)
 ![Testing Status](https://img.shields.io/badge/license-MIT-blue)
 ![Testing Status](https://img.shields.io/badge/python->=3.9-red)
 
@@ -24,21 +25,68 @@
 
 
 
-🌟**ProG**🌟 (Prompt Graph) is a library built upon PyTorch to easily conduct single or multi-task prompting for 
-pre-trained Graph Neural Networks (GNNs). You can easily use this library to conduct various graph workflows like **supervised learning**, **pre-training and prompting**, and **pre-training and finetuning** for your node/graph-level tasks. The starting point of this library is our KDD23 paper [**All in One**](https://arxiv.org/abs/2307.01504) (Best Research Paper Award, which is the first time for Hong Kong and Mainland China).  
+<a name="prog-v2"></a>
 
+🌟**ProG-V2**🌟 is an engineering-focused extension of the original
+[ProG benchmark](https://github.com/sheldonresearch/ProG) for graph prompt
+learning. It keeps the original pre-train → prompt-tune → evaluate workflow,
+while adding a more modular strategy architecture, broader prompt coverage,
+reproducible benchmark utilities, centralized path/device/logging support, and
+CI-friendly coverage for core components.
 
+Compared with the original ProG codebase, ProG-V2 adds:
 
-* The [**``ori``**](https://github.com/sheldonresearch/ProG/tree/ori) branch of this repository is the source code of [**All in One**](https://github.com/sheldonresearch/ProG/tree/ori), in which you can conduct even more kinds of tasks with more flexible graph prompts.
+- **17 prompt strategies** through a `PromptStrategy` registry.
+- **6 GNN backbones** through a unified `build_gnn` registry.
+- Reproducible few-shot benchmark scripts and merged result reports.
+- Centralized dataset/result paths, device resolution, logging, and YAML/CLI config.
+- CI-friendly tests for data loading, GNN factory, strategy registry, and prompt strategies.
+- Fixes for several benchmark-blocking edge cases in WebKB, MultiGprompt, RELIEF, and GraphMAE.
 
-* The **``main``** branch of this library is the source code of [**ProG: A Graph Prompt Learning Benchmark**](https://arxiv.org/abs/2406.05346), it supports more than **5** graph prompt models (e.g. All-in-One, GPPT, GPF Plus, GPF, GraphPrompt, etc) with more than **6** pre-training strategies (e.g. DGI, GraphMAE, EdgePreGPPT, EdgePreGprompt, GraphCL, SimGRACE, etc), and have been tested on more than **15** graph datasets, covering both homophilic and heterophilic graphs from various domains with different scales.  Click [here](#supportive-list) to see the full and latest supportive list (backbones, pre-training strategies, graph prompts, and datasets). 
+The starting point of this project is the KDD'23 paper
+[**All in One**](https://arxiv.org/abs/2307.01504) and the NeurIPS'24 benchmark
+[**ProG: A Graph Prompt Learning Benchmark**](https://arxiv.org/abs/2406.05346).
 
+<a name="overall-performance-results"></a>
 
-<div align="center">
-  
-**Click to See [A Full List of Our Works in Graph Prompts](#our-work)**
+## Overall Performance Results
 
-</div>
+We provide a merged GCN Overall Performance report under
+[`merged_results/plan-b-combined/`](./merged_results/plan-b-combined/).
+
+The report contains **714 independent `(dataset, shot, pretrain+prompt)`
+combinations** and **2142 metric values** over Accuracy, Macro-F1, and AUROC.
+
+Experiment parameters:
+
+| Setting | Value |
+|---|---|
+| Backbone | GCN |
+| GNN layers | 2 |
+| Hidden dimension | 128 |
+| Seed | 42 |
+| Shots | 1-shot, 3-shot, 5-shot |
+| Few-shot splits | 5 splits per shot setting (`mean±std`) |
+| Downstream budget | 50 epochs with early stopping |
+| Pretrain budget | 200 epochs for generated checkpoints |
+| Metrics | Accuracy, Macro-F1, AUROC |
+| Result format | `{pretrain}+{prompt}` columns |
+
+| Dataset | Task | 1-shot | 3-shot | 5-shot |
+|---|---|---:|---:|---:|
+| Cora | Node | 72 | 72 | 72 |
+| Wisconsin | Node | 59 | 59 | 59 |
+| MUTAG | Graph | 56 | 56 | 56 |
+| PROTEINS | Graph | 51 | 51 | 51 |
+
+Result files:
+
+- [`summary.csv`](./merged_results/plan-b-combined/summary.csv): flat table, one row per experiment combination.
+- [`final_matrices.xlsx`](./merged_results/plan-b-combined/final_matrices.xlsx): 12 sheets, one per `(dataset, shot)` task view.
+- [`README.md`](./merged_results/plan-b-combined/README.md): detailed result documentation and metric definitions.
+
+The public merged table currently uses **GCN**. Other backbones are available in
+the model registry, but are not part of this merged Overall Performance table.
 
  
 <h3 align="left">🌟Acknowledgement</h3>
@@ -229,11 +277,11 @@ or do not unzip use the code to split the dataset Automatically
 
 **Supportive graph prompt approaches currently (keep updating):**  
 
->- [All in One] X. Sun, H. Cheng, J. Li, B. Liu, and J. Guan, “All in One: Multi-Task Prompting for Graph Neural Networks,” KDD, 2023
->- [GPF Plus] T. Fang, Y. Zhang, Y. Yang, C. Wang, and L. Chen, “Universal Prompt Tuning for Graph Neural Networks,” NeurIPS, 2023.
->- [GraphPrompt] Liu Z, Yu X, Fang Y, et al. Graphprompt: Unifying pre-training and downstream tasks for graph neural networks. The Web Conference, 2023.
->- [GPPT] M. Sun, K. Zhou, X. He, Y. Wang, and X. Wang, “GPPT: Graph Pre-Training and Prompt Tuning to Generalize Graph Neural Networks,” KDD, 2022
->- [GPF] T. Fang, Y. Zhang, Y. Yang, and C. Wang, “Prompt tuning for graph neural networks,” arXiv preprint, 2022.
+ProG-V2 registers 17 prompt strategies:
+
+`None`, `GPF`, `GPF-plus`, `Gprompt`, `All-in-one`, `GPPT`, `Prodigy`,
+`GraphPrompter`, `EdgePrompt`, `EdgePromptplus`, `RELIEF`, `MultiGprompt`,
+`UniPrompt`, `SelfPro`, `ProNoG`, `PSP`, and `DAGPrompT`.
 
 
 
@@ -246,9 +294,12 @@ or do not unzip use the code to split the dataset Automatically
 
 **Supportive graph backbone models currently (keep updating):**  
 
-- Graph Convolutional Network (GCN), GraphSAGE, GAT, and Graph Transformer (GT).
-
-> Beyond the above graph backbones, you can also seamlessly integrate nearly all graph models implemented by PyG.
+- Graph Convolutional Network (`GCN`)
+- Graph Attention Network (`GAT`)
+- Graph Isomorphism Network (`GIN`)
+- GraphSAGE (`GraphSAGE`)
+- PyG GraphConv (`GCov`)
+- Graph Transformer (`GraphTransformer`)
 
 
 **Click [here] to see more details information on these graph prompts, pre-training strategies, and graph backbones. **
@@ -257,7 +308,10 @@ or do not unzip use the code to split the dataset Automatically
 
 ### Pre-train your GNN model
 
-We have designed four pre_trained classes (Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE), which is in ProG.pretrain module, you can pre_train the model by running ``pre_train.py`` and setting the parameters you want. 
+ProG-V2 provides multiple pre-training classes (`DGI`, `GraphMAE`, `GraphCL`,
+`SimGRACE`, `Edgepred_GPPT`, `Edgepred_Gprompt`, and `MultiGprompt`) in the
+`prompt_graph.pretrain` module. You can pre-train the model by running
+``pre_train.py`` and setting the parameters you want.
 Or just unzip to get our dataset pre-trained model which is already pre-trained. 
 ``` shell
 unzip Experiment.zip
@@ -643,6 +697,3 @@ Once I finish, I will delete your branch, and next time you will repeat the abov
 
 
 A widely tested ``main`` branch will then be merged to the ``stable`` branch and a new version will be released based on ``stable`` branch.
-
-
-
