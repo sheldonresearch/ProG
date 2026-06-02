@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
-# Bulk-pretrain script for reproducing the "Overall Performance" experiment
+# Bulk-pretrain script for reproducing the paper-scope benchmark experiment
 # (Section 5.1 of the ProG paper, arXiv:2406.05346).
 #
 # Iterates 6 pretrain methods × 15 paper datasets = up to 90 checkpoints.
 # Idempotent: skips combos whose .pth already exists under
 #   Experiment/pre_trained_model/<dataset>/<method>.<gnn_type>.128hidden_dim.pth
 #
-# This is the prerequisite for scripts/bench_overall_performance.sh — bench.py
+# This is the prerequisite for scripts/bench_paper_grid.sh — bench.py
 # expects those .pth files to exist for every (pretrain_method, dataset) cell.
+#
+# LinkTask reuse: every pretrain method here saves a bare GNN state_dict, so
+# the same .pth files double as LinkTask pretrained backbones. No separate
+# link-pretrain step is required — ``bench.py --pretrain_task LinkTask
+# --pre_train_model_path <ckpt>`` loads them via the standard BaseTask path.
 #
 # Usage:
 #   bash scripts/pretrain_paper_grid.sh                          # full run

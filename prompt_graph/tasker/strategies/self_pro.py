@@ -88,17 +88,17 @@ def _compute_centers(embeddings, labels, num_classes):
 
 def _metric(name, num_classes, device):
     if name == "accuracy":
-        return torchmetrics.classification.Accuracy(
-            task="multiclass", num_classes=num_classes
-        ).to(device)
+        return torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_classes).to(
+            device
+        )
     if name == "f1":
         return torchmetrics.classification.F1Score(
             task="multiclass", num_classes=num_classes, average="macro"
         ).to(device)
     if name == "auroc":
-        return torchmetrics.classification.AUROC(
-            task="multiclass", num_classes=num_classes
-        ).to(device)
+        return torchmetrics.classification.AUROC(task="multiclass", num_classes=num_classes).to(
+            device
+        )
     if name == "auprc":
         return torchmetrics.classification.AveragePrecision(
             task="multiclass", num_classes=num_classes

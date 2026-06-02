@@ -143,7 +143,7 @@ class BaseTask:
         elif self.prompt_type == "All-in-one":
             # lr, wd = 0.001, 0.00001
             # self.prompt = LightPrompt(token_dim=self.input_dim, token_num_per_group=100, group_num=self.output_dim, inner_prune=0.01).to(self.device)
-            if self.task_type == "NodeTask":
+            if self.task_type in ("NodeTask", "LinkTask"):
                 self.prompt = HeavyPrompt(
                     token_dim=self.input_dim, token_num=10, cross_prune=0.1, inner_prune=0.3
                 ).to(self.device)

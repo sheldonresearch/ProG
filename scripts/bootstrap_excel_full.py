@@ -2,12 +2,16 @@
 
 This is the extended template generator used by benchmark scripts:
 - Covers ALL 12 NODE_TASKS + 11 GRAPH_TASKS (vs paper's 7+8).
+- Also covers LinkTask templates over the dataset list in
+  ``LINK_TASKS`` (single-graph + multi-graph), with a 4-row index
+  ("Final Accuracy", "Final F1", "Final AUROC", "Final AUPRC") matching
+  what ``bench.py`` writes for LinkTask runs.
 - Creates the 3-row index ("Final Accuracy", "Final F1", "Final AUROC") that
-  bench.py expects; bench.py will lazily add columns for any
+  bench.py expects for Node/Graph; bench.py will lazily add columns for any
   "{pretrain}+{prompt}" combo it writes, so we leave the column set empty.
 - Idempotent: skips files that already exist.
 
-Used by scripts/bench_full_grid.sh.
+Used by scripts/bench_full_grid.sh and scripts/bench_paper_grid.sh.
 """
 
 import argparse
@@ -15,21 +19,24 @@ import os
 
 import pandas as pd
 
-from prompt_graph.defines import GRAPH_TASKS, NODE_TASKS
+from prompt_graph.defines import GRAPH_TASKS, LINK_TASKS, NODE_TASKS
 from prompt_graph.utils import excel_result_dir
 
 SHOT_NUMS = (1, 3, 5)
 ROW_INDEX = ("Final Accuracy", "Final F1", "Final AUROC")
+LINK_ROW_INDEX = ("Final Accuracy", "Final F1", "Final AUROC", "Final AUPRC")
 
 
-def ensure_template(task_kind: str, dataset_name: str, shot_num: int, gnn_type: str) -> str:
+def ensure_template(
+    task_kind: str, dataset_name: str, shot_num: int, gnn_type: str, row_index=ROW_INDEX
+) -> str:
     """Create an empty template at the bench.py-expected path. Idempotent."""
     file_name = f"{gnn_type}_total_results.xlsx"
     file_path = os.path.join(str(excel_result_dir(task_kind, shot_num, dataset_name)), file_name)
     if os.path.exists(file_path):
         return file_path
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    pd.DataFrame(index=list(ROW_INDEX)).to_excel(file_path)
+    pd.DataFrame(index=list(row_index)).to_excel(file_path)
     return file_path
 
 
@@ -52,6 +59,15 @@ def main() -> None:
         for shot in SHOT_NUMS:
             path = ensure_template("Graph", dataset, shot, args.gnn_type)
             print(f"  Graph {dataset:<14} {shot}-shot -> {path}")
+            created += 1
+    # LinkTask: shot_num=0 means "full RandomLinkSplit" — still a valid grid
+    # entry; we include it alongside the few-shot shots so the sweep can
+    # combine k-shot LP results with the full-split baseline.
+    link_shots = (0, *SHOT_NUMS)
+    for dataset in LINK_TASKS:
+        for shot in link_shots:
+            path = ensure_template("Link", dataset, shot, args.gnn_type, row_index=LINK_ROW_INDEX)
+            print(f"  Link  {dataset:<14} {shot}-shot -> {path}")
             created += 1
     print(f"Templates ensured: {created} (skipped already-existing among them: {skipped})")
 

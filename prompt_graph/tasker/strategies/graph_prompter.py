@@ -46,7 +46,9 @@ class GraphPrompterStrategy(PromptStrategy):
         ctx.prompt.train()
         ctx.answering.train()
         ctx.optimizer.zero_grad()
-        out = ctx.gnn(data.x, data.edge_index, batch=None, prompt=ctx.prompt, prompt_type="GraphPrompter")
+        out = ctx.gnn(
+            data.x, data.edge_index, batch=None, prompt=ctx.prompt, prompt_type="GraphPrompter"
+        )
         out = ctx.answering(out)
         loss = F.cross_entropy(out[train_idx], data.y[train_idx])
         loss.backward()

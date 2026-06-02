@@ -190,7 +190,11 @@ class FrontAndHead(torch.nn.Module):
             inner_prune=inner_prune,
         )
 
-        if task_type in ("multi_label_classification", "multi_class_classification", "binary_classification"):
+        if task_type in (
+            "multi_label_classification",
+            "multi_class_classification",
+            "binary_classification",
+        ):
             self.answering = torch.nn.Sequential(
                 torch.nn.Linear(hid_dim, num_classes), torch.nn.Softmax(dim=1)
             )

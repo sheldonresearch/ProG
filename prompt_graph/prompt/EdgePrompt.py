@@ -85,9 +85,7 @@ class EdgePromptplus(nn.Module):
         self.anchor_prompt = nn.ParameterList(
             [nn.Parameter(torch.Tensor(num_anchors, dim)) for dim in dim_list]
         )
-        self.w = nn.ModuleList(
-            [nn.Linear(2 * dim, num_anchors) for dim in dim_list]
-        )
+        self.w = nn.ModuleList([nn.Linear(2 * dim, num_anchors) for dim in dim_list])
         self.reset_parameters()
 
     def reset_parameters(self):

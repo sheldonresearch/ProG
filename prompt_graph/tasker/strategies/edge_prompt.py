@@ -47,13 +47,9 @@ class EdgePromptStrategy(PromptStrategy):
         task_type = ctx.extra.get("task_type", "NodeTask")
         if task_type == "NodeTask":
             data, idx_test = loader_or_data
-            return GNNNodeEva(
-                data, idx_test, ctx.gnn, ctx.answering, ctx.output_dim, ctx.device
-            )
+            return GNNNodeEva(data, idx_test, ctx.gnn, ctx.answering, ctx.output_dim, ctx.device)
         test_loader = loader_or_data
-        return GNNGraphEva(
-            test_loader, ctx.gnn, ctx.answering, ctx.output_dim, ctx.device
-        )
+        return GNNGraphEva(test_loader, ctx.gnn, ctx.answering, ctx.output_dim, ctx.device)
 
     @staticmethod
     def _train_node(ctx: TaskContext, data_and_idx) -> float:

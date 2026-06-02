@@ -82,7 +82,9 @@ def reward_scaling(rewards, reward_scaler):
     return torch.from_numpy(scaled_rewards)
 
 
-def compute_adv_ret(args, critic, states, rewards, next_states, dones, nodes_per_graph, reward_transform):
+def compute_adv_ret(
+    args, critic, states, rewards, next_states, dones, nodes_per_graph, reward_transform
+):
     """Calculate advantage and return-to-go of an episode (GAE)."""
     device = states[0].device
     num_episode = len(rewards)
@@ -110,7 +112,9 @@ def compute_adv_ret(args, critic, states, rewards, next_states, dones, nodes_per
             next_state_values = critic(next_states[i])
             gae = torch.tensor(0).to(device)
             adv = []
-            deltas = scaled_rewards[i] + args.gamma * (1.0 - dones[i]) * next_state_values - state_values
+            deltas = (
+                scaled_rewards[i] + args.gamma * (1.0 - dones[i]) * next_state_values - state_values
+            )
             for delta, done in zip(reversed(deltas), reversed(dones[i])):
                 gae = delta + args.gamma * args.lam * gae * (1.0 - done)
                 adv.insert(0, gae)

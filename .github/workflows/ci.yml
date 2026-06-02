@@ -47,7 +47,12 @@ jobs:
       - name: Install dependencies
         run: |
           if [ -f pyproject.toml ]; then
-            pip install -e .[dev]
+            python -m pip install --upgrade pip
+            python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.7.1"
+            python -m pip install -e ".[dev]"
+            python -m pip install --no-cache-dir \
+              -f https://data.pyg.org/whl/torch-2.7.0+cpu.html \
+              "torch_scatter==2.1.2" "torch_sparse==0.6.18"
           else
             pip install torch torch_geometric pandas openpyxl scikit-learn torchmetrics networkx "numpy<2" deprecated tqdm
           fi
@@ -67,7 +72,12 @@ jobs:
       - name: Install dependencies
         run: |
           if [ -f pyproject.toml ]; then
-            pip install -e .[dev]
+            python -m pip install --upgrade pip
+            python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.7.1"
+            python -m pip install -e ".[dev]"
+            python -m pip install --no-cache-dir \
+              -f https://data.pyg.org/whl/torch-2.7.0+cpu.html \
+              "torch_scatter==2.1.2" "torch_sparse==0.6.18"
           else
             pip install pytest torch torch_geometric pandas openpyxl scikit-learn torchmetrics networkx "numpy<2" deprecated tqdm
           fi

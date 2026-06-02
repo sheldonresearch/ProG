@@ -46,7 +46,9 @@ class DAGPrompt(nn.Module):
         for w in self.weights:
             nn.init.xavier_uniform_(w)
         if self.hop_range >= 2 and self.use_gamma:
-            gamma = self.alpha * torch.pow((1 - self.alpha), torch.arange(self.hop_range, dtype=torch.float))
+            gamma = self.alpha * torch.pow(
+                (1 - self.alpha), torch.arange(self.hop_range, dtype=torch.float)
+            )
             self.gamma.data = gamma
         else:
             self.gamma.data.fill_(1.0)

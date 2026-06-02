@@ -61,7 +61,9 @@ class SupernodeToBgGraphPropagator(nn.Module):
     ) -> torch.Tensor:
         x = x.clone()
         x[supernode_idx] = x[supernode_idx] + self.proj_sn_attr(new_supernode_x)
-        x[supernode_edge_index[0]] = x[supernode_edge_index[0]] + self.proj_sn_attr_2(x[supernode_edge_index[1]])
+        x[supernode_edge_index[0]] = x[supernode_edge_index[0]] + self.proj_sn_attr_2(
+            x[supernode_edge_index[1]]
+        )
         return x
 
 
@@ -109,7 +111,15 @@ class MetaGNNLayer(MessagePassing):
         out = self.bn(out)
         return out
 
-    def message(self, x_j: torch.Tensor, x_i: torch.Tensor, edge_attr: torch.Tensor, index: torch.Tensor, ptr, size_i) -> torch.Tensor:
+    def message(
+        self,
+        x_j: torch.Tensor,
+        x_i: torch.Tensor,
+        edge_attr: torch.Tensor,
+        index: torch.Tensor,
+        ptr,
+        size_i,
+    ) -> torch.Tensor:
         H, E = self.heads, self.head_dim
         q = x_i[:, : self.emb_dim].reshape(-1, H, E)
         k = x_j[:, self.emb_dim : 2 * self.emb_dim].reshape(-1, H, E) / math.sqrt(E)

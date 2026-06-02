@@ -10,7 +10,9 @@ import torch
 
 
 class _Node:
-    def __init__(self, key: int = 0, val: int = 0, freq: int = 0, embed: torch.Tensor | None = None):
+    def __init__(
+        self, key: int = 0, val: int = 0, freq: int = 0, embed: torch.Tensor | None = None
+    ):
         self.key = key
         self.val = val
         self.embed = embed
@@ -83,7 +85,9 @@ class LFUCacheE:
             if label2embed[node.val].numel() == 0:
                 label2embed[node.val] = node.embed.unsqueeze(0)
             else:
-                label2embed[node.val] = torch.cat((label2embed[node.val], node.embed.unsqueeze(0)), dim=0)
+                label2embed[node.val] = torch.cat(
+                    (label2embed[node.val], node.embed.unsqueeze(0)), dim=0
+                )
         return label2embed
 
     def put(self, embed: torch.Tensor, value: int) -> None:

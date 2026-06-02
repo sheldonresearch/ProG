@@ -116,9 +116,9 @@ class ProdigyStrategy(PromptStrategy):
         macro_f1 = torchmetrics.classification.F1Score(
             task="multiclass", num_classes=num_class, average="macro"
         ).to(device)
-        auroc = torchmetrics.classification.AUROC(
-            task="multiclass", num_classes=num_class
-        ).to(device)
+        auroc = torchmetrics.classification.AUROC(task="multiclass", num_classes=num_class).to(
+            device
+        )
         auprc = torchmetrics.classification.AveragePrecision(
             task="multiclass", num_classes=num_class
         ).to(device)
@@ -150,9 +150,9 @@ class ProdigyStrategy(PromptStrategy):
         macro_f1 = torchmetrics.classification.F1Score(
             task="multiclass", num_classes=num_class, average="macro"
         ).to(device)
-        auroc = torchmetrics.classification.AUROC(
-            task="multiclass", num_classes=num_class
-        ).to(device)
+        auroc = torchmetrics.classification.AUROC(task="multiclass", num_classes=num_class).to(
+            device
+        )
         auprc = torchmetrics.classification.AveragePrecision(
             task="multiclass", num_classes=num_class
         ).to(device)

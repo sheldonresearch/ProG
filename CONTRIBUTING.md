@@ -38,7 +38,7 @@ Commit messages should use the matching prefix:
 
 ```text
 fix: handle WebKB multi-split train masks
-docs: publish GCN overall performance report
+docs: publish GCN benchmark report
 test: cover strategy registration
 ```
 
@@ -128,13 +128,14 @@ configuration.
 Public merged reports should live under `results/`. Keep raw local outputs,
 temporary merge workspaces, and machine-specific logs out of the repository.
 
-The current public Overall Performance report is:
+The current public benchmark reports are:
 
 ```text
-results/overall-performance-gcn/
+results/benchmark-gcn/          # node- and graph-classification report
+results/link-prediction-gcn/    # edge task (link prediction) report
 ```
 
-It contains a flat `summary.csv`, a `final_matrices.xlsx` workbook, and
+Each contains a flat `summary.csv`, a `final_matrices.xlsx` workbook, and
 bench-style per-dataset Excel matrices.
 
 ## Pull Request Checklist

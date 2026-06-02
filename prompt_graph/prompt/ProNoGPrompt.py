@@ -20,7 +20,14 @@ import torch.nn.functional as F
 class PromptVector(nn.Module):
     """Bottleneck MLP that generates adaptive prompts."""
 
-    def __init__(self, in_size: int, out_size: int, bottleneck_size: int, dropout: float = 0.1, scaling: float = 0.1):
+    def __init__(
+        self,
+        in_size: int,
+        out_size: int,
+        bottleneck_size: int,
+        dropout: float = 0.1,
+        scaling: float = 0.1,
+    ):
         super().__init__()
         self.down = nn.Linear(in_size, bottleneck_size, bias=True)
         self.up = nn.Linear(bottleneck_size, out_size, bias=True)
@@ -111,8 +118,16 @@ class ProNoGPrompt(nn.Module):
             nbrs = self.neighbors[idx[step].item()]
             nbrs_2 = self.neighbors_2hop[idx[step].item()]
 
-            tempneighbors = self.embeds[nbrs] if len(nbrs) else torch.zeros((1, self.hidden_size), device=device)
-            tempneighbors_2 = self.embeds[nbrs_2] if len(nbrs_2) else torch.zeros((1, self.hidden_size), device=device)
+            tempneighbors = (
+                self.embeds[nbrs]
+                if len(nbrs)
+                else torch.zeros((1, self.hidden_size), device=device)
+            )
+            tempneighbors_2 = (
+                self.embeds[nbrs_2]
+                if len(nbrs_2)
+                else torch.zeros((1, self.hidden_size), device=device)
+            )
 
             if self.multi_prompt:
                 neighborsembds = self.neighborsprompt(tempneighbors)

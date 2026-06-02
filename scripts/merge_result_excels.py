@@ -4,7 +4,7 @@ per (task_kind, shot, dataset, backbone result file).
 Each run output directory contains an ``excel/`` subdir that mirrors
 the standard ``Experiment/ExcelResults/`` layout::
 
-    excel/{Node,Graph}/{shot}shot/{dataset}/{gnn_type}_total_results.xlsx
+    excel/{Node,Graph,Link}/{shot}shot/{dataset}/{gnn_type}_total_results.xlsx
 
 Each xlsx is populated only for the (prompt, pretrain) cells that
 run was responsible for. Merging is a per-cell union: for each (row, col)
@@ -16,8 +16,8 @@ Usage
 -----
 
   python scripts/merge_result_excels.py \\
-      --input-root raw_results/overall-performance \\
-      --output-root results/overall-performance-gcn \\
+      --input-root raw_results/benchmark \\
+      --output-root results/benchmark-gcn \\
       --gnn_type GCN
 """
 
@@ -39,8 +39,8 @@ def find_xlsx_files(
     Returns ``{(task, shot_dir, dataset, result_name): [path, ...]}``.
     """
     groups: dict[tuple[str, str, str, str], list[pathlib.Path]] = defaultdict(list)
-    # Layout: <input_root>/<run_dir>/excel/{Node|Graph}/<shot>shot/<dataset>/*_total_results.xlsx
-    # We accept any depth of <run_dir> nesting and look for ``excel/Node`` or ``excel/Graph``
+    # Layout: <input_root>/<run_dir>/excel/{Node|Graph|Link}/<shot>shot/<dataset>/*_total_results.xlsx
+    # We accept any depth of <run_dir> nesting and look for ``excel/<Task>``
     # anywhere underneath.
     for xlsx in input_root.rglob("*_total_results.xlsx"):
         # Walk up to find /excel/ and then identify the task/shot/dataset trio.
@@ -58,7 +58,7 @@ def find_xlsx_files(
         except IndexError:
             print(f"  WARN: skipping malformed path {xlsx}")
             continue
-        if task not in {"Node", "Graph"}:
+        if task not in {"Node", "Graph", "Link"}:
             continue
         groups[(task, shot, dataset, xlsx.name)].append(xlsx)
     return groups

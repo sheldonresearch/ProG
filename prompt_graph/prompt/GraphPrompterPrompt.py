@@ -105,10 +105,13 @@ class GraphPrompterPrompt(nn.Module):
         device = x.device
         supernode_idx = torch.arange(num_nodes, device=device)
         # Build trivial supernode_edge_index (each node connects to itself)
-        supernode_edge_index = torch.stack([
-            torch.arange(num_nodes, device=device),
-            torch.arange(num_nodes, device=device),
-        ], dim=0)
+        supernode_edge_index = torch.stack(
+            [
+                torch.arange(num_nodes, device=device),
+                torch.arange(num_nodes, device=device),
+            ],
+            dim=0,
+        )
 
         # Temporarily disable kNN for node-level (kNN changes supernode count)
         old_use_knn = self.model.use_knn

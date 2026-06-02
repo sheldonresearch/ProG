@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from prompt_graph.data import load4graph, load4node, load_induced_graphs
-from prompt_graph.tasker import GraphTask, NodeTask
+from prompt_graph.tasker import GraphTask, LinkTask, NodeTask
 from prompt_graph.utils import (
     apply_log_level,
     excel_result_dir,
@@ -76,6 +76,8 @@ def do_config_bench(args: argparse.Namespace):
     final_f1_std = 0
     final_roc_mean = 0
     final_roc_std = 0
+    final_prc_mean = 0
+    final_prc_std = 0
 
     # args.pretrain_task = 'GraphTask'
     # # # # # args.prompt_type = 'MultiGprompt'
@@ -95,6 +97,17 @@ def do_config_bench(args: argparse.Namespace):
 
     if args.pretrain_task == "GraphTask":
         input_dim, output_dim, dataset = load4graph(args.dataset_name)
+
+    if args.pretrain_task == "LinkTask":
+        # Reuse the existing link-prediction data loaders. Single-graph
+        # (NODE_TASKS) and multi-graph (GRAPH_TASKS) are auto-detected by
+        # _resolve_loader inside LinkTask itself, but we resolve here too so
+        # the rest of bench can stay symmetric with Node/GraphTask.
+        from prompt_graph.tasker.link_task import LINK_OUTPUT_DIM, _resolve_loader
+
+        link_data, input_dim = _resolve_loader(args.dataset_name)
+        link_data = link_data.to(runtime_device)
+        output_dim = LINK_OUTPUT_DIM
 
     logger.info("num_iter %s", num_iter)
     for a in range(num_iter):
@@ -139,6 +152,28 @@ def do_config_bench(args: argparse.Namespace):
                 input_dim=input_dim,
                 output_dim=output_dim,
             )
+        elif args.pretrain_task == "LinkTask":
+            tasker = LinkTask(
+                pre_train_model_path=args.pre_train_model_path,
+                dataset_name=args.dataset_name,
+                num_layer=args.num_layer,
+                gnn_type=args.gnn_type,
+                hid_dim=args.hid_dim,
+                prompt_type=args.prompt_type,
+                epochs=args.epochs,
+                shot_num=args.shot_num,
+                device=runtime_device,
+                lr=params["learning_rate"],
+                wd=params["weight_decay"],
+                batch_size=int(params["batch_size"]),
+                task_num=getattr(args, "task_num", 5),
+                aio_num_hops=getattr(args, "aio_num_hops", 2),
+                aio_max_nodes=getattr(args, "aio_max_nodes", 64),
+                aio_max_train_edges=getattr(args, "aio_max_train_edges", None),
+                data=link_data,
+                input_dim=input_dim,
+                output_dim=output_dim,
+            )
         else:
             raise ValueError(f"Unexpected pretrain_task: {args.pretrain_task}.")
         pre_train_type = tasker.pre_train_type
@@ -179,6 +214,8 @@ def do_config_bench(args: argparse.Namespace):
             final_f1_std = std_f1
             final_roc_mean = mean_roc
             final_roc_std = std_roc
+            final_prc_mean = mean_prc
+            final_prc_std = std_prc
 
     if isinstance(best_params, dict):
         best_params = {k: float(v) for k, v in best_params.items()}
@@ -195,6 +232,8 @@ def do_config_bench(args: argparse.Namespace):
         final_f1_std=final_f1_std,
         final_roc_mean=final_roc_mean,
         final_roc_std=final_roc_std,
+        final_prc_mean=final_prc_mean,
+        final_prc_std=final_prc_std,
     )
 
 
@@ -215,6 +254,10 @@ if __name__ == "__main__":
         file_path = os.path.join(
             str(excel_result_dir("Graph", args.shot_num, args.dataset_name)), file_name
         )
+    if args.pretrain_task == "LinkTask":
+        file_path = os.path.join(
+            str(excel_result_dir("Link", args.shot_num, args.dataset_name)), file_name
+        )
     data = pd.read_excel(file_path, index_col=0)
 
     col_name = f"{cbr_result.pre_train_type}+{args.prompt_type}"
@@ -226,6 +269,14 @@ if __name__ == "__main__":
     data.at["Final AUROC", col_name] = (
         f"{cbr_result.final_roc_mean:.4f}±{cbr_result.final_roc_std:.4f}"
     )
+    if args.pretrain_task == "LinkTask":
+        # LinkTask templates also carry AUPRC (binary LP cares about it as
+        # much as AUROC). Bootstrap script seeds the row; we lazily populate
+        # the column here. ``data.at`` will auto-add the row if missing so
+        # older templates without the AUPRC row are upgraded in-place.
+        data.at["Final AUPRC", col_name] = (
+            f"{cbr_result.final_prc_mean:.4f}±{cbr_result.final_prc_std:.4f}"
+        )
     data.to_excel(file_path)
 
     print("Data saved to " + file_path + " successfully.")

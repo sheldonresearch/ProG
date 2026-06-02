@@ -48,9 +48,7 @@ class UniPrompt(nn.Module):
         # Build k-NN adjacency on CPU (sklearn does not handle GPU tensors).
         knn_adj = kneighbors_graph(x.detach().cpu().numpy(), k, metric=metric)
         knn_adj = knn_adj.tocoo()
-        edge_index = torch.tensor(
-            np.vstack([knn_adj.row, knn_adj.col]), dtype=torch.long
-        )
+        edge_index = torch.tensor(np.vstack([knn_adj.row, knn_adj.col]), dtype=torch.long)
         edge_attr = torch.tensor(knn_adj.data, dtype=torch.float32)
 
         self.base_edge_index = nn.Buffer(edge_index.to(x.device))

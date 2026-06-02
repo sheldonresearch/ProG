@@ -145,9 +145,7 @@ def kmeans(X, num_clusters, distance="euclidean", device="cuda", max_iter=100, t
     """
 
     if distance not in ("euclidean", "cosine", "manhattan"):
-        raise ValueError(
-            f"distance must be 'euclidean', 'cosine' or 'manhattan', got {distance!r}"
-        )
+        raise ValueError(f"distance must be 'euclidean', 'cosine' or 'manhattan', got {distance!r}")
 
     X = X.to(device)
     n_samples, n_features = X.shape

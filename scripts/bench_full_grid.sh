@@ -10,31 +10,42 @@
 #       Both with slow gate (1): RELIEF (slow on NodeTask; opt-in via --include-slow)
 #       Node-only (5): MultiGprompt, UniPrompt, SelfPro, ProNoG, PSP
 #       Graph-only (1): DAGPrompT
-#   - 23 datasets (NODE_TASKS 12 + GRAPH_TASKS 11)
+#       LinkTask-supported (13): None, All-in-one, GPF, GPF-plus, Gprompt,
+#                                EdgePrompt, EdgePromptplus, UniPrompt,
+#                                SelfPro, ProNoG, PSP, DAGPrompT, GraphPrompter
+#       LinkTask-unsupported (4): GPPT, MultiGprompt, Prodigy, RELIEF
+#                                 (silently skipped on --task link)
+#   - 23 datasets (NODE_TASKS 12 + GRAPH_TASKS 11), plus the curated 16-dataset
+#     LINK_TASKS subset for LinkTask cells
 #   - 7 pretrain variants: None (scratch), DGI, GraphMAE, Edgepred_GPPT,
 #                          Edgepred_Gprompt, GraphCL, SimGRACE
 #       (MultiGprompt strategy is paired ONLY with the MultiGprompt pretrain.)
-#   - 3 shots (1, 3, 5)
+#   - 3 shots (1, 3, 5); LinkTask additionally supports shot=0 (full RandomLinkSplit)
 #
 # Prerequisites:
 #   1. bash scripts/pretrain_full_grid.sh    # produces all .pth files
 #   2. python scripts/bootstrap_excel_full.py  # auto-run by this script
 #
 # Per-cell rules:
-#   - prompt == None             → only pretrain == None (supervised baseline)
+#   - prompt == None             → only pretrain == None for Node/Graph
+#                                   (LinkTask keeps all pretrains for ablation)
 #   - prompt == MultiGprompt     → only pretrain == MultiGprompt
 #   - other prompts              → all 7 pretrain variants
 #   - Node-only / Graph-only strategies are filtered by --task
+#   - LinkTask-unsupported strategies are silently skipped on --task link
 #   - RELIEF on NodeTask is skipped unless --include-slow is set
 #
 # Usage:
-#   bash scripts/bench_full_grid.sh                              # full sweep
+#   bash scripts/bench_full_grid.sh                              # full sweep (node+graph)
+#   bash scripts/bench_full_grid.sh --task link                  # LinkTask only
+#   bash scripts/bench_full_grid.sh --task all                   # node + graph + link
 #   bash scripts/bench_full_grid.sh --fast                       # 50 epochs
 #   bash scripts/bench_full_grid.sh --shots "1"                  # 1-shot only
 #   bash scripts/bench_full_grid.sh --task node                  # node side only
 #   bash scripts/bench_full_grid.sh --datasets "Cora MUTAG"
 #   bash scripts/bench_full_grid.sh --prompts "GPF GPF-plus All-in-one"
 #   bash scripts/bench_full_grid.sh --pretrains "DGI GraphCL"
+#   bash scripts/bench_full_grid.sh --task link --aio-max-train-edges 512
 #   bash scripts/bench_full_grid.sh --device 0                   # GPU 0
 #   bash scripts/bench_full_grid.sh --gnn_type GAT               # backbone
 #   bash scripts/bench_full_grid.sh --include-slow               # enable RELIEF/NodeTask
@@ -42,9 +53,9 @@
 #   bash scripts/bench_full_grid.sh --allow-missing              # train from scratch when .pth missing
 #
 # Output:
-#   - Excel: Experiment/ExcelResults/<Node|Graph>/<shot>shot/<dataset>/<gnn_type>_total_results.xlsx
+#   - Excel: Experiment/ExcelResults/<Node|Graph|Link>/<shot>shot/<dataset>/<gnn_type>_total_results.xlsx
 #       columns appended as "{pretrain}+{prompt}"
-#       rows: Final Accuracy, Final F1, Final AUROC
+#       rows: Final Accuracy, Final F1, Final AUROC  (+ Final AUPRC for LinkTask)
 #   - Log:   scripts/baseline_logs/${TAG}_${STAMP}_bench_full.log
 #
 # Cost note: full sweep is ~10K bench cells. Use filters to slice.
@@ -66,6 +77,12 @@ OGB_DATASETS=(ogbn-arxiv ogbg-ppa)
 # Bash 3.x compatible (no associative arrays).
 NODE_OK_PROMPTS=(None GPF GPF-plus Gprompt All-in-one GPPT Prodigy GraphPrompter EdgePrompt EdgePromptplus MultiGprompt UniPrompt SelfPro ProNoG PSP RELIEF)
 GRAPH_OK_PROMPTS=(None GPF GPF-plus Gprompt All-in-one GPPT Prodigy GraphPrompter EdgePrompt EdgePromptplus DAGPrompT RELIEF)
+# LinkTask-supported prompts (see prompt_graph/tasker/link_task.py::LINK_TASK_SUPPORTED_PROMPTS).
+LINK_OK_PROMPTS=(None All-in-one GPF GPF-plus Gprompt EdgePrompt EdgePromptplus UniPrompt SelfPro ProNoG PSP DAGPrompT GraphPrompter)
+# Curated LinkTask dataset list (see prompt_graph/defines.py::LINK_TASKS).
+ALL_LINK_DATASETS=(Cora CiteSeer PubMed Wisconsin Texas Actor Computers Photo WikiCS MUTAG ENZYMES PROTEINS IMDB-BINARY COX2 BZR PTC_MR)
+# LinkTask shot list: shot=0 is "full RandomLinkSplit", the natural baseline.
+DEFAULT_LINK_SHOTS=(0 1 3 5)
 # RELIEF on NodeTask is functional but slow; gated by --include-slow.
 SLOW_NODE_PROMPTS=(RELIEF)
 
@@ -84,6 +101,9 @@ DATASETS=()
 PROMPTS=()
 PRETRAINS=()
 NUM_ITER=""
+AIO_MAX_TRAIN_EDGES=""
+AIO_NUM_HOPS=""
+AIO_MAX_NODES=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -98,10 +118,13 @@ while [[ $# -gt 0 ]]; do
         --prompts)       read -ra PROMPTS   <<< "$2"; shift 2 ;;
         --pretrains)     read -ra PRETRAINS <<< "$2"; shift 2 ;;
         --num-iter)      NUM_ITER="$2"; shift 2 ;;
+        --aio-max-train-edges) AIO_MAX_TRAIN_EDGES="$2"; shift 2 ;;
+        --aio-num-hops) AIO_NUM_HOPS="$2"; shift 2 ;;
+        --aio-max-nodes) AIO_MAX_NODES="$2"; shift 2 ;;
         --include-slow)  INCLUDE_SLOW=1; shift ;;
         --exclude-ogb)   EXCLUDE_OGB=1; shift ;;
         --allow-missing) ALLOW_MISSING=1; shift ;;
-        -h|--help)       sed -n '2,55p' "$0"; exit 0 ;;
+        -h|--help)       sed -n '2,60p' "$0"; exit 0 ;;
         *) echo "unknown arg: $1" >&2; exit 1 ;;
     esac
 done
@@ -110,7 +133,13 @@ if [[ "$FAST" -eq 1 ]]; then
     EPOCHS=50
 fi
 
-if [[ "${#SHOTS[@]}"     -eq 0 ]]; then SHOTS=("${DEFAULT_SHOTS[@]}");        fi
+# LinkTask uses a different default shot list (includes shot=0 for full split).
+if [[ "${#SHOTS[@]}" -eq 0 ]]; then
+    case "$TASK" in
+        link) SHOTS=("${DEFAULT_LINK_SHOTS[@]}") ;;
+        *)    SHOTS=("${DEFAULT_SHOTS[@]}")      ;;
+    esac
+fi
 if [[ "${#PROMPTS[@]}"   -eq 0 ]]; then PROMPTS=("${ALL_PROMPTS[@]}");        fi
 if [[ "${#PRETRAINS[@]}" -eq 0 ]]; then PRETRAINS=("${ALL_PRETRAINS[@]}");    fi
 
@@ -148,6 +177,7 @@ echo "Epochs:        $EPOCHS  (fast=$FAST)"          | tee -a "$LOG_FILE"
 echo "Device:        $DEVICE"                        | tee -a "$LOG_FILE"
 echo "GNN type:      $GNN_TYPE"                      | tee -a "$LOG_FILE"
 echo "Num iter:      ${NUM_ITER:-bench-default}"     | tee -a "$LOG_FILE"
+echo "AIO cap:       ${AIO_MAX_TRAIN_EDGES:-none}"   | tee -a "$LOG_FILE"
 echo "Include slow:  $INCLUDE_SLOW"                  | tee -a "$LOG_FILE"
 echo "Exclude OGB:   $EXCLUDE_OGB"                   | tee -a "$LOG_FILE"
 echo "Allow missing: $ALLOW_MISSING"                 | tee -a "$LOG_FILE"
@@ -178,11 +208,13 @@ add_cases() {
 case "$TASK" in
     node)  add_cases NodeTask  "${ALL_NODE_DATASETS[@]}"  ;;
     graph) add_cases GraphTask "${ALL_GRAPH_DATASETS[@]}" ;;
+    link)  add_cases LinkTask  "${ALL_LINK_DATASETS[@]}"  ;;
     all)
         add_cases NodeTask  "${ALL_NODE_DATASETS[@]}"
         add_cases GraphTask "${ALL_GRAPH_DATASETS[@]}"
+        add_cases LinkTask  "${ALL_LINK_DATASETS[@]}"
         ;;
-    *) echo "--task must be node|graph|all" >&2; exit 1 ;;
+    *) echo "--task must be node|graph|link|all" >&2; exit 1 ;;
 esac
 
 PASS=()
@@ -210,14 +242,21 @@ for shot in "${SHOTS[@]}"; do
                     SKIP+=("$skip_label")
                     continue
                 fi
-            else
+            elif [[ "$task_kind" == "GraphTask" ]]; then
                 contains "$prompt" "${GRAPH_OK_PROMPTS[@]}" || continue
+            else
+                # LinkTask: silently filter to the supported subset; user-provided
+                # --prompts that intersect Tier-3 (GPPT, MultiGprompt, Prodigy,
+                # RELIEF) are dropped so the sweep doesn't abort on the
+                # NotImplementedError raised by LinkTask.__init__.
+                contains "$prompt" "${LINK_OK_PROMPTS[@]}" || continue
             fi
 
             for pretrain in "${PRETRAINS[@]}"; do
-                # Skip non-paper cells:
-                # prompt==None pairs only with pretrain==None (supervised baseline)
-                if [[ "$prompt" == "None" && "$pretrain" != "None" ]]; then continue; fi
+                # Skip non-paper classification cells: prompt==None pairs only
+                # with pretrain==None. LinkTask keeps pretrained-backbone +
+                # no-prompt cells because they measure edge-pretraining value.
+                if [[ "$task_kind" != "LinkTask" && "$prompt" == "None" && "$pretrain" != "None" ]]; then continue; fi
                 if [[ "$pretrain" == "None" && "$prompt" != "None" ]] && [[ "$prompt" == "MultiGprompt" ]]; then
                     continue
                 fi
@@ -257,6 +296,15 @@ for shot in "${SHOTS[@]}"; do
                 )
                 if [[ -n "$NUM_ITER" ]]; then
                     cmd+=(--num_iter "$NUM_ITER")
+                fi
+                if [[ -n "$AIO_MAX_TRAIN_EDGES" ]]; then
+                    cmd+=(--aio_max_train_edges "$AIO_MAX_TRAIN_EDGES")
+                fi
+                if [[ -n "$AIO_NUM_HOPS" ]]; then
+                    cmd+=(--aio_num_hops "$AIO_NUM_HOPS")
+                fi
+                if [[ -n "$AIO_MAX_NODES" ]]; then
+                    cmd+=(--aio_max_nodes "$AIO_MAX_NODES")
                 fi
                 echo "+ ${cmd[*]}" | tee -a "$LOG_FILE"
                 if "${cmd[@]}" 2>&1 | tee -a "$LOG_FILE"; then

@@ -96,18 +96,36 @@ def _build_neighbor_lists(edge_index, num_nodes, device):
         neighbors_2hop[node] = list(two_hop)
 
     # Convert to tensors on target device for fast indexing
-    neighbors = [torch.tensor(n, dtype=torch.long, device=device) if len(n) else torch.zeros(0, dtype=torch.long, device=device) for n in neighbors]
-    neighbors_2hop = [torch.tensor(n, dtype=torch.long, device=device) if len(n) else torch.zeros(0, dtype=torch.long, device=device) for n in neighbors_2hop]
+    neighbors = [
+        torch.tensor(n, dtype=torch.long, device=device)
+        if len(n)
+        else torch.zeros(0, dtype=torch.long, device=device)
+        for n in neighbors
+    ]
+    neighbors_2hop = [
+        torch.tensor(n, dtype=torch.long, device=device)
+        if len(n)
+        else torch.zeros(0, dtype=torch.long, device=device)
+        for n in neighbors_2hop
+    ]
     return neighbors, neighbors_2hop
 
 
 def _metric(name, num_classes, device):
     if name == "accuracy":
-        return torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_classes).to(device)
+        return torchmetrics.classification.Accuracy(task="multiclass", num_classes=num_classes).to(
+            device
+        )
     if name == "f1":
-        return torchmetrics.classification.F1Score(task="multiclass", num_classes=num_classes, average="macro").to(device)
+        return torchmetrics.classification.F1Score(
+            task="multiclass", num_classes=num_classes, average="macro"
+        ).to(device)
     if name == "auroc":
-        return torchmetrics.classification.AUROC(task="multiclass", num_classes=num_classes).to(device)
+        return torchmetrics.classification.AUROC(task="multiclass", num_classes=num_classes).to(
+            device
+        )
     if name == "auprc":
-        return torchmetrics.classification.AveragePrecision(task="multiclass", num_classes=num_classes).to(device)
+        return torchmetrics.classification.AveragePrecision(
+            task="multiclass", num_classes=num_classes
+        ).to(device)
     raise ValueError(name)

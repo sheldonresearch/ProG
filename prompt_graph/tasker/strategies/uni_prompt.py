@@ -71,12 +71,8 @@ class UniPromptStrategy(PromptStrategy):
 
 def _normalize_edge_index(edge_index, num_nodes, device):
     """Compute symmetrically-normalised edge weights for GCN."""
-    edge_weight = torch.ones(
-        edge_index.size(1), dtype=torch.float32, device=device
-    )
-    edge_index, edge_weight = add_self_loops(
-        edge_index, edge_weight, num_nodes=num_nodes
-    )
+    edge_weight = torch.ones(edge_index.size(1), dtype=torch.float32, device=device)
+    edge_index, edge_weight = add_self_loops(edge_index, edge_weight, num_nodes=num_nodes)
     row, col = edge_index
     deg = degree(col, num_nodes, dtype=edge_weight.dtype)
     deg_inv_sqrt = deg.pow(-0.5)
@@ -88,13 +84,9 @@ def _fuse_and_embed(ctx, data, prompt, tau, batch=None):
     """Fuse original + prompt edges and run GNN."""
     device = ctx.device
     num_nodes = data.num_nodes
-    orig_index, orig_weight = _normalize_edge_index(
-        data.edge_index, num_nodes, device
-    )
+    orig_index, orig_weight = _normalize_edge_index(data.edge_index, num_nodes, device)
     pt_index, pt_weight = prompt()
-    fused_index, fused_weight = prompt.edge_fuse(
-        orig_index, orig_weight, pt_index, pt_weight, tau
-    )
+    fused_index, fused_weight = prompt.edge_fuse(orig_index, orig_weight, pt_index, pt_weight, tau)
     if batch is not None:
         embeds = ctx.gnn(data.x, fused_index, batch=batch, edge_weight=fused_weight)
     else:
@@ -112,9 +104,9 @@ def _eval_node(ctx, data, idx_test):
     macro_f1 = torchmetrics.classification.F1Score(
         task="multiclass", num_classes=ctx.output_dim, average="macro"
     ).to(ctx.device)
-    auroc = torchmetrics.classification.AUROC(
-        task="multiclass", num_classes=ctx.output_dim
-    ).to(ctx.device)
+    auroc = torchmetrics.classification.AUROC(task="multiclass", num_classes=ctx.output_dim).to(
+        ctx.device
+    )
     auprc = torchmetrics.classification.AveragePrecision(
         task="multiclass", num_classes=ctx.output_dim
     ).to(ctx.device)
@@ -140,9 +132,9 @@ def _eval_graph(ctx, loader):
     macro_f1 = torchmetrics.classification.F1Score(
         task="multiclass", num_classes=ctx.output_dim, average="macro"
     ).to(ctx.device)
-    auroc = torchmetrics.classification.AUROC(
-        task="multiclass", num_classes=ctx.output_dim
-    ).to(ctx.device)
+    auroc = torchmetrics.classification.AUROC(task="multiclass", num_classes=ctx.output_dim).to(
+        ctx.device
+    )
     auprc = torchmetrics.classification.AveragePrecision(
         task="multiclass", num_classes=ctx.output_dim
     ).to(ctx.device)

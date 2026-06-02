@@ -11,6 +11,9 @@ __pycache__/
 Docs/
 CLAUDE.md
 .github/copilot-instructions.md
+.agents/*
+.claude/*
+skills-lock.json
 
 /Experiment
 /Utility
@@ -39,7 +42,10 @@ raw_results/
 tmp_results/
 local_results/
 
+amlt/*
 # Local result workspaces. Public reports live under results/.
 results/*
-!results/overall-performance-gcn/
-!results/overall-performance-gcn/**
+!results/benchmark-gcn/
+!results/benchmark-gcn/**
+!results/link-prediction-gcn/
+!results/link-prediction-gcn/**

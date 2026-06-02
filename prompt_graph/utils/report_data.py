@@ -17,3 +17,9 @@ class ConfigBenchResult:
     final_f1_std: float = 0.0
     final_roc_mean: float = 0.0
     final_roc_std: float = 0.0
+    # AUPRC is populated for LinkTask (binary LP cares about it as much as
+    # AUROC). NodeTask / GraphTask also compute it inside their run() loops
+    # but historically did not surface it here; both task types now pass it
+    # through unchanged so downstream consumers can opt in.
+    final_prc_mean: float = 0.0
+    final_prc_std: float = 0.0

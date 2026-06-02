@@ -150,6 +150,27 @@ def _build_parser():
         default=argparse.SUPPRESS,
         help="Number of random-search trials in bench.py (default: 10, or 1 for large datasets)",
     )
+    parser.add_argument(
+        "--aio_num_hops",
+        "--aio-num-hops",
+        type=int,
+        default=argparse.SUPPRESS,
+        help="All-in-one LinkTask edge-induced subgraph hop radius (default: 2)",
+    )
+    parser.add_argument(
+        "--aio_max_nodes",
+        "--aio-max-nodes",
+        type=int,
+        default=argparse.SUPPRESS,
+        help="All-in-one LinkTask max nodes per edge-induced graph (default: 64)",
+    )
+    parser.add_argument(
+        "--aio_max_train_edges",
+        "--aio-max-train-edges",
+        type=int,
+        default=argparse.SUPPRESS,
+        help="Optional cap on All-in-one LinkTask train edge samples per fold",
+    )
     return parser
 
 
@@ -202,6 +223,9 @@ def get_args_by_call(
     pnum: int = 5,
     task_num: int = 5,
     num_iter: int = None,
+    aio_num_hops: int = 2,
+    aio_max_nodes: int = 64,
+    aio_max_train_edges: int = None,
     log_level: str = "INFO",
     quiet: bool = False,
     **kwargs,
@@ -233,6 +257,9 @@ def get_args_by_call(
         pnum=pnum,
         task_num=task_num,
         num_iter=num_iter,
+        aio_num_hops=aio_num_hops,
+        aio_max_nodes=aio_max_nodes,
+        aio_max_train_edges=aio_max_train_edges,
         log_level=log_level,
         quiet=quiet,
         **kwargs,

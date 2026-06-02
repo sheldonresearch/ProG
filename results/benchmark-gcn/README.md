@@ -1,8 +1,10 @@
-# Overall Performance Results
+# Benchmark Results (Node & Graph Classification)
 
-This directory contains the public merged Overall Performance report for ProG-V2.
-The report covers a representative GCN benchmark grid over node- and graph-level
-few-shot tasks.
+This directory contains the public merged node- and graph-classification
+benchmark report for ProG-V2. The report covers a representative GCN benchmark
+grid over node- and graph-level few-shot tasks. The companion edge-task
+(link-prediction) report lives under
+[`../link-prediction-gcn/`](../link-prediction-gcn/).
 
 ## Scope
 
@@ -115,10 +117,16 @@ the same three-row format used by `bench.py`: Accuracy, F1, and AUROC.
 
 ## Notes
 
-- This report is a representative ProG-V2 Overall Performance sweep, not an
+- This report is a representative ProG-V2 benchmark sweep, not an
   exhaustive run over every dataset/backbone combination.
 - The public report currently uses GCN. Other backbones are available through
-  the model registry but are not included in this merged Overall Performance
+  the model registry but are not included in this merged benchmark
   table.
+- Link prediction is published as a separate edge-task report under
+  [`../link-prediction-gcn/`](../link-prediction-gcn/), because its natural
+  full-split baseline (`shot_num=0`) and primary metrics (AUROC/AUPRC) differ
+  from node/graph classification.
+  Run `bash scripts/bench_paper_grid.sh --task link --gnn_type GCN`
+  to regenerate the LinkTask matrices.
 - The result files intentionally contain only merged metrics and no raw training
   logs or machine-specific execution metadata.

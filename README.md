@@ -1,11 +1,11 @@
-# ProG-V2: A Reproducible Graph Prompt Learning Benchmark
+# ProG-V2: A Reproducible Toolkit for Graph Prompt Learning
 
 <p align="center">
   <img src="assets/logo.jpg" height="120" alt="ProG logo" />
 </p>
 
 ProG-V2 is an engineering-focused extension of the original
-[ProG benchmark](https://github.com/sheldonresearch/ProG) for graph prompt
+**ProG** benchmark for graph prompt
 learning. It keeps the standard **pre-train → prompt-tune → evaluate** workflow,
 while adding a modular prompt-strategy architecture, broader prompt coverage,
 centralized path/device/logging utilities, benchmark scripts, tests, and public
@@ -28,13 +28,19 @@ merged result reports.
   <img src="assets/prog-pipeline.jpg" width="720" alt="ProG pipeline" />
 </p>
 
-## Overall Performance Results
+## Benchmark Results
 
-We provide a public merged GCN Overall Performance report under
-[`results/overall-performance-gcn/`](./results/overall-performance-gcn/).
+We publish two complementary public GCN benchmark reports: a **node- and
+graph-classification** report, and an **edge-task (link-prediction)** report.
+Both follow the same `{pretrain}+{prompt}` matrix format so they can be read and
+merged with the same tooling.
 
-The report contains **714 independent `(dataset, shot, pretrain+prompt)`
-combinations** and **2142 metric values** over Accuracy, Macro-F1, and AUROC.
+### Node & Graph Classification
+
+The classification report lives under
+[`results/benchmark-gcn/`](./results/benchmark-gcn/) and contains **714
+independent `(dataset, shot, pretrain+prompt)` combinations** and **2142 metric
+values** over Accuracy, Macro-F1, and AUROC.
 
 Experiment parameters:
 
@@ -62,15 +68,41 @@ Coverage:
 
 Result files:
 
-- [`summary.csv`](./results/overall-performance-gcn/summary.csv): flat table,
+- [`summary.csv`](./results/benchmark-gcn/summary.csv): flat table,
   one row per experiment combination.
-- [`final_matrices.xlsx`](./results/overall-performance-gcn/final_matrices.xlsx):
+- [`final_matrices.xlsx`](./results/benchmark-gcn/final_matrices.xlsx):
   12 sheets, one per `(dataset, shot)` task view.
-- [`README.md`](./results/overall-performance-gcn/README.md): detailed result
+- [`README.md`](./results/benchmark-gcn/README.md): detailed result
   documentation and metric definitions.
 
-The merged table currently uses **GCN**. Other backbones are available in the
-model registry but are not part of this public Overall Performance table.
+### Edge Task (Link Prediction)
+
+The link-prediction report lives under
+[`results/link-prediction-gcn/`](./results/link-prediction-gcn/) and contains
+**2912 `(dataset, shot, pretrain+prompt)` combinations** over Accuracy, F1,
+AUROC, and AUPRC.
+
+| Setting | Value |
+|---|---|
+| Backbone | GCN |
+| Datasets | CiteSeer, Cora, IMDB-BINARY, MUTAG, PROTEINS, PTC_MR, PubMed, Wisconsin (8) |
+| Shots | 0-shot, 1-shot, 3-shot, 5-shot |
+| Pretrains | None, DGI, GraphMAE, Edgepred_GPPT, Edgepred_Gprompt, GraphCL, SimGRACE (7) |
+| Prompts | 13 LinkTask-supported strategies |
+| Combos per dataset | 91 (13 prompts × 7 pretrains) × 4 shots = 364 cells |
+| Primary metrics | AUROC, AUPRC (Accuracy/F1 kept for matrix compatibility) |
+
+Result files:
+
+- [`summary.csv`](./results/link-prediction-gcn/summary.csv): flat table,
+  one row per experiment combination.
+- [`final_matrices.xlsx`](./results/link-prediction-gcn/final_matrices.xlsx):
+  32 sheets, one per `(dataset, shot)` view (4 shots × 8 datasets).
+- [`README.md`](./results/link-prediction-gcn/README.md): detailed result
+  documentation and metric definitions.
+
+Both reports currently use **GCN**. Other backbones are available in the model
+registry but are not part of these public benchmark tables.
 
 ## Installation
 
@@ -121,8 +153,36 @@ python bench.py \
   --num_iter 1
 ```
 
-For a tested tutorial entry point, see
-[`Tutorial/quickstart_progv2.py`](./Tutorial/quickstart_progv2.py).
+Run a LinkTask cell (link prediction, dot-product decoder):
+
+```bash
+python bench.py \
+  --pretrain_task LinkTask \
+  --dataset_name Cora \
+  --prompt_type GPF \
+  --gnn_type GCN \
+  --shot_num 0 \
+  --epochs 10 \
+  --device cpu \
+  --pre_train_model_path None \
+  --num_iter 1
+```
+
+For a single-run LinkTask entry point, `downstream_task.py` also accepts
+`--downstream_task LinkTask`:
+
+```bash
+python downstream_task.py \
+  --downstream_task LinkTask \
+  --dataset_name Cora \
+  --prompt_type None \
+  --gnn_type GCN \
+  --shot_num 0 \
+  --epochs 2 \
+  --device cpu \
+  --pre_train_model_path None
+```
+
 
 ## Supported Components
 
@@ -151,6 +211,14 @@ For a tested tutorial entry point, see
 `GraphPrompter`, `EdgePrompt`, `EdgePromptplus`, `RELIEF`, `MultiGprompt`,
 `UniPrompt`, `SelfPro`, `ProNoG`, `PSP`, and `DAGPrompT`.
 
+### Downstream Tasks
+
+| Task | Class | Datasets | Notes |
+|---|---|---|---|
+| `NodeTask` | `prompt_graph.tasker.NodeTask` | `NODE_TASKS` (12) | Node classification, supports all 17 prompts. |
+| `GraphTask` | `prompt_graph.tasker.GraphTask` | `GRAPH_TASKS` (11) | Graph classification, supports all 17 prompts. |
+| `LinkTask` | `prompt_graph.tasker.LinkTask` | `LINK_TASKS` (16 curated) | Link prediction with binary BCE + dot-product decoder for most prompts. |
+
 ## Scripts
 
 The public sweep scripts are parameterized by `--gnn_type`:
@@ -167,9 +235,8 @@ Useful scripts:
 | `scripts/bootstrap_excel_full.py` | Create empty Excel matrices for a selected backbone. |
 | `scripts/pretrain_full_grid.sh` | Pretrain selected methods/datasets/backbone. |
 | `scripts/bench_full_grid.sh` | Run the full project benchmark grid with filters. |
-| `scripts/pretrain_paper_grid.sh` | Run the paper-scope pretraining grid. |
-| `scripts/bench_overall_performance.sh` | Run the paper-scope Overall Performance grid. |
 | `scripts/merge_result_excels.py` | Merge per-run Excel outputs into one report. |
+| `scripts/export_final_matrices.py` | Export populated per-dataset matrices into `summary.csv` and `final_matrices.xlsx`. |
 
 ## Development Checks
 

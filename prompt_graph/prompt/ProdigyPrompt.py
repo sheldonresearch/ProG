@@ -36,6 +36,7 @@ from torch_geometric.utils import add_self_loops, remove_self_loops, softmax
 # Helpers (replace torch_scatter)
 # ---------------------------------------------------------------------------
 
+
 def _scatter_mean(src, index, dim_size):
     """Pure-PyTorch replacement for ``torch_scatter.scatter_mean``."""
     out = torch.zeros(dim_size, src.size(1), device=src.device, dtype=src.dtype)
@@ -56,6 +57,7 @@ def _scatter_sum(src, index, dim_size):
 # ---------------------------------------------------------------------------
 # Metagraph layer
 # ---------------------------------------------------------------------------
+
 
 class MetaGNNLayer(MessagePassing):
     """GAT-style message passing for bipartite metagraphs.
@@ -142,7 +144,9 @@ class MetaGNN(nn.Module):
     def forward(self, x, edge_index, edge_attr, query_mask, start_right):
         if not query_mask.dtype == torch.bool:
             query_mask = query_mask.bool()
-        support_mask = (~query_mask) if not self.msg_pos_only else (~query_mask) & (edge_attr[:, -1] == 1)
+        support_mask = (
+            (~query_mask) if not self.msg_pos_only else (~query_mask) & (edge_attr[:, -1] == 1)
+        )
 
         query_in_mask = query_mask
         edge_index_back = edge_index[:, query_in_mask].flip(0)
@@ -168,7 +172,9 @@ class MetaGNN(nn.Module):
 
         if self.gnn_layers_back is not None:
             x = self.gnn_non_linear(x)
-            x = self.gnn_layers_back(x, edge_index_back, edge_attr=edge_attr_back, start_right=start_right)
+            x = self.gnn_layers_back(
+                x, edge_index_back, edge_attr=edge_attr_back, start_right=start_right
+            )
 
         return x
 
@@ -176,6 +182,7 @@ class MetaGNN(nn.Module):
 # ---------------------------------------------------------------------------
 # Supernode propagation layers
 # ---------------------------------------------------------------------------
+
 
 class BgGraphToSupernodePropagator(nn.Module):
     """Up layer: aggregate background-graph nodes into supernode embeddings."""
@@ -211,13 +218,16 @@ class SupernodeToBgGraphPropagator(nn.Module):
 
     def forward(self, x, new_supernode_x, supernode_edge_index, supernode_idx, graph_batch=None):
         x[supernode_idx] = x[supernode_idx] + self.proj_sn_attr(new_supernode_x)
-        x[supernode_edge_index[0]] = x[supernode_edge_index[0]] + self.proj_sn_attr_2(x[supernode_edge_index[1]])
+        x[supernode_edge_index[0]] = x[supernode_edge_index[0]] + self.proj_sn_attr_2(
+            x[supernode_edge_index[1]]
+        )
         return x
 
 
 # ---------------------------------------------------------------------------
 # Prodigy Prompt (main class)
 # ---------------------------------------------------------------------------
+
 
 class ProdigyPrompt(nn.Module):
     """Prodigy-style in-context graph prompt for ProG.
@@ -313,19 +323,23 @@ class ProdigyPrompt(nn.Module):
 
         # Supernode indices appended at the end of x.
         x = torch.cat([x, supernode_x], dim=0)
-        supernode_idx = torch.arange(
-            x.size(0) - num_graphs, x.size(0), device=x.device
-        )
+        supernode_idx = torch.arange(x.size(0) - num_graphs, x.size(0), device=x.device)
 
         # Edges from every node to its graph's supernode.
-        supernode_edge_index = torch.stack([torch.arange(x.size(0) - num_graphs, device=x.device), batch], dim=0)
+        supernode_edge_index = torch.stack(
+            [torch.arange(x.size(0) - num_graphs, device=x.device), batch], dim=0
+        )
 
         # Dummy metagraph edges (supernode <-> supernode fully connected).
         if num_graphs > 1:
             rel_idx = torch.arange(num_graphs, device=x.device)
-            metagraph_edge_index = torch.combinations(rel_idx, with_replacement=False).t().contiguous()
+            metagraph_edge_index = (
+                torch.combinations(rel_idx, with_replacement=False).t().contiguous()
+            )
             # Add reverse edges
-            metagraph_edge_index = torch.cat([metagraph_edge_index, metagraph_edge_index.flip(0)], dim=1)
+            metagraph_edge_index = torch.cat(
+                [metagraph_edge_index, metagraph_edge_index.flip(0)], dim=1
+            )
         else:
             metagraph_edge_index = torch.zeros((2, 0), dtype=torch.long, device=x.device)
 
@@ -341,7 +355,9 @@ class ProdigyPrompt(nn.Module):
                 x = layer(x, supernode_x, supernode_edge_index, supernode_idx, batch)
             elif isinstance(layer, MetaGNN):
                 # Metagraph operates only on the supernodes.
-                query_mask = torch.zeros(metagraph_edge_index.size(1), dtype=torch.bool, device=x.device)
+                query_mask = torch.zeros(
+                    metagraph_edge_index.size(1), dtype=torch.bool, device=x.device
+                )
                 supernode_x = layer(
                     supernode_x,
                     metagraph_edge_index,
@@ -355,4 +371,4 @@ class ProdigyPrompt(nn.Module):
                 raise RuntimeError(f"Unexpected layer type: {type(layer)}")
 
         # Return only the original nodes (strip supernodes).
-        return x[: -num_graphs]
+        return x[:-num_graphs]

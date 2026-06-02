@@ -66,9 +66,7 @@ class TestInducedGraphs:
                 # Monkey-patch for this test
                 import prompt_graph.utils
 
-                prompt_graph.utils.induced_graph_dir = lambda name: os.path.join(
-                    tmpdir, name
-                )
+                prompt_graph.utils.induced_graph_dir = lambda name: os.path.join(tmpdir, name)
 
                 graphs = load_induced_graphs(
                     "TestDataset",
